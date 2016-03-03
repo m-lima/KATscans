@@ -1,5 +1,7 @@
 package no.uib.inf252.katscan.io;
 
+import no.uib.inf252.katscan.data.VoxelMatrix;
+
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -8,6 +10,6 @@ import java.io.OutputStream;
  */
 public interface LoadSaveHandler {
 
-    public Object loadData(InputStream stream);
+    public VoxelMatrix loadData(InputStream stream);
     public void saveData(OutputStream stream, Object object);
 }
