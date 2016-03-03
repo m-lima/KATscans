@@ -1,11 +1,12 @@
 package no.uib.inf252.katscan.data;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
 /**
  * @author Marcelo Lima
  */
-public class VoxelMatrix {
+public class VoxelMatrix implements Serializable {
 
     public enum Axis {
         X, Y, Z;
@@ -103,5 +104,43 @@ public class VoxelMatrix {
             throw new IllegalArgumentException("The coordinate must less than " + grid[0].length + ", but Y was " + y);
         if (x >= grid[0][0].length)
             throw new IllegalArgumentException("The coordinate must less than " + grid[0][0].length + ", but X was " + x);
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 37 * hash + Arrays.deepHashCode(this.grid);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final VoxelMatrix other = (VoxelMatrix) obj;
+        
+        if(other.getLength(Axis.X) != getLength(Axis.X)
+        || other.getLength(Axis.Y) != getLength(Axis.Y)
+        || other.getLength(Axis.Z) != getLength(Axis.Z)){
+            return false;
+        }
+        
+        for (int i = 0; i < grid.length; i++) {
+            for (int j = 0; j < grid[0].length; j++) {
+                for (int k = 0; k < grid[0][0].length; k++) {
+                    if (grid[i][j][k] != other.grid[i][j][k]) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
     }
 }

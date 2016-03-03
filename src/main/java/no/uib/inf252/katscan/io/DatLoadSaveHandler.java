@@ -18,12 +18,11 @@ public class DatLoadSaveHandler implements LoadSaveHandler {
     public VoxelMatrix loadData(InputStream stream) {
         ByteBuffer byteBuffer = ByteBuffer.allocate(6);
         byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
-        BufferedInputStream bufferedInput = new BufferedInputStream(stream);
         int sizeZ, sizeY, sizeX;
 
         try {
             VoxelMatrix grid;
-            if (bufferedInput.read(byteBuffer.array()) > 0) {
+            if (stream.read(byteBuffer.array()) > 0) {
                 sizeX = byteBuffer.getShort();
                 sizeY = byteBuffer.getShort();
                 sizeZ = byteBuffer.getShort();
@@ -39,7 +38,7 @@ public class DatLoadSaveHandler implements LoadSaveHandler {
             byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
             for (int i = 0; i < sizeZ; i++) {
                 for (int j = 0; j < sizeY; j++) {
-                    if (bufferedInput.read(byteBuffer.array()) <= sizeX)
+                    if (stream.read(byteBuffer.array()) <= sizeX)
                         throw new IOException("Expected data, but could not be read");
                     column = grid.getColumn(i, j);
                     shortBuffer = byteBuffer.asShortBuffer();
@@ -56,7 +55,33 @@ public class DatLoadSaveHandler implements LoadSaveHandler {
     }
 
     @Override
-    public void saveData(OutputStream stream, Object object) {
-
+    public void saveData(OutputStream stream, VoxelMatrix grid) {
+        int sizeX = grid.getLength(VoxelMatrix.Axis.X);
+        int sizeY = grid.getLength(VoxelMatrix.Axis.Y);
+        int sizeZ = grid.getLength(VoxelMatrix.Axis.Z);
+        
+        ByteBuffer byteBuffer = ByteBuffer.allocate(6);
+        byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
+        byteBuffer.putShort((short) sizeX);
+        byteBuffer.putShort((short) sizeY);
+        byteBuffer.putShort((short) sizeZ);
+        
+        try {
+            stream.write(byteBuffer.array());         
+            stream.flush();   
+            byteBuffer = ByteBuffer.allocate(sizeX * 2);
+            byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
+            
+            for (int i = 0; i < sizeZ; i++) {
+                for (int j = 0; j < sizeY; j++) {
+                    ShortBuffer shortBuffer = byteBuffer.asShortBuffer();
+                    shortBuffer.put(grid.getColumn(i, j));   
+                    stream.write(byteBuffer.array());
+                    stream.flush();
+                }
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(DatLoadSaveHandler.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 }

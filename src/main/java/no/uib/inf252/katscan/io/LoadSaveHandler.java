@@ -11,5 +11,5 @@ import java.io.OutputStream;
 public interface LoadSaveHandler {
 
     public VoxelMatrix loadData(InputStream stream);
-    public void saveData(OutputStream stream, Object object);
+    public void saveData(OutputStream stream, VoxelMatrix object);
 }
