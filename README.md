@@ -1,2 +1,2 @@
-# KATscans
+# KATscan
 INF252

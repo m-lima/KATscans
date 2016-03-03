@@ -1,3 +1,6 @@
+#Heavy files
+src/main/resources/sinusvein*
+
 *.class
 
 # Mobile Tools for Java (J2ME)
@@ -10,5 +13,54 @@
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
-/KATscans/nbproject/private/
-/KATscans/build/
+
+# Maven
+target/
+
+# Eclipse
+.settings/
+.classpath
+.project
+bin/
+nbactions.xml
+
+# NetBeans
+nbproject/
+nbdist/
+nbbuild/
+.nb-gradle/
+
+# IntelliJ
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Mac
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# Ant
+build/
+dist/
+
+# Matlab
+*.asv
+*.m~
+*.mex*
+slprj/
+
+# Vim
+.*.s[a-w][a-z]
+*.un~
+Session.vim
+.netrwhist
+*~
+
+# SVN
+.svn
+
+# HotSpot
+hs_err*.log

@@ -1,0 +1,38 @@
+== DAT file format ==
+
+All data sets are stored in a simple binary format. It consits of a 6 byte header which contains the data set dimensions (one unsigned 2 byte value per dimension) followed by the voxel data (one unsigned 2 byte value per voxel). After the 6 byte header, the voxels are stored in slice-row-column order, i.e., the elements of each slice are contiguous and, within a slice, the elements of each row (scanline) are contiguous. While each voxel is stored in 2 bytes, only 12 of the 16 bits are actually used. Hence, the effective data range is [0,4095]. 
+
+The format uses little-endian byte order (https://en.wikipedia.org/wiki/Endianness). Note that in C/C++, the endianness is determined by the underlying processor architecture (for x86 processors, this is little endian which matches the file format). However, the Java Virtual Machine uses big-endian byte order, so you will normally need to swap bytes when reading the file (or use a method that does this during reading).
+
+In addition to the actual data file, an additional metadata file with the extension ".ini" (and the same file name) is normally present. This file is a simple text file which contains the voxel spacing in each dimension in the case of anisotropic volumes (regular grids instead of cartesian grids). The content of this file looks like this:
+
+  [DatFile]
+  oldDat Spacing X=1.0
+  oldDat Spacing Y=1.0
+  oldDat Spacing Z=2.0
+
+The spacing values can be interpreted as the size of a cell in the grid in world units (e.g. millimeters). In this example, a single cell in the volume would correspond to a 1x1x2 region in space. Hence, if we have a volume grid with dimensions 256x256x128 with this voxel size, the whole volume would correspond to a cube of 256x256x256 units in world coordinates - each cell in this cube has the same width and height, but double the depth. On windows, you can read such files with the deprecated Windows API function GetPrivateProfileInt, but a better option is probably to use one of the many parser implementations for such files (e.g., [1,2,3]).
+
+Here is a simple C/C++ code snippet to read a DAT file into an array:
+
+  FILE *fp = fopen("filename.dat","rb");
+  unsigned int uWidth, uHeight, uDepth;
+
+  fread((void*)&uWidth,1,sizeof(unsigned short),fp);
+  fread((void*)&uHeight,1,sizeof(unsigned short),fp);
+  fread((void*)&uDepth,1,sizeof(unsigned short),fp);
+
+  unsigned short *pData = new unsigned short[uWidth*uHeight*uDepth];
+  fread((void*)pData,uWidth*uHeight*uDepth,sizeof(unsigned short),fp);
+  fclose(fp);
+
+For a position (x,y,z) in the volume, the corresponding value can be retrieved in the following manner:
+
+  unsigned short uValue = pData[x + y*uWidth + z*uWidth*uHeight];
+
+
+== References ==
+
+[1] http://www.compuphase.com/minini.htm
+[2] https://github.com/benhoyt/inih
+[3] https://github.com/brofield/simpleini
