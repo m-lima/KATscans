@@ -1,5 +1,6 @@
 #Heavy files
-src/main/resources/sinusvein*
+*sinusvein*
+misc/
 
 *.class
 
@@ -22,13 +23,13 @@ target/
 .classpath
 .project
 bin/
-nbactions.xml
 
 # NetBeans
 nbproject/
 nbdist/
 nbbuild/
 .nb-gradle/
+nbactions*.xml
 
 # IntelliJ
 .idea/

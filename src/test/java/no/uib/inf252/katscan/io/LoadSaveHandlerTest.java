@@ -2,6 +2,9 @@ package no.uib.inf252.katscan.io;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import no.uib.inf252.katscan.data.VoxelMatrix;
 import org.junit.Before;
@@ -10,12 +13,8 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 import java.io.InputStream;
-import java.io.OutputStream;
 
 import static junit.framework.TestCase.assertNotNull;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
-import sun.misc.GC;
 
 /**
  * @author Marcelo Lima
@@ -47,8 +46,8 @@ public class LoadSaveHandlerTest {
     }
 
     @Test
-    public void testLoadData() {
-        InputStream stream = sut.getClass().getResourceAsStream("/sinusveins-256x256x166.dat");
+    public void testLoadData() throws FileNotFoundException {
+        InputStream stream = new FileInputStream(new File("misc/sinusveins-256x256x166.dat"));
 
         VoxelMatrix loadedData = sut.loadData(stream);
         assertNotNull(loadedData);
@@ -76,7 +75,7 @@ public class LoadSaveHandlerTest {
     
     @Test
     public void testLoadSaveLoad() throws IOException {
-        InputStream stream = sut.getClass().getResourceAsStream("/sinusveins-256x256x166.dat");
+        InputStream stream = new FileInputStream(new File("misc/sinusveins-256x256x166.dat"));
 
         System.gc();
         VoxelMatrix loadedData = sut.loadData(stream);
