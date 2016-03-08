@@ -79,6 +79,7 @@ public class ProgressBar extends JLabel {
         } else {
             this.value = value;
         }
+        repaint();
     }
 
     @Override

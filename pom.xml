@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>no.uib.inf252</groupId>
     <artifactId>KATscan</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
     <packaging>jar</packaging>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -12,7 +12,7 @@
         <maven.compiler.target>1.7</maven.compiler.target>
     </properties>
 
-    <repositories>
+<!--    <repositories>
         <repository>
             <id>libs</id>
             <name>libs</name>
@@ -25,14 +25,14 @@
             </snapshots>
             <url>file://${project.basedir}/libs</url>
         </repository>
-    </repositories>
+    </repositories>-->
 
     <dependencies>
-        <dependency>
+<!--        <dependency>
             <groupId>net.infonode.idw</groupId>
             <artifactId>idw</artifactId>
             <version>1.6.1</version>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>org.jogamp.gluegen</groupId>
             <artifactId>gluegen-rt-main</artifactId>
@@ -61,6 +61,28 @@
             <version>1.9.5</version>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>com.mflima</groupId>
+            <artifactId>FlowingFrames</artifactId>
+            <version>1.0</version>
+        </dependency>
     </dependencies>
+    
+    <build>
+        <finalName>KATscans</finalName>      
+        <plugins>
+            <plugin>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.3.2</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <!--<addClasspath>true</addClasspath>-->
+                            <mainClass>no.uib.inf252.katscan.Init</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
