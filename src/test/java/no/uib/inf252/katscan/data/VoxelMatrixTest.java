@@ -82,7 +82,7 @@ public class VoxelMatrixTest {
         }
 
         sut.setColumn(2, 2, values);
-        values = sut.getColumn(2, 2);
+        values = sut.getRow(2, 2);
 
         for (int i = 0; i < values.length; i++) {
             assertEquals(i, values[i]);

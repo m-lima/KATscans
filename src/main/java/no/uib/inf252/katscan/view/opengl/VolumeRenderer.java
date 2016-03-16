@@ -14,12 +14,12 @@ import com.jogamp.opengl.glu.GLU;
  *
  * @author Marcelo Lima
  */
-public class SingleTriangle extends GLJPanel implements GLEventListener {
+public class VolumeRenderer extends GLJPanel implements GLEventListener {
 
     private int width;
     private int height;
 
-    public SingleTriangle() throws GLException {
+    public VolumeRenderer() throws GLException {
         super(new GLCapabilities(GLProfile.get(GLProfile.GL2)));
         addGLEventListener(this);
     }

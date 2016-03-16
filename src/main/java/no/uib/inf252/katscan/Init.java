@@ -40,8 +40,8 @@ public class Init {
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                SplashScreen dialog = new SplashScreen();
-                dialog.setVisible(true);
+//                SplashScreen dialog = new SplashScreen();
+//                dialog.setVisible(true);
                 
                 MainFrame frame = new MainFrame();
                 frame.setVisible(true);

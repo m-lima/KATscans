@@ -1,10 +1,19 @@
 package no.uib.inf252.katscan.view;
 
 import com.mflima.flowingframes.FlowingLayout;
+import com.mflima.flowingframes.FlowingView;
+import java.awt.Dimension;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
+import no.uib.inf252.katscan.data.VoxelMatrix;
+import no.uib.inf252.katscan.io.DatLoadSaveHandler;
+import no.uib.inf252.katscan.view.component.SliceNavigator;
 import no.uib.inf252.katscan.view.opengl.SingleTriangle;
 
 /**
@@ -30,8 +39,26 @@ public class MainFrame extends javax.swing.JFrame {
 
         initComponents();
         
-        SingleTriangle hello = new SingleTriangle();
-        pnlBack.add(hello, FlowingLayout.POSITION_TWO);
+//        SingleTriangle hello = new SingleTriangle();
+//        pnlBack.add(hello, FlowingLayout.POSITION_ONE);
+        
+        InputStream stream;
+        try {
+            stream = new FileInputStream(new File("misc/sinusveins-256x256x166.dat"));
+            DatLoadSaveHandler loadSave = new DatLoadSaveHandler();
+            VoxelMatrix loadedData = loadSave.loadData(stream);
+            
+            SliceNavigator nav = new SliceNavigator();
+            nav.setMatrix(loadedData);
+            nav.setPreferredSize(new Dimension(400, 400));
+            pnlBack.add(new FlowingView(nav), FlowingLayout.POSITION_ONE);
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        SingleTriangle singleTriangle = new SingleTriangle();
+        pnlBack.add(new FlowingView(singleTriangle), FlowingLayout.POSITION_TWO);
+        
     }
 
     /**
@@ -44,25 +71,18 @@ public class MainFrame extends javax.swing.JFrame {
     private void initComponents() {
 
         pnlBack = new no.uib.inf252.katscan.view.component.BackgroundPanel();
-        jPanel1 = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         com.mflima.flowingframes.FlowingLayout flowingLayout1 = new com.mflima.flowingframes.FlowingLayout();
         flowingLayout1.setVerticalLayout(true);
         pnlBack.setLayout(flowingLayout1);
-
-        jPanel1.setBackground(new java.awt.Color(255, 51, 51));
-        jPanel1.setPreferredSize(new java.awt.Dimension(200, 200));
-        pnlBack.add(jPanel1);
-
         getContentPane().add(pnlBack, java.awt.BorderLayout.CENTER);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JPanel jPanel1;
     private no.uib.inf252.katscan.view.component.BackgroundPanel pnlBack;
     // End of variables declaration//GEN-END:variables
 

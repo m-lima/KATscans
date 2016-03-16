@@ -57,7 +57,7 @@ public class VoxelMatrix implements Serializable {
         return grid[z][y][x];
     }
 
-    public short[] getColumn(int z, int y) {
+    public short[] getRow(int z, int y) {
         checkBounds(z, y);
 
         return grid[z][y];

@@ -40,7 +40,7 @@ public class DatLoadSaveHandler implements LoadSaveHandler {
                 for (int j = 0; j < sizeY; j++) {
                     if (stream.read(byteBuffer.array()) <= sizeX)
                         throw new IOException("Expected data, but could not be read");
-                    column = grid.getColumn(i, j);
+                    column = grid.getRow(i, j);
                     shortBuffer = byteBuffer.asShortBuffer();
                     shortBuffer.get(column);
                 }
@@ -75,7 +75,7 @@ public class DatLoadSaveHandler implements LoadSaveHandler {
             for (int i = 0; i < sizeZ; i++) {
                 for (int j = 0; j < sizeY; j++) {
                     ShortBuffer shortBuffer = byteBuffer.asShortBuffer();
-                    shortBuffer.put(grid.getColumn(i, j));   
+                    shortBuffer.put(grid.getRow(i, j));   
                     stream.write(byteBuffer.array());
                     stream.flush();
                 }

@@ -29,20 +29,6 @@
           <BorderConstraints direction="Center"/>
         </Constraint>
       </Constraints>
-      <SubComponents>
-        <Container class="javax.swing.JPanel" name="jPanel1">
-          <Properties>
-            <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-              <Color blue="33" green="33" red="ff" type="rgb"/>
-            </Property>
-            <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-              <Dimension value="[200, 200]"/>
-            </Property>
-          </Properties>
-
-          <Layout class="org.netbeans.modules.form.compat2.layouts.DesignFlowLayout"/>
-        </Container>
-      </SubComponents>
       <LayoutCode>
         <CodeStatement>
           <CodeExpression id="1_flowingLayout1">
@@ -84,22 +70,6 @@
           </StatementProvider>
           <Parameters>
             <CodeExpression id="1_flowingLayout1"/>
-          </Parameters>
-        </CodeStatement>
-        <CodeStatement>
-          <CodeExpression id="3_pnlBack"/>
-          <StatementProvider type="CodeMethod">
-            <CodeMethod name="add" class="java.awt.Container" parameterTypes="java.awt.Component"/>
-          </StatementProvider>
-          <Parameters>
-            <CodeExpression id="4_jPanel1">
-              <CodeVariable name="jPanel1" type="8194" declaredType="javax.swing.JPanel"/>
-              <ExpressionOrigin>
-                <ExpressionProvider type="ComponentRef">
-                  <ComponentRef name="jPanel1"/>
-                </ExpressionProvider>
-              </ExpressionOrigin>
-            </CodeExpression>
           </Parameters>
         </CodeStatement>
       </LayoutCode>
