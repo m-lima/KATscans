@@ -81,7 +81,7 @@ public class VoxelMatrixTest {
             values[i] = (short) i;
         }
 
-        sut.setColumn(2, 2, values);
+        sut.setRow(2, 2, values);
         values = sut.getRow(2, 2);
 
         for (int i = 0; i < values.length; i++) {

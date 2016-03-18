@@ -13,8 +13,8 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import no.uib.inf252.katscan.data.VoxelMatrix;
 import no.uib.inf252.katscan.io.DatLoadSaveHandler;
-import no.uib.inf252.katscan.view.component.SliceNavigator;
-import no.uib.inf252.katscan.view.opengl.SingleTriangle;
+import no.uib.inf252.katscan.view.component.SwingSliceNavigator;
+import no.uib.inf252.katscan.view.opengl.SliceNavigator;
 
 /**
  *
@@ -35,30 +35,29 @@ public class MainFrame extends javax.swing.JFrame {
         }
 
         setTitle("KATscans");
-        setExtendedState(getExtendedState() | MAXIMIZED_BOTH);
+//        setExtendedState(getExtendedState() | MAXIMIZED_BOTH);
 
         initComponents();
-        
-//        SingleTriangle hello = new SingleTriangle();
-//        pnlBack.add(hello, FlowingLayout.POSITION_ONE);
-        
+
         InputStream stream;
         try {
             stream = new FileInputStream(new File("misc/sinusveins-256x256x166.dat"));
             DatLoadSaveHandler loadSave = new DatLoadSaveHandler();
             VoxelMatrix loadedData = loadSave.loadData(stream);
-            
-            SliceNavigator nav = new SliceNavigator();
+
+            SwingSliceNavigator nav = new SwingSliceNavigator();
             nav.setMatrix(loadedData);
-            nav.setPreferredSize(new Dimension(400, 400));
+            nav.setPreferredSize(new Dimension(256, 256));
             pnlBack.add(new FlowingView(nav), FlowingLayout.POSITION_ONE);
         } catch (FileNotFoundException ex) {
             Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        SingleTriangle singleTriangle = new SingleTriangle();
-        pnlBack.add(new FlowingView(singleTriangle), FlowingLayout.POSITION_TWO);
-        
+//        VerySimpleShader tester = new VerySimpleShader();
+        SliceNavigator tester = new SliceNavigator();
+        pnlBack.add(new FlowingView(tester), FlowingLayout.POSITION_TWO);
+        revalidate();
+
     }
 
     /**

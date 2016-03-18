@@ -12,14 +12,14 @@ import no.uib.inf252.katscan.data.VoxelMatrix;
  *
  * @author Marcelo Lima
  */
-public class SliceNavigator extends JPanel implements MouseWheelListener {
+public class SwingSliceNavigator extends JPanel implements MouseWheelListener {
 
     private static final double FACTOR = 256d / 4095d;
 
     private VoxelMatrix matrix;
     private int slice = 0;
 
-    public SliceNavigator() {
+    public SwingSliceNavigator() {
         addMouseWheelListener(this);
     }
 

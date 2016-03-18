@@ -2,6 +2,7 @@ package no.uib.inf252.katscan.data;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Collections;
 
 /**
  * @author Marcelo Lima
@@ -63,10 +64,10 @@ public class VoxelMatrix implements Serializable {
         return grid[z][y];
     }
 
-    public void setColumn(int z, int y, short[] values) {
+    public void setRow(int z, int y, short[] values) {
         checkBounds(z, y);
 
-        if (values.length != grid[0][0].length) throw new IllegalArgumentException("The column does not match the matrix size. Expected " + grid[0][0] + " and got " + values.length);
+        if (values.length != grid[0][0].length) throw new IllegalArgumentException("The row does not match the matrix size. Expected " + grid[0][0] + " and got " + values.length);
 
         System.arraycopy(values, 0, grid[z][y], 0, values.length);
     }
@@ -142,5 +143,30 @@ public class VoxelMatrix implements Serializable {
             }
         }
         return true;
+    }
+    
+    public short[] asArray() {
+        return asArray(null);
+    }
+    
+    public short[] asArray(short[] values) {
+        int totalSize = getLength(Axis.X) * getLength(Axis.Y) * getLength(Axis.Z);
+        if (values == null) {
+            values = new short[getLength(Axis.X) * getLength(Axis.Y) * getLength(Axis.Z)];
+        }
+        
+        if (values.length < totalSize) {
+            values = Arrays.copyOf(values, totalSize);
+        }
+        
+        for (int i = 0; i < grid.length; i++) {
+            short[][] slices = grid[i];
+            for (int j = 0; j < slices.length; j++) {
+                short[] slice = slices[j];
+                System.arraycopy(slice, 0, values, ((i * slices.length) + j) * getLength(Axis.X), slice.length);
+            }
+        }
+        
+        return values;
     }
 }
