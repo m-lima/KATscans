@@ -12,7 +12,7 @@
         <maven.compiler.target>1.7</maven.compiler.target>
     </properties>
 
-<!--    <repositories>
+    <!--    <repositories>
         <repository>
             <id>libs</id>
             <name>libs</name>
@@ -28,11 +28,16 @@
     </repositories>-->
 
     <dependencies>
-<!--        <dependency>
+        <!--        <dependency>
             <groupId>net.infonode.idw</groupId>
             <artifactId>idw</artifactId>
             <version>1.6.1</version>
         </dependency>-->
+        <dependency>
+            <groupId>org.jblas</groupId>
+            <artifactId>jblas</artifactId>
+            <version>1.2.4</version>
+        </dependency>
         <dependency>
             <groupId>org.jogamp.gluegen</groupId>
             <artifactId>gluegen-rt-main</artifactId>

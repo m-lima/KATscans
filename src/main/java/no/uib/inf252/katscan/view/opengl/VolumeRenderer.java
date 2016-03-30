@@ -15,21 +15,18 @@ import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.GLException;
 import com.jogamp.opengl.GLProfile;
-import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.util.glsl.ShaderCode;
 import com.jogamp.opengl.util.glsl.ShaderProgram;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 import java.util.logging.Level;
-import java.util.logging.Logger;
+import no.uib.inf252.katscan.TrackBall;
+import no.uib.inf252.katscan.data.LoadedDataHolder;
 import no.uib.inf252.katscan.data.VoxelMatrix;
 import no.uib.inf252.katscan.io.DatLoadSaveHandler;
 
@@ -37,66 +34,97 @@ import no.uib.inf252.katscan.io.DatLoadSaveHandler;
  *
  * @author Marcelo Lima
  */
-public class SliceNavigator extends GLJPanel implements GLEventListener, MouseWheelListener {
-
-    private IntBuffer buffer;
+public class VolumeRenderer extends GLJPanel implements GLEventListener {
+    
+    private IntBuffer buffers;
+    
+    private static class BUFFER {
+        private static final int VERTICES = 0;
+        private static final int INDICES = 1;
+        private static final int TEXTURE = 2;
+        
+        private static final int VBO_LENGTH = 2;
+        private static final int TEXTURE_LENGTH = 1;
+        private static final int TOTAL_LENGTH = 3;
+    }
+    
+    private TrackBall trackBall;
     
     private final String SHADERS_ROOT = "/shaders";
-    private final String SHADERS_NAME = "simple";
+    private final String SHADERS_NAME = "simpleVolume";
     
-    private float[] vertices = new float[]{0f,0f,0f, 0f,1f,0f, 1f,1f,0f, 1f,0f,0f};
-    private short[] indices = new short[]{0, 1, 2, 0, 2, 3};
+    private float[] vertices = new float[] {
+	0.0f, 0.0f, 0.0f,
+	0.0f, 0.0f, 1.0f,
+	0.0f, 1.0f, 0.0f,
+	0.0f, 1.0f, 1.0f,
+	1.0f, 0.0f, 0.0f,
+	1.0f, 0.0f, 1.0f,
+	1.0f, 1.0f, 0.0f,
+	1.0f, 1.0f, 1.0f
+    };
+    private short[] indices = new short[]{
+	1,5,7,
+	7,3,1,
+	0,2,6,
+        6,4,0,
+	0,1,3,
+	3,2,0,
+	7,5,4,
+	4,6,7,
+	2,3,7,
+	7,6,2,
+	1,0,4,
+	4,5,1
+    };
     private int programName;
-    private float sliceMax;
-    private int slice;
+    private boolean textureLoaded;
 
-    public SliceNavigator() throws GLException {
+    public VolumeRenderer() throws GLException {
         super(new GLCapabilities(GLProfile.get(GLProfile.GL4)));
         addGLEventListener(this);
+
+        trackBall = new TrackBall();
         
-        buffer = IntBuffer.allocate(3);
-        addMouseWheelListener(this);
+        buffers = IntBuffer.allocate(BUFFER.TOTAL_LENGTH);
+        addMouseWheelListener(trackBall);
+        addMouseListener(trackBall);
+        addMouseMotionListener(trackBall);
     }
 
     @Override
     public void init(GLAutoDrawable drawable) {
         GL4 gl4 = drawable.getGL().getGL4();
         
-        gl4.glGenBuffers(2, buffer);
-        buffer.position(2);
+        gl4.glGenBuffers(BUFFER.VBO_LENGTH, buffers);
+        buffers.position(BUFFER.VBO_LENGTH);
         
-        gl4.glBindBuffer(GL.GL_ARRAY_BUFFER, buffer.get(0));
+        gl4.glBindBuffer(GL.GL_ARRAY_BUFFER, buffers.get(BUFFER.VERTICES));
         gl4.glBufferData(GL.GL_ARRAY_BUFFER, vertices.length * Float.BYTES, FloatBuffer.wrap(vertices), GL.GL_STATIC_DRAW);
         
-        gl4.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, buffer.get(1));
+        gl4.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, buffers.get(BUFFER.INDICES));
         gl4.glBufferData(GL.GL_ELEMENT_ARRAY_BUFFER, indices.length * Short.BYTES, ShortBuffer.wrap(indices), GL.GL_STATIC_DRAW);
         
         checkError(gl4, "Create Buffers");
         
-        try {
-            FileInputStream stream = new FileInputStream(new File("misc/sinusveins-256x256x166.dat"));
-            DatLoadSaveHandler loadSave = new DatLoadSaveHandler();
-            VoxelMatrix loadedData = loadSave.loadData(stream);
-            sliceMax = loadedData.getLength(VoxelMatrix.Axis.Z);
-            slice = (int) (sliceMax / 2f);
-            
-            short[] texture = loadedData.asArray();
-            
-            gl4.glGenTextures(1, buffer);
-            buffer.position(3);
+        VoxelMatrix voxelMatrix = LoadedDataHolder.getInstance().getVoxelMatrix();
+        textureLoaded = voxelMatrix != null;
+        if (textureLoaded) {
+            short[] texture = voxelMatrix.asArray();
+
+            gl4.glGenTextures(BUFFER.TEXTURE_LENGTH, buffers);
+            buffers.position(BUFFER.TOTAL_LENGTH);
             gl4.glActiveTexture(GL4.GL_TEXTURE0);
-            gl4.glBindTexture(GL4.GL_TEXTURE_3D, buffer.get(2));
+            gl4.glBindTexture(GL4.GL_TEXTURE_3D, buffers.get(BUFFER.TEXTURE));
             gl4.glTexParameteri(GL4.GL_TEXTURE_3D, GL4.GL_TEXTURE_MIN_FILTER, GL4.GL_LINEAR);
             gl4.glTexParameteri(GL4.GL_TEXTURE_3D, GL4.GL_TEXTURE_MAG_FILTER, GL4.GL_LINEAR);
             gl4.glTexParameteri(GL4.GL_TEXTURE_3D, GL4.GL_TEXTURE_WRAP_R, GL4.GL_CLAMP_TO_EDGE);
             gl4.glTexParameteri(GL4.GL_TEXTURE_3D, GL4.GL_TEXTURE_WRAP_S, GL4.GL_CLAMP_TO_EDGE);
             gl4.glTexParameteri(GL4.GL_TEXTURE_3D, GL4.GL_TEXTURE_WRAP_T, GL4.GL_CLAMP_TO_EDGE);
-            
-            gl4.glTexImage3D(GL4.GL_TEXTURE_3D, 0, GL4.GL_RED, loadedData.getLength(VoxelMatrix.Axis.X), loadedData.getLength(VoxelMatrix.Axis.Y), loadedData.getLength(VoxelMatrix.Axis.Z), 0, GL4.GL_RED, GL4.GL_SHORT, ShortBuffer.wrap(texture));
-            
+
+            gl4.glTexImage3D(GL4.GL_TEXTURE_3D, 0, GL4.GL_RED, voxelMatrix.getLength(VoxelMatrix.Axis.X), voxelMatrix.getLength(VoxelMatrix.Axis.Y), voxelMatrix.getLength(VoxelMatrix.Axis.Z), 0, GL4.GL_RED, GL4.GL_SHORT, ShortBuffer.wrap(texture));
+
             checkError(gl4, "Create Texture");
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(SliceNavigator.class.getName()).log(Level.SEVERE, null, ex);
         }
         
         ShaderCode vertShader = ShaderCode.create(gl4, GL_VERTEX_SHADER, this.getClass(), SHADERS_ROOT,
@@ -115,9 +143,7 @@ public class SliceNavigator extends GLJPanel implements GLEventListener, MouseWh
         shaderProgram.link(gl4, System.out);
         
         gl4.glUseProgram(programName);
-        int location = gl4.glGetUniformLocation(programName, "slice");
-        gl4.glUniform1f(location, slice / sliceMax);
-        
+
         checkError(gl4, "Create Shaders");
     }
 
@@ -126,27 +152,40 @@ public class SliceNavigator extends GLJPanel implements GLEventListener, MouseWh
         GL4 gl4 = drawable.getGL().getGL4();
         
         gl4.glDeleteProgram(programName);
-        buffer.position(0);
-        gl4.glDeleteBuffers(2, buffer);
-        buffer.position(2);
-        gl4.glDeleteTextures(1, buffer);
+        buffers.position(0);
+        gl4.glDeleteBuffers(BUFFER.VBO_LENGTH, buffers);
+        if (textureLoaded) {
+            buffers.position(BUFFER.VBO_LENGTH);
+            gl4.glDeleteTextures(BUFFER.TEXTURE_LENGTH, buffers);
+        }
     }
 
     @Override
     public void display(GLAutoDrawable drawable) {
         GL4 gl4 = drawable.getGL().getGL4();
+        gl4.glClearColor(0.2f,0.2f,0.2f,1.0f);
+        gl4.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
+        
+        gl4.glEnable(GL.GL_CULL_FACE);
+        gl4.glCullFace(GL.GL_FRONT_FACE);
+        
         gl4.glUseProgram(programName);
         
-        int location = gl4.glGetUniformLocation(programName, "slice");
-        gl4.glUniform1f(location, slice / sliceMax);
+        int location = gl4.glGetUniformLocation(programName, "MVP");
+        gl4.glUniformMatrix4fv(location, 1, false, trackBall.getCurrentRotationMatrix(), 0);
         
-        gl4.glBindBuffer(GL.GL_ARRAY_BUFFER, buffer.get(0));        
-        gl4.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, buffer.get(1));
+        location = gl4.glGetUniformLocation(programName, "zoom");
+        gl4.glUniform1f(location, trackBall.getZoom());
+        
+        gl4.glBindBuffer(GL.GL_ARRAY_BUFFER, buffers.get(BUFFER.VERTICES));        
+        gl4.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, buffers.get(BUFFER.INDICES));
         gl4.glEnableVertexAttribArray(0);
         gl4.glVertexAttribPointer(0, 3, GL.GL_FLOAT, false, 0, 0);
         
-        gl4.glActiveTexture(GL4.GL_TEXTURE0);
-        gl4.glBindTexture(GL4.GL_TEXTURE_3D, buffer.get(2));
+        if (textureLoaded) {
+            gl4.glActiveTexture(GL4.GL_TEXTURE0);
+            gl4.glBindTexture(GL4.GL_TEXTURE_3D, buffers.get(BUFFER.TEXTURE));
+        }
         
         gl4.glDrawElements(GL.GL_TRIANGLES, indices.length, GL.GL_UNSIGNED_SHORT, 0);
     }
@@ -156,8 +195,8 @@ public class SliceNavigator extends GLJPanel implements GLEventListener, MouseWh
         GL4 gl4 = drawable.getGL().getGL4();
         
         gl4.glUseProgram(programName);
-        int location = gl4.glGetUniformLocation(programName, "screenSize");
-        gl4.glUniform2f(location, width, height);
+//        int location = gl4.glGetUniformLocation(programName, "screenSize");
+//        gl4.glUniform2f(location, width, height);
     }
     
     private void checkError(GL gl, String location) {
@@ -189,18 +228,4 @@ public class SliceNavigator extends GLJPanel implements GLEventListener, MouseWh
             throw new Error();
         }
     }
-
-    @Override
-    public void mouseWheelMoved(MouseWheelEvent e) {
-        slice += e.getWheelRotation();
-        if (slice < 0) {
-            slice = 0;
-        } else {
-            if (slice >= sliceMax) {
-                slice = ((int) sliceMax) - 1;
-            }
-        }        
-        repaint();
-    }
-
 }

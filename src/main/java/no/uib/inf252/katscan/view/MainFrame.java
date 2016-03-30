@@ -11,10 +11,13 @@ import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
+import javax.swing.JComponent;
+import no.uib.inf252.katscan.data.LoadedDataHolder;
 import no.uib.inf252.katscan.data.VoxelMatrix;
 import no.uib.inf252.katscan.io.DatLoadSaveHandler;
 import no.uib.inf252.katscan.view.component.SwingSliceNavigator;
 import no.uib.inf252.katscan.view.opengl.SliceNavigator;
+import no.uib.inf252.katscan.view.opengl.CubeRenderer;
 
 /**
  *
@@ -38,23 +41,20 @@ public class MainFrame extends javax.swing.JFrame {
 //        setExtendedState(getExtendedState() | MAXIMIZED_BOTH);
 
         initComponents();
+        setBounds(0, 0, 500, 800);
 
-        InputStream stream;
-        try {
-            stream = new FileInputStream(new File("misc/sinusveins-256x256x166.dat"));
-            DatLoadSaveHandler loadSave = new DatLoadSaveHandler();
-            VoxelMatrix loadedData = loadSave.loadData(stream);
+        VoxelMatrix voxelMatrix = LoadedDataHolder.getInstance().getVoxelMatrix();
 
+        if (voxelMatrix != null) {
             SwingSliceNavigator nav = new SwingSliceNavigator();
-            nav.setMatrix(loadedData);
+            nav.setMatrix(voxelMatrix);
             nav.setPreferredSize(new Dimension(256, 256));
             pnlBack.add(new FlowingView(nav), FlowingLayout.POSITION_ONE);
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-//        VerySimpleShader tester = new VerySimpleShader();
-        SliceNavigator tester = new SliceNavigator();
+//        JComponent tester = new VerySimpleShader();
+//        JComponent tester = new SliceNavigator();
+        JComponent tester = new CubeRenderer();
         pnlBack.add(new FlowingView(tester), FlowingLayout.POSITION_TWO);
         revalidate();
 
