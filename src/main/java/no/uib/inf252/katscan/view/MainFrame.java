@@ -18,6 +18,8 @@ import no.uib.inf252.katscan.io.DatLoadSaveHandler;
 import no.uib.inf252.katscan.view.component.SwingSliceNavigator;
 import no.uib.inf252.katscan.view.opengl.SliceNavigator;
 import no.uib.inf252.katscan.view.opengl.CubeRenderer;
+import no.uib.inf252.katscan.view.opengl.CubeRenderer;
+import no.uib.inf252.katscan.view.opengl.VolumeRenderer;
 
 /**
  *
@@ -41,23 +43,20 @@ public class MainFrame extends javax.swing.JFrame {
 //        setExtendedState(getExtendedState() | MAXIMIZED_BOTH);
 
         initComponents();
-        setBounds(0, 0, 500, 800);
+        setBounds(0, 0, 500, 1000);
 
-        VoxelMatrix voxelMatrix = LoadedDataHolder.getInstance().getVoxelMatrix();
-
-        if (voxelMatrix != null) {
-            SwingSliceNavigator nav = new SwingSliceNavigator();
-            nav.setMatrix(voxelMatrix);
-            nav.setPreferredSize(new Dimension(256, 256));
-            pnlBack.add(new FlowingView(nav), FlowingLayout.POSITION_ONE);
-        }
+        JComponent nav = new SliceNavigator();
+        nav.setPreferredSize(new Dimension(500, 500));
+        pnlBack.add(new FlowingView(nav), FlowingLayout.POSITION_ONE);
         
 //        JComponent tester = new VerySimpleShader();
 //        JComponent tester = new SliceNavigator();
-        JComponent tester = new CubeRenderer();
+//        JComponent tester = new CubeRenderer();
+        JComponent tester = new VolumeRenderer();
         pnlBack.add(new FlowingView(tester), FlowingLayout.POSITION_TWO);
         revalidate();
-
+        
+        tester.requestFocus();
     }
 
     /**

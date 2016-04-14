@@ -14,6 +14,7 @@ public class VoxelMatrix implements Serializable {
     }
 
     private short[][][] grid;
+    private int[] histogram;
 
     public VoxelMatrix(int sizeZ, int sizeY, int sizeX) {
         if (sizeZ <= 0) throw new IllegalArgumentException("The size must be larger than zero, but Z was " + sizeZ);
@@ -21,6 +22,7 @@ public class VoxelMatrix implements Serializable {
         if (sizeX <= 0) throw new IllegalArgumentException("The size must be larger than zero, but X was " + sizeX);
 
         grid = new short[sizeZ][sizeY][sizeX];
+        histogram = new int[65536];
     }
 
     /**
@@ -69,7 +71,10 @@ public class VoxelMatrix implements Serializable {
 
         if (values.length != grid[0][0].length) throw new IllegalArgumentException("The row does not match the matrix size. Expected " + grid[0][0] + " and got " + values.length);
 
-        System.arraycopy(values, 0, grid[z][y], 0, values.length);
+//        System.arraycopy(values, 0, grid[z][y], 0, values.length);
+        for (int i = 0; i < values.length; i++) {
+            setValue(z, y, i, values[i]);
+        }
     }
 
     /**
@@ -83,7 +88,21 @@ public class VoxelMatrix implements Serializable {
     public void setValue(int z, int y, int x, short value) {
         checkBounds(z, y, x);
 
+        if (histogram[grid[z][y][x]] > 0) {
+            histogram[grid[z][y][x]]--;
+        }
         grid[z][y][x] = value;
+        histogram[grid[z][y][x]]++;
+    }
+
+    public int[] getHistogram() {
+        int[] histogramReturn = new int[65536];
+        System.arraycopy(histogram, 0, histogramReturn, 0, 65536);
+        return histogramReturn;
+    }
+
+    public int getHistogramValue(int index) {
+        return histogram[index];
     }
 
     private void checkBounds(int z) {

@@ -17,8 +17,8 @@
             <id>libs</id>
             <name>libs</name>
             <releases>
-                <enabled>true</enabled>
-                <checksumPolicy>ignore</checksumPolicy>
+                <enabled>true</enabled> 
+               <checksumPolicy>ignore</checksumPolicy>
             </releases>
             <snapshots>
                 <enabled>false</enabled>
@@ -33,11 +33,6 @@
             <artifactId>idw</artifactId>
             <version>1.6.1</version>
         </dependency>-->
-        <dependency>
-            <groupId>org.jblas</groupId>
-            <artifactId>jblas</artifactId>
-            <version>1.2.4</version>
-        </dependency>
         <dependency>
             <groupId>org.jogamp.gluegen</groupId>
             <artifactId>gluegen-rt-main</artifactId>
@@ -77,16 +72,69 @@
         <finalName>KATscans</finalName>      
         <plugins>
             <plugin>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>2.3.2</version>
+                <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
                     <archive>
                         <manifest>
-                            <!--<addClasspath>true</addClasspath>-->
                             <mainClass>no.uib.inf252.katscan.Init</mainClass>
                         </manifest>
                     </archive>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id> <!-- this is used for inheritance merges -->
+                        <phase>package</phase> <!-- bind to the packaging phase -->
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.4.0</version>
+                <configuration>
+                    <mainClass>no.uib.inf252.katscan.Init</mainClass>
+                    <executable>java</executable>
+                    <arguments>
+                        <argument>-jar</argument>                        
+                        <argument>${project.build.directory}/${project.build.finalName}-jar-with-dependencies.jar</argument>                        
+                    </arguments>
+                </configuration>
+            </plugin>
+                
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.8</version>
+                <configuration>
+                    <target>
+                        <move todir="${project.build.directory}/classes/shaders" includeemptydirs="false">
+                            <fileset dir="${project.build.directory}/classes/shaders">
+                                <exclude name="**/*.vp"/>
+                            </fileset>
+                            <mapper type="glob" from="*.vs" to="*.vp"/>
+                        </move>
+                        <move todir="${project.build.directory}/classes/shaders" includeemptydirs="false">
+                            <fileset dir="${project.build.directory}/classes/shaders">
+                                <exclude name="**/*.fp"/>
+                            </fileset>
+                            <mapper type="glob" from="*.fs" to="*.fp"/>
+                        </move>
+                    </target>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

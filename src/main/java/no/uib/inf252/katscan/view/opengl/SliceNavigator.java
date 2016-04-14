@@ -15,7 +15,6 @@ import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.GLException;
 import com.jogamp.opengl.GLProfile;
-import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.util.glsl.ShaderCode;
 import com.jogamp.opengl.util.glsl.ShaderProgram;
@@ -24,7 +23,6 @@ import java.awt.event.MouseWheelListener;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
@@ -42,7 +40,7 @@ public class SliceNavigator extends GLJPanel implements GLEventListener, MouseWh
     private IntBuffer buffer;
     
     private final String SHADERS_ROOT = "/shaders";
-    private final String SHADERS_NAME = "simple";
+    private final String SHADERS_NAME = "slicer";
     
     private float[] vertices = new float[]{0f,0f,0f, 0f,1f,0f, 1f,1f,0f, 1f,0f,0f};
     private short[] indices = new short[]{0, 1, 2, 0, 2, 3};

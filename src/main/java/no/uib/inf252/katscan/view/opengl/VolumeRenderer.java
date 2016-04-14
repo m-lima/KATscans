@@ -16,19 +16,17 @@ import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.GLException;
 import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.awt.GLJPanel;
+import com.jogamp.opengl.math.FloatUtil;
 import com.jogamp.opengl.util.glsl.ShaderCode;
 import com.jogamp.opengl.util.glsl.ShaderProgram;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
-import java.util.logging.Level;
-import no.uib.inf252.katscan.TrackBall;
+import java.util.Arrays;
 import no.uib.inf252.katscan.data.LoadedDataHolder;
 import no.uib.inf252.katscan.data.VoxelMatrix;
-import no.uib.inf252.katscan.io.DatLoadSaveHandler;
+import no.uib.inf252.katscan.util.DisplayObject;
+import no.uib.inf252.katscan.util.TrackBall;
 
 /**
  *
@@ -36,7 +34,8 @@ import no.uib.inf252.katscan.io.DatLoadSaveHandler;
  */
 public class VolumeRenderer extends GLJPanel implements GLEventListener {
     
-    private IntBuffer buffers;
+    private static final String SHADERS_ROOT = "/shaders";
+    private static final String SHADERS_NAME = "raycaster";
     
     private static class BUFFER {
         private static final int VERTICES = 0;
@@ -48,35 +47,10 @@ public class VolumeRenderer extends GLJPanel implements GLEventListener {
         private static final int TOTAL_LENGTH = 3;
     }
     
-    private TrackBall trackBall;
+    private IntBuffer buffers;
+    private final TrackBall trackBall;
+    private final DisplayObject displayObject;
     
-    private final String SHADERS_ROOT = "/shaders";
-    private final String SHADERS_NAME = "simpleVolume";
-    
-    private float[] vertices = new float[] {
-	0.0f, 0.0f, 0.0f,
-	0.0f, 0.0f, 1.0f,
-	0.0f, 1.0f, 0.0f,
-	0.0f, 1.0f, 1.0f,
-	1.0f, 0.0f, 0.0f,
-	1.0f, 0.0f, 1.0f,
-	1.0f, 1.0f, 0.0f,
-	1.0f, 1.0f, 1.0f
-    };
-    private short[] indices = new short[]{
-	1,5,7,
-	7,3,1,
-	0,2,6,
-        6,4,0,
-	0,1,3,
-	3,2,0,
-	7,5,4,
-	4,6,7,
-	2,3,7,
-	7,6,2,
-	1,0,4,
-	4,5,1
-    };
     private int programName;
     private boolean textureLoaded;
 
@@ -86,10 +60,13 @@ public class VolumeRenderer extends GLJPanel implements GLEventListener {
 
         trackBall = new TrackBall();
         
+        displayObject = new DisplayObject(DisplayObject.Type.CUBE);
+        
         buffers = IntBuffer.allocate(BUFFER.TOTAL_LENGTH);
         addMouseWheelListener(trackBall);
         addMouseListener(trackBall);
         addMouseMotionListener(trackBall);
+        addKeyListener(trackBall);
     }
 
     @Override
@@ -99,9 +76,11 @@ public class VolumeRenderer extends GLJPanel implements GLEventListener {
         gl4.glGenBuffers(BUFFER.VBO_LENGTH, buffers);
         buffers.position(BUFFER.VBO_LENGTH);
         
+        float[] vertices = displayObject.getVertices();
         gl4.glBindBuffer(GL.GL_ARRAY_BUFFER, buffers.get(BUFFER.VERTICES));
         gl4.glBufferData(GL.GL_ARRAY_BUFFER, vertices.length * Float.BYTES, FloatBuffer.wrap(vertices), GL.GL_STATIC_DRAW);
         
+        short[] indices = displayObject.getIndices();
         gl4.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, buffers.get(BUFFER.INDICES));
         gl4.glBufferData(GL.GL_ELEMENT_ARRAY_BUFFER, indices.length * Short.BYTES, ShortBuffer.wrap(indices), GL.GL_STATIC_DRAW);
         
@@ -143,6 +122,9 @@ public class VolumeRenderer extends GLJPanel implements GLEventListener {
         shaderProgram.link(gl4, System.out);
         
         gl4.glUseProgram(programName);
+        
+        int location = gl4.glGetUniformLocation(programName, "numSamples");
+        gl4.glUniform1i(location, LoadedDataHolder.getInstance().getVoxelMatrix().getLength(VoxelMatrix.Axis.X));
 
         checkError(gl4, "Create Shaders");
     }
@@ -166,16 +148,58 @@ public class VolumeRenderer extends GLJPanel implements GLEventListener {
         gl4.glClearColor(0.2f,0.2f,0.2f,1.0f);
         gl4.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
         
+//        gl4.glEnable(GL.GL_DEPTH_TEST);
         gl4.glEnable(GL.GL_CULL_FACE);
-        gl4.glCullFace(GL.GL_FRONT_FACE);
+//        gl4.glCullFace(GL.GL_FRONT_FACE);
+        gl4.glCullFace(GL.GL_BACK);
+        gl4.glEnable(GL.GL_BLEND);
+        gl4.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
         
         gl4.glUseProgram(programName);
         
-        int location = gl4.glGetUniformLocation(programName, "MVP");
-        gl4.glUniformMatrix4fv(location, 1, false, trackBall.getCurrentRotationMatrix(), 0);
-        
-        location = gl4.glGetUniformLocation(programName, "zoom");
-        gl4.glUniform1f(location, trackBall.getZoom());
+        int dirtyValues = trackBall.getDirtyValues();
+        if (dirtyValues > 0) {
+            int location;
+//            System.out.println(String.format("%s (%d)", String.format("%5s", Integer.toBinaryString(trackBall.getDirtyValues())).replace(' ', '0'), trackBall.getDirtyValues()));
+            
+            if ((dirtyValues & TrackBall.PROJECTION_DIRTY) > 0) {
+                location = gl4.glGetUniformLocation(programName, "projection");
+                gl4.glUniformMatrix4fv(location, 1, false, trackBall.getProjectionMatrix(), 0);
+                trackBall.clearDirtyValues(TrackBall.PROJECTION_DIRTY);
+            }
+
+            if ((dirtyValues & TrackBall.VIEW_DIRTY) > 0) {
+                location = gl4.glGetUniformLocation(programName, "view");
+                gl4.glUniformMatrix4fv(location, 1, false, trackBall.getViewMatrix(), 0);
+                location = gl4.glGetUniformLocation(programName, "eyePos");
+                gl4.glUniform3fv(location, 1, trackBall.getEyePosition(), 0);
+                trackBall.clearDirtyValues(TrackBall.VIEW_DIRTY);
+            }
+
+            if ((dirtyValues & TrackBall.MODEL_DIRTY) > 0) {
+                location = gl4.glGetUniformLocation(programName, "model");
+                gl4.glUniformMatrix4fv(location, 1, false, trackBall.getModelMatrix(), 0);
+                trackBall.clearDirtyValues(TrackBall.MODEL_DIRTY);
+            }
+
+            if ((dirtyValues & TrackBall.ORTHO_DIRTY) > 0) {
+                location = gl4.glGetUniformLocation(programName, "orthographic");
+                gl4.glUniform1i(location, trackBall.isOrthographic() ? 1 : 0);
+                trackBall.clearDirtyValues(TrackBall.ORTHO_DIRTY);
+            }
+
+            if ((dirtyValues & TrackBall.ZOOM_DIRTY) > 0) {
+                location = gl4.glGetUniformLocation(programName, "zoom");
+                gl4.glUniform1f(location, trackBall.getZoom());
+                trackBall.clearDirtyValues(TrackBall.ZOOM_DIRTY);
+            }
+
+            if ((dirtyValues & TrackBall.FOV_DIRTY) > 0) {
+                location = gl4.glGetUniformLocation(programName, "fov");
+                gl4.glUniform1f(location, 1f / FloatUtil.tan(trackBall.getFOV() / 2f));
+                trackBall.clearDirtyValues(TrackBall.FOV_DIRTY);
+            }
+        }
         
         gl4.glBindBuffer(GL.GL_ARRAY_BUFFER, buffers.get(BUFFER.VERTICES));        
         gl4.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, buffers.get(BUFFER.INDICES));
@@ -187,16 +211,18 @@ public class VolumeRenderer extends GLJPanel implements GLEventListener {
             gl4.glBindTexture(GL4.GL_TEXTURE_3D, buffers.get(BUFFER.TEXTURE));
         }
         
-        gl4.glDrawElements(GL.GL_TRIANGLES, indices.length, GL.GL_UNSIGNED_SHORT, 0);
+        gl4.glDrawElements(GL.GL_TRIANGLES, displayObject.getIndices().length, GL.GL_UNSIGNED_SHORT, 0);
     }
 
     @Override
     public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {
-        GL4 gl4 = drawable.getGL().getGL4();
+        trackBall.updateProjection(width, height);
         
+        GL4 gl4 = drawable.getGL().getGL4();
         gl4.glUseProgram(programName);
-//        int location = gl4.glGetUniformLocation(programName, "screenSize");
-//        gl4.glUniform2f(location, width, height);
+        
+        int location = gl4.glGetUniformLocation(programName, "windowSize");
+        gl4.glUniform2f(location, getWidth(), getHeight());
     }
     
     private void checkError(GL gl, String location) {
@@ -224,7 +250,7 @@ public class VolumeRenderer extends GLJPanel implements GLEventListener {
                     errorString = "UNKNOWN";
                     break;
             }
-            System.out.println("OpenGL Error(" + errorString + "): " + location);
+            System.out.println(getClass().getSimpleName() + " :: OpenGL Error(" + errorString + "): " + location);
             throw new Error();
         }
     }

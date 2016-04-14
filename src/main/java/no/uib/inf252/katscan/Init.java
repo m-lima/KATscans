@@ -1,5 +1,10 @@
 package no.uib.inf252.katscan;
 
+import java.io.File;
+import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import no.uib.inf252.katscan.view.MainFrame;
 import no.uib.inf252.katscan.view.SplashScreen;
 
