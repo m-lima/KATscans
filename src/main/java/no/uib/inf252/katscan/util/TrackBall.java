@@ -78,10 +78,22 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
     public float[] getModelMatrix() {
 //        float[] toMatrix = currentRotation.toMatrix(tempMatrix, 0);
 //        Matrix4 m = new Matrix4();
+//        m.translate(3, 3, 0);
 //        m.multMatrix(toMatrix);
-//        m.translate(5, 5, 0);
 //        return m.getMatrix();
         return currentRotation.toMatrix(tempMatrix, 0);
+    }
+    
+    public float[] getModelMatrix3() {
+        int k = 0;
+        currentRotation.toMatrix(tempMatrix, 0);
+        for (int i = 0; i < 11; i++) {
+            if ((i + 1) % 4 == 0) {
+                continue;
+            }
+            tempMatrix2[k++] = tempMatrix[i];
+        }
+        return tempMatrix2;
     }
 
     public float[] getViewMatrix() {

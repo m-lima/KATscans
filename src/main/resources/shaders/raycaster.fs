@@ -4,8 +4,7 @@ in vec3 vertexOutModel;
 uniform sampler3D volumeTexture;
 
 uniform int numSamples;
-
-uniform mat4 model;
+uniform mat3 model;
 uniform bool orthographic;
 uniform vec3 eyePos;
 
@@ -20,7 +19,7 @@ void main()
         effectiveEyePos.xy = vertexOutModel.xy;
     } 
 
-    effectiveEyePos = inverse(mat3(model)) * effectiveEyePos;
+    effectiveEyePos = inverse(model) * effectiveEyePos;
     vec3 rayDirection = normalize(vertexOut - effectiveEyePos);
 
     vec3 invRay = 1.0 / rayDirection;
@@ -43,14 +42,28 @@ void main()
     vec3 stepValue = normalize(rayStop - rayStart) * stepSize;
     float travel = distance(rayStop, rayStart);
 
-    float maxVal = 0.0;
+    float colorOut = 0.0;
     float density;
     for (int i = 0; i < numSamples && travel > 0.0; ++i, pos += stepValue, travel -= stepSize) {
         density = texture(volumeTexture, pos * 0.5 + 0.5).x * densityFactor;
-        maxVal = max(maxVal,density);
+        if (density <= 0.0) continue;
+        //colorOut += density * stepSize;
+        colorOut = max(density, colorOut);
+        if (colorOut >= 1.0) break;
     }
 
-    gl_FragColor.rgb = vec3(maxVal);
-    if (maxVal < 0.1) maxVal = 0.0;
-    gl_FragColor.a = maxVal;
+    gl_FragColor.rgb = vec3(colorOut);
+    if (colorOut < 0.1) colorOut = 0.0;
+    gl_FragColor.a = colorOut;
+
+//#define COLOR_CUBE
+#ifdef COLOR_CUBE
+    float minLimit = -1.0;
+    float maxLimit = 1.0;
+    vec4 saturated = vec4((vertexOut.x == maxLimit || vertexOut.x == minLimit) ? 1.0 : 0.0,
+                          (vertexOut.y == maxLimit || vertexOut.y == minLimit) ? 1.0 : 0.0,
+                          (vertexOut.z == maxLimit || vertexOut.z == minLimit) ? 1.0 : 0.0,
+                          0.25);
+    gl_FragColor += saturated;
+#endif
 }

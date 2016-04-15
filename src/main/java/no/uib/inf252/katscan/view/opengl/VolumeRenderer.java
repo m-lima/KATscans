@@ -177,7 +177,7 @@ public class VolumeRenderer extends GLJPanel implements GLEventListener {
 
             if ((dirtyValues & TrackBall.MODEL_DIRTY) > 0) {
                 location = gl4.glGetUniformLocation(programName, "model");
-                gl4.glUniformMatrix4fv(location, 1, false, trackBall.getModelMatrix(), 0);
+                gl4.glUniformMatrix3fv(location, 1, false, trackBall.getModelMatrix3(), 0);
                 trackBall.clearDirtyValues(TrackBall.MODEL_DIRTY);
             }
 
