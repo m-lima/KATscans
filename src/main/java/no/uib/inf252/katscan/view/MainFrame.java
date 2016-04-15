@@ -1,25 +1,27 @@
 package no.uib.inf252.katscan.view;
 
-import com.mflima.flowingframes.FlowingLayout;
-import com.mflima.flowingframes.FlowingView;
 import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.awt.Color;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
-import javax.swing.JComponent;
-import no.uib.inf252.katscan.data.LoadedDataHolder;
-import no.uib.inf252.katscan.data.VoxelMatrix;
-import no.uib.inf252.katscan.io.DatLoadSaveHandler;
-import no.uib.inf252.katscan.view.component.SwingSliceNavigator;
-import no.uib.inf252.katscan.view.opengl.SliceNavigator;
-import no.uib.inf252.katscan.view.opengl.CubeRenderer;
-import no.uib.inf252.katscan.view.opengl.CubeRenderer;
+import net.infonode.docking.DockingWindow;
+import net.infonode.docking.RootWindow;
+import net.infonode.docking.SplitWindow;
+import net.infonode.docking.TabWindow;
+import net.infonode.docking.View;
+import net.infonode.docking.properties.RootWindowProperties;
+import net.infonode.docking.theme.DockingWindowsTheme;
+import net.infonode.docking.theme.ShapedGradientDockingTheme;
+import net.infonode.docking.util.AbstractViewMap;
+import net.infonode.docking.util.DockingUtil;
+import net.infonode.docking.util.StringViewMap;
+import net.infonode.gui.colorprovider.FixedColorProvider;
+import net.infonode.gui.componentpainter.SolidColorComponentPainter;
+import net.infonode.util.Direction;
+import no.uib.inf252.katscan.view.component.SplashImage;
 import no.uib.inf252.katscan.view.opengl.VolumeRenderer;
 
 /**
@@ -28,37 +30,69 @@ import no.uib.inf252.katscan.view.opengl.VolumeRenderer;
  */
 public class MainFrame extends javax.swing.JFrame {
 
+    private static final Color GREEN = new Color(150, 200, 150);
+    private static final Color GRAY = new Color(51, 51, 51);
     private static final String ICON_NAME = "/icons/iconSmall.png";
+    private static final String IMAGE_NAME = "/img/simple.png";
+    
+    private AbstractViewMap viewMap;
+    private RootWindow rootWindow;
+    private RootWindowProperties properties;
 
     /**
      * Creates new form MainFrame
      */
     public MainFrame() {
+        BufferedImage image = null;
         try {
             setIconImage(ImageIO.read(getClass().getResource(ICON_NAME)));
+            image = ImageIO.read(getClass().getResource(IMAGE_NAME));
         } catch (IOException ex) {
             Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
-
+        
         setTitle("KATscans");
-//        setExtendedState(getExtendedState() | MAXIMIZED_BOTH);
 
         initComponents();
-        setBounds(0, 0, 1000, 1000);
+        setExtendedState(getExtendedState() | MAXIMIZED_BOTH);
 
-//        JComponent nav = new SliceNavigator();
-//        nav.setPreferredSize(new Dimension(500, 500));
-//        pnlBack.add(new FlowingView(nav), FlowingLayout.POSITION_ONE);
-        
-//        JComponent tester = new VerySimpleShader();
-//        JComponent tester = new SliceNavigator();
-//        JComponent tester = new CubeRenderer();
-        JComponent tester = new VolumeRenderer();
+        DockingWindowsTheme theme = new ShapedGradientDockingTheme();
+
+        viewMap = new StringViewMap();
+        rootWindow = DockingUtil.createRootWindow(viewMap, true);
+        rootWindow.setBackgroundColor(GRAY);
+        if (image != null) {
+            rootWindow.setBackgroundImage(image);
+        }
+        rootWindow.getWindowBar(Direction.RIGHT).setEnabled(true);
+
+        properties = rootWindow.getRootWindowProperties();
+        properties.addSuperObject(theme.getRootWindowProperties());
+//        properties.getDockingWindowProperties().setCloseEnabled(false);
+        properties.getSplitWindowProperties().setDividerLocationDragEnabled(true);
+        properties.getShapedPanelProperties().setComponentPainter(new SolidColorComponentPainter(new FixedColorProvider(GRAY)));
+        properties.setEdgeSplitDistance(50);
+
+        pnlBack.removeAll();
         pnlBack.setLayout(new BorderLayout());
-        pnlBack.add(new FlowingView(tester));
-        revalidate();
-        
-        tester.requestFocus();
+        pnlBack.add(rootWindow, BorderLayout.CENTER);
+
+        //Adicionando a view ao root
+        DockingWindow oldViews = rootWindow.getWindow();
+        TabWindow tabWindow;
+        if (oldViews instanceof TabWindow) {
+            tabWindow = (TabWindow) oldViews;
+        } else {
+            tabWindow = new TabWindow();
+            tabWindow.setBackground(Color.WHITE);
+            if (oldViews != null) {
+                tabWindow.addTab(oldViews);
+            }
+        }
+
+        tabWindow.addTab(new View("Volume", null, new SplashImage()));
+        tabWindow.addTab(new View("Volume2", null, new SplashImage()));
+        tabWindow.addTab(new SplitWindow(false, new View("Splash", null, new SplashImage()), new View("Volume3", null, new VolumeRenderer())));
     }
 
     /**

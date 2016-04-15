@@ -16,13 +16,11 @@ import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.GLException;
 import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.awt.GLJPanel;
-import com.jogamp.opengl.math.FloatUtil;
 import com.jogamp.opengl.util.glsl.ShaderCode;
 import com.jogamp.opengl.util.glsl.ShaderProgram;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
-import java.util.Arrays;
 import no.uib.inf252.katscan.data.LoadedDataHolder;
 import no.uib.inf252.katscan.data.VoxelMatrix;
 import no.uib.inf252.katscan.util.DisplayObject;
@@ -58,11 +56,9 @@ public class VolumeRenderer extends GLJPanel implements GLEventListener {
         super(new GLCapabilities(GLProfile.get(GLProfile.GL4)));
         addGLEventListener(this);
 
-        trackBall = new TrackBall();
-        
+        trackBall = new TrackBall();        
         displayObject = new DisplayObject(DisplayObject.Type.CUBE);
         
-        buffers = IntBuffer.allocate(BUFFER.TOTAL_LENGTH);
         addMouseWheelListener(trackBall);
         addMouseListener(trackBall);
         addMouseMotionListener(trackBall);
@@ -71,6 +67,9 @@ public class VolumeRenderer extends GLJPanel implements GLEventListener {
 
     @Override
     public void init(GLAutoDrawable drawable) {
+        trackBall.markAllDirty();
+        buffers = IntBuffer.allocate(BUFFER.TOTAL_LENGTH);
+        
         GL4 gl4 = drawable.getGL().getGL4();
         
         gl4.glGenBuffers(BUFFER.VBO_LENGTH, buffers);
@@ -93,6 +92,7 @@ public class VolumeRenderer extends GLJPanel implements GLEventListener {
 
             gl4.glGenTextures(BUFFER.TEXTURE_LENGTH, buffers);
             buffers.position(BUFFER.TOTAL_LENGTH);
+            
             gl4.glActiveTexture(GL4.GL_TEXTURE0);
             gl4.glBindTexture(GL4.GL_TEXTURE_3D, buffers.get(BUFFER.TEXTURE));
             gl4.glTexParameteri(GL4.GL_TEXTURE_3D, GL4.GL_TEXTURE_MIN_FILTER, GL4.GL_LINEAR);
@@ -114,11 +114,9 @@ public class VolumeRenderer extends GLJPanel implements GLEventListener {
         ShaderProgram shaderProgram = new ShaderProgram();
         shaderProgram.add(vertShader);
         shaderProgram.add(fragShader);
-
         shaderProgram.init(gl4);
-        
-        programName = shaderProgram.program();
 
+        programName = shaderProgram.program();
         shaderProgram.link(gl4, System.out);
         
         gl4.glUseProgram(programName);
@@ -134,12 +132,14 @@ public class VolumeRenderer extends GLJPanel implements GLEventListener {
         GL4 gl4 = drawable.getGL().getGL4();
         
         gl4.glDeleteProgram(programName);
-        buffers.position(0);
-        gl4.glDeleteBuffers(BUFFER.VBO_LENGTH, buffers);
+
         if (textureLoaded) {
             buffers.position(BUFFER.VBO_LENGTH);
             gl4.glDeleteTextures(BUFFER.TEXTURE_LENGTH, buffers);
         }
+        
+        buffers.position(0);
+        gl4.glDeleteBuffers(BUFFER.VBO_LENGTH, buffers);
     }
 
     @Override

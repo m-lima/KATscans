@@ -70,6 +70,10 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
         
         dirtyValues = MODEL_DIRTY | VIEW_DIRTY | PROJECTION_DIRTY | ZOOM_DIRTY | ORTHO_DIRTY | FOV_DIRTY;
     }
+    
+    public void markAllDirty() {
+        dirtyValues = MODEL_DIRTY | VIEW_DIRTY | PROJECTION_DIRTY | ZOOM_DIRTY | ORTHO_DIRTY | FOV_DIRTY;
+    }
 
     public Quaternion getCurrentRotation() {
         return currentRotation;
