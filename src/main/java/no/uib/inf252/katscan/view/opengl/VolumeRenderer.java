@@ -146,6 +146,7 @@ public class VolumeRenderer extends GLJPanel implements GLEventListener {
     public void display(GLAutoDrawable drawable) {
         GL4 gl4 = drawable.getGL().getGL4();
         gl4.glClearColor(0.2f,0.2f,0.2f,1.0f);
+//        gl4.glClearColor(0f,0f,0f,1.0f);
         gl4.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
         
 //        gl4.glEnable(GL.GL_DEPTH_TEST);

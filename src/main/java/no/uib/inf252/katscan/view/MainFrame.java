@@ -2,6 +2,7 @@ package no.uib.inf252.katscan.view;
 
 import com.mflima.flowingframes.FlowingLayout;
 import com.mflima.flowingframes.FlowingView;
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.io.File;
 import java.io.FileInputStream;
@@ -43,17 +44,18 @@ public class MainFrame extends javax.swing.JFrame {
 //        setExtendedState(getExtendedState() | MAXIMIZED_BOTH);
 
         initComponents();
-        setBounds(0, 0, 500, 1000);
+        setBounds(0, 0, 1000, 1000);
 
-        JComponent nav = new SliceNavigator();
-        nav.setPreferredSize(new Dimension(500, 500));
-        pnlBack.add(new FlowingView(nav), FlowingLayout.POSITION_ONE);
+//        JComponent nav = new SliceNavigator();
+//        nav.setPreferredSize(new Dimension(500, 500));
+//        pnlBack.add(new FlowingView(nav), FlowingLayout.POSITION_ONE);
         
 //        JComponent tester = new VerySimpleShader();
 //        JComponent tester = new SliceNavigator();
 //        JComponent tester = new CubeRenderer();
         JComponent tester = new VolumeRenderer();
-        pnlBack.add(new FlowingView(tester), FlowingLayout.POSITION_TWO);
+        pnlBack.setLayout(new BorderLayout());
+        pnlBack.add(new FlowingView(tester));
         revalidate();
         
         tester.requestFocus();

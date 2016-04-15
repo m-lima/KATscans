@@ -1,4 +1,5 @@
 in vec3 vertexOut;
+in vec3 vertexOutModel;
 
 uniform sampler3D volumeTexture;
 
@@ -14,36 +15,23 @@ uniform vec3 eyePos;
 uniform float zoom;
 uniform float focalLength;
 
-const float stepSize = 1f / float(numSamples);
-const float densityFactor = 40;
-const float absorption = 1;
-
-struct Ray {
-    vec3 origin;
-    vec3 direction;
-};
+const float stepSize = 2.0 * sqrt(2.0) / float(numSamples);
+const float densityFactor = 8.0;
+const float absorption = 1.0;
 
 void main()
-{   
-    vec3 rayDirection;
-    vec3 actualEyePos;
+{       
+    vec3 effectiveEyePos = eyePos;
     if (orthographic) {
-        rayDirection = vec3(0, 0, -1);
-        actualEyePos.xy = 2.0 * gl_FragCoord.xy / windowSize - 1.0;
-    } else {
-        rayDirection.xy = 2.0 * gl_FragCoord.xy / windowSize - 1.0;
-        rayDirection.z = -eyePos.z;
+        effectiveEyePos.xy = vertexOutModel.xy;
     } 
-    rayDirection = (inverse(model) * vec4(rayDirection, 0f)).xyz;
-    rayDirection = normalize(rayDirection);
 
-    actualEyePos = (inverse(model) * vec4(eyePos, 0f)).xyz;
-    //vec3 actualEyePos = eyePos;
-    Ray ray = Ray(actualEyePos, normalize(rayDirection));
+    effectiveEyePos = inverse(mat3(model)) * effectiveEyePos;
+    vec3 rayDirection = normalize(vertexOut - effectiveEyePos);
 
-    vec3 invRay = 1.0 / ray.direction;
-    vec3 back = invRay * (-(1 + ray.origin));
-    vec3 front = invRay * (1 - ray.origin);
+    vec3 invRay = 1.0 / rayDirection;
+    vec3 back = invRay * (-(1.0 + effectiveEyePos));
+    vec3 front = invRay * (1.0 - effectiveEyePos);
     vec3 tmin = min(back, front);
     vec3 tmax = max(back, front);
 
@@ -54,53 +42,29 @@ void main()
     temp = min(tmax.xx, tmax.yz);
     float far = min(temp.x, temp.y);
 
-    vec3 rayStart = ray.origin + ray.direction * near;
-    vec3 rayStop = ray.origin + ray.direction * far;
-    rayStart = 0.5 * (rayStart + 1.0);
-    rayStop = 0.5 * (rayStop + 1.0);
+    vec3 rayStart = effectiveEyePos + rayDirection * near;
+    vec3 rayStop = effectiveEyePos + rayDirection * far;
 
     vec3 pos = rayStart;
-    vec3 step = normalize(rayStop - rayStart) * stepSize;
+    vec3 stepValue = normalize(rayStop - rayStart) * stepSize;
     float travel = distance(rayStop, rayStart);
-    float transparency = 1.0;
-    vec3 color = vec3(0.0);
-
-    //vec3 eye = actualEyePos;
-    //vec3 raydir = -normalize(vertexOut - eye);
-    vec3 rayPos = vertexOut;
-
-    vec3 raydir = -rayDirection;
-    //vec3 rayPos = (inverse(model) * vec4(2.0 * gl_FragCoord.xy / windowSize - 1.0, 0.0, 0.0)).xyz;
 
     float maxVal = 0.0;
-    for (int i = 0; i < 1000; i++) {
-        float density = texture(volumeTexture, rayPos).x * 8.0;
+    float density;
+    for (int i = 0; i < numSamples && travel > 0.0; ++i, pos += stepValue, travel -= stepSize) {
+        density = texture(volumeTexture, pos * 0.5 + 0.5).x * densityFactor;
         maxVal = max(maxVal,density);
-        rayPos += raydir * 0.01;
     }
 
     gl_FragColor.rgb = vec3(maxVal);
-if (maxVal < 0.1) maxVal = 0;
+    if (maxVal < 0.1) maxVal = 0.0;
     gl_FragColor.a = maxVal;
 
-    /*for (int i = 0; i < numSamples && travel > 0.0; ++i, pos += step, travel -= stepSize) {
+    vec4 saturated = vec4((vertexOut.x == 1.0 || vertexOut.x == -1.0) ? 1.0 : 0.0,
+                          (vertexOut.y == 1.0 || vertexOut.y == -1.0) ? 1.0 : 0.0,
+                          (vertexOut.z == 1.0 || vertexOut.z == -1.0) ? 1.0 : 0.0,
+                          0.25);
+    //gl_FragColor += saturated;
 
-        float density = texture(volumeTexture, pos).x * densityFactor;
-        if (density <= 0.0) {
-            continue;
-        }
-
-        //transparency *= 1.0 - density * stepSize * absorption;
-        //if (transparency <= 0.01) {
-        //    break;
-        //}
-
-        //color += transparency * density * stepSize;
-        color += density * stepSize;
-    }
-
-    gl_FragColor.rgb = color;
-    gl_FragColor.a = 1.0 - color.r;*/
-
-    //gl_FragColor = vec4(vertexOut, 1.0);
+    //gl_FragColor = vec4(vertexOutModel, 1.0);
 }

@@ -1,6 +1,7 @@
 package no.uib.inf252.katscan.util;
 
 import com.jogamp.opengl.math.FloatUtil;
+import com.jogamp.opengl.math.Matrix4;
 import com.jogamp.opengl.math.Quaternion;
 import com.jogamp.opengl.math.VectorUtil;
 import java.awt.Component;
@@ -75,6 +76,11 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
     }
     
     public float[] getModelMatrix() {
+//        float[] toMatrix = currentRotation.toMatrix(tempMatrix, 0);
+//        Matrix4 m = new Matrix4();
+//        m.multMatrix(toMatrix);
+//        m.translate(5, 5, 0);
+//        return m.getMatrix();
         return currentRotation.toMatrix(tempMatrix, 0);
     }
 
