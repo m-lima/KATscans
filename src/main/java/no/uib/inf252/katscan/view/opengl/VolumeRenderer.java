@@ -145,13 +145,12 @@ public class VolumeRenderer extends GLJPanel implements GLEventListener {
     @Override
     public void display(GLAutoDrawable drawable) {
         GL4 gl4 = drawable.getGL().getGL4();
-        gl4.glClearColor(0.2f,0.2f,0.2f,1.0f);
-//        gl4.glClearColor(0f,0f,0f,1.0f);
+//        gl4.glClearColor(0.2f,0.2f,0.2f,1.0f);
+        gl4.glClearColor(0f,0f,0f,1.0f);
         gl4.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
         
 //        gl4.glEnable(GL.GL_DEPTH_TEST);
         gl4.glEnable(GL.GL_CULL_FACE);
-//        gl4.glCullFace(GL.GL_FRONT_FACE);
         gl4.glCullFace(GL.GL_BACK);
         gl4.glEnable(GL.GL_BLEND);
         gl4.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
@@ -161,8 +160,7 @@ public class VolumeRenderer extends GLJPanel implements GLEventListener {
         int dirtyValues = trackBall.getDirtyValues();
         if (dirtyValues > 0) {
             int location;
-//            System.out.println(String.format("%s (%d)", String.format("%5s", Integer.toBinaryString(trackBall.getDirtyValues())).replace(' ', '0'), trackBall.getDirtyValues()));
-            
+
             if ((dirtyValues & TrackBall.PROJECTION_DIRTY) > 0) {
                 location = gl4.glGetUniformLocation(programName, "projection");
                 gl4.glUniformMatrix4fv(location, 1, false, trackBall.getProjectionMatrix(), 0);
@@ -188,18 +186,8 @@ public class VolumeRenderer extends GLJPanel implements GLEventListener {
                 gl4.glUniform1i(location, trackBall.isOrthographic() ? 1 : 0);
                 trackBall.clearDirtyValues(TrackBall.ORTHO_DIRTY);
             }
-
-            if ((dirtyValues & TrackBall.ZOOM_DIRTY) > 0) {
-                location = gl4.glGetUniformLocation(programName, "zoom");
-                gl4.glUniform1f(location, trackBall.getZoom());
-                trackBall.clearDirtyValues(TrackBall.ZOOM_DIRTY);
-            }
-
-            if ((dirtyValues & TrackBall.FOV_DIRTY) > 0) {
-                location = gl4.glGetUniformLocation(programName, "fov");
-                gl4.glUniform1f(location, 1f / FloatUtil.tan(trackBall.getFOV() / 2f));
-                trackBall.clearDirtyValues(TrackBall.FOV_DIRTY);
-            }
+            
+            trackBall.clearDirtyValues();
         }
         
         gl4.glBindBuffer(GL.GL_ARRAY_BUFFER, buffers.get(BUFFER.VERTICES));        
@@ -218,12 +206,6 @@ public class VolumeRenderer extends GLJPanel implements GLEventListener {
     @Override
     public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {
         trackBall.updateProjection(width, height);
-        
-        GL4 gl4 = drawable.getGL().getGL4();
-        gl4.glUseProgram(programName);
-        
-        int location = gl4.glGetUniformLocation(programName, "windowSize");
-        gl4.glUniform2f(location, getWidth(), getHeight());
     }
     
     private void checkError(GL gl, String location) {

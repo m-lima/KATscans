@@ -5,15 +5,9 @@ uniform sampler3D volumeTexture;
 
 uniform int numSamples;
 
-uniform mat4 projection;
-uniform mat4 view;
 uniform mat4 model;
 uniform bool orthographic;
-uniform vec2 windowSize;
 uniform vec3 eyePos;
-
-uniform float zoom;
-uniform float focalLength;
 
 const float stepSize = 2.0 * sqrt(2.0) / float(numSamples);
 const float densityFactor = 8.0;
@@ -59,12 +53,4 @@ void main()
     gl_FragColor.rgb = vec3(maxVal);
     if (maxVal < 0.1) maxVal = 0.0;
     gl_FragColor.a = maxVal;
-
-    vec4 saturated = vec4((vertexOut.x == 1.0 || vertexOut.x == -1.0) ? 1.0 : 0.0,
-                          (vertexOut.y == 1.0 || vertexOut.y == -1.0) ? 1.0 : 0.0,
-                          (vertexOut.z == 1.0 || vertexOut.z == -1.0) ? 1.0 : 0.0,
-                          0.25);
-    //gl_FragColor += saturated;
-
-    //gl_FragColor = vec4(vertexOutModel, 1.0);
 }
