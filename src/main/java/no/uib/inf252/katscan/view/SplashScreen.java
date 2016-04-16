@@ -7,6 +7,7 @@ package no.uib.inf252.katscan.view;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.border.EmptyBorder;
 
 /**
  *
@@ -75,10 +76,13 @@ public class SplashScreen extends javax.swing.JDialog {
         pnlTitle.setLayout(new java.awt.BorderLayout());
 
         btnClose.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/exit_bw.png"))); // NOI18N
-        btnClose.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        btnClose.setBorder(null);
         btnClose.setBorderPainted(false);
         btnClose.setContentAreaFilled(false);
         btnClose.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnClose.setMaximumSize(new java.awt.Dimension(26, 26));
+        btnClose.setMinimumSize(new java.awt.Dimension(26, 26));
+        btnClose.setPreferredSize(new java.awt.Dimension(26, 26));
         btnClose.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/exit_over.png"))); // NOI18N
         btnClose.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {

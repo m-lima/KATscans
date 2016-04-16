@@ -28,8 +28,9 @@ import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import no.uib.inf252.katscan.data.LoadedDataHolder;
 import no.uib.inf252.katscan.data.VoxelMatrix;
-import no.uib.inf252.katscan.io.DatLoadSaveHandler;
+import no.uib.inf252.katscan.data.io.DatLoadSaveHandler;
 
 /**
  *
@@ -38,6 +39,9 @@ import no.uib.inf252.katscan.io.DatLoadSaveHandler;
 public class SliceNavigator extends GLJPanel implements GLEventListener, MouseWheelListener {
 
     private IntBuffer buffer;
+    
+    private final String dataName;
+    private boolean textureLoaded;
     
     private final String SHADERS_ROOT = "/shaders";
     private final String SHADERS_NAME = "slicer";
@@ -48,16 +52,18 @@ public class SliceNavigator extends GLJPanel implements GLEventListener, MouseWh
     private float sliceMax;
     private int slice;
 
-    public SliceNavigator() throws GLException {
+    public SliceNavigator(String dataName) throws GLException {
         super(new GLCapabilities(GLProfile.get(GLProfile.GL4)));
         addGLEventListener(this);
         
-        buffer = IntBuffer.allocate(3);
+        this.dataName = dataName;
+        
         addMouseWheelListener(this);
     }
 
     @Override
     public void init(GLAutoDrawable drawable) {
+        buffer = IntBuffer.allocate(3);
         GL4 gl4 = drawable.getGL().getGL4();
         
         gl4.glGenBuffers(2, buffer);
@@ -71,30 +77,35 @@ public class SliceNavigator extends GLJPanel implements GLEventListener, MouseWh
         
         checkError(gl4, "Create Buffers");
         
-        try {
-            FileInputStream stream = new FileInputStream(new File("misc/sinusveins-256x256x166.dat"));
-            DatLoadSaveHandler loadSave = new DatLoadSaveHandler();
-            VoxelMatrix loadedData = loadSave.loadData(stream);
-            sliceMax = loadedData.getLength(VoxelMatrix.Axis.Z);
-            slice = (int) (sliceMax / 2f);
-            
-            short[] texture = loadedData.asArray();
-            
-            gl4.glGenTextures(1, buffer);
-            buffer.position(3);
-            gl4.glActiveTexture(GL4.GL_TEXTURE0);
-            gl4.glBindTexture(GL4.GL_TEXTURE_3D, buffer.get(2));
-            gl4.glTexParameteri(GL4.GL_TEXTURE_3D, GL4.GL_TEXTURE_MIN_FILTER, GL4.GL_LINEAR);
-            gl4.glTexParameteri(GL4.GL_TEXTURE_3D, GL4.GL_TEXTURE_MAG_FILTER, GL4.GL_LINEAR);
-            gl4.glTexParameteri(GL4.GL_TEXTURE_3D, GL4.GL_TEXTURE_WRAP_R, GL4.GL_CLAMP_TO_EDGE);
-            gl4.glTexParameteri(GL4.GL_TEXTURE_3D, GL4.GL_TEXTURE_WRAP_S, GL4.GL_CLAMP_TO_EDGE);
-            gl4.glTexParameteri(GL4.GL_TEXTURE_3D, GL4.GL_TEXTURE_WRAP_T, GL4.GL_CLAMP_TO_EDGE);
-            
-            gl4.glTexImage3D(GL4.GL_TEXTURE_3D, 0, GL4.GL_RED, loadedData.getLength(VoxelMatrix.Axis.X), loadedData.getLength(VoxelMatrix.Axis.Y), loadedData.getLength(VoxelMatrix.Axis.Z), 0, GL4.GL_RED, GL4.GL_SHORT, ShortBuffer.wrap(texture));
-            
-            checkError(gl4, "Create Texture");
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(SliceNavigator.class.getName()).log(Level.SEVERE, null, ex);
+        
+        VoxelMatrix voxelMatrix = LoadedDataHolder.getInstance().getDataset(dataName);
+        textureLoaded = voxelMatrix != null;
+        if (textureLoaded) {
+            try {
+                FileInputStream stream = new FileInputStream(new File("misc/sinusveins-256x256x166.dat"));
+                DatLoadSaveHandler loadSave = new DatLoadSaveHandler();
+                VoxelMatrix loadedData = loadSave.loadData(stream);
+                sliceMax = loadedData.getLength(VoxelMatrix.Axis.Z);
+                slice = (int) (sliceMax / 2f);
+
+                short[] texture = loadedData.asArray();
+
+                gl4.glGenTextures(1, buffer);
+                buffer.position(3);
+                gl4.glActiveTexture(GL4.GL_TEXTURE0);
+                gl4.glBindTexture(GL4.GL_TEXTURE_3D, buffer.get(2));
+                gl4.glTexParameteri(GL4.GL_TEXTURE_3D, GL4.GL_TEXTURE_MIN_FILTER, GL4.GL_LINEAR);
+                gl4.glTexParameteri(GL4.GL_TEXTURE_3D, GL4.GL_TEXTURE_MAG_FILTER, GL4.GL_LINEAR);
+                gl4.glTexParameteri(GL4.GL_TEXTURE_3D, GL4.GL_TEXTURE_WRAP_R, GL4.GL_CLAMP_TO_EDGE);
+                gl4.glTexParameteri(GL4.GL_TEXTURE_3D, GL4.GL_TEXTURE_WRAP_S, GL4.GL_CLAMP_TO_EDGE);
+                gl4.glTexParameteri(GL4.GL_TEXTURE_3D, GL4.GL_TEXTURE_WRAP_T, GL4.GL_CLAMP_TO_EDGE);
+
+                gl4.glTexImage3D(GL4.GL_TEXTURE_3D, 0, GL4.GL_RED, loadedData.getLength(VoxelMatrix.Axis.X), loadedData.getLength(VoxelMatrix.Axis.Y), loadedData.getLength(VoxelMatrix.Axis.Z), 0, GL4.GL_RED, GL4.GL_SHORT, ShortBuffer.wrap(texture));
+
+                checkError(gl4, "Create Texture");
+            } catch (FileNotFoundException ex) {
+                Logger.getLogger(SliceNavigator.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
         
         ShaderCode vertShader = ShaderCode.create(gl4, GL_VERTEX_SHADER, this.getClass(), SHADERS_ROOT,
@@ -126,8 +137,10 @@ public class SliceNavigator extends GLJPanel implements GLEventListener, MouseWh
         gl4.glDeleteProgram(programName);
         buffer.position(0);
         gl4.glDeleteBuffers(2, buffer);
-        buffer.position(2);
-        gl4.glDeleteTextures(1, buffer);
+        if (textureLoaded) {
+            buffer.position(2);
+            gl4.glDeleteTextures(1, buffer);
+        }
     }
 
     @Override

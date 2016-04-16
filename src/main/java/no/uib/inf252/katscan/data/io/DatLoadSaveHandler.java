@@ -1,4 +1,4 @@
-package no.uib.inf252.katscan.io;
+package no.uib.inf252.katscan.data.io;
 
 import no.uib.inf252.katscan.data.VoxelMatrix;
 

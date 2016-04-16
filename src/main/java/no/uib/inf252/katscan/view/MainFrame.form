@@ -41,6 +41,9 @@
                 <Property name="mnemonic" type="int" value="83"/>
                 <Property name="text" type="java.lang.String" value="Save"/>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="mitSaveActionPerformed"/>
+              </Events>
             </MenuItem>
             <MenuItem class="javax.swing.JPopupMenu$Separator" name="sepSaveLoad">
             </MenuItem>
@@ -52,6 +55,9 @@
                 <Property name="mnemonic" type="int" value="88"/>
                 <Property name="text" type="java.lang.String" value="Exit"/>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="mitExitActionPerformed"/>
+              </Events>
             </MenuItem>
           </SubComponents>
         </Menu>
@@ -60,19 +66,6 @@
             <Property name="mnemonic" type="int" value="68"/>
             <Property name="text" type="java.lang.String" value="Datasets"/>
           </Properties>
-          <SubComponents>
-            <MenuItem class="javax.swing.JPopupMenu$Separator" name="sepCloseData">
-            </MenuItem>
-            <MenuItem class="javax.swing.JMenuItem" name="mitCloseData">
-              <Properties>
-                <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                  <Image iconType="3" name="/icons/closeData.png"/>
-                </Property>
-                <Property name="mnemonic" type="int" value="88"/>
-                <Property name="text" type="java.lang.String" value="Close All"/>
-              </Properties>
-            </MenuItem>
-          </SubComponents>
         </Menu>
         <Menu class="javax.swing.JMenu" name="mnuWindow">
           <Properties>

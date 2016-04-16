@@ -1,12 +1,6 @@
 package no.uib.inf252.katscan;
 
 import com.bulenkov.darcula.DarculaLaf;
-import com.bulenkov.darcula.DarculaLookAndFeelInfo;
-import java.io.File;
-import java.net.URISyntaxException;
-import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import no.uib.inf252.katscan.view.MainFrame;
@@ -17,6 +11,8 @@ import no.uib.inf252.katscan.view.SplashScreen;
  * @author Marcelo Lima
  */
 public class Init {
+    
+    private static MainFrame frameReference;
 
     /**
      * @param args the command line arguments
@@ -29,7 +25,16 @@ public class Init {
          * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
          */
         try {
-            javax.swing.UIManager.setLookAndFeel(new DarculaLaf());
+            UIManager.setLookAndFeel(new DarculaLaf());
+                
+//            final UIDefaults lookAndFeelDefaults = UIManager.getLookAndFeelDefaults();
+//            Set<Map.Entry<Object, Object>> entrySet = lookAndFeelDefaults.entrySet();
+//            for (Map.Entry<Object, Object> entry : entrySet) {
+//                if (entry.getValue() instanceof Color) {
+//                    Color color = (Color) entry.getValue();
+//                    lookAndFeelDefaults.put(entry.getKey(), new Color(color.getRed(), color.getBlue(), color.getGreen()));
+//                }
+//            }
         } catch (UnsupportedLookAndFeelException e) {
             java.util.logging.Logger.getLogger(SplashScreen.class.getName()).log(java.util.logging.Level.SEVERE, null, e);
             try {
@@ -58,10 +63,13 @@ public class Init {
 //                SplashScreen dialog = new SplashScreen();
 //                dialog.setVisible(true);
                 
-                MainFrame frame = new MainFrame();
-                frame.setVisible(true);
+                frameReference = new MainFrame();
+                frameReference.setVisible(true);
             }
         });
     }
 
+    public static MainFrame getFrameReference() {
+        return frameReference;
+    }
 }

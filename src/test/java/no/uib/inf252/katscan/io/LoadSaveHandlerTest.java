@@ -1,5 +1,6 @@
 package no.uib.inf252.katscan.io;
 
+import no.uib.inf252.katscan.data.io.DatLoadSaveHandler;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;

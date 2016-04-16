@@ -15,6 +15,8 @@ public class VoxelMatrix implements Serializable {
 
     private short[][][] grid;
     private int[] histogram;
+    private int maxValue;
+    private boolean dirtyHistogram;
 
     public VoxelMatrix(int sizeZ, int sizeY, int sizeX) {
         if (sizeZ <= 0) throw new IllegalArgumentException("The size must be larger than zero, but Z was " + sizeZ);
@@ -23,6 +25,7 @@ public class VoxelMatrix implements Serializable {
 
         grid = new short[sizeZ][sizeY][sizeX];
         histogram = new int[65536];
+        dirtyHistogram = true;
     }
 
     /**
@@ -63,6 +66,7 @@ public class VoxelMatrix implements Serializable {
     public short[] getRow(int z, int y) {
         checkBounds(z, y);
 
+        dirtyHistogram = true;
         return grid[z][y];
     }
 
@@ -71,10 +75,8 @@ public class VoxelMatrix implements Serializable {
 
         if (values.length != grid[0][0].length) throw new IllegalArgumentException("The row does not match the matrix size. Expected " + grid[0][0] + " and got " + values.length);
 
-//        System.arraycopy(values, 0, grid[z][y], 0, values.length);
-        for (int i = 0; i < values.length; i++) {
-            setValue(z, y, i, values[i]);
-        }
+        dirtyHistogram = true;
+        System.arraycopy(values, 0, grid[z][y], 0, values.length);
     }
 
     /**
@@ -96,13 +98,34 @@ public class VoxelMatrix implements Serializable {
     }
 
     public int[] getHistogram() {
+        if (dirtyHistogram) {
+            updateHistogram();
+        }
         int[] histogramReturn = new int[65536];
         System.arraycopy(histogram, 0, histogramReturn, 0, 65536);
         return histogramReturn;
     }
 
-    public int getHistogramValue(int index) {
-        return histogram[index];
+    public int getMaxValue() {
+        if (dirtyHistogram) {
+            updateHistogram();
+        }
+        return maxValue;
+    }
+    
+    private void updateHistogram() {
+        histogram = new int[65536];
+        maxValue = 0;
+        for (int i = 0; i < grid.length; i++) {
+            for (int j = 0; j < grid[i].length; j++) {
+                for (int k = 0; k < grid[i][j].length; k++) {
+                    histogram[grid[i][j][k]]++;
+                    maxValue = Math.max(maxValue, grid[i][j][k]);
+                }
+            }
+        }
+        
+        dirtyHistogram = false;
     }
 
     private void checkBounds(int z) {

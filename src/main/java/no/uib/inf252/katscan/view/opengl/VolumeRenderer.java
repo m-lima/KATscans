@@ -45,6 +45,8 @@ public class VolumeRenderer extends GLJPanel implements GLEventListener {
         private static final int TOTAL_LENGTH = 3;
     }
     
+    private final String dataName;
+    
     private IntBuffer buffers;
     private final TrackBall trackBall;
     private final DisplayObject displayObject;
@@ -52,9 +54,11 @@ public class VolumeRenderer extends GLJPanel implements GLEventListener {
     private int programName;
     private boolean textureLoaded;
 
-    public VolumeRenderer() throws GLException {
+    public VolumeRenderer(String dataName) throws GLException {
         super(new GLCapabilities(GLProfile.get(GLProfile.GL4)));
         addGLEventListener(this);
+        
+        this.dataName = dataName;
 
         trackBall = new TrackBall();        
         displayObject = new DisplayObject(DisplayObject.Type.CUBE);
@@ -85,7 +89,7 @@ public class VolumeRenderer extends GLJPanel implements GLEventListener {
         
         checkError(gl4, "Create Buffers");
         
-        VoxelMatrix voxelMatrix = LoadedDataHolder.getInstance().getVoxelMatrix();
+        VoxelMatrix voxelMatrix = LoadedDataHolder.getInstance().getDataset(dataName);
         textureLoaded = voxelMatrix != null;
         if (textureLoaded) {
             short[] texture = voxelMatrix.asArray();
@@ -119,10 +123,11 @@ public class VolumeRenderer extends GLJPanel implements GLEventListener {
         programName = shaderProgram.program();
         shaderProgram.link(gl4, System.out);
         
-        gl4.glUseProgram(programName);
-        
-        int location = gl4.glGetUniformLocation(programName, "numSamples");
-        gl4.glUniform1i(location, LoadedDataHolder.getInstance().getVoxelMatrix().getLength(VoxelMatrix.Axis.X));
+        if (textureLoaded) {
+            gl4.glUseProgram(programName);
+            int location = gl4.glGetUniformLocation(programName, "numSamples");
+            gl4.glUniform1i(location, LoadedDataHolder.getInstance().getDataset(dataName).getLength(VoxelMatrix.Axis.X));
+        }
 
         checkError(gl4, "Create Shaders");
     }
