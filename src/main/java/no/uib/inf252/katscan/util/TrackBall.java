@@ -5,6 +5,8 @@ import com.jogamp.opengl.math.Matrix4;
 import com.jogamp.opengl.math.Quaternion;
 import com.jogamp.opengl.math.VectorUtil;
 import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
@@ -12,6 +14,9 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import javax.swing.ImageIcon;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 
 /**
@@ -37,6 +42,7 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
     private final float[] axis;
     private final Quaternion initialRotation;
     private final Quaternion currentRotation;
+    private final float[] translation;
     
     private int xPos;
     private int yPos;
@@ -52,14 +58,17 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
     
     private int dirtyValues;
     
+    private JPopupMenu popupMenu;
+    
     public TrackBall() {
-        eyePosition = new float[] {0f, 0f, 5f};
+        eyePosition = new float[] {0f, 0f, 2f};
         targetPosition = new float[] {0f, 0f, 0f};
         initialPosition = new float[3];
         currentPosition = new float[3];
         axis = new float[3];
         initialRotation = new Quaternion();
         currentRotation = new Quaternion();
+        translation = new float[] {0f, 0f, 0f};//3f, 3f, 3f};
         
         tempMatrix = new float[16];
         tempMatrix2 = new float[16];
@@ -80,12 +89,10 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
     }
     
     public float[] getModelMatrix() {
-//        float[] toMatrix = currentRotation.toMatrix(tempMatrix, 0);
-//        Matrix4 m = new Matrix4();
-//        m.translate(3, 3, 0);
-//        m.multMatrix(toMatrix);
-//        return m.getMatrix();
-        return currentRotation.toMatrix(tempMatrix, 0);
+        FloatUtil.makeTranslation(tempMatrix, true, translation[0], translation[1], translation[2]);
+        FloatUtil.multMatrix(tempMatrix, currentRotation.toMatrix(tempMatrix2, 0));
+        return tempMatrix;
+//        return currentRotation.toMatrix(tempMatrix, 0);
     }
     
     public float[] getModelMatrix3() {
@@ -179,8 +186,58 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
         VectorUtil.normalizeVec3(point);
     }
     
+    private void buildPopup(final Component owner) {
+        popupMenu = new JPopupMenu();
+        final JMenuItem top = new JMenuItem("Top", new ImageIcon(getClass().getResource("/icons/top.png")));
+        final JMenuItem bottom = new JMenuItem("Bottom", new ImageIcon(getClass().getResource("/icons/bottom.png")));
+        final JMenuItem front = new JMenuItem("Front", new ImageIcon(getClass().getResource("/icons/front.png")));
+        final JMenuItem back = new JMenuItem("Back", new ImageIcon(getClass().getResource("/icons/back.png")));
+        final JMenuItem right = new JMenuItem("Right", new ImageIcon(getClass().getResource("/icons/right.png")));
+        final JMenuItem left = new JMenuItem("Left", new ImageIcon(getClass().getResource("/icons/left.png")));
+        
+        ActionListener listener = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                currentRotation.setIdentity();
+                if (e.getSource() == top) {
+                    currentRotation.rotateByAngleX(+FloatUtil.HALF_PI);
+                } else if (e.getSource() == bottom) {
+                    currentRotation.rotateByAngleX(-FloatUtil.HALF_PI);
+                } else if (e.getSource() == back) {
+                    currentRotation.rotateByAngleZ(FloatUtil.PI);
+                } else if (e.getSource() == right) {
+                    currentRotation.rotateByAngleY(-FloatUtil.HALF_PI);
+                } else if (e.getSource() == left) {
+                    currentRotation.rotateByAngleY(+FloatUtil.HALF_PI);
+                }
+                dirtyValues |= MODEL_DIRTY;
+                owner.repaint();
+            }
+        };
+        
+        top.addActionListener(listener);
+        bottom.addActionListener(listener);
+        front.addActionListener(listener);
+        back.addActionListener(listener);
+        right.addActionListener(listener);
+        left.addActionListener(listener);
+        
+        popupMenu.add(top);
+        popupMenu.add(bottom);
+        popupMenu.add(front);
+        popupMenu.add(back);
+        popupMenu.add(right);
+        popupMenu.add(left);
+    }
+    
     @Override
     public void mouseClicked(MouseEvent e) {
+        if (SwingUtilities.isRightMouseButton(e)) {
+            if (popupMenu == null) {
+                buildPopup(e.getComponent());
+            }
+            popupMenu.show(e.getComponent(), e.getX(), e.getY());
+        }
     }
 
     @Override
@@ -213,6 +270,7 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
 
     @Override
     public void mouseReleased(MouseEvent e) {
+        e.getComponent().requestFocus();
     }
 
     @Override
@@ -260,13 +318,14 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
     @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
         Component component = e.getComponent();
+        component.requestFocus();
         if (e.isShiftDown()) {
             fov += e.getWheelRotation() * FloatUtil.PI / 180f;
             
             if (fov > FloatUtil.PI) {
                 fov = FloatUtil.PI;
-            } else if (fov < 1f) {
-                fov = 1f;
+            } else if (fov < 0.5f) {
+                fov = 0.5f;
             }
             
             updateProjection(component.getWidth(), component.getHeight());
