@@ -198,6 +198,11 @@ public class VolumeRenderer extends GLJPanel implements GLEventListener {
                 gl4.glUniform1i(location, trackBall.isOrthographic() ? 1 : 0);
                 trackBall.clearDirtyValues(TrackBall.ORTHO_DIRTY);
             }
+
+            if ((dirtyValues & TrackBall.MOVEMENT_DIRTY) > 0) {
+                location = gl4.glGetUniformLocation(programName, "numSamples");
+                gl4.glUniform1i(location, numSample * (trackBall.isMoving() ? 1 : 16));
+            }
             
             trackBall.clearDirtyValues();
         }
