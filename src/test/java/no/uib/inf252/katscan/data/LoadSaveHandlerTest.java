@@ -1,4 +1,4 @@
-package no.uib.inf252.katscan.io;
+package no.uib.inf252.katscan.data;
 
 import no.uib.inf252.katscan.data.io.DatLoadSaveHandler;
 import java.io.ByteArrayInputStream;
@@ -7,7 +7,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import no.uib.inf252.katscan.data.VoxelMatrix;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -53,9 +52,9 @@ public class LoadSaveHandlerTest {
         VoxelMatrix loadedData = sut.loadData(stream);
         assertNotNull(loadedData);
 
-        assertEquals(256, loadedData.getLength(VoxelMatrix.Axis.X));
-        assertEquals(256, loadedData.getLength(VoxelMatrix.Axis.Y));
-        assertEquals(166, loadedData.getLength(VoxelMatrix.Axis.Z));
+        assertEquals(256, loadedData.getSizeX());
+        assertEquals(256, loadedData.getSizeY());
+        assertEquals(166, loadedData.getSizeZ());
 
         assertEquals(1, loadedData.getValue(0, 0, 0));
         assertEquals(1039, loadedData.getValue(100, 100, 100));
@@ -81,9 +80,9 @@ public class LoadSaveHandlerTest {
         System.gc();
         VoxelMatrix loadedData = sut.loadData(stream);
         
-        int sizeX = loadedData.getLength(VoxelMatrix.Axis.X);
-        int sizeY = loadedData.getLength(VoxelMatrix.Axis.Y);
-        int sizeZ = loadedData.getLength(VoxelMatrix.Axis.Z);     
+        int sizeX = loadedData.getSizeX();
+        int sizeY = loadedData.getSizeY();
+        int sizeZ = loadedData.getSizeZ();
         
         ByteArrayOutputStream out = new ByteArrayOutputStream(sizeX * sizeY * sizeZ + 6); //Not doubling values on purpose
         

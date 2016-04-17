@@ -32,20 +32,21 @@ public class DatLoadSaveHandler implements LoadSaveHandler {
                 throw new StreamCorruptedException("Could not read dat header from the stream");
             }
 
-            short[] column;
             ShortBuffer shortBuffer;
             byteBuffer = ByteBuffer.allocate(sizeX * 2);
             byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
+            short[] gridValues = grid.getValues();
+            
             for (int i = 0; i < sizeZ; i++) {
                 for (int j = 0; j < sizeY; j++) {
-                    if (stream.read(byteBuffer.array()) <= sizeX)
+                    if (stream.read(byteBuffer.array()) < sizeX * 2)
                         throw new IOException("Expected data, but could not be read");
-                    column = grid.getRow(i, j);
                     shortBuffer = byteBuffer.asShortBuffer();
-                    shortBuffer.get(column);
+                    shortBuffer.get(gridValues, i * sizeY * sizeX + j * sizeX, sizeX);
                 }
             }
 
+            grid.updateHistogram();
             return grid;
         } catch (IOException ex) {
             Logger.getLogger(DatLoadSaveHandler.class.getName()).log(Level.SEVERE, null, ex);
@@ -56,15 +57,17 @@ public class DatLoadSaveHandler implements LoadSaveHandler {
 
     @Override
     public void saveData(OutputStream stream, VoxelMatrix grid) {
-        int sizeX = grid.getLength(VoxelMatrix.Axis.X);
-        int sizeY = grid.getLength(VoxelMatrix.Axis.Y);
-        int sizeZ = grid.getLength(VoxelMatrix.Axis.Z);
+        int sizeX = grid.getSizeX();
+        int sizeY = grid.getSizeY();
+        int sizeZ = grid.getSizeZ();
         
         ByteBuffer byteBuffer = ByteBuffer.allocate(6);
         byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
         byteBuffer.putShort((short) sizeX);
         byteBuffer.putShort((short) sizeY);
         byteBuffer.putShort((short) sizeZ);
+        
+        short[] gridValues = grid.getValues();
         
         try {
             stream.write(byteBuffer.array());         
@@ -75,7 +78,7 @@ public class DatLoadSaveHandler implements LoadSaveHandler {
             for (int i = 0; i < sizeZ; i++) {
                 for (int j = 0; j < sizeY; j++) {
                     ShortBuffer shortBuffer = byteBuffer.asShortBuffer();
-                    shortBuffer.put(grid.getRow(i, j));   
+                    shortBuffer.put(gridValues, i * sizeY * sizeX + j * sizeX, sizeX);
                     stream.write(byteBuffer.array());
                     stream.flush();
                 }

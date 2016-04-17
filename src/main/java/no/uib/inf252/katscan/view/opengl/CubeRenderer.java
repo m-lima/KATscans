@@ -18,9 +18,6 @@ import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.util.glsl.ShaderCode;
 import com.jogamp.opengl.util.glsl.ShaderProgram;
-import com.jogamp.opengl.util.glsl.ShaderUtil;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
@@ -56,7 +53,7 @@ public class CubeRenderer extends GLJPanel implements GLEventListener {
         trackBall = new TrackBall();
         
         buffers = IntBuffer.allocate(BUFFER.TOTAL_LENGTH);
-        displayObject = new DisplayObject(DisplayObject.Type.CUBE);
+        displayObject = DisplayObject.getObject(DisplayObject.Type.CUBE);
         
         addMouseWheelListener(trackBall);
         addMouseListener(trackBall);

@@ -44,18 +44,9 @@ public class VoxelMatrixTest {
         int x = (int) (Math.random() * 20 + 1);
 
         sut = new VoxelMatrix(z, y, x);
-        assertEquals(z, sut.getLength(VoxelMatrix.Axis.Z));
-        assertEquals(y, sut.getLength(VoxelMatrix.Axis.Y));
-        assertEquals(x, sut.getLength(VoxelMatrix.Axis.X));
-
-        boolean threw = false;
-        try {
-            assertEquals(-1, sut.getLength(null));
-        } catch (Throwable t) {
-            threw = true;
-        }
-
-        assertTrue(threw);
+        assertEquals(z, sut.getSizeZ());
+        assertEquals(y, sut.getSizeY());
+        assertEquals(x, sut.getSizeX());
     }
 
     @Test
@@ -72,21 +63,4 @@ public class VoxelMatrixTest {
         assertEquals(value, sut.getValue(z, y, x));
     }
 
-    @Test
-    public void testGetSetColumn() throws Exception {
-        sut = new VoxelMatrix(10, 10, 10);
-
-        short[] values = new short[10];
-        for (int i = 0; i < values.length; i++) {
-            values[i] = (short) i;
-        }
-
-        sut.setRow(2, 2, values);
-        values = sut.getRow(2, 2);
-
-        for (int i = 0; i < values.length; i++) {
-            assertEquals(i, values[i]);
-        }
-
-    }
 }

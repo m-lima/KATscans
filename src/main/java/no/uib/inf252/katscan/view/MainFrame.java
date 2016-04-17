@@ -91,6 +91,25 @@ public class MainFrame extends javax.swing.JFrame implements DataHolderListener 
         contentPane.add(rootWindow, BorderLayout.CENTER);
         
         LoadedDataHolder.getInstance().addDataHolderListener(this);
+        
+        LoadedDataHolder.getInstance().load("Sinus", new File("C:\\Users\\mflim_000\\Documents\\Code\\Java\\Maven\\KATscan\\misc\\sinusveins-256x256x166.dat"));
+        DockingWindow oldViews = rootWindow.getWindow();
+
+        TabWindow tabWindow;
+        if (oldViews instanceof TabWindow) {
+            tabWindow = (TabWindow) oldViews;
+        } else {
+            tabWindow = new TabWindow();
+            tabWindow.setBackground(THEME_COLOR);
+            if (oldViews != null) {
+                tabWindow.addTab(oldViews);
+            }
+            rootWindow.setWindow(tabWindow);
+        }
+
+        View view = new View("Sinus", null, new VolumeRenderer("Sinus"));
+        view.setPreferredMinimizeDirection(Direction.RIGHT);
+        tabWindow.addTab(view);        
     }
 
     private void setupRootView(BufferedImage image) {

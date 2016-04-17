@@ -63,7 +63,7 @@ public class VolumeRenderer extends GLJPanel implements GLEventListener {
         this.dataName = dataName;
 
         trackBall = new TrackBall();        
-        displayObject = new DisplayObject(DisplayObject.Type.CUBE);
+        displayObject = DisplayObject.getObject(DisplayObject.Type.CUBE);
         
         numSample = 256;
         
@@ -96,7 +96,7 @@ public class VolumeRenderer extends GLJPanel implements GLEventListener {
         VoxelMatrix voxelMatrix = LoadedDataHolder.getInstance().getDataset(dataName);
         textureLoaded = voxelMatrix != null;
         if (textureLoaded) {
-            short[] texture = voxelMatrix.asArray();
+            short[] texture = voxelMatrix.getValues();
 
             gl4.glGenTextures(BUFFER.TEXTURE_LENGTH, buffers);
             buffers.position(BUFFER.TOTAL_LENGTH);
@@ -109,7 +109,7 @@ public class VolumeRenderer extends GLJPanel implements GLEventListener {
             gl4.glTexParameteri(GL4.GL_TEXTURE_3D, GL4.GL_TEXTURE_WRAP_S, GL4.GL_CLAMP_TO_BORDER);
             gl4.glTexParameteri(GL4.GL_TEXTURE_3D, GL4.GL_TEXTURE_WRAP_T, GL4.GL_CLAMP_TO_BORDER);
 
-            gl4.glTexImage3D(GL4.GL_TEXTURE_3D, 0, GL4.GL_RED, voxelMatrix.getLength(VoxelMatrix.Axis.X), voxelMatrix.getLength(VoxelMatrix.Axis.Y), voxelMatrix.getLength(VoxelMatrix.Axis.Z), 0, GL4.GL_RED, GL4.GL_SHORT, ShortBuffer.wrap(texture));
+            gl4.glTexImage3D(GL4.GL_TEXTURE_3D, 0, GL4.GL_RED, voxelMatrix.getSizeX(), voxelMatrix.getSizeY(), voxelMatrix.getSizeZ(), 0, GL4.GL_RED, GL4.GL_SHORT, ShortBuffer.wrap(texture));
 
             checkError(gl4, "Create Texture");
         }

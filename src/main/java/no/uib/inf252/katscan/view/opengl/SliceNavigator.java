@@ -81,31 +81,24 @@ public class SliceNavigator extends GLJPanel implements GLEventListener, MouseWh
         VoxelMatrix voxelMatrix = LoadedDataHolder.getInstance().getDataset(dataName);
         textureLoaded = voxelMatrix != null;
         if (textureLoaded) {
-            try {
-                FileInputStream stream = new FileInputStream(new File("misc/sinusveins-256x256x166.dat"));
-                DatLoadSaveHandler loadSave = new DatLoadSaveHandler();
-                VoxelMatrix loadedData = loadSave.loadData(stream);
-                sliceMax = loadedData.getLength(VoxelMatrix.Axis.Z);
-                slice = (int) (sliceMax / 2f);
+            sliceMax = voxelMatrix.getSizeZ();
+            slice = (int) (sliceMax / 2f);
 
-                short[] texture = loadedData.asArray();
+            short[] texture = voxelMatrix.getValues();
 
-                gl4.glGenTextures(1, buffer);
-                buffer.position(3);
-                gl4.glActiveTexture(GL4.GL_TEXTURE0);
-                gl4.glBindTexture(GL4.GL_TEXTURE_3D, buffer.get(2));
-                gl4.glTexParameteri(GL4.GL_TEXTURE_3D, GL4.GL_TEXTURE_MIN_FILTER, GL4.GL_LINEAR);
-                gl4.glTexParameteri(GL4.GL_TEXTURE_3D, GL4.GL_TEXTURE_MAG_FILTER, GL4.GL_LINEAR);
-                gl4.glTexParameteri(GL4.GL_TEXTURE_3D, GL4.GL_TEXTURE_WRAP_R, GL4.GL_CLAMP_TO_EDGE);
-                gl4.glTexParameteri(GL4.GL_TEXTURE_3D, GL4.GL_TEXTURE_WRAP_S, GL4.GL_CLAMP_TO_EDGE);
-                gl4.glTexParameteri(GL4.GL_TEXTURE_3D, GL4.GL_TEXTURE_WRAP_T, GL4.GL_CLAMP_TO_EDGE);
+            gl4.glGenTextures(1, buffer);
+            buffer.position(3);
+            gl4.glActiveTexture(GL4.GL_TEXTURE0);
+            gl4.glBindTexture(GL4.GL_TEXTURE_3D, buffer.get(2));
+            gl4.glTexParameteri(GL4.GL_TEXTURE_3D, GL4.GL_TEXTURE_MIN_FILTER, GL4.GL_LINEAR);
+            gl4.glTexParameteri(GL4.GL_TEXTURE_3D, GL4.GL_TEXTURE_MAG_FILTER, GL4.GL_LINEAR);
+            gl4.glTexParameteri(GL4.GL_TEXTURE_3D, GL4.GL_TEXTURE_WRAP_R, GL4.GL_CLAMP_TO_EDGE);
+            gl4.glTexParameteri(GL4.GL_TEXTURE_3D, GL4.GL_TEXTURE_WRAP_S, GL4.GL_CLAMP_TO_EDGE);
+            gl4.glTexParameteri(GL4.GL_TEXTURE_3D, GL4.GL_TEXTURE_WRAP_T, GL4.GL_CLAMP_TO_EDGE);
 
-                gl4.glTexImage3D(GL4.GL_TEXTURE_3D, 0, GL4.GL_RED, loadedData.getLength(VoxelMatrix.Axis.X), loadedData.getLength(VoxelMatrix.Axis.Y), loadedData.getLength(VoxelMatrix.Axis.Z), 0, GL4.GL_RED, GL4.GL_SHORT, ShortBuffer.wrap(texture));
+            gl4.glTexImage3D(GL4.GL_TEXTURE_3D, 0, GL4.GL_RED, voxelMatrix.getSizeX(), voxelMatrix.getSizeY(), voxelMatrix.getSizeZ(), 0, GL4.GL_RED, GL4.GL_SHORT, ShortBuffer.wrap(texture));
 
-                checkError(gl4, "Create Texture");
-            } catch (FileNotFoundException ex) {
-                Logger.getLogger(SliceNavigator.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            checkError(gl4, "Create Texture");
         }
         
         ShaderCode vertShader = ShaderCode.create(gl4, GL_VERTEX_SHADER, this.getClass(), SHADERS_ROOT,
