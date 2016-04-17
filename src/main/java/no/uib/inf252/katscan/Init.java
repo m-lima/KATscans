@@ -1,6 +1,9 @@
 package no.uib.inf252.katscan;
 
 import com.bulenkov.darcula.DarculaLaf;
+import java.util.Map;
+import java.util.Set;
+import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import no.uib.inf252.katscan.view.MainFrame;
@@ -34,7 +37,9 @@ public class Init {
 //                    Color color = (Color) entry.getValue();
 //                    lookAndFeelDefaults.put(entry.getKey(), new Color(color.getRed(), color.getBlue(), color.getGreen()));
 //                }
+//                System.out.println(entry.getKey() + " :: " + entry.getValue());
 //            }
+//            System.exit(0);
         } catch (UnsupportedLookAndFeelException e) {
             java.util.logging.Logger.getLogger(SplashScreen.class.getName()).log(java.util.logging.Level.SEVERE, null, e);
             try {
@@ -60,8 +65,8 @@ public class Init {
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-//                SplashScreen dialog = new SplashScreen();
-//                dialog.setVisible(true);
+                SplashScreen dialog = new SplashScreen();
+                dialog.setVisible(true);
                 
                 frameReference = new MainFrame();
                 frameReference.setVisible(true);

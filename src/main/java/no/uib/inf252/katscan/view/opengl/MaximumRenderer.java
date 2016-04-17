@@ -30,10 +30,10 @@ import no.uib.inf252.katscan.util.TrackBall;
  *
  * @author Marcelo Lima
  */
-public class VolumeRenderer extends GLJPanel implements GLEventListener {
+public class MaximumRenderer extends GLJPanel implements GLEventListener {
     
     private static final String SHADERS_ROOT = "/shaders";
-    private static final String SHADERS_NAME = "raycaster";
+    private static final String SHADERS_NAME = "maxRaycaster";
     
     private static class BUFFER {
         private static final int VERTICES = 0;
@@ -56,7 +56,7 @@ public class VolumeRenderer extends GLJPanel implements GLEventListener {
     
     private int numSample;
 
-    public VolumeRenderer(String dataName) throws GLException {
+    public MaximumRenderer(String dataName) throws GLException {
         super(new GLCapabilities(GLProfile.get(GLProfile.GL4)));
         addGLEventListener(this);
         
@@ -195,11 +195,6 @@ public class VolumeRenderer extends GLJPanel implements GLEventListener {
                 gl4.glUniform1i(location, trackBall.isOrthographic() ? 1 : 0);
             }
 
-            if ((dirtyValues & TrackBall.MOVEMENT_DIRTY) > 0) {
-                location = gl4.glGetUniformLocation(programName, "numSamples");
-                gl4.glUniform1i(location, numSample * (trackBall.isMoving() ? 1 : 16));
-            }
-            
             trackBall.clearDirtyValues();
         }
         

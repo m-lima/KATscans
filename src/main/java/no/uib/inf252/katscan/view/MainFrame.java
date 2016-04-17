@@ -1,5 +1,6 @@
 package no.uib.inf252.katscan.view;
 
+import com.jogamp.opengl.GLException;
 import no.uib.inf252.katscan.view.component.Histogram;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -41,6 +42,7 @@ import no.uib.inf252.katscan.view.component.BackgroundPanel;
 import no.uib.inf252.katscan.view.component.dataset.DatasetBrowser;
 import no.uib.inf252.katscan.view.component.ExceptionViewer;
 import no.uib.inf252.katscan.view.component.dataset.DatasetBrowserPopups;
+import no.uib.inf252.katscan.view.opengl.MaximumRenderer;
 import no.uib.inf252.katscan.view.opengl.SliceNavigator;
 import no.uib.inf252.katscan.view.opengl.VolumeRenderer;
 
@@ -92,6 +94,10 @@ public class MainFrame extends javax.swing.JFrame implements DataHolderListener 
         
         LoadedDataHolder.getInstance().addDataHolderListener(this);
         
+        //loadAutomaticView();
+    }
+
+    private void loadAutomaticView() throws GLException {
         LoadedDataHolder.getInstance().load("Sinus", new File("C:\\Users\\mflim_000\\Documents\\Code\\Java\\Maven\\KATscan\\misc\\sinusveins-256x256x166.dat"));
         DockingWindow oldViews = rootWindow.getWindow();
 
@@ -107,7 +113,7 @@ public class MainFrame extends javax.swing.JFrame implements DataHolderListener 
             rootWindow.setWindow(tabWindow);
         }
 
-        View view = new View("Sinus", null, new VolumeRenderer("Sinus"));
+        View view = new View("Sinus", null, new MaximumRenderer("Sinus"));
         view.setPreferredMinimizeDirection(Direction.RIGHT);
         tabWindow.addTab(view);        
     }
@@ -270,6 +276,7 @@ public class MainFrame extends javax.swing.JFrame implements DataHolderListener 
         JMenu dataItem = new JMenu(name);
         
         JMenuItem rendererMenu = new JMenuItem("Volume Renderer", 'V');
+        JMenuItem maximumMenu = new JMenuItem("Maximum Renderer", 'M');
         JMenuItem sliceMenu = new JMenuItem("Slice Navigator", 'S');
         JMenuItem histogramMenu = new JMenuItem("Histogram", 'H');
         JMenuItem removeMenu = new JMenuItem("Remove", 'R');
@@ -292,6 +299,29 @@ public class MainFrame extends javax.swing.JFrame implements DataHolderListener 
                 }
                 
                 View view = new View("Volume Renderer", null, new VolumeRenderer(name));
+                view.setPreferredMinimizeDirection(Direction.RIGHT);
+                tabWindow.addTab(view);
+            }
+        });
+        
+        maximumMenu.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                DockingWindow oldViews = rootWindow.getWindow();
+
+                TabWindow tabWindow;
+                if (oldViews instanceof TabWindow) {
+                    tabWindow = (TabWindow) oldViews;
+                } else {
+                    tabWindow = new TabWindow();
+                    tabWindow.setBackground(THEME_COLOR);
+                    if (oldViews != null) {
+                        tabWindow.addTab(oldViews);
+                    }
+                    rootWindow.setWindow(tabWindow);
+                }
+                
+                View view = new View("Volume Renderer", null, new MaximumRenderer(name));
                 view.setPreferredMinimizeDirection(Direction.RIGHT);
                 tabWindow.addTab(view);
             }
@@ -351,6 +381,7 @@ public class MainFrame extends javax.swing.JFrame implements DataHolderListener 
         });
         
         dataItem.add(rendererMenu);
+        dataItem.add(maximumMenu);
         dataItem.add(sliceMenu);
         dataItem.add(histogramMenu);
         dataItem.addSeparator();
