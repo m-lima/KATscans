@@ -15,6 +15,7 @@ public class VoxelMatrix implements Serializable {
 
     private short[][][] grid;
     private int[] histogram;
+    private float[] ratio;
     private int maxValue;
     private boolean dirtyHistogram;
 
@@ -26,6 +27,9 @@ public class VoxelMatrix implements Serializable {
         grid = new short[sizeZ][sizeY][sizeX];
         histogram = new int[65536];
         dirtyHistogram = true;
+        float minSize = Math.min(sizeX, Math.min(sizeY, sizeZ));
+        ratio = new float[] {sizeX / minSize, sizeY / minSize, sizeZ / minSize};
+//        ratio = new float[] {maxSize / sizeX, maxSize / sizeY, maxSize / sizeZ};
     }
 
     /**
@@ -126,6 +130,19 @@ public class VoxelMatrix implements Serializable {
         }
         
         dirtyHistogram = false;
+    }
+
+    public float[] getRatio() {
+        return getRatio(null);
+    }
+    
+    public float[] getRatio(float[] ratio) {
+        if (ratio == null || ratio.length < 3) {
+            ratio = new float[3];
+        }
+        
+        System.arraycopy(this.ratio, 0, ratio, 0, 3);
+        return ratio;
     }
 
     private void checkBounds(int z) {

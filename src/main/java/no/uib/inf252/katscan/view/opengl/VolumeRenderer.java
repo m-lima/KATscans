@@ -53,6 +53,8 @@ public class VolumeRenderer extends GLJPanel implements GLEventListener {
     
     private int programName;
     private boolean textureLoaded;
+    
+    private int numSample;
 
     public VolumeRenderer(String dataName) throws GLException {
         super(new GLCapabilities(GLProfile.get(GLProfile.GL4)));
@@ -62,6 +64,8 @@ public class VolumeRenderer extends GLJPanel implements GLEventListener {
 
         trackBall = new TrackBall();        
         displayObject = new DisplayObject(DisplayObject.Type.CUBE);
+        
+        numSample = 256;
         
         addMouseWheelListener(trackBall);
         addMouseListener(trackBall);
@@ -101,9 +105,9 @@ public class VolumeRenderer extends GLJPanel implements GLEventListener {
             gl4.glBindTexture(GL4.GL_TEXTURE_3D, buffers.get(BUFFER.TEXTURE));
             gl4.glTexParameteri(GL4.GL_TEXTURE_3D, GL4.GL_TEXTURE_MIN_FILTER, GL4.GL_LINEAR);
             gl4.glTexParameteri(GL4.GL_TEXTURE_3D, GL4.GL_TEXTURE_MAG_FILTER, GL4.GL_LINEAR);
-            gl4.glTexParameteri(GL4.GL_TEXTURE_3D, GL4.GL_TEXTURE_WRAP_R, GL4.GL_CLAMP_TO_EDGE);
-            gl4.glTexParameteri(GL4.GL_TEXTURE_3D, GL4.GL_TEXTURE_WRAP_S, GL4.GL_CLAMP_TO_EDGE);
-            gl4.glTexParameteri(GL4.GL_TEXTURE_3D, GL4.GL_TEXTURE_WRAP_T, GL4.GL_CLAMP_TO_EDGE);
+            gl4.glTexParameteri(GL4.GL_TEXTURE_3D, GL4.GL_TEXTURE_WRAP_R, GL4.GL_CLAMP_TO_BORDER);
+            gl4.glTexParameteri(GL4.GL_TEXTURE_3D, GL4.GL_TEXTURE_WRAP_S, GL4.GL_CLAMP_TO_BORDER);
+            gl4.glTexParameteri(GL4.GL_TEXTURE_3D, GL4.GL_TEXTURE_WRAP_T, GL4.GL_CLAMP_TO_BORDER);
 
             gl4.glTexImage3D(GL4.GL_TEXTURE_3D, 0, GL4.GL_RED, voxelMatrix.getLength(VoxelMatrix.Axis.X), voxelMatrix.getLength(VoxelMatrix.Axis.Y), voxelMatrix.getLength(VoxelMatrix.Axis.Z), 0, GL4.GL_RED, GL4.GL_SHORT, ShortBuffer.wrap(texture));
 
@@ -126,7 +130,10 @@ public class VolumeRenderer extends GLJPanel implements GLEventListener {
         if (textureLoaded) {
             gl4.glUseProgram(programName);
             int location = gl4.glGetUniformLocation(programName, "numSamples");
-            gl4.glUniform1i(location, LoadedDataHolder.getInstance().getDataset(dataName).getLength(VoxelMatrix.Axis.X));
+            gl4.glUniform1i(location, numSample);
+            
+            location = gl4.glGetUniformLocation(programName, "ratio");
+            gl4.glUniform3fv(location, 1, voxelMatrix.getRatio(), 0);
         }
 
         checkError(gl4, "Create Shaders");
@@ -182,7 +189,7 @@ public class VolumeRenderer extends GLJPanel implements GLEventListener {
 
             if ((dirtyValues & TrackBall.MODEL_DIRTY) > 0) {
                 location = gl4.glGetUniformLocation(programName, "model");
-                gl4.glUniformMatrix3fv(location, 1, false, trackBall.getModelMatrix3(), 0);
+                gl4.glUniformMatrix4fv(location, 1, false, trackBall.getModelMatrix(), 0);
                 trackBall.clearDirtyValues(TrackBall.MODEL_DIRTY);
             }
 
