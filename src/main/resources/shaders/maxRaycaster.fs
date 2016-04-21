@@ -1,7 +1,7 @@
 in vec3 vertexOut;
 in vec4 vertexOutModel;
 
-uniform sampler3D volumeTexture;
+layout(binding=0) uniform sampler3D volumeTexture;
 
 uniform int numSamples;
 uniform mat4 model;
