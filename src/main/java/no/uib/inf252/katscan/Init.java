@@ -1,11 +1,14 @@
 package no.uib.inf252.katscan;
 
 import com.bulenkov.darcula.DarculaLaf;
+import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.plaf.metal.MetalLookAndFeel;
 import no.uib.inf252.katscan.view.MainFrame;
 import no.uib.inf252.katscan.view.SplashScreen;
 
@@ -17,29 +20,30 @@ public class Init {
     
     private static MainFrame frameReference;
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
-        
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
+    private static void setLookAndFeel() {
         try {
-            UIManager.setLookAndFeel(new DarculaLaf());
+            ArrayList<AbstractMap.SimpleEntry<Object, Object>> icons = new ArrayList<>();
+            UIManager.setLookAndFeel(new MetalLookAndFeel());
                 
-//            final UIDefaults lookAndFeelDefaults = UIManager.getLookAndFeelDefaults();
-//            Set<Map.Entry<Object, Object>> entrySet = lookAndFeelDefaults.entrySet();
-//            for (Map.Entry<Object, Object> entry : entrySet) {
+            UIDefaults lookAndFeelDefaults = UIManager.getLookAndFeelDefaults();
+            Set<Map.Entry<Object, Object>> entrySet = lookAndFeelDefaults.entrySet();
+            for (Map.Entry<Object, Object> entry : entrySet) {
 //                if (entry.getValue() instanceof Color) {
 //                    Color color = (Color) entry.getValue();
 //                    lookAndFeelDefaults.put(entry.getKey(), new Color(color.getRed(), color.getBlue(), color.getGreen()));
 //                }
-//                System.out.println(entry.getKey() + " :: " + entry.getValue());
-//            }
-//            System.exit(0);
+//                if (entry.getKey().toString().toLowerCase().contains("border") && entry.getKey().toString().toLowerCase().contains("button")) {
+                if (entry.getKey().toString().toLowerCase().contains("icon")) {
+                    icons.add(new AbstractMap.SimpleEntry<>(entry));
+//                    System.out.println(entry.getKey() + " :: " + entry.getValue());
+                }
+            }
+            
+            UIManager.setLookAndFeel(new DarculaLaf());
+            lookAndFeelDefaults = UIManager.getLookAndFeelDefaults();
+            for (AbstractMap.SimpleEntry<Object, Object> entry : icons) {
+                lookAndFeelDefaults.put(entry.getKey(), entry.getValue());
+            }
         } catch (UnsupportedLookAndFeelException e) {
             java.util.logging.Logger.getLogger(SplashScreen.class.getName()).log(java.util.logging.Level.SEVERE, null, e);
             try {
@@ -59,8 +63,14 @@ public class Init {
                 java.util.logging.Logger.getLogger(SplashScreen.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
             }
         }
-        //</editor-fold>
-
+    }
+    
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) {
+        setLookAndFeel();
+        
         /* Create and display the dialog */
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override

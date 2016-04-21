@@ -84,7 +84,7 @@ public class SliceNavigator extends GLJPanel implements GLEventListener, MouseWh
             sliceMax = voxelMatrix.getSizeZ();
             slice = (int) (sliceMax / 2f);
 
-            short[] texture = voxelMatrix.getValues();
+            short[] texture = voxelMatrix.getData();
 
             gl4.glGenTextures(1, buffer);
             buffer.position(3);

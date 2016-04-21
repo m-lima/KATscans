@@ -4,9 +4,7 @@ import com.jogamp.opengl.GLException;
 import no.uib.inf252.katscan.view.component.Histogram;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Container;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
@@ -15,11 +13,8 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
-import javax.swing.JDialog;
-import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
-import javax.swing.filechooser.FileFilter;
 import net.infonode.docking.DockingWindow;
 import net.infonode.docking.RootWindow;
 import net.infonode.docking.TabWindow;
@@ -30,21 +25,18 @@ import net.infonode.docking.theme.DockingWindowsTheme;
 import net.infonode.docking.theme.ShapedGradientDockingTheme;
 import net.infonode.docking.util.AbstractViewMap;
 import net.infonode.docking.util.DockingUtil;
-import net.infonode.docking.util.StringViewMap;
 import net.infonode.docking.util.ViewMap;
 import net.infonode.gui.colorprovider.FixedColorProvider;
 import net.infonode.gui.componentpainter.SolidColorComponentPainter;
 import net.infonode.util.Direction;
 import no.uib.inf252.katscan.data.LoadedDataHolder;
 import no.uib.inf252.katscan.event.DataHolderListener;
-import no.uib.inf252.katscan.persistence.PersistenceHandler;
-import no.uib.inf252.katscan.view.component.BackgroundPanel;
+import no.uib.inf252.katscan.model.PersistenceHandler;
 import no.uib.inf252.katscan.view.component.dataset.DatasetBrowser;
-import no.uib.inf252.katscan.view.component.ExceptionViewer;
 import no.uib.inf252.katscan.view.component.dataset.DatasetBrowserPopups;
+import no.uib.inf252.katscan.view.opengl.CompositeRenderer;
 import no.uib.inf252.katscan.view.opengl.MaximumRenderer;
 import no.uib.inf252.katscan.view.opengl.SliceNavigator;
-import no.uib.inf252.katscan.view.opengl.VolumeRenderer;
 
 /**
  *
@@ -53,6 +45,7 @@ import no.uib.inf252.katscan.view.opengl.VolumeRenderer;
 public class MainFrame extends javax.swing.JFrame implements DataHolderListener {
 
     public static final Color THEME_COLOR = new Color(51, 51, 51);
+    public static final Color THEME_COLOR_BRIGHTER = new Color(60, 61, 63);
     public static final Color SOFT_GRAY = new Color(187, 187, 187);
     private static final String ICON_NAME = "/icons/iconSmall.png";
     private static final String IMAGE_NAME = "/img/simple.png";
@@ -94,7 +87,7 @@ public class MainFrame extends javax.swing.JFrame implements DataHolderListener 
         
         LoadedDataHolder.getInstance().addDataHolderListener(this);
         
-        //loadAutomaticView();
+//        loadAutomaticView();
     }
 
     private void loadAutomaticView() throws GLException {
@@ -113,7 +106,7 @@ public class MainFrame extends javax.swing.JFrame implements DataHolderListener 
             rootWindow.setWindow(tabWindow);
         }
 
-        View view = new View("Sinus", null, new MaximumRenderer("Sinus"));
+        View view = new View("Sinus", null, new CompositeRenderer("Sinus"));
         view.setPreferredMinimizeDirection(Direction.RIGHT);
         tabWindow.addTab(view);        
     }
@@ -298,7 +291,7 @@ public class MainFrame extends javax.swing.JFrame implements DataHolderListener 
                     rootWindow.setWindow(tabWindow);
                 }
                 
-                View view = new View("Volume Renderer", null, new VolumeRenderer(name));
+                View view = new View("Volume Renderer - " + name, null, new CompositeRenderer(name));
                 view.setPreferredMinimizeDirection(Direction.RIGHT);
                 tabWindow.addTab(view);
             }
@@ -321,7 +314,7 @@ public class MainFrame extends javax.swing.JFrame implements DataHolderListener 
                     rootWindow.setWindow(tabWindow);
                 }
                 
-                View view = new View("Volume Renderer", null, new MaximumRenderer(name));
+                View view = new View("Volume Renderer - " + name, null, new MaximumRenderer(name));
                 view.setPreferredMinimizeDirection(Direction.RIGHT);
                 tabWindow.addTab(view);
             }
@@ -344,7 +337,7 @@ public class MainFrame extends javax.swing.JFrame implements DataHolderListener 
                     rootWindow.setWindow(tabWindow);
                 }
 
-                View view = new View("Slice Navigator", null, new SliceNavigator(name));
+                View view = new View("Slice Navigator - " + name, null, new SliceNavigator(name));
                 view.setPreferredMinimizeDirection(Direction.RIGHT);
                 tabWindow.addTab(view);
             }
@@ -367,7 +360,7 @@ public class MainFrame extends javax.swing.JFrame implements DataHolderListener 
                     rootWindow.setWindow(tabWindow);
                 }
 
-                View view = new View("Histogram", null, new Histogram(name));
+                View view = new View("Histogram - " + name, null, new Histogram(name));
                 view.setPreferredMinimizeDirection(Direction.RIGHT);
                 tabWindow.addTab(view);
             }

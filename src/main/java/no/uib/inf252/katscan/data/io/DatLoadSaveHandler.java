@@ -35,14 +35,14 @@ public class DatLoadSaveHandler implements LoadSaveHandler {
             ShortBuffer shortBuffer;
             byteBuffer = ByteBuffer.allocate(sizeX * 2);
             byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
-            short[] gridValues = grid.getValues();
+            short[] gridData = grid.getData();
             
             for (int i = 0; i < sizeZ; i++) {
                 for (int j = 0; j < sizeY; j++) {
                     if (stream.read(byteBuffer.array()) < sizeX * 2)
                         throw new IOException("Expected data, but could not be read");
                     shortBuffer = byteBuffer.asShortBuffer();
-                    shortBuffer.get(gridValues, i * sizeY * sizeX + j * sizeX, sizeX);
+                    shortBuffer.get(gridData, i * sizeY * sizeX + j * sizeX, sizeX);
                 }
             }
 
@@ -67,7 +67,7 @@ public class DatLoadSaveHandler implements LoadSaveHandler {
         byteBuffer.putShort((short) sizeY);
         byteBuffer.putShort((short) sizeZ);
         
-        short[] gridValues = grid.getValues();
+        short[] gridData = grid.getData();
         
         try {
             stream.write(byteBuffer.array());         
@@ -78,7 +78,7 @@ public class DatLoadSaveHandler implements LoadSaveHandler {
             for (int i = 0; i < sizeZ; i++) {
                 for (int j = 0; j < sizeY; j++) {
                     ShortBuffer shortBuffer = byteBuffer.asShortBuffer();
-                    shortBuffer.put(gridValues, i * sizeY * sizeX + j * sizeX, sizeX);
+                    shortBuffer.put(gridData, i * sizeY * sizeX + j * sizeX, sizeX);
                     stream.write(byteBuffer.array());
                     stream.flush();
                 }

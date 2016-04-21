@@ -71,7 +71,7 @@ public class VoxelMatrix implements Serializable {
         return grid[z * sizeY * sizeX + y * sizeX + x];
     }
 
-    public short[] getValues() {
+    public short[] getData() {
         return grid;
     }
 

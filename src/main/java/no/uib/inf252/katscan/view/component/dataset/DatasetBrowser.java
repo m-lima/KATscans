@@ -2,14 +2,15 @@ package no.uib.inf252.katscan.view.component.dataset;
 
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.File;
 import javax.swing.SwingUtilities;
-import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import no.uib.inf252.katscan.data.LoadedDataHolder;
 import no.uib.inf252.katscan.event.DataHolderListener;
-import no.uib.inf252.katscan.persistence.DataFile;
-import no.uib.inf252.katscan.persistence.Project;
+import no.uib.inf252.katscan.model.DataFile;
+import no.uib.inf252.katscan.model.KatNode;
+import no.uib.inf252.katscan.model.Project;
 
 /**
  *
@@ -84,7 +85,7 @@ public class DatasetBrowser extends javax.swing.JPanel implements MouseListener,
                 return;
             }
             
-            DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
+            KatNode node = (KatNode) path.getLastPathComponent();
             if (node instanceof Project) {
                 DatasetBrowserPopups.getInstance().getProjectPopup().show(e.getComponent(), e.getX(), e.getY());
             }
@@ -109,14 +110,15 @@ public class DatasetBrowser extends javax.swing.JPanel implements MouseListener,
 
     @Override
     public void dataAdded(String name, String file) {
-        project.add(new DataFile(name, file));
+        DefaultTreeModel model = (DefaultTreeModel) treDatasets.getModel();
+        model.insertNodeInto(new DataFile(new File(file)), project, project.getChildCount());
         treDatasets.expandRow(0);
     }
 
     @Override
     public void dataRemoved(String name) {
         for (int i = 0; i < project.getChildCount(); i++) {
-            DataFile node = (DataFile) project.getChildAt(i);
+            DataFile node = project.getChildAt(i);
             if (node.equals(name)) {
                 DefaultTreeModel model = (DefaultTreeModel) treDatasets.getModel();
                 model.removeNodeFromParent(node);

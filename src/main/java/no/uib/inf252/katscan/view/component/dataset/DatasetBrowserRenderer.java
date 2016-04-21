@@ -4,8 +4,8 @@ import java.awt.Component;
 import javax.swing.ImageIcon;
 import javax.swing.JTree;
 import javax.swing.tree.TreeCellRenderer;
-import no.uib.inf252.katscan.persistence.DataFile;
-import no.uib.inf252.katscan.persistence.Project;
+import no.uib.inf252.katscan.model.DataFile;
+import no.uib.inf252.katscan.model.Project;
 
 /**
  *
@@ -27,8 +27,10 @@ public class DatasetBrowserRenderer extends javax.swing.JPanel implements TreeCe
             lbltem.setIcon(new ImageIcon(getClass().getResource("/icons/tree/project.png")));
         } else if (value instanceof DataFile) {
             lbltem.setIcon(new ImageIcon(getClass().getResource("/icons/tree/file.png")));
-        } else {
+        } else if (value instanceof DataFile) {
             lbltem.setIcon(new ImageIcon(getClass().getResource("/icons/tree/cut.png")));
+        } else {
+            lbltem.setIcon(null);
         }
         return this;
     }

@@ -30,10 +30,10 @@ import no.uib.inf252.katscan.util.TrackBall;
  *
  * @author Marcelo Lima
  */
-public class VolumeRenderer extends GLJPanel implements GLEventListener {
+public abstract class VolumeRenderer extends GLJPanel implements GLEventListener {
     
     private static final String SHADERS_ROOT = "/shaders";
-    private static final String SHADERS_NAME = "raycaster";
+    private final String shaderName;
     
     private static class BUFFER {
         private static final int VERTICES = 0;
@@ -56,10 +56,11 @@ public class VolumeRenderer extends GLJPanel implements GLEventListener {
     
     private int numSample;
 
-    public VolumeRenderer(String dataName) throws GLException {
+    VolumeRenderer(String dataName, String shaderName) throws GLException {
         super(new GLCapabilities(GLProfile.get(GLProfile.GL4)));
         addGLEventListener(this);
         
+        this.shaderName = shaderName;
         this.dataName = dataName;
 
         trackBall = new TrackBall();        
@@ -72,6 +73,8 @@ public class VolumeRenderer extends GLJPanel implements GLEventListener {
         addMouseMotionListener(trackBall);
         addKeyListener(trackBall);
     }
+    
+    abstract protected void preDraw(GLAutoDrawable drawable);
 
     @Override
     public void init(GLAutoDrawable drawable) {
@@ -96,12 +99,11 @@ public class VolumeRenderer extends GLJPanel implements GLEventListener {
         VoxelMatrix voxelMatrix = LoadedDataHolder.getInstance().getDataset(dataName);
         textureLoaded = voxelMatrix != null;
         if (textureLoaded) {
-            short[] texture = voxelMatrix.getValues();
+            short[] texture = voxelMatrix.getData();
 
             gl4.glGenTextures(BUFFER.TEXTURE_LENGTH, buffers);
             buffers.position(BUFFER.TOTAL_LENGTH);
             
-            gl4.glActiveTexture(GL4.GL_TEXTURE0);
             gl4.glBindTexture(GL4.GL_TEXTURE_3D, buffers.get(BUFFER.TEXTURE));
             gl4.glTexParameteri(GL4.GL_TEXTURE_3D, GL4.GL_TEXTURE_MIN_FILTER, GL4.GL_LINEAR);
             gl4.glTexParameteri(GL4.GL_TEXTURE_3D, GL4.GL_TEXTURE_MAG_FILTER, GL4.GL_LINEAR);
@@ -115,9 +117,9 @@ public class VolumeRenderer extends GLJPanel implements GLEventListener {
         }
         
         ShaderCode vertShader = ShaderCode.create(gl4, GL_VERTEX_SHADER, this.getClass(), SHADERS_ROOT,
-                null, SHADERS_NAME, true);
+                null, shaderName, true);
         ShaderCode fragShader = ShaderCode.create(gl4, GL_FRAGMENT_SHADER, this.getClass(), SHADERS_ROOT,
-                null, SHADERS_NAME, true);
+                null, shaderName, true);
 
         ShaderProgram shaderProgram = new ShaderProgram();
         shaderProgram.add(vertShader);
@@ -157,6 +159,7 @@ public class VolumeRenderer extends GLJPanel implements GLEventListener {
     @Override
     public void display(GLAutoDrawable drawable) {
         GL4 gl4 = drawable.getGL().getGL4();
+//        gl4.glClearColor(0.234375f, 0.24609375f, 0.25390625f,1.0f);
 //        gl4.glClearColor(0.2f,0.2f,0.2f,1.0f);
         gl4.glClearColor(0f,0f,0f,1.0f);
         gl4.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
@@ -203,15 +206,12 @@ public class VolumeRenderer extends GLJPanel implements GLEventListener {
             trackBall.clearDirtyValues();
         }
         
+        preDraw(drawable);
+
         gl4.glBindBuffer(GL.GL_ARRAY_BUFFER, buffers.get(BUFFER.VERTICES));        
         gl4.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, buffers.get(BUFFER.INDICES));
         gl4.glEnableVertexAttribArray(0);
         gl4.glVertexAttribPointer(0, 3, GL.GL_FLOAT, false, 0, 0);
-        
-        if (textureLoaded) {
-            gl4.glActiveTexture(GL4.GL_TEXTURE0);
-            gl4.glBindTexture(GL4.GL_TEXTURE_3D, buffers.get(BUFFER.TEXTURE));
-        }
         
         gl4.glDrawElements(GL.GL_TRIANGLES, displayObject.getIndices().length, GL.GL_UNSIGNED_SHORT, 0);
     }
@@ -221,7 +221,7 @@ public class VolumeRenderer extends GLJPanel implements GLEventListener {
         trackBall.updateProjection(width, height);
     }
     
-    private void checkError(GL gl, String location) {
+    protected void checkError(GL gl, String location) {
 
         int error = gl.glGetError();
         if (error != GL_NO_ERROR) {

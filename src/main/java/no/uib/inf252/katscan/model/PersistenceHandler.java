@@ -1,4 +1,4 @@
-package no.uib.inf252.katscan.persistence;
+package no.uib.inf252.katscan.model;
 
 /**
  *

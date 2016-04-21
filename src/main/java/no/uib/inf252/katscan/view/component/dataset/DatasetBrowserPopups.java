@@ -6,13 +6,18 @@
 
 package no.uib.inf252.katscan.view.component.dataset;
 
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JMenuItem;
+import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JToggleButton;
+import javax.swing.JToolBar;
 import no.uib.inf252.katscan.Init;
 import no.uib.inf252.katscan.data.LoadedDataHolder;
 
@@ -43,6 +48,14 @@ public class DatasetBrowserPopups implements ActionListener {
         JMenuItem menuItem = (JMenuItem)e.getSource();
         if ("Load".equals(menuItem.getText())) {
             JFileChooser fileChooser = new JFileChooser();
+//            Component[] components = ((JPanel)((JPanel)fileChooser.getComponents()[0]).getComponents()[0]).getComponents();
+//            for (Component component : components) {
+//                if (component instanceof JButton) {
+//                    ((JButton) component).setBorder(null);
+//                } else if (component instanceof JToggleButton) {
+//                    ((JToggleButton) component).setBorder(null);
+//                }
+//            }
             int option = fileChooser.showOpenDialog(Init.getFrameReference());
 
             if (option == JFileChooser.APPROVE_OPTION) {

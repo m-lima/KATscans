@@ -44,7 +44,25 @@ public class SplashScreen extends javax.swing.JDialog {
                     } catch (InterruptedException ex) {
                         Logger.getLogger(SplashScreen.class.getName()).log(Level.SEVERE, null, ex);
                     }
-                }                
+                }
+                
+                float mix = 0f;
+                while (mix < 1f) {
+                    mix += 0.1f;
+                    pnlBackground.setMix(mix);
+                    
+                    try {
+                        sleep(50);
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(SplashScreen.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+                
+                try {
+                    sleep(1000);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(SplashScreen.class.getName()).log(Level.SEVERE, null, ex);
+                }
                 
                 SplashScreen.this.setVisible(false);
                 SplashScreen.this.dispose();

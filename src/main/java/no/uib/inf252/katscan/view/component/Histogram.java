@@ -10,6 +10,7 @@ import no.uib.inf252.katscan.data.VoxelMatrix;
 import no.uib.inf252.katscan.view.MainFrame;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.AxisLocation;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.StandardXYBarPainter;
@@ -26,6 +27,7 @@ public class Histogram extends JPanel {
     private final XYPlot plot;
     private final NumberAxis valueAxis;
     private final NumberAxis domainAxis;
+    private final NumberAxis alphaAxis;
     private final String dataName;
 
     public Histogram(String dataName) {
@@ -40,11 +42,17 @@ public class Histogram extends JPanel {
         valueAxis.setTickLabelPaint(UIManager.getDefaults().getColor("Label.foreground"));
         domainAxis = new NumberAxis();
         domainAxis.setTickLabelPaint(UIManager.getDefaults().getColor("Label.foreground"));
+        alphaAxis = new NumberAxis();
+        alphaAxis.setTickLabelPaint(UIManager.getDefaults().getColor("Label.foreground"));
+        alphaAxis.setRange(0d, 1d);
+        alphaAxis.setAutoRange(false);
         
         plot = new XYPlot();
         plot.setRangeAxis(valueAxis);
         plot.setDomainAxis(domainAxis);
+        plot.setRangeAxis(1, alphaAxis);
         plot.setBackgroundPaint(null);
+        plot.setRangeAxisLocation(1, AxisLocation.TOP_OR_RIGHT);
 
         XYBarRenderer barRenderer = new XYBarRenderer();
         barRenderer.setShadowVisible(false);
