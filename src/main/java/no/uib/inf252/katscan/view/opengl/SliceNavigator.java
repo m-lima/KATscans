@@ -20,17 +20,11 @@ import com.jogamp.opengl.util.glsl.ShaderCode;
 import com.jogamp.opengl.util.glsl.ShaderProgram;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import no.uib.inf252.katscan.data.LoadedDataHolder;
+import no.uib.inf252.katscan.data.LoadedData;
 import no.uib.inf252.katscan.data.VoxelMatrix;
-import no.uib.inf252.katscan.data.io.DatLoadSaveHandler;
 
 /**
  *
@@ -78,7 +72,7 @@ public class SliceNavigator extends GLJPanel implements GLEventListener, MouseWh
         checkError(gl4, "Create Buffers");
         
         
-        VoxelMatrix voxelMatrix = LoadedDataHolder.getInstance().getDataset(dataName);
+        VoxelMatrix voxelMatrix = LoadedData.getInstance().getDataset(dataName);
         textureLoaded = voxelMatrix != null;
         if (textureLoaded) {
             sliceMax = voxelMatrix.getSizeZ();

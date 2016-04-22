@@ -21,7 +21,7 @@ import com.jogamp.opengl.util.glsl.ShaderProgram;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
-import no.uib.inf252.katscan.data.LoadedDataHolder;
+import no.uib.inf252.katscan.data.LoadedData;
 import no.uib.inf252.katscan.data.VoxelMatrix;
 import no.uib.inf252.katscan.util.DisplayObject;
 import no.uib.inf252.katscan.util.TrackBall;
@@ -64,14 +64,11 @@ public abstract class VolumeRenderer extends GLJPanel implements GLEventListener
         this.dataName = dataName;
 
         trackBall = new TrackBall();        
+        trackBall.installTrackBall(this);
+
         displayObject = DisplayObject.getObject(DisplayObject.Type.CUBE);
         
         numSample = 256;
-        
-        addMouseWheelListener(trackBall);
-        addMouseListener(trackBall);
-        addMouseMotionListener(trackBall);
-        addKeyListener(trackBall);
     }
     
     abstract protected void preDraw(GLAutoDrawable drawable);
@@ -96,7 +93,7 @@ public abstract class VolumeRenderer extends GLJPanel implements GLEventListener
         
         checkError(gl4, "Create Buffers");
         
-        VoxelMatrix voxelMatrix = LoadedDataHolder.getInstance().getDataset(dataName);
+        VoxelMatrix voxelMatrix = LoadedData.getInstance().getDataset(dataName);
         textureLoaded = voxelMatrix != null;
         if (textureLoaded) {
             short[] texture = voxelMatrix.getData();
@@ -135,6 +132,7 @@ public abstract class VolumeRenderer extends GLJPanel implements GLEventListener
             gl4.glUniform1i(location, numSample);
             
             location = gl4.glGetUniformLocation(programName, "ratio");
+//            gl4.glUniform3fv(location, 1, new float[] {1f, 1f, 1f}, 0);
             gl4.glUniform3fv(location, 1, voxelMatrix.getRatio(), 0);
         }
 

@@ -21,8 +21,8 @@ public class CompositeRenderer extends VolumeRenderer {
         
         transferFunction = new BufferedImage(1024, 1, BufferedImage.TYPE_4BYTE_ABGR);
         int rgb = new Color(0, 255, 0, 64).getRGB();
-        for (int i = 0; i < 3; i++) {
-            transferFunction.setRGB(17 + i, 0, rgb);
+        for (int i = 0; i < 5; i++) {
+            transferFunction.setRGB(15 + i, 0, rgb);
         }
         rgb = new Color(255, 255, 255, 64).getRGB();
         for (int i = 60; i < 80; i++) {
@@ -49,6 +49,14 @@ public class CompositeRenderer extends VolumeRenderer {
         byte[] dataElements = (byte[]) transferFunction.getRaster().getDataElements(0, 0, transferFunction.getWidth(), 1, null);
         gl4.glTexImage1D(GL4.GL_TEXTURE_1D, 0, GL4.GL_RGBA, transferFunction.getWidth(), 0, GL4.GL_RGBA, GL4.GL_UNSIGNED_BYTE, ByteBuffer.wrap(dataElements));
         checkError(gl4, "Create Transfer Function");
+    }
+
+    @Override
+    public void dispose(GLAutoDrawable drawable) {
+        super.dispose(drawable);
+        GL4 gl4 = drawable.getGL().getGL4();
+        
+        gl4.glDeleteTextures(0, textureLocation, 0);
     }
     
 }

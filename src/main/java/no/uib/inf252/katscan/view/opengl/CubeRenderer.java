@@ -51,14 +51,10 @@ public class CubeRenderer extends GLJPanel implements GLEventListener {
         addGLEventListener(this);
 
         trackBall = new TrackBall();
+        trackBall.installTrackBall(this);
         
         buffers = IntBuffer.allocate(BUFFER.TOTAL_LENGTH);
         displayObject = DisplayObject.getObject(DisplayObject.Type.CUBE);
-        
-        addMouseWheelListener(trackBall);
-        addMouseListener(trackBall);
-        addMouseMotionListener(trackBall);
-        addKeyListener(trackBall);
     }
 
     @Override
