@@ -52,11 +52,11 @@ void main() {
 
 //#define COLOR_CUBE
 #ifdef COLOR_CUBE
-    float minLimit = -0.5;
-    float maxLimit = 0.5;
-    vec4 saturated = vec4((vertexOut.x == maxLimit || vertexOut.x == minLimit) ? 1.0 : 0.0,
-                          (vertexOut.y == maxLimit || vertexOut.y == minLimit) ? 1.0 : 0.0,
-                          (vertexOut.z == maxLimit || vertexOut.z == minLimit) ? 1.0 : 0.0,
+    vec3 maxVec = vec3(0.5) / ratio;
+    vec3 minVec = vec3(-0.5) / ratio;
+    vec4 saturated = vec4((vertexOut.x == maxVec.x || vertexOut.x == minVec.x) ? 1.0 : 0.0,
+                          (vertexOut.y == maxVec.y || vertexOut.y == minVec.y) ? 1.0 : 0.0,
+                          (vertexOut.z == maxVec.z || vertexOut.z == minVec.z) ? 1.0 : 0.0,
                           0.25);
     gl_FragColor += saturated;
 #endif
