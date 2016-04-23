@@ -13,6 +13,7 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.ColorModel;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import javax.swing.event.EventListenerList;
 import no.uib.inf252.katscan.event.TransferFunctionListener;
@@ -25,7 +26,7 @@ public class TransferFunction {
 
     private final ArrayList<TransferFunctionPoint> points;
     private final EventListenerList listenerList;
-        
+
     private boolean dirtyPaint;
     private Color[] colors;
     private float[] colorPoints;
@@ -34,7 +35,7 @@ public class TransferFunction {
         points = new ArrayList<>();
         points.add(new TransferFunctionPoint(new TransferFunctionColor(new Color(0, true)), 0f, this, false));
         points.add(new TransferFunctionPoint(new TransferFunctionColor(new Color(255, 255, 255, 255)), 1f, this, false));
-        
+
         listenerList = new EventListenerList();
         dirtyPaint = true;
     }
@@ -47,7 +48,7 @@ public class TransferFunction {
         TransferFunctionPoint newPoint = new TransferFunctionPoint(new TransferFunctionColor(color), point, this);
         final boolean returnValue = points.add(newPoint);
         dirtyPaint = true;
-        
+
         firePointCountChanged();
         return returnValue;
     }
@@ -61,7 +62,7 @@ public class TransferFunction {
         if (point != null) {
             dirtyPaint = true;
             firePointCountChanged();
-        }        
+        }
         return point;
     }
 
@@ -74,20 +75,30 @@ public class TransferFunction {
         if (dirtyPaint) {
             rebuildPaint();
         }
-        
+
         return new LinearGradientPaint(0f, 0f, width, 0f, colorPoints, colors, MultipleGradientPaint.CycleMethod.NO_CYCLE);
     }
-    
+
     private void rebuildPaint() {
         Collections.sort(points);
-        
+
         colors = new Color[points.size()];
         colorPoints = new float[points.size()];
-        int index = 0;        
+        int index = 0;
+        int removedCount = 0;
         for (TransferFunctionPoint point : points) {
-            colors[index] = point.getColor().getWrappedColor();
-            colorPoints[index] = point.getPoint();
-            index++;
+            if (index > 0 && index < colorPoints.length && point.getPoint() == colorPoints[index - 1]) {
+                removedCount++;
+            } else {
+                colorPoints[index] = point.getPoint();
+                colors[index] = point.getColor().getWrappedColor();
+                index++;
+            }
+        }
+        
+        if (removedCount > 0) {
+            colors = Arrays.copyOf(colors, colors.length - removedCount);
+            colorPoints = Arrays.copyOf(colorPoints, colorPoints.length - removedCount);
         }
     }
 
@@ -116,20 +127,20 @@ public class TransferFunction {
             });
         }
     }
-    
+
     public synchronized void addTransferFunctionListener(TransferFunctionListener listener) {
         if (listener == null) {
             return;
         }
-        
+
         listenerList.add(TransferFunctionListener.class, listener);
     }
-    
+
     public synchronized void removeTransferFunctionListener(TransferFunctionListener listener) {
         if (listener == null) {
             return;
         }
-        
+
         listenerList.remove(TransferFunctionListener.class, listener);
     }
 
@@ -143,7 +154,7 @@ public class TransferFunction {
         private TransferFunctionPoint(TransferFunctionColor color, float point, TransferFunction owner) {
             this(color, point, owner, true);
         }
-        
+
         private TransferFunctionPoint(TransferFunctionColor color, float point, TransferFunction owner, boolean movable) {
             if (point < 0f || point > 1.0f) {
                 throw new IndexOutOfBoundsException("Cannot create a transfer function point at "
@@ -174,7 +185,7 @@ public class TransferFunction {
             if (!movable) {
                 return;
             }
-            
+
             if (point < 0f || point > 1.0f) {
                 throw new IndexOutOfBoundsException("Cannot create a transfer function point at "
                         + point);

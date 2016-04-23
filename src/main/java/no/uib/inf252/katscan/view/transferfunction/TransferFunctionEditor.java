@@ -67,6 +67,7 @@ public class TransferFunctionEditor extends JPanel implements TransferFunctionLi
             TransferFunctionPoint point = transferFunction.getPoint(i);
             marker = new TransferFunctionMarker(point);
             pnlMarker.add(marker);
+            marker.setSize(pnlMarker.getHeight(), pnlMarker.getHeight());
         }
         updateMarkersPositions();
     }
@@ -78,6 +79,7 @@ public class TransferFunctionEditor extends JPanel implements TransferFunctionLi
                 ((TransferFunctionMarker) marker).updatePosition();
             }
         }
+        validate();
         repaint();
     }
 
