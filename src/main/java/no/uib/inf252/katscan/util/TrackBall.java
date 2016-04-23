@@ -1,7 +1,6 @@
 package no.uib.inf252.katscan.util;
 
 import com.jogamp.opengl.math.FloatUtil;
-import com.jogamp.opengl.math.Matrix4;
 import com.jogamp.opengl.math.Quaternion;
 import com.jogamp.opengl.math.VectorUtil;
 import java.awt.Component;
@@ -12,8 +11,6 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
 import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
@@ -23,7 +20,7 @@ import javax.swing.SwingUtilities;
  *
  * @author Marcelo Lima
  */
-public class TrackBall implements MouseListener, MouseMotionListener, MouseWheelListener, KeyListener {
+public class TrackBall implements MouseListener, MouseMotionListener, KeyListener {
     
     public static final int MODEL_DIRTY = 0b1;
     public static final int VIEW_DIRTY = 0b10;
@@ -81,6 +78,12 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
         fov = FloatUtil.QUARTER_PI;
         
         markAllDirty();
+    }
+    
+    public void installTrackBall(Component component) {
+        component.addMouseListener(this);
+        component.addMouseMotionListener(this);
+        component.addKeyListener(this);
     }
     
     public void markAllDirty() {
@@ -188,6 +191,7 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
         final JMenuItem back = new JMenuItem("Back", new ImageIcon(getClass().getResource("/icons/back.png")));
         final JMenuItem right = new JMenuItem("Right", new ImageIcon(getClass().getResource("/icons/right.png")));
         final JMenuItem left = new JMenuItem("Left", new ImageIcon(getClass().getResource("/icons/left.png")));
+        final JMenuItem reset = new JMenuItem("Reset");
         
         ActionListener listener = new ActionListener() {
             @Override
@@ -203,8 +207,19 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
                     currentRotation.rotateByAngleY(-FloatUtil.HALF_PI);
                 } else if (e.getSource() == left) {
                     currentRotation.rotateByAngleY(+FloatUtil.HALF_PI);
+                } else {
+                    currentRotation.setIdentity();
+                    eyePosition[0] = 0f;
+                    eyePosition[1] = 0f;
+                    eyePosition[2] = 5f;
+                    targetPosition[0] = 0f;
+                    targetPosition[1] = 0f;
+                    targetPosition[2] = 0f;
+                    moving = false;
+
+                    dirtyValues |= VIEW_DIRTY | ZOOM_DIRTY;
                 }
-                dirtyValues |= MODEL_DIRTY;
+                dirtyValues |= MODEL_DIRTY | MOVEMENT_DIRTY;
                 owner.repaint();
             }
         };
@@ -222,6 +237,8 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
         popupMenu.add(back);
         popupMenu.add(right);
         popupMenu.add(left);
+        popupMenu.addSeparator();
+        popupMenu.add(reset);
     }
     
     @Override
@@ -241,21 +258,11 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
             yPos = e.getY();
             xPosOld = eyePosition[0];
             yPosOld = eyePosition[1];
-        } else {
+        } else if (SwingUtilities.isMiddleMouseButton(e)) {
+            yPos = e.getY();
+        } else if (SwingUtilities.isLeftMouseButton(e)) {
             Component component = e.getComponent();
             if (SwingUtilities.isMiddleMouseButton(e)) {
-                currentRotation.setIdentity();
-                eyePosition[0] = 0f;
-                eyePosition[1] = 0f;
-                eyePosition[2] = 5f;
-                targetPosition[0] = 0f;
-                targetPosition[1] = 0f;
-                targetPosition[2] = 0f;
-                moving = false;
-        
-                dirtyValues |= VIEW_DIRTY | MODEL_DIRTY | ZOOM_DIRTY | MOVEMENT_DIRTY;
-        
-                component.repaint();
             } else if (SwingUtilities.isLeftMouseButton(e)) {
                 initialRotation.set(currentRotation);
                 getSurfaceVector(e.getX(), e.getY(), component.getWidth(), component.getHeight(), initialPosition);
@@ -265,7 +272,7 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
 
     @Override
     public void mouseReleased(MouseEvent e) {
-        e.getComponent().requestFocus();
+        e.getComponent().requestFocusInWindow();
         if (moving) {
             moving = false;
             dirtyValues |= MOVEMENT_DIRTY;
@@ -301,6 +308,32 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
             moving = true;
             
             dirtyValues |= MODEL_DIRTY | MOVEMENT_DIRTY;
+        } else if (SwingUtilities.isMiddleMouseButton(e)){
+            int deltaY = e.getY() - yPos;
+            
+            moving = true;
+            dirtyValues |= MOVEMENT_DIRTY;
+            
+            if (e.isShiftDown()) {
+                fov += deltaY * FloatUtil.PI / (180f * 16f);
+
+                if (fov > FloatUtil.PI) {
+                    fov = FloatUtil.PI;
+                } else if (fov < 0.5f) {
+                    fov = 0.5f;
+                }
+
+                updateProjection(component.getWidth(), component.getHeight());
+            } else {
+                eyePosition[2] += deltaY / (4f * 16f);
+                if (orthographic) {
+                    updateProjection(component.getWidth(), component.getHeight());
+                }
+
+                dirtyValues |= ZOOM_DIRTY | VIEW_DIRTY;
+            }
+            yPos = e.getY();
+            
         } else if (SwingUtilities.isRightMouseButton(e)){
             eyePosition[0] = xPosOld + (xPos - e.getX()) * (eyePosition[2] - 1f) / component.getWidth();
             targetPosition[0] = eyePosition[0];
@@ -317,32 +350,6 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
 
     @Override
     public void mouseMoved(MouseEvent e) {
-    }
-
-    @Override
-    public void mouseWheelMoved(MouseWheelEvent e) {
-        Component component = e.getComponent();
-        component.requestFocus();
-        if (e.isShiftDown()) {
-            fov += e.getWheelRotation() * FloatUtil.PI / 180f;
-            
-            if (fov > FloatUtil.PI) {
-                fov = FloatUtil.PI;
-            } else if (fov < 0.5f) {
-                fov = 0.5f;
-            }
-            
-            updateProjection(component.getWidth(), component.getHeight());
-        } else {
-            eyePosition[2] += e.getWheelRotation() / 4f;
-            if (orthographic) {
-                updateProjection(component.getWidth(), component.getHeight());
-            }
-            
-            dirtyValues |= ZOOM_DIRTY | VIEW_DIRTY;
-        }
-        
-        component.repaint();
     }
 
     @Override
