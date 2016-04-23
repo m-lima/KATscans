@@ -1,8 +1,11 @@
 package no.uib.inf252.katscan.model;
 
+import no.uib.inf252.katscan.model.displayable.Displayable;
 import java.io.File;
 import java.io.Serializable;
 import javax.swing.tree.MutableTreeNode;
+import no.uib.inf252.katscan.data.LoadedData;
+import no.uib.inf252.katscan.data.VoxelMatrix;
 
 /**
  *
@@ -13,6 +16,7 @@ public class DataFile extends Displayable implements Serializable {
     private File file;
 
     public DataFile(File file) {
+        super(file.getName());
         setUserObject(file);
     }
 
@@ -47,13 +51,20 @@ public class DataFile extends Displayable implements Serializable {
     }
 
     @Override
-    public short[] getData() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public VoxelMatrix getMatrix() {
+        return LoadedData.getInstance().getDataset(getName());
     }
+    
+//    @Override
+//    public short[] getData() {
+//        VoxelMatrix dataset = LoadedData.getInstance().getDataset(getName());
+//        return dataset.getData();
+//    }
 
     @Override
-    public short[] getHistogram() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public int[] getHistogram() {
+        VoxelMatrix dataset = LoadedData.getInstance().getDataset(getName());
+        return dataset.getHistogram();
     }
 
     @Override
