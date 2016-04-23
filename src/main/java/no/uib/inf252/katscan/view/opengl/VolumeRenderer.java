@@ -23,6 +23,7 @@ import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 import no.uib.inf252.katscan.data.LoadedData;
 import no.uib.inf252.katscan.data.VoxelMatrix;
+import no.uib.inf252.katscan.model.displayable.Displayable;
 import no.uib.inf252.katscan.util.DisplayObject;
 import no.uib.inf252.katscan.util.TrackBall;
 
@@ -45,7 +46,7 @@ public abstract class VolumeRenderer extends GLJPanel implements GLEventListener
         private static final int TOTAL_LENGTH = 3;
     }
     
-    private final String dataName;
+    protected final Displayable displayable;
     
     private IntBuffer buffers;
     private final TrackBall trackBall;
@@ -56,12 +57,12 @@ public abstract class VolumeRenderer extends GLJPanel implements GLEventListener
     
     private int numSample;
 
-    VolumeRenderer(String dataName, String shaderName) throws GLException {
+    VolumeRenderer(Displayable displayable, String shaderName) throws GLException {
         super(new GLCapabilities(GLProfile.get(GLProfile.GL4)));
         addGLEventListener(this);
         
         this.shaderName = shaderName;
-        this.dataName = dataName;
+        this.displayable = displayable;
 
         trackBall = new TrackBall();        
         trackBall.installTrackBall(this);
@@ -93,7 +94,7 @@ public abstract class VolumeRenderer extends GLJPanel implements GLEventListener
         
         checkError(gl4, "Create Buffers");
         
-        VoxelMatrix voxelMatrix = LoadedData.getInstance().getDataset(dataName);
+        VoxelMatrix voxelMatrix = displayable.getMatrix();
         textureLoaded = voxelMatrix != null;
         if (textureLoaded) {
             short[] texture = voxelMatrix.getData();

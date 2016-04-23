@@ -23,8 +23,8 @@ import java.awt.event.MouseWheelListener;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
-import no.uib.inf252.katscan.data.LoadedData;
 import no.uib.inf252.katscan.data.VoxelMatrix;
+import no.uib.inf252.katscan.model.displayable.Displayable;
 
 /**
  *
@@ -34,7 +34,7 @@ public class SliceNavigator extends GLJPanel implements GLEventListener, MouseWh
 
     private IntBuffer buffer;
     
-    private final String dataName;
+    private final Displayable displayable;
     private boolean textureLoaded;
     
     private final String SHADERS_ROOT = "/shaders";
@@ -46,11 +46,11 @@ public class SliceNavigator extends GLJPanel implements GLEventListener, MouseWh
     private float sliceMax;
     private int slice;
 
-    public SliceNavigator(String dataName) throws GLException {
+    public SliceNavigator(Displayable displayable) throws GLException {
         super(new GLCapabilities(GLProfile.get(GLProfile.GL4)));
         addGLEventListener(this);
         
-        this.dataName = dataName;
+        this.displayable = displayable;
         
         addMouseWheelListener(this);
     }
@@ -72,7 +72,7 @@ public class SliceNavigator extends GLJPanel implements GLEventListener, MouseWh
         checkError(gl4, "Create Buffers");
         
         
-        VoxelMatrix voxelMatrix = LoadedData.getInstance().getDataset(dataName);
+        VoxelMatrix voxelMatrix = displayable.getMatrix();
         textureLoaded = voxelMatrix != null;
         if (textureLoaded) {
             sliceMax = voxelMatrix.getSizeZ();

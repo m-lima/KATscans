@@ -61,12 +61,6 @@
             </MenuItem>
           </SubComponents>
         </Menu>
-        <Menu class="javax.swing.JMenu" name="mnuDatasets">
-          <Properties>
-            <Property name="mnemonic" type="int" value="68"/>
-            <Property name="text" type="java.lang.String" value="Datasets"/>
-          </Properties>
-        </Menu>
         <Menu class="javax.swing.JMenu" name="mnuWindow">
           <Properties>
             <Property name="mnemonic" type="int" value="87"/>

@@ -1,21 +1,23 @@
 package no.uib.inf252.katscan.view;
 
-import com.jogamp.opengl.GLException;
-import no.uib.inf252.katscan.view.component.Histogram;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.GraphicsConfiguration;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
+import javax.swing.AbstractAction;
 import javax.swing.JMenu;
-import javax.swing.JMenuItem;
+import javax.swing.JRootPane;
+import javax.swing.KeyStroke;
 import net.infonode.docking.DockingWindow;
+import net.infonode.docking.DockingWindowListener;
+import net.infonode.docking.OperationAbortedException;
 import net.infonode.docking.RootWindow;
 import net.infonode.docking.TabWindow;
 import net.infonode.docking.View;
@@ -23,41 +25,44 @@ import net.infonode.docking.properties.DockingWindowProperties;
 import net.infonode.docking.properties.RootWindowProperties;
 import net.infonode.docking.theme.DockingWindowsTheme;
 import net.infonode.docking.theme.ShapedGradientDockingTheme;
-import net.infonode.docking.util.AbstractViewMap;
 import net.infonode.docking.util.DockingUtil;
 import net.infonode.docking.util.ViewMap;
 import net.infonode.gui.colorprovider.FixedColorProvider;
 import net.infonode.gui.componentpainter.SolidColorComponentPainter;
 import net.infonode.util.Direction;
-import no.uib.inf252.katscan.data.LoadedDataHolder;
-import no.uib.inf252.katscan.event.DataHolderListener;
-import no.uib.inf252.katscan.model.PersistenceHandler;
-import no.uib.inf252.katscan.view.component.dataset.DatasetBrowser;
-import no.uib.inf252.katscan.view.component.dataset.DatasetBrowserPopups;
-import no.uib.inf252.katscan.view.opengl.CompositeRenderer;
-import no.uib.inf252.katscan.view.opengl.MaximumRenderer;
-import no.uib.inf252.katscan.view.opengl.SliceNavigator;
+import no.uib.inf252.katscan.event.DatasetBrowserListener;
+import no.uib.inf252.katscan.event.KatViewListener;
+import no.uib.inf252.katscan.model.KatView;
+import no.uib.inf252.katscan.model.Project;
+import no.uib.inf252.katscan.model.io.PersistenceHandler;
+import no.uib.inf252.katscan.view.dataset.DatasetBrowser;
 
 /**
  *
  * @author Marcelo Lima
  */
-public class MainFrame extends javax.swing.JFrame implements DataHolderListener {
-
+public class MainFrame extends javax.swing.JFrame implements DatasetBrowserListener, KatViewListener {
+    
+    private static final int DATASET_MENU_POSITION = 1;
     public static final Color THEME_COLOR = new Color(51, 51, 51);
     public static final Color THEME_COLOR_BRIGHTER = new Color(60, 61, 63);
     public static final Color SOFT_GRAY = new Color(187, 187, 187);
     private static final String ICON_NAME = "/icons/iconSmall.png";
     private static final String IMAGE_NAME = "/img/simple.png";
-    
-    private final AbstractViewMap viewMap;
+
     private final RootWindow rootWindow;
     private final RootWindowProperties properties;
-
+    private final View datasetView;
+    
     /**
      * Creates new form MainFrame
      */
     public MainFrame() {
+        this(null);
+    }
+    
+    public MainFrame(GraphicsConfiguration gc) {
+        super(gc);
         BufferedImage image = null;
         try {
             setIconImage(ImageIO.read(getClass().getResource(ICON_NAME)));
@@ -65,33 +70,124 @@ public class MainFrame extends javax.swing.JFrame implements DataHolderListener 
         } catch (IOException ex) {
             Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         initComponents();
 
         setTitle("KATscans");
         setSize(1000, 1000);
         setExtendedState(getExtendedState() | MAXIMIZED_BOTH);
 
-        viewMap = new ViewMap();
-        rootWindow = DockingUtil.createRootWindow(viewMap, true);
+        final DatasetBrowser datasetBrowser = new DatasetBrowser();
+        datasetBrowser.addDatasetBrowserListener(this);
+        KatViewHandler.getInstance().addKatViewListener(this);
+        
+        rootWindow = DockingUtil.createRootWindow(new ViewMap(), true);
         properties = rootWindow.getRootWindowProperties();
-        
+        datasetView = new View("Datasets", null, datasetBrowser);
+
         setupRootView(image);
-        setupRootProperties();        
+        setupRootProperties();
         setupDatasetBrowser();
-        setupMenu();
-        
+
+        setupGlobalKeys();
+
         Container contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout());
         contentPane.add(rootWindow, BorderLayout.CENTER);
-        
-        LoadedDataHolder.getInstance().addDataHolderListener(this);
-        
+
 //        loadAutomaticView();
     }
 
-    private void loadAutomaticView() throws GLException {
-        LoadedDataHolder.getInstance().load("Sinus", new File("C:\\Users\\mflim_000\\Documents\\Code\\Java\\Maven\\KATscan\\misc\\sinusveins-256x256x166.dat"));
+//    private void loadAutomaticView() {
+//        try {
+//            File file = new File("C:\\Users\\mflim_000\\Documents\\Code\\Java\\Maven\\KATscan\\misc\\datasets\\sinusveins-256x256x166.dat");
+//            VoxelMatrix voxelMatrix = new DatFormat().loadData(new FileInputStream(file));
+//            LoadedData.getInstance().load("Sinus", file, voxelMatrix);
+//            DockingWindow oldViews = rootWindow.getWindow();
+//
+//            TabWindow tabWindow;
+//            if (oldViews instanceof TabWindow) {
+//                tabWindow = (TabWindow) oldViews;
+//            } else {
+//                tabWindow = new TabWindow();
+//                tabWindow.setBackground(THEME_COLOR);
+//                if (oldViews != null) {
+//                    tabWindow.addTab(oldViews);
+//                }
+//                rootWindow.setWindow(tabWindow);
+//            }
+//
+//            View view = new View("Sinus", null, new CompositeRenderer(Displayable.getByName("Sinus"), new TransferFunction()));
+//            view.setPreferredMinimizeDirection(Direction.RIGHT);
+//            tabWindow.addTab(view);
+//        } catch (FileNotFoundException ex) {
+//            Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//    }
+
+    private void setupRootView(BufferedImage image) {
+        rootWindow.setBackgroundColor(THEME_COLOR);
+        if (image != null) {
+            rootWindow.setBackgroundImage(image);
+        }
+        rootWindow.getWindowBar(Direction.RIGHT).setEnabled(true);
+        rootWindow.getWindowBar(Direction.LEFT).setEnabled(true);
+        rootWindow.getWindowBar(Direction.LEFT).setContentPanelSize(300);
+    }
+
+    private void setupRootProperties() {
+        DockingWindowsTheme theme = new ShapedGradientDockingTheme();
+        properties.addSuperObject(theme.getRootWindowProperties());
+        properties.getSplitWindowProperties().setDividerLocationDragEnabled(true);
+        properties.getShapedPanelProperties().setComponentPainter(new SolidColorComponentPainter(new FixedColorProvider(THEME_COLOR)));
+        properties.getDragRectangleShapedPanelProperties().setComponentPainter(new SolidColorComponentPainter(new FixedColorProvider(new Color(50, 50, 150, 100))));
+        properties.setEdgeSplitDistance(50);
+    }
+
+    private void setupDatasetBrowser() {
+        TabWindow tabWindow = (TabWindow) rootWindow.getWindow();
+        DockingWindowProperties datasetsProperties = datasetView.getWindowProperties();
+        datasetsProperties.setCloseEnabled(false);
+        datasetsProperties.setDragEnabled(false);
+        datasetsProperties.setUndockEnabled(false);
+        datasetsProperties.setUndockOnDropEnabled(false);
+        datasetsProperties.setRestoreEnabled(false);
+        datasetView.setPreferredMinimizeDirection(Direction.LEFT);
+        tabWindow.addTab(datasetView);
+        datasetView.minimize();
+    }
+
+    private void setupMenu(JMenu menu) {
+        if (mbrMain.getComponentCount() > 2) {
+            mbrMain.remove(DATASET_MENU_POSITION);
+        }
+        mbrMain.add(menu, DATASET_MENU_POSITION);
+        mbrMain.validate();
+    }
+
+    private void setupGlobalKeys() {
+        getRootPane().getInputMap(JRootPane.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_1, KeyEvent.CTRL_DOWN_MASK), "showTree");
+        getRootPane().getActionMap().put("showTree", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (datasetView.isVisible()) {
+                    datasetView.restore();
+//                    datasetView.show();
+//                    ((DatasetBrowser) datasetView.getComponent()).focusTree();
+                } else {
+                    datasetView.minimize();
+                }
+            }
+        });
+    }
+    
+    @Override
+    public void treeChanged(Project root) {
+        setupMenu(root.getMenu(true));
+    }
+
+    @Override
+    public void viewAddRequested(KatView view) {
         DockingWindow oldViews = rootWindow.getWindow();
 
         TabWindow tabWindow;
@@ -106,50 +202,16 @@ public class MainFrame extends javax.swing.JFrame implements DataHolderListener 
             rootWindow.setWindow(tabWindow);
         }
 
-        View view = new View("Sinus", null, new CompositeRenderer("Sinus"));
-        view.setPreferredMinimizeDirection(Direction.RIGHT);
-        tabWindow.addTab(view);        
+        view.getView().setPreferredMinimizeDirection(Direction.RIGHT);
+        tabWindow.addTab(view.getView());
     }
 
-    private void setupRootView(BufferedImage image) {
-        rootWindow.setBackgroundColor(THEME_COLOR);
-        if (image != null) {
-            rootWindow.setBackgroundImage(image);
-        }
-        rootWindow.getWindowBar(Direction.RIGHT).setEnabled(true);
-        rootWindow.getWindowBar(Direction.LEFT).setEnabled(true);
-    }
+    @Override
+    public void viewRemoved(KatView view) {}
 
-    private void setupRootProperties() {
-        DockingWindowsTheme theme = new ShapedGradientDockingTheme();
-        properties.addSuperObject(theme.getRootWindowProperties());
-        properties.getSplitWindowProperties().setDividerLocationDragEnabled(true);
-        properties.getShapedPanelProperties().setComponentPainter(new SolidColorComponentPainter(new FixedColorProvider(THEME_COLOR)));
-        properties.getDragRectangleShapedPanelProperties().setComponentPainter(new SolidColorComponentPainter(new FixedColorProvider(new Color(50, 50, 150, 100))));
-        properties.setEdgeSplitDistance(50);
-    }
-
-    private void setupDatasetBrowser() {
-        TabWindow tabWindow = (TabWindow) rootWindow.getWindow();
-        View datasetView = new View("Datasets", null, new DatasetBrowser());
-        DockingWindowProperties datasetsProperties = datasetView.getWindowProperties();
-        datasetsProperties.setCloseEnabled(false);
-        datasetsProperties.setDragEnabled(false);
-        datasetsProperties.setUndockEnabled(false);
-        datasetsProperties.setUndockOnDropEnabled(false);
-        datasetsProperties.setRestoreEnabled(false);
-        datasetView.setPreferredMinimizeDirection(Direction.LEFT);
-        tabWindow.addTab(datasetView);
-        datasetView.minimize();
-    }
+    @Override
+    public void viewAdded(KatView view) {}
     
-    private void setupMenu() {
-        DatasetBrowserPopups popups = DatasetBrowserPopups.getInstance();
-        mnuDatasets.addSeparator();
-        mnuDatasets.add(popups.getLoadDataset());
-        mnuDatasets.add(popups.getClearDatasets());
-    }
-
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -167,7 +229,6 @@ public class MainFrame extends javax.swing.JFrame implements DataHolderListener 
         mitSave = new javax.swing.JMenuItem();
         sepSaveLoad = new javax.swing.JPopupMenu.Separator();
         mitExit = new javax.swing.JMenuItem();
-        mnuDatasets = new javax.swing.JMenu();
         mnuWindow = new javax.swing.JMenu();
         sepCloseWindow = new javax.swing.JPopupMenu.Separator();
         mitCloseWindow = new javax.swing.JMenuItem();
@@ -216,10 +277,6 @@ public class MainFrame extends javax.swing.JFrame implements DataHolderListener 
 
         mbrMain.add(mnuFile);
 
-        mnuDatasets.setMnemonic('D');
-        mnuDatasets.setText("Datasets");
-        mbrMain.add(mnuDatasets);
-
         mnuWindow.setMnemonic('W');
         mnuWindow.setText("Window");
         mnuWindow.add(sepCloseWindow);
@@ -256,7 +313,6 @@ public class MainFrame extends javax.swing.JFrame implements DataHolderListener 
     private javax.swing.JMenuItem mitLoad;
     private javax.swing.JMenuItem mitNew;
     private javax.swing.JMenuItem mitSave;
-    private javax.swing.JMenu mnuDatasets;
     private javax.swing.JMenu mnuFile;
     private javax.swing.JMenu mnuWindow;
     private javax.swing.JPopupMenu.Separator sepCloseWindow;
@@ -264,134 +320,4 @@ public class MainFrame extends javax.swing.JFrame implements DataHolderListener 
     private javax.swing.JPopupMenu.Separator sepSaveLoad;
     // End of variables declaration//GEN-END:variables
 
-    @Override
-    public void dataAdded(final String name, final String file) {
-        JMenu dataItem = new JMenu(name);
-        
-        JMenuItem rendererMenu = new JMenuItem("Volume Renderer", 'V');
-        JMenuItem maximumMenu = new JMenuItem("Maximum Renderer", 'M');
-        JMenuItem sliceMenu = new JMenuItem("Slice Navigator", 'S');
-        JMenuItem histogramMenu = new JMenuItem("Histogram", 'H');
-        JMenuItem removeMenu = new JMenuItem("Remove", 'R');
-        
-        rendererMenu.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                DockingWindow oldViews = rootWindow.getWindow();
-
-                TabWindow tabWindow;
-                if (oldViews instanceof TabWindow) {
-                    tabWindow = (TabWindow) oldViews;
-                } else {
-                    tabWindow = new TabWindow();
-                    tabWindow.setBackground(THEME_COLOR);
-                    if (oldViews != null) {
-                        tabWindow.addTab(oldViews);
-                    }
-                    rootWindow.setWindow(tabWindow);
-                }
-                
-                View view = new View("Volume Renderer - " + name, null, new CompositeRenderer(name));
-                view.setPreferredMinimizeDirection(Direction.RIGHT);
-                tabWindow.addTab(view);
-            }
-        });
-        
-        maximumMenu.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                DockingWindow oldViews = rootWindow.getWindow();
-
-                TabWindow tabWindow;
-                if (oldViews instanceof TabWindow) {
-                    tabWindow = (TabWindow) oldViews;
-                } else {
-                    tabWindow = new TabWindow();
-                    tabWindow.setBackground(THEME_COLOR);
-                    if (oldViews != null) {
-                        tabWindow.addTab(oldViews);
-                    }
-                    rootWindow.setWindow(tabWindow);
-                }
-                
-                View view = new View("Volume Renderer - " + name, null, new MaximumRenderer(name));
-                view.setPreferredMinimizeDirection(Direction.RIGHT);
-                tabWindow.addTab(view);
-            }
-        });
-        
-        sliceMenu.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                DockingWindow oldViews = rootWindow.getWindow();
-
-                TabWindow tabWindow;
-                if (oldViews instanceof TabWindow) {
-                    tabWindow = (TabWindow) oldViews;
-                } else {
-                    tabWindow = new TabWindow();
-                    tabWindow.setBackground(THEME_COLOR);
-                    if (oldViews != null) {
-                        tabWindow.addTab(oldViews);
-                    }
-                    rootWindow.setWindow(tabWindow);
-                }
-
-                View view = new View("Slice Navigator - " + name, null, new SliceNavigator(name));
-                view.setPreferredMinimizeDirection(Direction.RIGHT);
-                tabWindow.addTab(view);
-            }
-        });
-        
-        histogramMenu.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                DockingWindow oldViews = rootWindow.getWindow();
-
-                TabWindow tabWindow;
-                if (oldViews instanceof TabWindow) {
-                    tabWindow = (TabWindow) oldViews;
-                } else {
-                    tabWindow = new TabWindow();
-                    tabWindow.setBackground(THEME_COLOR);
-                    if (oldViews != null) {
-                        tabWindow.addTab(oldViews);
-                    }
-                    rootWindow.setWindow(tabWindow);
-                }
-
-                View view = new View("Histogram - " + name, null, new Histogram(name));
-                view.setPreferredMinimizeDirection(Direction.RIGHT);
-                tabWindow.addTab(view);
-            }
-        });
-        
-        removeMenu.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                LoadedDataHolder.getInstance().unload(name);
-            }
-        });
-        
-        dataItem.add(rendererMenu);
-        dataItem.add(maximumMenu);
-        dataItem.add(sliceMenu);
-        dataItem.add(histogramMenu);
-        dataItem.addSeparator();
-        dataItem.add(removeMenu);
-        
-        mnuDatasets.add(dataItem, 0);
-    }
-
-    @Override
-    public void dataRemoved(String name) {
-        for (int i = 0; i < mnuDatasets.getMenuComponentCount(); i++) {
-            JMenu subMenu = (JMenu) mnuDatasets.getMenuComponent(i);
-            if (name.equals(subMenu.getText())) {
-                mnuDatasets.remove(subMenu);
-                return;
-            }
-        }
-    }
- 
 }
