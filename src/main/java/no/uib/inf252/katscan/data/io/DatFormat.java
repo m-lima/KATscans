@@ -8,11 +8,20 @@ import java.nio.ByteOrder;
 import java.nio.ShortBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.filechooser.FileFilter;
 
 /**
  * @author Marcelo Lima
  */
-public class DatLoadSaveHandler implements LoadSaveHandler {
+public class DatFormat implements LoadSaveFormat {
+    
+    private static final FileFilter FILE_FILTER = new FileNameExtensionFilter("Dat volume data", "dat", "ini");
+
+    @Override
+    public String getName() {
+        return "Dat";
+    }
 
     @Override
     public VoxelMatrix loadData(InputStream stream) {
@@ -37,19 +46,19 @@ public class DatLoadSaveHandler implements LoadSaveHandler {
             byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
             short[] gridData = grid.getData();
             
-            for (int i = 0; i < sizeZ; i++) {
-                for (int j = 0; j < sizeY; j++) {
+            for (int z = 0; z < sizeZ; z++) {
+                for (int y = 0; y < sizeY; y++) {
                     if (stream.read(byteBuffer.array()) < sizeX * 2)
                         throw new IOException("Expected data, but could not be read");
                     shortBuffer = byteBuffer.asShortBuffer();
-                    shortBuffer.get(gridData, i * sizeY * sizeX + j * sizeX, sizeX);
+                    shortBuffer.get(gridData, z * sizeY * sizeX + ((sizeY - 1) - y) * sizeX, sizeX);
                 }
             }
 
             grid.updateHistogram();
             return grid;
         } catch (IOException ex) {
-            Logger.getLogger(DatLoadSaveHandler.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(DatFormat.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         return null;
@@ -75,16 +84,26 @@ public class DatLoadSaveHandler implements LoadSaveHandler {
             byteBuffer = ByteBuffer.allocate(sizeX * 2);
             byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
             
-            for (int i = 0; i < sizeZ; i++) {
-                for (int j = 0; j < sizeY; j++) {
+            for (int z = 0; z < sizeZ; z++) {
+                for (int y = 0; y < sizeY; y++) {
                     ShortBuffer shortBuffer = byteBuffer.asShortBuffer();
-                    shortBuffer.put(gridData, i * sizeY * sizeX + j * sizeX, sizeX);
+                    shortBuffer.put(gridData, z * sizeY * sizeX + ((sizeY - 1) - y) * sizeX, sizeX);
                     stream.write(byteBuffer.array());
                     stream.flush();
                 }
             }
         } catch (IOException ex) {
-            Logger.getLogger(DatLoadSaveHandler.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(DatFormat.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    @Override
+    public char getMnemonic() {
+        return 'D';
+    }
+
+    @Override
+    public FileFilter getFileFilter() {
+        return FILE_FILTER;
     }
 }

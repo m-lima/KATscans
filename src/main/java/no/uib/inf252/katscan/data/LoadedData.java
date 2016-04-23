@@ -2,34 +2,28 @@ package no.uib.inf252.katscan.data;
 
 import java.awt.EventQueue;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.event.EventListenerList;
 import no.uib.inf252.katscan.event.DataHolderListener;
-import no.uib.inf252.katscan.data.io.DatLoadSaveHandler;
 
 /**
  * A singleton class which holds all loaded data to be shared across views
  *
  * @author Marcelo Lima
  */
-public class LoadedDataHolder {
+public class LoadedData {
 
-    private HashMap<String, VoxelMatrix> voxelMatrices;
-    private EventListenerList listenerList;
+    private final HashMap<String, VoxelMatrix> voxelMatrices;
+    private final EventListenerList listenerList;
 
-    private LoadedDataHolder() {
+    private LoadedData() {
         voxelMatrices = new HashMap<>();
         listenerList = new EventListenerList();
     }
     
-    public boolean load(String name, File file) {
-        if (name == null || file == null || name.isEmpty()) {
+    public boolean load(String name, File file, VoxelMatrix voxelMatrix) {
+        if (name == null || voxelMatrix == null || name.isEmpty()) {
             return false;
         }
         
@@ -37,28 +31,10 @@ public class LoadedDataHolder {
             return false;
         }
         
-        boolean success = true;
+        voxelMatrices.put(name, voxelMatrix);
+        fireDataLoaded(name, file.getAbsolutePath());
         
-        FileInputStream stream = null;
-        try {
-            stream = new FileInputStream(file);
-            DatLoadSaveHandler loadSave = new DatLoadSaveHandler();
-            voxelMatrices.put(name, loadSave.loadData(stream));
-        } catch (FileNotFoundException ex) {
-            success = false;
-            Logger.getLogger(LoadedDataHolder.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            try {
-                stream.close();
-            } catch (IOException ex) {
-                Logger.getLogger(LoadedDataHolder.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-        
-        if (success) {
-            fireDataLoaded(name, file.getAbsolutePath());
-        }
-        return success;
+        return true;
     }
     
     public boolean unload(String name) {
@@ -132,11 +108,11 @@ public class LoadedDataHolder {
         }
     }
 
-    public static LoadedDataHolder getInstance() {
-        return LoadedDataHolderHolder.INSTANCE;
+    public static LoadedData getInstance() {
+        return LoadedDataHolder.INSTANCE;
     }
 
-    private static class LoadedDataHolderHolder {
-        private static final LoadedDataHolder INSTANCE = new LoadedDataHolder();
+    private static class LoadedDataHolder {
+        private static final LoadedData INSTANCE = new LoadedData();
     }
  }
