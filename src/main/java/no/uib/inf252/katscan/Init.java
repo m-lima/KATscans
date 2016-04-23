@@ -1,6 +1,9 @@
 package no.uib.inf252.katscan;
 
 import com.bulenkov.darcula.DarculaLaf;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Map;
@@ -17,28 +20,23 @@ import no.uib.inf252.katscan.view.SplashScreen;
  * @author Marcelo Lima
  */
 public class Init {
-    
+
     private static MainFrame frameReference;
+    private static final int MONITOR = 0;
 
     private static void setLookAndFeel() {
         try {
             ArrayList<AbstractMap.SimpleEntry<Object, Object>> icons = new ArrayList<>();
             UIManager.setLookAndFeel(new MetalLookAndFeel());
-                
+
             UIDefaults lookAndFeelDefaults = UIManager.getLookAndFeelDefaults();
             Set<Map.Entry<Object, Object>> entrySet = lookAndFeelDefaults.entrySet();
             for (Map.Entry<Object, Object> entry : entrySet) {
-//                if (entry.getValue() instanceof Color) {
-//                    Color color = (Color) entry.getValue();
-//                    lookAndFeelDefaults.put(entry.getKey(), new Color(color.getRed(), color.getBlue(), color.getGreen()));
-//                }
-//                if (entry.getKey().toString().toLowerCase().contains("border") && entry.getKey().toString().toLowerCase().contains("button")) {
                 if (entry.getKey().toString().toLowerCase().contains("icon")) {
                     icons.add(new AbstractMap.SimpleEntry<>(entry));
-//                    System.out.println(entry.getKey() + " :: " + entry.getValue());
                 }
             }
-            
+
             UIManager.setLookAndFeel(new DarculaLaf());
             lookAndFeelDefaults = UIManager.getLookAndFeelDefaults();
             for (AbstractMap.SimpleEntry<Object, Object> entry : icons) {
@@ -64,21 +62,31 @@ public class Init {
             }
         }
     }
-    
+
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
         setLookAndFeel();
-        
+
         /* Create and display the dialog */
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                SplashScreen dialog = new SplashScreen();
-                dialog.setVisible(true);
+                GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+                GraphicsDevice[] gs = ge.getScreenDevices();
+                GraphicsConfiguration gc;
+
+                if (gs.length > MONITOR) {
+                    gc = gs[MONITOR].getDefaultConfiguration();
+                } else {
+                    gc = gs[0].getDefaultConfiguration();
+                }
                 
-                frameReference = new MainFrame();
+                SplashScreen dialog = new SplashScreen(null, gc);
+                dialog.setVisible(true);
+
+                frameReference = new MainFrame(gc);
                 frameReference.setVisible(true);
             }
         });

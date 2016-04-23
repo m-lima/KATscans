@@ -5,9 +5,10 @@
  */
 package no.uib.inf252.katscan.view;
 
+import java.awt.GraphicsConfiguration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.border.EmptyBorder;
+import javax.swing.JFrame;
 
 /**
  *
@@ -18,13 +19,11 @@ public class SplashScreen extends javax.swing.JDialog {
     /**
      * Creates new form SplashScreen
      */
-    public SplashScreen() {
-        super();
+    public SplashScreen(JFrame owner, GraphicsConfiguration gc) {
+        super(owner, "KATscans", true, gc);
         
         setResizable(false);
         setUndecorated(true);
-        setModal(true);
-        setTitle("KATscans");
         
         initComponents();
         
