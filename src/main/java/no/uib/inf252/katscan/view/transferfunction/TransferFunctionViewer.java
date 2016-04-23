@@ -8,6 +8,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import javax.swing.JComponent;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EtchedBorder;
 import no.uib.inf252.katscan.util.TransferFunction;
 
@@ -27,17 +28,15 @@ public class TransferFunctionViewer extends JComponent {
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                float point = e.getX();
-                point /= getWidth();
-                
-                BufferedImage image = new BufferedImage(getWidth(), 1, BufferedImage.TYPE_4BYTE_ABGR);
-                Graphics g = image.getGraphics();
-                paintComponent(g);
-                TransferFunctionViewer.this.parent.getTransferFunction().addPoint(new Color(image.getRGB(e.getX(), 0)), point);
-//                TransferFunctionViewer.this.parent.getTransferFunction().addPoint(Color.RED, point);
-                
-//                TransferFunctionViewer.this.parent.buildMarkers();
-//                TransferFunctionViewer.this.parent.repaint();
+                if (SwingUtilities.isLeftMouseButton(e)) {
+                    float point = e.getX();
+                    point /= getWidth();
+
+                    BufferedImage image = new BufferedImage(getWidth(), 1, BufferedImage.TYPE_4BYTE_ABGR);
+                    Graphics g = image.getGraphics();
+                    paintComponent(g);
+                    TransferFunctionViewer.this.parent.getTransferFunction().addPoint(new Color(image.getRGB(e.getX(), 0)), point);
+                }
             }
         });
         

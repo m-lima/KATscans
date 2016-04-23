@@ -57,6 +57,15 @@ public class TransferFunction {
         return points.get(index);
     }
 
+    public boolean removePoint(TransferFunctionPoint point) {
+        boolean removed = points.remove(point);
+        if (removed) {
+            dirtyPaint = true;
+            firePointCountChanged();
+        }
+        return removed;
+    }
+    
     public TransferFunctionPoint removePoint(int index) {
         final TransferFunctionPoint point = points.remove(index);
         if (point != null) {

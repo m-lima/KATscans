@@ -21,21 +21,29 @@ import no.uib.inf252.katscan.util.TransferFunction.TransferFunctionPoint;
  */
 public class TransferFunctionMarker extends JComponent {
 
+    private final TransferFunctionEditor parent;
     private TransferFunctionPoint point;
 
-    public TransferFunctionMarker(TransferFunctionPoint point) {
+    public TransferFunctionMarker(TransferFunctionEditor parent, TransferFunctionPoint point) {
+        this.parent = parent;
         this.point = point;
+
         setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (SwingUtilities.isRightMouseButton(e)) {
                     Color newColor = JColorChooser.showDialog(Init.getFrameReference(), null, TransferFunctionMarker.this.point.getColor().getWrappedColor());
                     TransferFunctionMarker.this.point.setColor(newColor);
+                } else if (SwingUtilities.isMiddleMouseButton(e)) {
+                    if (TransferFunctionMarker.this.point.isMovable()) {
+                        TransferFunctionMarker.this.parent.getTransferFunction().removePoint(TransferFunctionMarker.this.point);
+                    }
                 }
             }
         });
-        
+
         if (point.isMovable()) {
             addMouseMotionListener(new MouseAdapter() {
                 @Override
@@ -50,20 +58,23 @@ public class TransferFunctionMarker extends JComponent {
                     float newValue = mousePoint.x / (float) parent.getWidth();
                     if (newValue < 0f + Float.MIN_NORMAL) {
                         newValue = 0f + Float.MIN_NORMAL;
-                    } else if (newValue > 1f - Float.MIN_NORMAL) {
-                        newValue = 1f - Float.MIN_NORMAL;
+                    } else {
+                        if (newValue > 1f - Float.MIN_NORMAL) {
+                            newValue = 1f - Float.MIN_NORMAL;
+                        }
                     }
-                    
+
                     TransferFunctionMarker.this.point.setPoint(newValue);
                     updatePosition();
                 }
             });
         }
     }
-    
+
     public void updatePosition() {
         final Container parent = getParent();
-        setBounds((int) (point.getPoint() * parent.getWidth() - getWidth() / 2), 0, parent.getHeight(), parent.getHeight());
+        setBounds((int) (point.getPoint() * (parent.getWidth()
+                - parent.getHeight())), 0, parent.getHeight(), parent.getHeight());
     }
 
     @Override
