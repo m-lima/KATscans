@@ -62,12 +62,12 @@ public class CompositeRenderer extends VolumeRenderer implements TransferFunctio
         BufferedImage transferImage = new BufferedImage(TransferFunction.TEXTURE_SIZE, 1, BufferedImage.TYPE_4BYTE_ABGR);
         Graphics2D g2d = (Graphics2D) transferImage.getGraphics();
         //TODO Fix this.. Consider best approach in regards to resolution
-        g2d.setPaint(transferFunction.getPaint(0f, TransferFunction.TEXTURE_SIZE * 4096f / 65536f));
-        g2d.drawLine(0, 0, (int) (TransferFunction.TEXTURE_SIZE * 4096f / 65536f), 0);
+        g2d.setPaint(transferFunction.getPaint(0f, TransferFunction.TEXTURE_SIZE));
+        g2d.drawLine(0, 0, TransferFunction.TEXTURE_SIZE, 0);
         g2d.dispose();
         
         byte[] dataElements = (byte[]) transferImage.getRaster().getDataElements(0, 0, TransferFunction.TEXTURE_SIZE, 1, null);
-        gl4.glTexImage1D(GL4.GL_TEXTURE_1D, 0, GL4.GL_RGBA, TransferFunction.TEXTURE_SIZE, 0, GL4.GL_RGBA, GL4.GL_BYTE, ByteBuffer.wrap(dataElements));
+        gl4.glTexImage1D(GL4.GL_TEXTURE_1D, 0, GL4.GL_RGBA, TransferFunction.TEXTURE_SIZE, 0, GL4.GL_RGBA, GL4.GL_UNSIGNED_INT_8_8_8_8_REV, ByteBuffer.wrap(dataElements));
     }
 
     @Override

@@ -12,7 +12,8 @@ public class VoxelMatrix implements Serializable {
     private final short[] grid;
     private final int[] histogram;
     private final float[] ratio;
-    private final int maxValue;
+    private final int maxFormatValue;
+    private short maxValue;
 
     public VoxelMatrix(int sizeZ, int sizeY, int sizeX, int maxValue) {
         if (sizeZ <= 0) throw new IllegalArgumentException("The size must be larger than zero, but Z was " + sizeZ);
@@ -24,8 +25,8 @@ public class VoxelMatrix implements Serializable {
         this.sizeZ = sizeZ;
         grid = new short[sizeZ * sizeY * sizeX];
         
-        this.maxValue = maxValue;        
-        histogram = new int[this.maxValue];
+        this.maxFormatValue = maxValue;        
+        histogram = new int[this.maxFormatValue];
         
         //TODO Fix ratio
         float minSize = Math.min(sizeX, Math.min(sizeY, sizeZ));
@@ -51,15 +52,25 @@ public class VoxelMatrix implements Serializable {
         return histogram;
     }
 
-    public int getMaxValue() {
+//    public int getMaxFormatValue() {
+//        return maxFormatValue;
+//    }
+
+    public short getMaxValue() {
         return maxValue;
     }
     
     public void updateHistogram() {
+        short value;
         Arrays.fill(histogram, 0);
         for (int i = 0; i < grid.length; i++) {
-            if (grid[i] > 1) {
-                histogram[grid[i] & 0xFFFF]++;
+            value = grid[i];
+            if (maxValue < value) {
+                maxValue = value;
+            }
+            
+            if (value > 1) {
+                histogram[value & 0xFFFF]++;
             }
         }
     }

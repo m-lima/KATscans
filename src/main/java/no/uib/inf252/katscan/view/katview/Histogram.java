@@ -61,6 +61,8 @@ public class Histogram extends JPanel implements KatView {
         
         domainAxis.setTickLabelPaint(UIManager.getDefaults().getColor("Label.foreground"));
         domainAxis.setRangeType(RangeType.POSITIVE);
+        domainAxis.setAutoRangeStickyZero(true);
+        domainAxis.setAutoRangeIncludesZero(true);
         domainAxis.setFixedAutoRange(displayable.getMatrix().getMaxValue());
         
         barRenderer.setShadowVisible(false);
@@ -87,8 +89,12 @@ public class Histogram extends JPanel implements KatView {
         
         plot.setDataset(0, collection);
 
+        int value;
         for (int i = 0; i < dataset.getMaxValue(); i++) {
-            series.add(i, histogram[i]);
+            value = histogram[i];
+            if (value > 0) {
+                series.add(i, value);
+            }
         }
     }
     

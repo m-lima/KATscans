@@ -36,7 +36,7 @@ public class RawFormat implements LoadSaveFormat {
                 sizeY = byteBuffer.getShort();
                 sizeZ = byteBuffer.getShort();
 
-                grid = new VoxelMatrix(sizeZ, sizeY, sizeX, 4096);
+                grid = new VoxelMatrix(sizeZ, sizeY, sizeX, 8192);
             } else {
                 throw new StreamCorruptedException("Could not read dat header from the stream");
             }
