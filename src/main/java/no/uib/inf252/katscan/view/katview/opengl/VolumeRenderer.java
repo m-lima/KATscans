@@ -115,6 +115,8 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
         textureLoaded = voxelMatrix != null;
         if (textureLoaded) {
             short[] texture = voxelMatrix.getData();
+            
+            numSample = (int) Math.cbrt(texture.length);
 
             gl4.glGenTextures(BUFFER.TEXTURE_LENGTH, buffers);
             buffers.position(BUFFER.TOTAL_LENGTH);
