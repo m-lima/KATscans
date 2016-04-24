@@ -61,7 +61,8 @@ public class CompositeRenderer extends VolumeRenderer implements TransferFunctio
     private void updateTransferFunction(GL4 gl4) {
         BufferedImage transferImage = new BufferedImage(1024, 1, BufferedImage.TYPE_4BYTE_ABGR);
         Graphics2D g2d = (Graphics2D) transferImage.getGraphics();
-        g2d.setPaint(transferFunction.getPaint(transferImage.getWidth()));
+        //TODO Fix this.. Consider best approach in regards to resolution
+        g2d.setPaint(transferFunction.getPaint(0f, transferImage.getWidth()));
         g2d.drawLine(0, 0, transferImage.getWidth(), 0);
         g2d.dispose();
         
@@ -72,11 +73,18 @@ public class CompositeRenderer extends VolumeRenderer implements TransferFunctio
     @Override
     public void pointCountChanged() {
         transferFunctionDirty = true;
+        repaint();
     }
 
     @Override
     public void pointValueChanged() {
         transferFunctionDirty = true;
+        repaint();
+    }
+
+    //TODO remove
+    public TransferFunction getTransferFunction() {
+        return transferFunction;
     }
     
 }

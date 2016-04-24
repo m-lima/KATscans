@@ -5,12 +5,16 @@ uniform sampler3D volumeTexture;
 uniform sampler1D transferFunction;
 
 uniform int numSamples;
+uniform int lodMultuplier;
+uniform float densityFactor;
+
 uniform mat4 model;
 uniform bool orthographic;
 uniform vec3 eyePos;
 uniform vec3 ratio;
 
-const float stepSize = sqrt(3.0) / float(numSamples);
+const int actualSamples = numSamples * lodMultuplier;
+const float stepSize = sqrt(3.0) / float(actualSamples);
 
 void main() {       
     vec3 effectiveEyePos = eyePos;
@@ -28,7 +32,7 @@ void main() {
     vec3 coord;
     vec4 color = vec4(0.0);
     vec4 transferColor;
-    for (int i = 0; i < numSamples; ++i, pos += stepValue) {
+    for (int i = 0; i < actualSamples; ++i, pos += stepValue) {
         coord = pos * ratio + 0.5;
         if (coord.x < 0.0 || coord.x > 1.0 ||
             coord.y < 0.0 || coord.y > 1.0 ||
@@ -36,12 +40,12 @@ void main() {
             break;
         }
         
-        density = texture(volumeTexture, coord).x;
+        density = texture(volumeTexture, coord).x * densityFactor;
         transferColor = texture(transferFunction, density);
 
         //color = mix(color, transferColor, transferColor.a);
         color.rgb = mix(color.rgb, transferColor.rgb, transferColor.a);
-        color.a += transferColor.a * (256.0 / numSamples);
+        color.a += transferColor.a / lodMultuplier;
 
         if (color.a >= 1.0) {
             break;

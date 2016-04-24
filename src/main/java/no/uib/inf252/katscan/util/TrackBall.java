@@ -11,6 +11,8 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
@@ -20,7 +22,7 @@ import javax.swing.SwingUtilities;
  *
  * @author Marcelo Lima
  */
-public class TrackBall implements MouseListener, MouseMotionListener, KeyListener {
+public class TrackBall implements MouseListener, MouseMotionListener, MouseWheelListener, KeyListener {
     
     public static final int MODEL_DIRTY = 0b1;
     public static final int VIEW_DIRTY = 0b10;
@@ -83,6 +85,7 @@ public class TrackBall implements MouseListener, MouseMotionListener, KeyListene
     public void installTrackBall(Component component) {
         component.addMouseListener(this);
         component.addMouseMotionListener(this);
+        component.addMouseWheelListener(this);
         component.addKeyListener(this);
     }
     
@@ -350,6 +353,32 @@ public class TrackBall implements MouseListener, MouseMotionListener, KeyListene
 
     @Override
     public void mouseMoved(MouseEvent e) {
+    }
+    
+    @Override
+    public void mouseWheelMoved(MouseWheelEvent e) {
+        Component component = e.getComponent();
+        component.requestFocus();
+        if (e.isShiftDown()) {
+            fov += e.getWheelRotation() * FloatUtil.PI / 180f;
+            
+            if (fov > FloatUtil.PI) {
+                fov = FloatUtil.PI;
+            } else if (fov < 0.5f) {
+                fov = 0.5f;
+            }
+            
+            updateProjection(component.getWidth(), component.getHeight());
+        } else {
+            eyePosition[2] += e.getWheelRotation() / 4f;
+            if (orthographic) {
+                updateProjection(component.getWidth(), component.getHeight());
+            }
+            
+            dirtyValues |= ZOOM_DIRTY | VIEW_DIRTY;
+        }
+        
+        component.repaint();
     }
 
     @Override

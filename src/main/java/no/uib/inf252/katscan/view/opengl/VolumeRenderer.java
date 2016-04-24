@@ -18,10 +18,12 @@ import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.util.glsl.ShaderCode;
 import com.jogamp.opengl.util.glsl.ShaderProgram;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
-import no.uib.inf252.katscan.data.LoadedData;
+import javax.swing.Timer;
 import no.uib.inf252.katscan.data.VoxelMatrix;
 import no.uib.inf252.katscan.model.displayable.Displayable;
 import no.uib.inf252.katscan.util.DisplayObject;
@@ -56,6 +58,9 @@ public abstract class VolumeRenderer extends GLJPanel implements GLEventListener
     private boolean textureLoaded;
     
     private int numSample;
+    
+    private Timer threadLOD;
+    private boolean highLOD;
 
     VolumeRenderer(Displayable displayable, String shaderName) throws GLException {
         super(new GLCapabilities(GLProfile.get(GLProfile.GL4)));
@@ -70,6 +75,16 @@ public abstract class VolumeRenderer extends GLJPanel implements GLEventListener
         displayObject = DisplayObject.getObject(DisplayObject.Type.CUBE);
         
         numSample = 256;
+        
+        //TODO this
+        threadLOD = new Timer(500, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                highLOD = true;
+                repaint();
+            }
+        });
+        threadLOD.setRepeats(false);
     }
     
     abstract protected void preDraw(GLAutoDrawable drawable);
@@ -78,6 +93,8 @@ public abstract class VolumeRenderer extends GLJPanel implements GLEventListener
     public void init(GLAutoDrawable drawable) {
         trackBall.markAllDirty();
         buffers = IntBuffer.allocate(BUFFER.TOTAL_LENGTH);
+        
+        highLOD = true;
         
         GL4 gl4 = drawable.getGL().getGL4();
         
@@ -132,8 +149,10 @@ public abstract class VolumeRenderer extends GLJPanel implements GLEventListener
             int location = gl4.glGetUniformLocation(programName, "numSamples");
             gl4.glUniform1i(location, numSample);
             
+            location = gl4.glGetUniformLocation(programName, "densityFactor");
+            gl4.glUniform1f(location, 65536f / voxelMatrix.getMaxValue());
+            
             location = gl4.glGetUniformLocation(programName, "ratio");
-//            gl4.glUniform3fv(location, 1, new float[] {1f, 1f, 1f}, 0);
             gl4.glUniform3fv(location, 1, voxelMatrix.getRatio(), 0);
         }
 
@@ -171,38 +190,42 @@ public abstract class VolumeRenderer extends GLJPanel implements GLEventListener
         
         gl4.glUseProgram(programName);
         
+        int uniformLocation;
+        if (highLOD) {
+            uniformLocation = gl4.glGetUniformLocation(programName, "lodMultuplier");
+            gl4.glUniform1i(uniformLocation, 16);
+        }
+        
         int dirtyValues = trackBall.getDirtyValues();
-        if (dirtyValues > 0) {
-            int location;
+        if ((dirtyValues & (TrackBall.PROJECTION_DIRTY | TrackBall.VIEW_DIRTY | TrackBall.MODEL_DIRTY | TrackBall.ORTHO_DIRTY)) != 0) {
 
             if ((dirtyValues & TrackBall.PROJECTION_DIRTY) > 0) {
-                location = gl4.glGetUniformLocation(programName, "projection");
-                gl4.glUniformMatrix4fv(location, 1, false, trackBall.getProjectionMatrix(), 0);
+                uniformLocation = gl4.glGetUniformLocation(programName, "projection");
+                gl4.glUniformMatrix4fv(uniformLocation, 1, false, trackBall.getProjectionMatrix(), 0);
+                trackBall.clearDirtyValues(TrackBall.PROJECTION_DIRTY);
             }
 
             if ((dirtyValues & TrackBall.VIEW_DIRTY) > 0) {
-                location = gl4.glGetUniformLocation(programName, "view");
-                gl4.glUniformMatrix4fv(location, 1, false, trackBall.getViewMatrix(), 0);
-                location = gl4.glGetUniformLocation(programName, "eyePos");
-                gl4.glUniform3fv(location, 1, trackBall.getEyePosition(), 0);
+                uniformLocation = gl4.glGetUniformLocation(programName, "view");
+                gl4.glUniformMatrix4fv(uniformLocation, 1, false, trackBall.getViewMatrix(), 0);                
+                uniformLocation = gl4.glGetUniformLocation(programName, "eyePos");
+                gl4.glUniform3fv(uniformLocation, 1, trackBall.getEyePosition(), 0);
+                trackBall.clearDirtyValues(TrackBall.ZOOM_DIRTY);
+                trackBall.clearDirtyValues(TrackBall.ZOOM_DIRTY);
+                trackBall.clearDirtyValues(TrackBall.FOV_DIRTY);
             }
 
             if ((dirtyValues & TrackBall.MODEL_DIRTY) > 0) {
-                location = gl4.glGetUniformLocation(programName, "model");
-                gl4.glUniformMatrix4fv(location, 1, false, trackBall.getModelMatrix(), 0);
+                uniformLocation = gl4.glGetUniformLocation(programName, "model");
+                gl4.glUniformMatrix4fv(uniformLocation, 1, false, trackBall.getModelMatrix(), 0);
+                trackBall.clearDirtyValues(TrackBall.MODEL_DIRTY);
             }
 
             if ((dirtyValues & TrackBall.ORTHO_DIRTY) > 0) {
-                location = gl4.glGetUniformLocation(programName, "orthographic");
-                gl4.glUniform1i(location, trackBall.isOrthographic() ? 1 : 0);
+                uniformLocation = gl4.glGetUniformLocation(programName, "orthographic");
+                gl4.glUniform1i(uniformLocation, trackBall.isOrthographic() ? 1 : 0);
+                trackBall.clearDirtyValues(TrackBall.ORTHO_DIRTY);
             }
-
-            if ((dirtyValues & TrackBall.MOVEMENT_DIRTY) > 0) {
-                location = gl4.glGetUniformLocation(programName, "numSamples");
-                gl4.glUniform1i(location, numSample * (trackBall.isMoving() ? 1 : 16));
-            }
-            
-            trackBall.clearDirtyValues();
         }
         
         preDraw(drawable);
@@ -213,6 +236,15 @@ public abstract class VolumeRenderer extends GLJPanel implements GLEventListener
         gl4.glVertexAttribPointer(0, 3, GL.GL_FLOAT, false, 0, 0);
         
         gl4.glDrawElements(GL.GL_TRIANGLES, displayObject.getIndices().length, GL.GL_UNSIGNED_SHORT, 0);
+        
+        if (highLOD) {
+            uniformLocation = gl4.glGetUniformLocation(programName, "lodMultuplier");
+            gl4.glUniform1i(uniformLocation, 1);
+            highLOD = false;
+        } else {
+            threadLOD.restart();
+        }
+        
     }
 
     @Override
