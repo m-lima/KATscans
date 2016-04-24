@@ -71,7 +71,7 @@ public class TransferFunctionChartEditor extends JPanel implements TransferFunct
         }
         repaint();
     }
-    
+
     public void setRange(double lower, double upper) {
         minRange = lower / maxValue;
         maxRange = upper / maxValue;
@@ -83,7 +83,6 @@ public class TransferFunctionChartEditor extends JPanel implements TransferFunct
     protected void paintComponent(Graphics g) {
         Graphics2D g2d = (Graphics2D) g;
         final int width = getWidth();
-
 
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2d.setPaint(transferFunction.getPaint(
@@ -116,7 +115,7 @@ public class TransferFunctionChartEditor extends JPanel implements TransferFunct
     public void pointValueChanged() {
         updateMarkersPositions();
     }
-    
+
     private class Marker extends JComponent {
 
         private final TransferFunctionPoint point;
@@ -134,53 +133,46 @@ public class TransferFunctionChartEditor extends JPanel implements TransferFunct
                         if (newColor != null) {
                             point.setColor(new Color(newColor.getRed(), newColor.getGreen(), newColor.getBlue(), point.getColor().getAlpha()));
                         }
-                    } else {
-                        if (SwingUtilities.isMiddleMouseButton(e)) {
-                            if (point.isMovable()) {
-                                transferFunction.removePoint(point);
-                            }
+                    } else if (SwingUtilities.isMiddleMouseButton(e)) {
+                        if (point.isMovable()) {
+                            transferFunction.removePoint(point);
                         }
                     }
                 }
             });
 
-            if (point.isMovable()) {
-                addMouseMotionListener(new MouseAdapter() {
-                    @Override
-                    public void mouseDragged(MouseEvent e) {
-                        final Container parent = getParent();
+            addMouseMotionListener(new MouseAdapter() {
+                @Override
+                public void mouseDragged(MouseEvent e) {
+                    final Container parent = getParent();
 
-                        Point mousePoint = SwingUtilities.convertPoint(Marker.this, e.getPoint(), parent);
-                        if (mousePoint.x > parent.getWidth() || mousePoint.x < 0) {
-                            return;
-                        }
+                    Point mousePoint = SwingUtilities.convertPoint(Marker.this, e.getPoint(), parent);
 
+                    double alpha = 1d - mousePoint.y / (double) parent.getHeight();
+                    point.setAlpha(alpha);
+
+                    if (point.isMovable()) {
                         double newPoint = mousePoint.x / (double) parent.getWidth();
                         newPoint /= ratio;
                         newPoint += minRange;
 
                         if (newPoint < 0f + TransferFunction.MIN_STEP) {
                             newPoint = 0f + TransferFunction.MIN_STEP;
-                        } else {
-                            if (newPoint > 1f - TransferFunction.MIN_STEP) {
-                                newPoint = 1f - TransferFunction.MIN_STEP;
-                            }
+                        } else if (newPoint > 1f - TransferFunction.MIN_STEP) {
+                            newPoint = 1f - TransferFunction.MIN_STEP;
                         }
-                        
-                        double alpha = 1d - mousePoint.y / (double) parent.getHeight();
 
                         point.setPoint((float) newPoint);
-                        point.setAlpha(alpha);
                         updatePosition();
                     }
-                });
-            }
+                }
+            });
         }
 
         public void updatePosition() {
             int parentWidth = getParent().getWidth();
             int parentHeight = getParent().getHeight();
-            
+
             double x = (point.getPoint() - minRange) * ratio;
             x *= parentWidth;
             x -= MARKER_SIZE_HALF;
@@ -188,7 +180,7 @@ public class TransferFunctionChartEditor extends JPanel implements TransferFunct
             double y = 1d - point.getAlpha();
             y *= parentHeight;
             y -= MARKER_SIZE_HALF;
-            
+
             setVisible(x >= 0d && x < parentWidth);
             setBounds((int) x, (int) y, MARKER_SIZE, MARKER_SIZE);
         }
@@ -206,7 +198,7 @@ public class TransferFunctionChartEditor extends JPanel implements TransferFunct
             g.setColor(point.getColor());
             g.fillOval(iniX + 1, iniY + 1, radius - 2, radius - 2);
         }
-        
+
     }
 
 }

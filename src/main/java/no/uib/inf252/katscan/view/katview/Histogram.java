@@ -3,7 +3,6 @@ package no.uib.inf252.katscan.view.katview;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.util.ArrayList;
-import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 import no.uib.inf252.katscan.data.VoxelMatrix;

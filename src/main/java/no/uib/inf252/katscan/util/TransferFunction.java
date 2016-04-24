@@ -4,13 +4,6 @@ import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.LinearGradientPaint;
 import java.awt.MultipleGradientPaint;
-import java.awt.Paint;
-import java.awt.PaintContext;
-import java.awt.Rectangle;
-import java.awt.RenderingHints;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Rectangle2D;
-import java.awt.image.ColorModel;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,7 +17,8 @@ import no.uib.inf252.katscan.event.TransferFunctionListener;
  */
 public class TransferFunction {
 
-    public static final float MIN_STEP = 1f / 1024f;
+    public static final int TEXTURE_SIZE = 2048;
+    public static final float MIN_STEP = 1f / TEXTURE_SIZE;
 
     private final ArrayList<TransferFunctionPoint> points;
     private final EventListenerList listenerList;

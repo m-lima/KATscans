@@ -63,7 +63,7 @@ public class LoadSaveHandlerTest {
     @Test
     public void testSaveData() {
         ByteArrayOutputStream out = new ByteArrayOutputStream(20 * 20 * 20 + 6);
-        VoxelMatrix grid = new VoxelMatrix(10, 10, 10);
+        VoxelMatrix grid = new VoxelMatrix(10, 10, 10, 4096);
         grid.setValue(0, 0, 0, (short)2);
         
         sut.saveData(out, grid);

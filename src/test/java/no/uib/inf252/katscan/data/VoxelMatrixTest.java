@@ -25,7 +25,7 @@ public class VoxelMatrixTest {
                     boolean expected = !(i == 1 && j == 1 && k == 1);
                     boolean threw = false;
                     try {
-                        sut = new VoxelMatrix(k, j, i);
+                        sut = new VoxelMatrix(k, j, i, 4096);
                     } catch (IllegalArgumentException ex) {
                         assertTrue(expected);
                         threw = true;
@@ -43,7 +43,7 @@ public class VoxelMatrixTest {
         int y = (int) (Math.random() * 20 + 1);
         int x = (int) (Math.random() * 20 + 1);
 
-        sut = new VoxelMatrix(z, y, x);
+        sut = new VoxelMatrix(z, y, x, 4096);
         assertEquals(z, sut.getSizeZ());
         assertEquals(y, sut.getSizeY());
         assertEquals(x, sut.getSizeX());
@@ -51,7 +51,7 @@ public class VoxelMatrixTest {
 
     @Test
     public void testGetSetValue() throws Exception {
-        sut = new VoxelMatrix(10, 10, 10);
+        sut = new VoxelMatrix(10, 10, 10, 4096);
 
         int z = (int) (Math.random() * 10);
         int y = (int) (Math.random() * 10);

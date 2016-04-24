@@ -149,7 +149,7 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
             int location = gl4.glGetUniformLocation(programName, "numSamples");
             gl4.glUniform1i(location, numSample);
             
-            location = gl4.glGetUniformLocation(programName, "densityFactor");
+            location = gl4.glGetUniformLocation(programName, "formatFactor");
             gl4.glUniform1f(location, 65536f / voxelMatrix.getMaxValue());
             
             location = gl4.glGetUniformLocation(programName, "ratio");

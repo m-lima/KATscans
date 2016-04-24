@@ -6,7 +6,7 @@ uniform sampler1D transferFunction;
 
 uniform int numSamples;
 uniform int lodMultuplier;
-uniform float densityFactor;
+uniform float formatFactor;
 
 uniform mat4 model;
 uniform bool orthographic;
@@ -40,7 +40,7 @@ void main() {
             break;
         }
         
-        density = texture(volumeTexture, coord).x * densityFactor;
+        density = texture(volumeTexture, coord).x * formatFactor;
         transferColor = texture(transferFunction, density);
 
         //color = mix(color, transferColor, transferColor.a);

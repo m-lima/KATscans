@@ -5,7 +5,7 @@ layout(binding=0) uniform sampler3D volumeTexture;
 
 uniform int numSamples;
 uniform int lodMultuplier;
-uniform float densityFactor;
+uniform float formatFactor;
 
 uniform mat4 model;
 uniform bool orthographic;
@@ -37,7 +37,7 @@ void main() {
             coord.z < 0.0 || coord.z > 1.0) {
             break;
         }
-        density = texture(volumeTexture, coord).x * densityFactor;
+        density = texture(volumeTexture, coord).x * formatFactor;
         if (density <= 0.0) continue;
         colorOut = max(density, colorOut);
         if (colorOut >= 1.0) break;
