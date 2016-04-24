@@ -31,19 +31,20 @@ import no.uib.inf252.katscan.util.TransferFunction.TransferFunctionPoint;
  */
 public class TransferFunctionBarEditor extends JPanel implements TransferFunctionListener {
 
-    public static final int COLOR_SIZE = 10;
-    public static final int COLOR_SIZE_HALF = 5;
+    public static final int MARKER_SIZE = 10;
+    public static final int MARKER_SIZE_HALF = 5;
 
     private final TransferFunction transferFunction;
-    private final TransferFunctionViewer pnlViewer;
+    private final Viewer pnlViewer;
     private final JPanel pnlMarker;
-    private final double maxValue;
     
+    private final double maxValue;
     private double minRange;
     private double maxRange;
     private double ratio;
 
     public TransferFunctionBarEditor(TransferFunction transferFunction) {
+        super(new BorderLayout());
         this.transferFunction = transferFunction;
         this.transferFunction.addTransferFunctionListener(this);
         
@@ -55,31 +56,28 @@ public class TransferFunctionBarEditor extends JPanel implements TransferFunctio
         Dimension dimension = new Dimension(32, 32);
 
         setOpaque(true);
-        setLayout(new BorderLayout());
         setMinimumSize(dimension);
         setPreferredSize(dimension);
 
-        pnlMarker = new JPanel();
+        pnlMarker = new JPanel(null);
         pnlMarker.setOpaque(false);
-        pnlMarker.setPreferredSize(new Dimension(COLOR_SIZE, COLOR_SIZE));
-        pnlMarker.setLayout(null);
+        pnlMarker.setPreferredSize(new Dimension(MARKER_SIZE, MARKER_SIZE));
         add(pnlMarker, BorderLayout.NORTH);
 
-        JPanel pnlViewerHolder = new JPanel();
+        JPanel pnlViewerHolder = new JPanel(new BorderLayout());
         pnlViewerHolder.setOpaque(false);
-        pnlViewerHolder.setLayout(new BorderLayout());
         add(pnlViewerHolder, BorderLayout.CENTER);
 
-        pnlViewer = new TransferFunctionViewer();
+        pnlViewer = new Viewer();
         pnlViewerHolder.add(pnlViewer, BorderLayout.CENTER);
 
-        JPanel pnlGap = new JPanel();
+        JPanel pnlGap = new JPanel(null);
         pnlGap.setOpaque(false);
-        pnlGap.setPreferredSize(new Dimension(COLOR_SIZE_HALF, COLOR_SIZE_HALF));
+        pnlGap.setPreferredSize(new Dimension(MARKER_SIZE_HALF, MARKER_SIZE_HALF));
         pnlViewerHolder.add(pnlGap, BorderLayout.EAST);
-        pnlGap = new JPanel();
+        pnlGap = new JPanel(null);
         pnlGap.setOpaque(false);
-        pnlGap.setPreferredSize(new Dimension(COLOR_SIZE_HALF, COLOR_SIZE_HALF));
+        pnlGap.setPreferredSize(new Dimension(MARKER_SIZE_HALF, MARKER_SIZE_HALF));
         pnlViewerHolder.add(pnlGap, BorderLayout.WEST);
 
         buildMarkers();
@@ -100,10 +98,10 @@ public class TransferFunctionBarEditor extends JPanel implements TransferFunctio
 
     private void buildMarkers() {
         pnlMarker.removeAll();
-        TransferFunctionMarker marker;
+        Marker marker;
         for (int i = 0; i < transferFunction.getPointCount(); i++) {
             TransferFunctionPoint point = transferFunction.getPoint(i);
-            marker = new TransferFunctionMarker(point);
+            marker = new Marker(point);
             pnlMarker.add(marker);
             marker.setSize(pnlMarker.getHeight(), pnlMarker.getHeight());
         }
@@ -113,11 +111,10 @@ public class TransferFunctionBarEditor extends JPanel implements TransferFunctio
     private void updateMarkersPositions() {
         Component[] markers = pnlMarker.getComponents();
         for (Component marker : markers) {
-            if (marker instanceof TransferFunctionMarker) {
-                ((TransferFunctionMarker) marker).updatePosition();
+            if (marker instanceof Marker) {
+                ((Marker) marker).updatePosition();
             }
         }
-        validate();
         repaint();
     }
     
@@ -135,12 +132,94 @@ public class TransferFunctionBarEditor extends JPanel implements TransferFunctio
 
     @Override
     public void pointValueChanged() {
-        repaint();
+        updateMarkersPositions();
     }
 
-    private class TransferFunctionViewer extends JComponent {
+    private class Marker extends JComponent {
 
-        private TransferFunctionViewer() {
+        private final TransferFunctionPoint point;
+
+        private Marker(TransferFunctionPoint newPoint) {
+            this.point = newPoint;
+
+            setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+            addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    if (SwingUtilities.isRightMouseButton(e)) {
+                        Color newColor = JColorChooser.showDialog(Init.getFrameReference(), null, point.getColor());
+                        if (newColor != null) {
+                            point.setColor(newColor);
+                        }
+                    } else {
+                        if (SwingUtilities.isMiddleMouseButton(e)) {
+                            if (point.isMovable()) {
+                                transferFunction.removePoint(point);
+                            }
+                        }
+                    }
+                }
+            });
+
+            if (point.isMovable()) {
+                addMouseMotionListener(new MouseAdapter() {
+                    @Override
+                    public void mouseDragged(MouseEvent e) {
+                        final Container parent = getParent();
+
+                        Point mousePoint = SwingUtilities.convertPoint(Marker.this, e.getPoint(), parent);
+                        if (mousePoint.x > parent.getWidth() || mousePoint.x < 0) {
+                            return;
+                        }
+
+                        double newValue = mousePoint.x / (double) parent.getWidth();
+                        newValue /= ratio;
+                        newValue += minRange;
+
+                        if (newValue < 0f + TransferFunction.MIN_STEP) {
+                            newValue = 0f + TransferFunction.MIN_STEP;
+                        } else {
+                            if (newValue > 1f - TransferFunction.MIN_STEP) {
+                                newValue = 1f - TransferFunction.MIN_STEP;
+                            }
+                        }
+
+                        point.setPoint((float) newValue);
+                        updatePosition();
+                    }
+                });
+            }
+        }
+
+        public void updatePosition() {
+            int parentWidth = getParent().getWidth();
+            double x = (point.getPoint() - minRange) * ratio;
+            x *= (parentWidth - MARKER_SIZE);
+            
+            setVisible(x >= 0d && x < parentWidth);
+            setBounds((int) x, 0, MARKER_SIZE, MARKER_SIZE);
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            int radius = Math.min(getWidth(), getHeight());
+            int radius2 = radius >> 1;
+            int iniX = (getWidth() >> 1) - radius2;
+            int iniY = (getHeight() >> 1) - radius2;
+
+            ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g.setColor(Color.BLACK);
+            g.fillOval(iniX, iniY, radius, radius);
+            g.setColor(point.getColor());
+            g.fillOval(iniX + 1, iniY + 1, radius - 2, radius - 2);
+        }
+
+    }
+
+    private class Viewer extends JComponent {
+
+        private Viewer() {
             setBorder(new EtchedBorder());
             setOpaque(true);
             setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -201,86 +280,6 @@ public class TransferFunctionBarEditor extends JPanel implements TransferFunctio
                     g2d.drawLine((int) x, 0, (int) x, height);
                 }
             }
-        }
-
-    }
-
-    private class TransferFunctionMarker extends JComponent {
-
-        private TransferFunctionPoint point;
-
-        private TransferFunctionMarker(TransferFunctionPoint newPoint) {
-            this.point = newPoint;
-
-            setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
-            addMouseListener(new MouseAdapter() {
-                @Override
-                public void mouseClicked(MouseEvent e) {
-                    if (SwingUtilities.isRightMouseButton(e)) {
-                        Color newColor = JColorChooser.showDialog(Init.getFrameReference(), null, point.getColor().getWrappedColor());
-                        if (newColor != null) {
-                            point.setColor(newColor);
-                        }
-                    } else {
-                        if (SwingUtilities.isMiddleMouseButton(e)) {
-                            if (point.isMovable()) {
-                                transferFunction.removePoint(point);
-                            }
-                        }
-                    }
-                }
-            });
-
-            if (point.isMovable()) {
-                addMouseMotionListener(new MouseAdapter() {
-                    @Override
-                    public void mouseDragged(MouseEvent e) {
-                        final Container parent = getParent();
-
-                        Point mousePoint = SwingUtilities.convertPoint(TransferFunctionMarker.this, e.getPoint(), parent);
-                        if (mousePoint.x > parent.getWidth() || mousePoint.x < 0) {
-                            return;
-                        }
-
-                        double newValue = mousePoint.x / (double) parent.getWidth();
-                        newValue /= ratio;
-                        newValue += minRange;
-
-                        if (newValue < 0f + TransferFunction.MIN_STEP) {
-                            newValue = 0f + TransferFunction.MIN_STEP;
-                        } else {
-                            if (newValue > 1f - TransferFunction.MIN_STEP) {
-                                newValue = 1f - TransferFunction.MIN_STEP;
-                            }
-                        }
-
-                        point.setPoint((float) newValue);
-                        updatePosition();
-                    }
-                });
-            }
-        }
-
-        public void updatePosition() {
-            int parentWidth = getParent().getWidth();
-            double x = (point.getPoint() - minRange) * ratio;
-            x *= (parentWidth - COLOR_SIZE);
-            
-            setVisible(x >= 0d && x < parentWidth);
-            setBounds((int) x, 0, COLOR_SIZE, COLOR_SIZE);
-        }
-
-        @Override
-        protected void paintComponent(Graphics g) {
-            int radius = Math.min(getWidth(), getHeight());
-            int radius2 = radius >> 1;
-            int iniX = (getWidth() >> 1) - radius2;
-            int iniY = (getHeight() >> 1) - radius2;
-
-            ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g.setColor(point.getColor().getOpaqueWrappedColor());
-            g.fillOval(iniX, iniY, radius, radius);
         }
 
     }

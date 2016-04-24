@@ -36,8 +36,8 @@ public class TransferFunction {
 
     public TransferFunction(int maxValue) {
         points = new ArrayList<>();
-        points.add(new TransferFunctionPoint(new TransferFunctionColor(new Color(0, 0, 0, 0)), 0f, this, false));
-        points.add(new TransferFunctionPoint(new TransferFunctionColor(new Color(255, 255, 255, 255)), 1f, this, false));
+        points.add(new TransferFunctionPoint(new Color(0, 0, 0, 0), 0f, this, false));
+        points.add(new TransferFunctionPoint(new Color(255, 255, 255, 255), 1f, this, false));
 
         listenerList = new EventListenerList();
         dirtyPaint = true;
@@ -53,7 +53,7 @@ public class TransferFunction {
     }
 
     public boolean addPoint(Color color, float point) {
-        TransferFunctionPoint newPoint = new TransferFunctionPoint(new TransferFunctionColor(color), point, this);
+        TransferFunctionPoint newPoint = new TransferFunctionPoint(color, point, this);
         final boolean returnValue = points.add(newPoint);
         dirtyPaint = true;
 
@@ -117,7 +117,7 @@ public class TransferFunction {
                 }
             }
             colorPoints[index] = pointValue;
-            colors[index] = point.getColor().getWrappedColor();
+            colors[index] = point.getColor();
             index++;
         }
 
@@ -171,16 +171,20 @@ public class TransferFunction {
 
     public class TransferFunctionPoint implements Comparable<TransferFunctionPoint>, Serializable {
 
-        private TransferFunctionColor color;
+        private Color color;
         private float point;
         private TransferFunction owner;
         private boolean movable;
 
-        private TransferFunctionPoint(TransferFunctionColor color, float point, TransferFunction owner) {
+        private TransferFunctionPoint(Color color, float point, TransferFunction owner) {
             this(color, point, owner, true);
         }
 
-        private TransferFunctionPoint(TransferFunctionColor color, float point, TransferFunction owner, boolean movable) {
+        private TransferFunctionPoint(Color color, float point, TransferFunction owner, boolean movable) {
+            if (owner == null) {
+                throw new NullPointerException("Cannot have a " + getClass().getName() + " without owner.");
+            }
+            
             if (point < 0f || point > 1.0f) {
                 throw new IndexOutOfBoundsException("Cannot create a transfer function point at "
                         + point);
@@ -191,17 +195,30 @@ public class TransferFunction {
             this.movable = movable;
         }
 
-        public TransferFunctionColor getColor() {
+        public Color getColor() {
             return color;
         }
 
         public void setColor(Color color) {
-            this.color = new TransferFunctionColor(color);
-            if (owner != null) {
-                owner.valueChanged();
-            }
+            this.color = color;
+            owner.valueChanged();
         }
-
+        
+        public double getAlpha() {
+            return color.getAlpha() / 255d;
+        }
+        
+        public void setAlpha(double alpha) {
+            if (alpha < 0d) {
+                alpha = 0d;
+            } else if (alpha > 1d) {
+                alpha = 1d;
+            }
+            
+            color = new Color(color.getRed(), color.getGreen(), color.getBlue(), (int) (alpha * 255));
+            owner.valueChanged();
+        }
+        
         public float getPoint() {
             return point;
         }
@@ -216,9 +233,7 @@ public class TransferFunction {
                         + point);
             }
             this.point = point;
-            if (owner != null) {
-                owner.valueChanged();
-            }
+            owner.valueChanged();
         }
 
         public boolean isMovable() {
@@ -257,53 +272,4 @@ public class TransferFunction {
         }
 
     }
-
-    public class TransferFunctionColor extends Number implements Paint, Serializable {
-
-        private Color color;
-
-        private TransferFunctionColor(Color color) {
-            this.color = color;
-        }
-
-        public Color getWrappedColor() {
-            return color;
-        }
-
-        public Color getOpaqueWrappedColor() {
-            return new Color(color.getRGB() & 0xFFFFFF);
-        }
-
-        @Override
-        public int intValue() {
-            return 0;
-        }
-
-        @Override
-        public long longValue() {
-            return 0;
-        }
-
-        @Override
-        public float floatValue() {
-            return color.getAlpha() / 255f;
-        }
-
-        @Override
-        public double doubleValue() {
-            return color.getAlpha() / 255d;
-        }
-
-        @Override
-        public PaintContext createContext(ColorModel cm, Rectangle deviceBounds, Rectangle2D userBounds, AffineTransform xform, RenderingHints hints) {
-            return color.createContext(cm, deviceBounds, userBounds, xform, hints);
-        }
-
-        @Override
-        public int getTransparency() {
-            return color.getTransparency();
-        }
-
-    }
-
 }

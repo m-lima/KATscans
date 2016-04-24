@@ -11,6 +11,7 @@ import net.infonode.docking.View;
 import no.uib.inf252.katscan.util.TransferFunction;
 import no.uib.inf252.katscan.view.katview.Histogram;
 import no.uib.inf252.katscan.view.katview.KatViewHandler;
+import no.uib.inf252.katscan.view.katview.TransferFunctionEditor;
 import no.uib.inf252.katscan.view.katview.opengl.CompositeRenderer;
 import no.uib.inf252.katscan.view.katview.opengl.MaximumRenderer;
 import no.uib.inf252.katscan.view.katview.opengl.SliceNavigator;
@@ -94,10 +95,11 @@ public class KatViewNode extends KatNode {
             JMenu menu = new JMenu(getName());
             JMenuItem item = new JMenuItem("Tranfer function", 'T');
             
+            //TODO Sooooo wrong!
             item.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    Histogram histogram = new Histogram(getParent(), ((CompositeRenderer)getView().getComponent()).getTransferFunction());
+                    Histogram histogram = new TransferFunctionEditor(getParent(), ((CompositeRenderer)getView().getComponent()).getTransferFunction());
                     KatViewNode view = new KatViewNode(type, getParent(), histogram);
                     KatViewHandler.getInstance().requestAddView(view);
                 }
