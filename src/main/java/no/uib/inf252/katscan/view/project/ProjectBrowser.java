@@ -1,4 +1,4 @@
-package no.uib.inf252.katscan.view.dataset;
+package no.uib.inf252.katscan.view.project;
 
 import java.awt.EventQueue;
 import java.awt.Rectangle;
@@ -7,43 +7,40 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
-import java.util.ArrayList;
 import javax.swing.SwingUtilities;
 import javax.swing.event.EventListenerList;
-import javax.swing.plaf.basic.BasicTreeUI;
 import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import no.uib.inf252.katscan.data.LoadedData;
 import no.uib.inf252.katscan.event.DataHolderListener;
 import no.uib.inf252.katscan.event.DatasetBrowserListener;
 import no.uib.inf252.katscan.event.KatViewListener;
-import no.uib.inf252.katscan.model.DataFile;
-import no.uib.inf252.katscan.model.KatNode;
-import no.uib.inf252.katscan.model.Project;
-import no.uib.inf252.katscan.model.KatView;
-import no.uib.inf252.katscan.view.KatViewHandler;
+import no.uib.inf252.katscan.project.DataFileNode;
+import no.uib.inf252.katscan.project.KatNode;
+import no.uib.inf252.katscan.project.ProjectNode;
+import no.uib.inf252.katscan.project.KatViewNode;
+import no.uib.inf252.katscan.view.katview.KatViewHandler;
 
 /**
  *
  * @author Marcelo Lima
  */
-public class DatasetBrowser extends javax.swing.JPanel implements DataHolderListener, KatViewListener {
+public class ProjectBrowser extends javax.swing.JPanel implements DataHolderListener, KatViewListener {
 
-    private Project project;
+    private ProjectNode project;
     private final EventListenerList listenerList;
 
     /**
      * Creates new form DatasetBrowser
      */
-    public DatasetBrowser() {
+    public ProjectBrowser() {
         initComponents();
         
-        project = new Project();
+        project = new ProjectNode();
         listenerList = new EventListenerList();
         
-        DatasetBrowserRenderer renderer = new DatasetBrowserRenderer();
+        ProjectBrowserRenderer renderer = new ProjectBrowserRenderer();
         treDatasets.setCellRenderer(renderer);
         treDatasets.setShowsRootHandles(false);
         treDatasets.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
@@ -112,7 +109,7 @@ public class DatasetBrowser extends javax.swing.JPanel implements DataHolderList
     @Override
     public void dataAdded(String name, String file) {
         DefaultTreeModel model = (DefaultTreeModel) treDatasets.getModel();
-        model.insertNodeInto(new DataFile(new File(file)), project, project.getChildCount());
+        model.insertNodeInto(new DataFileNode(new File(file)), project, project.getChildCount());
         treDatasets.expandRow(0);
         fireTreeChanged();
     }
@@ -120,7 +117,7 @@ public class DatasetBrowser extends javax.swing.JPanel implements DataHolderList
     @Override
     public void dataRemoved(String name) {
         for (int i = 0; i < project.getChildCount(); i++) {
-            DataFile node = project.getChildAt(i);
+            DataFileNode node = project.getChildAt(i);
             if (node.equals(name)) {
                 DefaultTreeModel model = (DefaultTreeModel) treDatasets.getModel();
                 model.removeNodeFromParent(node);
@@ -158,6 +155,7 @@ public class DatasetBrowser extends javax.swing.JPanel implements DataHolderList
 
         setLayout(new java.awt.BorderLayout());
 
+        treDatasets.setModel(null);
         scrDatasets.setViewportView(treDatasets);
 
         javax.swing.GroupLayout pnlMainLayout = new javax.swing.GroupLayout(pnlMain);
@@ -187,17 +185,17 @@ public class DatasetBrowser extends javax.swing.JPanel implements DataHolderList
     // End of variables declaration//GEN-END:variables
 
     @Override
-    public void viewAddRequested(KatView view) {}
+    public void viewAddRequested(KatViewNode view) {}
 
     @Override
-    public void viewAdded(KatView view) {
+    public void viewAdded(KatViewNode view) {
         DefaultTreeModel model = (DefaultTreeModel) treDatasets.getModel();
         model.insertNodeInto(view, view.getParent(), view.getParent().getChildCount());
         fireTreeChanged();
     }
 
     @Override
-    public void viewRemoved(KatView view) {
+    public void viewRemoved(KatViewNode view) {
         DefaultTreeModel model = (DefaultTreeModel) treDatasets.getModel();
         model.removeNodeFromParent(view);
         fireTreeChanged();

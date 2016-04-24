@@ -1,4 +1,4 @@
-package no.uib.inf252.katscan.model.displayable;
+package no.uib.inf252.katscan.project.displayable;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -7,10 +7,10 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import no.uib.inf252.katscan.data.LoadedData;
 import no.uib.inf252.katscan.data.VoxelMatrix;
-import no.uib.inf252.katscan.model.DataFile;
-import no.uib.inf252.katscan.model.KatNode;
-import no.uib.inf252.katscan.model.KatView;
-import no.uib.inf252.katscan.view.KatViewHandler;
+import no.uib.inf252.katscan.project.DataFileNode;
+import no.uib.inf252.katscan.project.KatNode;
+import no.uib.inf252.katscan.project.KatViewNode;
+import no.uib.inf252.katscan.view.katview.KatViewHandler;
 
 /**
  *
@@ -29,13 +29,13 @@ public abstract class Displayable extends KatNode {
     protected JMenu getMainMenu() {
         JMenu menu = new JMenu(getName());
         
-        KatView.Type[] types = KatView.Type.values();
-        for (final KatView.Type type : types) {
+        KatViewNode.Type[] types = KatViewNode.Type.values();
+        for (final KatViewNode.Type type : types) {
             JMenuItem item = new JMenuItem(type.getName(), type.getMnemonic());
             item.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    KatView view = KatView.buildKatView(type, Displayable.this);
+                    KatViewNode view = KatViewNode.buildKatView(type, Displayable.this);
                     KatViewHandler.getInstance().requestAddView(view);
                 }
             });
@@ -47,7 +47,7 @@ public abstract class Displayable extends KatNode {
         removeMenu.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (Displayable.this instanceof DataFile) {
+                if (Displayable.this instanceof DataFileNode) {
                     LoadedData.getInstance().unload(getName());
                 }
             }

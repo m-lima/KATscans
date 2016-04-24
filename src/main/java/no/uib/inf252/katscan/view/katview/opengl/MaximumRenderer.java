@@ -1,8 +1,8 @@
-package no.uib.inf252.katscan.view.opengl;
+package no.uib.inf252.katscan.view.katview.opengl;
 
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLException;
-import no.uib.inf252.katscan.model.displayable.Displayable;
+import no.uib.inf252.katscan.project.displayable.Displayable;
 
 /**
  *

@@ -1,4 +1,4 @@
-package no.uib.inf252.katscan.model;
+package no.uib.inf252.katscan.project;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -7,17 +7,16 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.tree.MutableTreeNode;
 import no.uib.inf252.katscan.data.io.LoadSaveHandler;
-import no.uib.inf252.katscan.view.dataset.DatasetMenuBuilder;
 
 /**
  *
  * @author Marcelo Lima
  */
-public class Project extends KatNode {
+public class ProjectNode extends KatNode {
 
     private static final ProjectMenuListener LISTENER = new ProjectMenuListener();
 
-    public Project() {
+    public ProjectNode() {
         super("New project");
         setParent(null);
     }
@@ -30,7 +29,7 @@ public class Project extends KatNode {
         menu.add(getClearDatasets());
         menu.addSeparator();
         JMenuItem item = new JMenuItem("Rename", 'R');
-        item.setIcon(new ImageIcon(DatasetMenuBuilder.ProjectMenuBuilder.class.getResource("/icons/edit.png")));
+        item.setIcon(new ImageIcon(ProjectNode.class.getResource("/icons/edit.png")));
         menu.add(item);
         return menu;
     }
@@ -38,7 +37,7 @@ public class Project extends KatNode {
     private JMenu getLoadDataset() {
         JMenu loadMenu = new JMenu("Load");
         loadMenu.setMnemonic('L');
-        loadMenu.setIcon(new ImageIcon(DatasetMenuBuilder.ProjectMenuBuilder.class.getResource("/icons/open.png")));
+        loadMenu.setIcon(new ImageIcon(ProjectNode.class.getResource("/icons/open.png")));
 
         LoadSaveHandler.Format[] formats = LoadSaveHandler.Format.values();
         for (LoadSaveHandler.Format format : formats) {
@@ -52,7 +51,7 @@ public class Project extends KatNode {
 
     private JMenuItem getClearDatasets() {
         JMenuItem clearDatasets = new JMenuItem("Clear all", 'C');
-        clearDatasets.setIcon(new ImageIcon(DatasetMenuBuilder.ProjectMenuBuilder.class.getResource("/icons/closeData.png")));
+        clearDatasets.setIcon(new ImageIcon(ProjectNode.class.getResource("/icons/closeData.png")));
         clearDatasets.addActionListener(LISTENER);
         return clearDatasets;
     }
@@ -64,18 +63,18 @@ public class Project extends KatNode {
 
     @Override
     public void insert(MutableTreeNode child, int index) {
-        if (child instanceof DataFile) {
+        if (child instanceof DataFileNode) {
             super.insert(child, index);
         } else {
             throw new IllegalArgumentException("Can only add "
-                    + DataFile.class.getSimpleName()
+                    + DataFileNode.class.getSimpleName()
                     + " nodes to Project nodes.");
         }
     }
 
     @Override
-    public DataFile getChildAt(int childIndex) {
-        return (DataFile) super.getChildAt(childIndex);
+    public DataFileNode getChildAt(int childIndex) {
+        return (DataFileNode) super.getChildAt(childIndex);
     }
 
     @Override
@@ -85,6 +84,11 @@ public class Project extends KatNode {
         }
         throw new IllegalArgumentException(getClass().getSimpleName()
                 + " nodes may not have parents.");
+    }
+
+    @Override
+    public ImageIcon getIcon() {
+        return new ImageIcon(getClass().getResource("/icons/tree/project.png"));
     }
 
     private static class ProjectMenuListener implements ActionListener {

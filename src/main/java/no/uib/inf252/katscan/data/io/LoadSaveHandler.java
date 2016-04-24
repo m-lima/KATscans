@@ -19,7 +19,6 @@ import javax.swing.JToggleButton;
 import no.uib.inf252.katscan.Init;
 import no.uib.inf252.katscan.data.LoadedData;
 import no.uib.inf252.katscan.data.VoxelMatrix;
-import no.uib.inf252.katscan.view.dataset.DatasetBrowserPopups;
 
 /**
  *
@@ -67,7 +66,7 @@ public class LoadSaveHandler {
             LoadedData.getInstance().load(file.getName(), file, voxelMatrix);
             saveLastLoad(format, file);        
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(LoadSaveHandler.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -84,13 +83,13 @@ public class LoadSaveHandler {
             }
         } catch (FileNotFoundException ex) {
         } catch (IOException ex) {
-            Logger.getLogger(DatasetBrowserPopups.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
         } finally {
             if (reader != null) {
                 try {
                     reader.close();
                 } catch (IOException ex) {
-                    Logger.getLogger(DatasetBrowserPopups.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
                 }
             }
         }
@@ -112,13 +111,13 @@ public class LoadSaveHandler {
             }
         } catch (FileNotFoundException ex) {
         } catch (IOException ex) {
-            Logger.getLogger(DatasetBrowserPopups.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
         } finally {
             if (reader != null) {
                 try {
                     reader.close();
                 } catch (IOException ex) {
-                    Logger.getLogger(DatasetBrowserPopups.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
                 }
             }
         }
@@ -135,13 +134,13 @@ public class LoadSaveHandler {
             }
             writer.flush();
         } catch (IOException ex) {
-            Logger.getLogger(DatasetBrowserPopups.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
         } finally {
             if (writer != null) {
                 try {
                     writer.close();
                 } catch (IOException ex) {
-                    Logger.getLogger(LoadSaveHandler.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
                 }
             }
         }

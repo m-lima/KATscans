@@ -1,20 +1,18 @@
-package no.uib.inf252.katscan.view.dataset;
+package no.uib.inf252.katscan.view.project;
 
 import java.awt.Component;
-import javax.swing.ImageIcon;
 import javax.swing.JTree;
 import javax.swing.tree.TreeCellRenderer;
-import no.uib.inf252.katscan.model.DataFile;
-import no.uib.inf252.katscan.model.Project;
+import no.uib.inf252.katscan.project.KatNode;
 
 /**
  *
  * @author Marcelo Lima
  */
-public class DatasetBrowserRenderer extends javax.swing.JPanel implements TreeCellRenderer {
+public class ProjectBrowserRenderer extends javax.swing.JPanel implements TreeCellRenderer {
 
     /** Creates new form DatasetBrowserItem */
-    public DatasetBrowserRenderer() {
+    public ProjectBrowserRenderer() {
         initComponents();
     }
 
@@ -23,15 +21,7 @@ public class DatasetBrowserRenderer extends javax.swing.JPanel implements TreeCe
             boolean selected, boolean expanded, boolean leaf, int row,
             boolean hasFocus) {
         lbltem.setText(value.toString());
-        if (value instanceof Project) {
-            lbltem.setIcon(new ImageIcon(getClass().getResource("/icons/tree/project.png")));
-        } else if (value instanceof DataFile) {
-            lbltem.setIcon(new ImageIcon(getClass().getResource("/icons/tree/file.png")));
-        } else if (value instanceof DataFile) {
-            lbltem.setIcon(new ImageIcon(getClass().getResource("/icons/tree/cut.png")));
-        } else {
-            lbltem.setIcon(null);
-        }
+        lbltem.setIcon(((KatNode)value).getIcon());
         return this;
     }
 

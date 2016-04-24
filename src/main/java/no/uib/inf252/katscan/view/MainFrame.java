@@ -1,5 +1,6 @@
 package no.uib.inf252.katscan.view;
 
+import no.uib.inf252.katscan.view.katview.KatViewHandler;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
@@ -16,8 +17,6 @@ import javax.swing.JMenu;
 import javax.swing.JRootPane;
 import javax.swing.KeyStroke;
 import net.infonode.docking.DockingWindow;
-import net.infonode.docking.DockingWindowListener;
-import net.infonode.docking.OperationAbortedException;
 import net.infonode.docking.RootWindow;
 import net.infonode.docking.TabWindow;
 import net.infonode.docking.View;
@@ -32,10 +31,10 @@ import net.infonode.gui.componentpainter.SolidColorComponentPainter;
 import net.infonode.util.Direction;
 import no.uib.inf252.katscan.event.DatasetBrowserListener;
 import no.uib.inf252.katscan.event.KatViewListener;
-import no.uib.inf252.katscan.model.KatView;
-import no.uib.inf252.katscan.model.Project;
-import no.uib.inf252.katscan.model.io.PersistenceHandler;
-import no.uib.inf252.katscan.view.dataset.DatasetBrowser;
+import no.uib.inf252.katscan.project.KatViewNode;
+import no.uib.inf252.katscan.project.ProjectNode;
+import no.uib.inf252.katscan.project.io.PersistenceHandler;
+import no.uib.inf252.katscan.view.project.ProjectBrowser;
 
 /**
  *
@@ -77,7 +76,7 @@ public class MainFrame extends javax.swing.JFrame implements DatasetBrowserListe
         setSize(1000, 1000);
         setExtendedState(getExtendedState() | MAXIMIZED_BOTH);
 
-        final DatasetBrowser datasetBrowser = new DatasetBrowser();
+        final ProjectBrowser datasetBrowser = new ProjectBrowser();
         datasetBrowser.addDatasetBrowserListener(this);
         KatViewHandler.getInstance().addKatViewListener(this);
         
@@ -165,6 +164,7 @@ public class MainFrame extends javax.swing.JFrame implements DatasetBrowserListe
         mbrMain.validate();
     }
 
+    //TODO Set global keys
     private void setupGlobalKeys() {
         getRootPane().getInputMap(JRootPane.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_1, KeyEvent.CTRL_DOWN_MASK), "showTree");
         getRootPane().getActionMap().put("showTree", new AbstractAction() {
@@ -182,12 +182,12 @@ public class MainFrame extends javax.swing.JFrame implements DatasetBrowserListe
     }
     
     @Override
-    public void treeChanged(Project root) {
+    public void treeChanged(ProjectNode root) {
         setupMenu(root.getMenu(true));
     }
 
     @Override
-    public void viewAddRequested(KatView view) {
+    public void viewAddRequested(KatViewNode view) {
         DockingWindow oldViews = rootWindow.getWindow();
 
         TabWindow tabWindow;
@@ -207,10 +207,10 @@ public class MainFrame extends javax.swing.JFrame implements DatasetBrowserListe
     }
 
     @Override
-    public void viewRemoved(KatView view) {}
+    public void viewRemoved(KatViewNode view) {}
 
     @Override
-    public void viewAdded(KatView view) {}
+    public void viewAdded(KatViewNode view) {}
     
     /**
      * This method is called from within the constructor to initialize the form.

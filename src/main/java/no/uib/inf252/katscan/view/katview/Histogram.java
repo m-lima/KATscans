@@ -1,4 +1,4 @@
-package no.uib.inf252.katscan.view;
+package no.uib.inf252.katscan.view.katview;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -7,9 +7,10 @@ import java.util.ArrayList;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 import no.uib.inf252.katscan.data.VoxelMatrix;
-import no.uib.inf252.katscan.model.displayable.Displayable;
+import no.uib.inf252.katscan.project.displayable.Displayable;
 import no.uib.inf252.katscan.util.TransferFunction;
-import no.uib.inf252.katscan.view.transferfunction.TransferFunctionEditor;
+import no.uib.inf252.katscan.view.MainFrame;
+import no.uib.inf252.katscan.view.transferfunction.TransferFunctionBarEditor;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
@@ -26,7 +27,7 @@ import org.jfree.data.xy.XYSeriesCollection;
  *
  * @author Marcelo Lima
  */
-public class Histogram extends JPanel {
+public class Histogram extends JPanel implements KatView {
 
     private final XYPlot plot;
     private final NumberAxis valueAxis;
@@ -34,7 +35,7 @@ public class Histogram extends JPanel {
     private final Displayable displayable;
     
     private JPanel pnlHolder;
-    private TransferFunctionEditor editor;
+    private TransferFunctionBarEditor barEditor;
     private final ChartPanel chartPanel;
 
     public Histogram(Displayable displayable) {
@@ -79,18 +80,18 @@ public class Histogram extends JPanel {
         initPlot();
         
         if (transferFunction != null) {
-            editor = new TransferFunctionEditor(transferFunction);
+            barEditor = new TransferFunctionBarEditor(transferFunction);
             pnlHolder = new JPanel();
-            pnlHolder.setPreferredSize(editor.getPreferredSize());
+            pnlHolder.setPreferredSize(barEditor.getPreferredSize());
             pnlHolder.setLayout(null);
-            pnlHolder.add(editor);
+            pnlHolder.add(barEditor);
             add(pnlHolder, BorderLayout.SOUTH);
             
             chart.addProgressListener(new ChartProgressListener() {
                 @Override
                 public void chartProgress(ChartProgressEvent event) {
                     if (event.getPercent() == 100) {
-                        resizeHistogram();
+                        resizeTransferFunctionBar();
                     }
                 }
             });
@@ -99,7 +100,7 @@ public class Histogram extends JPanel {
         validate();
     }
     
-    private void resizeHistogram() {
+    private void resizeTransferFunctionBar() {
         Rectangle2D dataArea = chartPanel.getChartRenderingInfo().getPlotInfo().getDataArea();
 
         int x = (int) domainAxis.valueToJava2D(
@@ -116,8 +117,9 @@ public class Histogram extends JPanel {
         width *= chartPanel.getScaleX();
         width -= x;
 
-        editor.setRange(domainAxis.getRange().getLowerBound(), domainAxis.getRange().getUpperBound());
-        editor.setBounds(x - TransferFunctionEditor.COLOR_SIZE_HALF, 0, width + TransferFunctionEditor.COLOR_SIZE, pnlHolder.getHeight());
+        barEditor.setRange(domainAxis.getRange().getLowerBound(), domainAxis.getRange().getUpperBound());
+        //TODO Dont like this
+        barEditor.setBounds(x - TransferFunctionBarEditor.COLOR_SIZE_HALF, 0, width + TransferFunctionBarEditor.COLOR_SIZE, pnlHolder.getHeight());
 
         pnlHolder.validate();
     }

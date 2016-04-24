@@ -1,4 +1,4 @@
-package no.uib.inf252.katscan.model.displayable;
+package no.uib.inf252.katscan.project.displayable;
 
 import java.io.Serializable;
 import no.uib.inf252.katscan.data.VoxelMatrix;

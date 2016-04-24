@@ -1,7 +1,7 @@
 package no.uib.inf252.katscan.event;
 
 import java.util.EventListener;
-import no.uib.inf252.katscan.model.KatView;
+import no.uib.inf252.katscan.project.KatViewNode;
 
 /**
  *
@@ -9,8 +9,8 @@ import no.uib.inf252.katscan.model.KatView;
  */
 public interface KatViewListener extends EventListener {
     
-    public void viewAddRequested(KatView view);
-    public void viewAdded(KatView view);
-    public void viewRemoved(KatView view);
+    public void viewAddRequested(KatViewNode view);
+    public void viewAdded(KatViewNode view);
+    public void viewRemoved(KatViewNode view);
 
 }

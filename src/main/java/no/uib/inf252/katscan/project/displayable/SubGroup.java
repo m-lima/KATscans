@@ -1,9 +1,9 @@
-package no.uib.inf252.katscan.model.displayable;
+package no.uib.inf252.katscan.project.displayable;
 
-import no.uib.inf252.katscan.model.displayable.Displayable;
+import no.uib.inf252.katscan.project.displayable.Displayable;
 import javax.swing.tree.MutableTreeNode;
-import no.uib.inf252.katscan.model.DataFile;
-import no.uib.inf252.katscan.model.Project;
+import no.uib.inf252.katscan.project.DataFileNode;
+import no.uib.inf252.katscan.project.ProjectNode;
 
 /**
  *
@@ -31,8 +31,8 @@ public abstract class SubGroup extends Displayable {
 
     @Override
     public void insert(MutableTreeNode child, int index) {
-        if (child instanceof Project || child instanceof DataFile) {
-            throw new IllegalArgumentException("Cannot add " + DataFile.class.getSimpleName() + " nodes or " + Project.class.getSimpleName() + "nodes to " + getClass().getSimpleName() + " nodes.");
+        if (child instanceof ProjectNode || child instanceof DataFileNode) {
+            throw new IllegalArgumentException("Cannot add " + DataFileNode.class.getSimpleName() + " nodes or " + ProjectNode.class.getSimpleName() + "nodes to " + getClass().getSimpleName() + " nodes.");
         }
         super.insert(child, index);
     }

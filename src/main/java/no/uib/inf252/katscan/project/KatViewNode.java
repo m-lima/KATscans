@@ -1,24 +1,25 @@
-package no.uib.inf252.katscan.model;
+package no.uib.inf252.katscan.project;
 
 import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Objects;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
-import no.uib.inf252.katscan.model.displayable.Displayable;
+import no.uib.inf252.katscan.project.displayable.Displayable;
 import net.infonode.docking.View;
-import no.uib.inf252.katscan.model.KatNode;
 import no.uib.inf252.katscan.util.TransferFunction;
-import no.uib.inf252.katscan.view.Histogram;
-import no.uib.inf252.katscan.view.KatViewHandler;
-import no.uib.inf252.katscan.view.opengl.CompositeRenderer;
-import no.uib.inf252.katscan.view.opengl.MaximumRenderer;
-import no.uib.inf252.katscan.view.opengl.SliceNavigator;
+import no.uib.inf252.katscan.view.katview.Histogram;
+import no.uib.inf252.katscan.view.katview.KatViewHandler;
+import no.uib.inf252.katscan.view.katview.opengl.CompositeRenderer;
+import no.uib.inf252.katscan.view.katview.opengl.MaximumRenderer;
+import no.uib.inf252.katscan.view.katview.opengl.SliceNavigator;
 
 /**
  *
  * @author Marcelo Lima
  */
-public class KatView extends KatNode {
+public class KatViewNode extends KatNode {
 
     public enum Type {
         COMPOSITE("Composite Renderer", 'C'),
@@ -44,20 +45,20 @@ public class KatView extends KatNode {
 
     }
 
-    public static KatView buildKatView(Type type, Displayable displayable) {
+    public static KatViewNode buildKatView(Type type, Displayable displayable) {
         if (type == null || displayable == null) {
             throw new IllegalArgumentException();
         }
         
         switch (type) {
             case COMPOSITE:
-                return new KatView(type, displayable, new CompositeRenderer(displayable, new TransferFunction()));
+                return new KatViewNode(type, displayable, new CompositeRenderer(displayable, new TransferFunction(displayable.getMatrix().getMaxValue())));
             case MAXIMUM:
-                return new KatView(type, displayable, new MaximumRenderer(displayable));
+                return new KatViewNode(type, displayable, new MaximumRenderer(displayable));
             case SLICE:
-                return new KatView(type, displayable, new SliceNavigator(displayable));
+                return new KatViewNode(type, displayable, new SliceNavigator(displayable));
             case HISTOGRAM:
-                return new KatView(type, displayable, new Histogram(displayable));
+                return new KatViewNode(type, displayable, new Histogram(displayable));
             default:
                 return null;
         }
@@ -66,7 +67,7 @@ public class KatView extends KatNode {
     private final View view;
     private final Type type;
 
-    private KatView(Type type, Displayable displayable, Component component) {
+    private KatViewNode(Type type, Displayable displayable, Component component) {
         super(type.getName());
         if (displayable == null || component == null) {
             throw new NullPointerException();
@@ -92,6 +93,16 @@ public class KatView extends KatNode {
         if (type == Type.COMPOSITE) {
             JMenu menu = new JMenu(getName());
             JMenuItem item = new JMenuItem("Tranfer function", 'T');
+            
+            item.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    Histogram histogram = new Histogram(getParent(), ((CompositeRenderer)getView().getComponent()).getTransferFunction());
+                    KatViewNode view = new KatViewNode(type, getParent(), histogram);
+                    KatViewHandler.getInstance().requestAddView(view);
+                }
+            });
+            
             menu.add(item);
             return menu;
         }
@@ -113,7 +124,7 @@ public class KatView extends KatNode {
     @Override
     public boolean equals(Object obj) {
         if (super.equals(obj)) {
-            return view.equals(((KatView)obj).view);
+            return view.equals(((KatViewNode)obj).view);
         }
         return false;
     }

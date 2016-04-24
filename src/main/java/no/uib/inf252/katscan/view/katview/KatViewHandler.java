@@ -1,4 +1,4 @@
-package no.uib.inf252.katscan.view;
+package no.uib.inf252.katscan.view.katview;
 
 import java.awt.EventQueue;
 import java.util.HashMap;
@@ -8,7 +8,7 @@ import net.infonode.docking.DockingWindowListener;
 import net.infonode.docking.OperationAbortedException;
 import net.infonode.docking.View;
 import no.uib.inf252.katscan.event.KatViewListener;
-import no.uib.inf252.katscan.model.KatView;
+import no.uib.inf252.katscan.project.KatViewNode;
 
 /**
  *
@@ -17,8 +17,8 @@ import no.uib.inf252.katscan.model.KatView;
 public class KatViewHandler implements DockingWindowListener {
     
     private final EventListenerList listenerList;
-    private final HashMap<DockingWindow, KatView> pendingViews;
-    private final HashMap<DockingWindow, KatView> currentViews;
+    private final HashMap<DockingWindow, KatViewNode> pendingViews;
+    private final HashMap<DockingWindow, KatViewNode> currentViews;
 
     private KatViewHandler() {
         listenerList = new EventListenerList();
@@ -26,7 +26,7 @@ public class KatViewHandler implements DockingWindowListener {
         currentViews = new HashMap<>();
     }
 
-    public synchronized void requestAddView(KatView view) {
+    public synchronized void requestAddView(KatViewNode view) {
         if (!pendingViews.containsKey(view)) {
             pendingViews.put(view.getView(), view);
             fireViewAddRequested(view);
@@ -49,7 +49,7 @@ public class KatViewHandler implements DockingWindowListener {
         listenerList.remove(KatViewListener.class, listener);
     }
 
-    private void fireViewAddRequested(final KatView view) {
+    private void fireViewAddRequested(final KatViewNode view) {
         KatViewListener[] listeners = listenerList.getListeners(KatViewListener.class);
 
         for (final KatViewListener listener : listeners) {
@@ -62,7 +62,7 @@ public class KatViewHandler implements DockingWindowListener {
         }
     }
     
-    private void fireViewAdded(final KatView view) {
+    private void fireViewAdded(final KatViewNode view) {
         KatViewListener[] listeners = listenerList.getListeners(KatViewListener.class);
 
         for (final KatViewListener listener : listeners) {
@@ -75,7 +75,7 @@ public class KatViewHandler implements DockingWindowListener {
         }
     }
 
-    private void fireViewRemoved(final KatView view) {
+    private void fireViewRemoved(final KatViewNode view) {
         KatViewListener[] listeners = listenerList.getListeners(KatViewListener.class);
 
         for (final KatViewListener listener : listeners) {
@@ -90,7 +90,7 @@ public class KatViewHandler implements DockingWindowListener {
     
     @Override
     public void windowAdded(DockingWindow addedToWindow, DockingWindow addedWindow) {
-        KatView view = pendingViews.remove(addedWindow);
+        KatViewNode view = pendingViews.remove(addedWindow);
         if (view != null) {
             currentViews.put(addedWindow, view);
             fireViewAdded(view);
@@ -115,7 +115,7 @@ public class KatViewHandler implements DockingWindowListener {
 
     @Override
     public void windowClosed(DockingWindow window) {
-        KatView view = currentViews.remove(window);
+        KatViewNode view = currentViews.remove(window);
         if (view == null) {
             throw new NullPointerException("Could not find view");
         }

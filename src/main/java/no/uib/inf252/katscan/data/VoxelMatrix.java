@@ -25,6 +25,7 @@ public class VoxelMatrix implements Serializable {
         grid = new short[sizeZ * sizeY * sizeX];
         histogram = new int[65536];
         float minSize = Math.min(sizeX, Math.min(sizeY, sizeZ));
+        //TODO Fix ratio
 //        ratio = new float[] {minSize / sizeX, minSize / sizeY, minSize / sizeZ};
 //        ratio = new float[] {sizeX / minSize, sizeZ / minSize, sizeY / minSize};
 //        ratio = new float[] {sizeX / minSize, sizeY / minSize, sizeZ / minSize};
@@ -78,15 +79,15 @@ public class VoxelMatrix implements Serializable {
         return grid;
     }
 
-    //TODO Watchout!!
     @Override
     public int hashCode() {
         int hash = 5;
-        hash = 89 * hash + Arrays.hashCode(this.grid);
+        //TODO Watchout!!
+        hash = 89 * hash + System.identityHashCode(this.grid);
+//        hash = 89 * hash + Arrays.hashCode(this.grid);
         return hash;
     }
 
-    //TODO Watchout!!
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -99,9 +100,14 @@ public class VoxelMatrix implements Serializable {
             return false;
         }
         final VoxelMatrix other = (VoxelMatrix) obj;
-        if (!Arrays.equals(this.grid, other.grid)) {
+        
+        //TODO Watchout!!
+        if (this.grid != other.grid) {
             return false;
         }
+//        if (!Arrays.equals(this.grid, other.grid)) {
+//            return false;
+//        }
         return true;
     }
     

@@ -1,4 +1,4 @@
-package no.uib.inf252.katscan.model.io;
+package no.uib.inf252.katscan.project.io;
 
 /**
  *
@@ -6,6 +6,7 @@ package no.uib.inf252.katscan.model.io;
  */
 public class PersistenceHandler {
 
+    //TODO Persist project
     private PersistenceHandler() {
     }
     

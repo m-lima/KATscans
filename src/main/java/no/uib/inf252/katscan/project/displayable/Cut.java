@@ -1,6 +1,7 @@
-package no.uib.inf252.katscan.model.displayable;
+package no.uib.inf252.katscan.project.displayable;
 
 import java.io.Serializable;
+import javax.swing.ImageIcon;
 import no.uib.inf252.katscan.data.VoxelMatrix;
 
 /**
@@ -44,6 +45,11 @@ public class Cut extends SubGroup implements Serializable {
     @Override
     public boolean getAllowsChildren() {
         return true;
+    }
+
+    @Override
+    public ImageIcon getIcon() {
+        return new ImageIcon(getClass().getResource("/icons/tree/cut.png"));
     }
     
 }

@@ -1,4 +1,4 @@
-package no.uib.inf252.katscan.view.opengl;
+package no.uib.inf252.katscan.view.katview.opengl;
 
 import com.jogamp.opengl.GL4;
 import com.jogamp.opengl.GLAutoDrawable;
@@ -7,7 +7,7 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
 import no.uib.inf252.katscan.event.TransferFunctionListener;
-import no.uib.inf252.katscan.model.displayable.Displayable;
+import no.uib.inf252.katscan.project.displayable.Displayable;
 import no.uib.inf252.katscan.util.TransferFunction;
 
 /**

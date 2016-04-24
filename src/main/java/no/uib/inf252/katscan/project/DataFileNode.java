@@ -1,8 +1,9 @@
-package no.uib.inf252.katscan.model;
+package no.uib.inf252.katscan.project;
 
-import no.uib.inf252.katscan.model.displayable.Displayable;
+import no.uib.inf252.katscan.project.displayable.Displayable;
 import java.io.File;
 import java.io.Serializable;
+import javax.swing.ImageIcon;
 import javax.swing.tree.MutableTreeNode;
 import no.uib.inf252.katscan.data.LoadedData;
 import no.uib.inf252.katscan.data.VoxelMatrix;
@@ -11,11 +12,11 @@ import no.uib.inf252.katscan.data.VoxelMatrix;
  *
  * @author Marcelo Lima
  */
-public class DataFile extends Displayable implements Serializable {
+public class DataFileNode extends Displayable implements Serializable {
     
     private File file;
 
-    public DataFile(File file) {
+    public DataFileNode(File file) {
         super(file.getName());
         setUserObject(file);
     }
@@ -73,25 +74,30 @@ public class DataFile extends Displayable implements Serializable {
     }
 
     @Override
-    public Project getParent() {
-        return (Project) super.getParent();
+    public ProjectNode getParent() {
+        return (ProjectNode) super.getParent();
     }
 
     @Override
     public void setParent(MutableTreeNode newParent) {
-        if (newParent instanceof Project) {
+        if (newParent instanceof ProjectNode) {
             super.setParent(newParent);
         } else {
-            throw new IllegalArgumentException("Can only have " + Project.class.getSimpleName() + " nodes as parents of " + getClass().getSimpleName() + " nodes.");
+            throw new IllegalArgumentException("Can only have " + ProjectNode.class.getSimpleName() + " nodes as parents of " + getClass().getSimpleName() + " nodes.");
         }
     }
 
     @Override
     public void insert(MutableTreeNode child, int index) {
-        if (child instanceof Project || child instanceof DataFile) {
-            throw new IllegalArgumentException("Cannot add " + getClass().getSimpleName() + " nodes or " + Project.class.getSimpleName() + "nodes to " + getClass().getSimpleName() + " nodes.");
+        if (child instanceof ProjectNode || child instanceof DataFileNode) {
+            throw new IllegalArgumentException("Cannot add " + getClass().getSimpleName() + " nodes or " + ProjectNode.class.getSimpleName() + "nodes to " + getClass().getSimpleName() + " nodes.");
         }
         super.insert(child, index);
+    }
+
+    @Override
+    public ImageIcon getIcon() {
+        return new ImageIcon(getClass().getResource("/icons/tree/file.png"));
     }
     
 }

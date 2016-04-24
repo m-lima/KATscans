@@ -1,4 +1,4 @@
-package no.uib.inf252.katscan.view.opengl;
+package no.uib.inf252.katscan.view.katview.opengl;
 
 import com.jogamp.opengl.GL;
 import static com.jogamp.opengl.GL.GL_INVALID_ENUM;
@@ -24,13 +24,14 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 import no.uib.inf252.katscan.data.VoxelMatrix;
-import no.uib.inf252.katscan.model.displayable.Displayable;
+import no.uib.inf252.katscan.project.displayable.Displayable;
+import no.uib.inf252.katscan.view.katview.KatView;
 
 /**
  *
  * @author Marcelo Lima
  */
-public class SliceNavigator extends GLJPanel implements GLEventListener, MouseWheelListener {
+public class SliceNavigator extends GLJPanel implements KatView, GLEventListener, MouseWheelListener {
 
     private IntBuffer buffer;
     

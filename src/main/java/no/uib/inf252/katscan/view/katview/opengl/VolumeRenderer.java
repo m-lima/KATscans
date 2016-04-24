@@ -1,4 +1,4 @@
-package no.uib.inf252.katscan.view.opengl;
+package no.uib.inf252.katscan.view.katview.opengl;
 
 import com.jogamp.opengl.GL;
 import static com.jogamp.opengl.GL.GL_INVALID_ENUM;
@@ -25,15 +25,16 @@ import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 import javax.swing.Timer;
 import no.uib.inf252.katscan.data.VoxelMatrix;
-import no.uib.inf252.katscan.model.displayable.Displayable;
+import no.uib.inf252.katscan.project.displayable.Displayable;
 import no.uib.inf252.katscan.util.DisplayObject;
 import no.uib.inf252.katscan.util.TrackBall;
+import no.uib.inf252.katscan.view.katview.KatView;
 
 /**
  *
  * @author Marcelo Lima
  */
-public abstract class VolumeRenderer extends GLJPanel implements GLEventListener {
+public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEventListener {
     
     private static final String SHADERS_ROOT = "/shaders";
     private final String shaderName;
@@ -76,7 +77,6 @@ public abstract class VolumeRenderer extends GLJPanel implements GLEventListener
         
         numSample = 256;
         
-        //TODO this
         threadLOD = new Timer(500, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

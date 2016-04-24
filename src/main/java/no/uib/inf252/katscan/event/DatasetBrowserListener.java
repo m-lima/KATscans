@@ -1,7 +1,7 @@
 package no.uib.inf252.katscan.event;
 
 import java.util.EventListener;
-import no.uib.inf252.katscan.model.Project;
+import no.uib.inf252.katscan.project.ProjectNode;
 
 /**
  *
@@ -9,6 +9,6 @@ import no.uib.inf252.katscan.model.Project;
  */
 public interface DatasetBrowserListener extends EventListener {
     
-    public void treeChanged(Project root);
+    public void treeChanged(ProjectNode root);
 
 }

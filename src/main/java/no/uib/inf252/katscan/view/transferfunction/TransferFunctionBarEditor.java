@@ -29,7 +29,7 @@ import no.uib.inf252.katscan.util.TransferFunction.TransferFunctionPoint;
  *
  * @author Marcelo Lima
  */
-public class TransferFunctionEditor extends JPanel implements TransferFunctionListener {
+public class TransferFunctionBarEditor extends JPanel implements TransferFunctionListener {
 
     public static final int COLOR_SIZE = 10;
     public static final int COLOR_SIZE_HALF = 5;
@@ -43,7 +43,7 @@ public class TransferFunctionEditor extends JPanel implements TransferFunctionLi
     private double maxRange;
     private double ratio;
 
-    public TransferFunctionEditor(TransferFunction transferFunction) {
+    public TransferFunctionBarEditor(TransferFunction transferFunction) {
         this.transferFunction = transferFunction;
         this.transferFunction.addTransferFunctionListener(this);
         
@@ -153,7 +153,6 @@ public class TransferFunctionEditor extends JPanel implements TransferFunctionLi
                         point /= ratio;
                         point += minRange;
 
-                        //TODO Fix this!
                         BufferedImage image = new BufferedImage(getWidth(), 1, BufferedImage.TYPE_4BYTE_ABGR);
                         Graphics g = image.getGraphics();
                         paintComponent(g, true);

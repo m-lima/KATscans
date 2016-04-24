@@ -1,4 +1,4 @@
-package no.uib.inf252.katscan.model;
+package no.uib.inf252.katscan.project;
 
 import java.io.Serializable;
 import java.util.ArrayList;
