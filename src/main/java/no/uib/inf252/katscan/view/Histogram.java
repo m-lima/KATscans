@@ -18,7 +18,6 @@ import org.jfree.chart.event.ChartProgressListener;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.StandardXYBarPainter;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
-import org.jfree.data.Range;
 import org.jfree.data.RangeType;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
@@ -39,7 +38,7 @@ public class Histogram extends JPanel {
     private final ChartPanel chartPanel;
 
     public Histogram(Displayable displayable) {
-        this(displayable, new TransferFunction());
+        this(displayable, null);
     }
 
     public Histogram(Displayable displayable, TransferFunction transferFunction) {
@@ -75,7 +74,6 @@ public class Histogram extends JPanel {
         chartPanel = new ChartPanel(chart);
         chart.setSubtitles(new ArrayList());
         chartPanel.setOpaque(false);
-//        chartPanel.setRangeZoomable(false);
 
         add(chartPanel, BorderLayout.CENTER);
         initPlot();
@@ -118,6 +116,7 @@ public class Histogram extends JPanel {
         width *= chartPanel.getScaleX();
         width -= x;
 
+        editor.setRange(domainAxis.getRange().getLowerBound(), domainAxis.getRange().getUpperBound());
         editor.setBounds(x - TransferFunctionEditor.COLOR_SIZE_HALF, 0, width + TransferFunctionEditor.COLOR_SIZE, pnlHolder.getHeight());
 
         pnlHolder.validate();
@@ -132,11 +131,11 @@ public class Histogram extends JPanel {
         
         plot.setDataset(0, collection);
 
-        for (int i = 2; i < dataset.getMaxValue(); i++) {
+        for (int i = 0; i < dataset.getMaxValue(); i++) {
             series.add(i, histogram[i]);
         }
         
-        domainAxis.setDefaultAutoRange(new Range(0d, dataset.getMaxValue()));
+        domainAxis.setFixedAutoRange(dataset.getMaxValue());
     }
     
 }

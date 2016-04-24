@@ -55,8 +55,10 @@ public class VoxelMatrix implements Serializable {
         Arrays.fill(histogram, 0);
         maxValue = 0;
         for (int i = 0; i < grid.length; i++) {
-            histogram[grid[i]]++;
-            maxValue = Math.max(maxValue, grid[i]);
+            if (grid[i] > 1) {
+                histogram[grid[i]]++;
+                maxValue = Math.max(maxValue, grid[i]);
+            }
         }
     }
 

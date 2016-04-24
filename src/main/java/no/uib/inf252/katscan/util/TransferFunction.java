@@ -24,20 +24,28 @@ import no.uib.inf252.katscan.event.TransferFunctionListener;
  */
 public class TransferFunction {
 
+    public static final float MIN_STEP = 1f / 1024f;
+
     private final ArrayList<TransferFunctionPoint> points;
     private final EventListenerList listenerList;
 
     private boolean dirtyPaint;
     private Color[] colors;
     private float[] colorPoints;
+    private final int maxValue;
 
-    public TransferFunction() {
+    public TransferFunction(int maxValue) {
         points = new ArrayList<>();
-        points.add(new TransferFunctionPoint(new TransferFunctionColor(new Color(0, true)), 0f, this, false));
+        points.add(new TransferFunctionPoint(new TransferFunctionColor(new Color(0, 0, 0, 0)), 0f, this, false));
         points.add(new TransferFunctionPoint(new TransferFunctionColor(new Color(255, 255, 255, 255)), 1f, this, false));
 
         listenerList = new EventListenerList();
         dirtyPaint = true;
+        this.maxValue = maxValue;
+    }
+
+    public int getMaxValue() {
+        return maxValue;
     }
 
     public int getPointCount() {
@@ -65,7 +73,7 @@ public class TransferFunction {
         }
         return removed;
     }
-    
+
     public TransferFunctionPoint removePoint(int index) {
         final TransferFunctionPoint point = points.remove(index);
         if (point != null) {
@@ -80,12 +88,13 @@ public class TransferFunction {
         firePointValueChanged();
     }
 
-    public LinearGradientPaint getPaint(int width) {
+    //TODO Proper gradient; see https://en.wikipedia.org/wiki/Lab_color_space
+    public LinearGradientPaint getPaint(float startX, float endX) {
         if (dirtyPaint) {
             rebuildPaint();
         }
 
-        return new LinearGradientPaint(0f, 0f, width, 0f, colorPoints, colors, MultipleGradientPaint.CycleMethod.NO_CYCLE);
+        return new LinearGradientPaint(startX, 0f, endX, 0f, colorPoints, colors, MultipleGradientPaint.CycleMethod.NO_CYCLE);
     }
 
     private void rebuildPaint() {
@@ -96,15 +105,22 @@ public class TransferFunction {
         int index = 0;
         int removedCount = 0;
         for (TransferFunctionPoint point : points) {
-            if (index > 0 && index < colorPoints.length && point.getPoint() == colorPoints[index - 1]) {
-                removedCount++;
-            } else {
-                colorPoints[index] = point.getPoint();
-                colors[index] = point.getColor().getWrappedColor();
-                index++;
+            float pointValue = point.getPoint();
+            
+            if (index > 0 && index < colorPoints.length - 1) {
+                if (pointValue <= colorPoints[index - 1]) {
+                    pointValue = colorPoints[index - 1] + MIN_STEP;
+                    if (pointValue >= 1f) {
+                        removedCount++;
+                        continue;
+                    }
+                }
             }
+            colorPoints[index] = pointValue;
+            colors[index] = point.getColor().getWrappedColor();
+            index++;
         }
-        
+
         if (removedCount > 0) {
             colors = Arrays.copyOf(colors, colors.length - removedCount);
             colorPoints = Arrays.copyOf(colorPoints, colorPoints.length - removedCount);

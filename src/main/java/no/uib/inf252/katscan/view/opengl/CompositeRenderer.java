@@ -16,6 +16,7 @@ import no.uib.inf252.katscan.util.TransferFunction;
  */
 public class CompositeRenderer extends VolumeRenderer implements TransferFunctionListener {
     
+    private static final int TRANSFER_FUNCTION_SIZE = 2048;
     private final TransferFunction transferFunction;
     private final int[] textureLocation = new int[1];
     private boolean transferFunctionDirty;
@@ -59,15 +60,15 @@ public class CompositeRenderer extends VolumeRenderer implements TransferFunctio
     }
     
     private void updateTransferFunction(GL4 gl4) {
-        BufferedImage transferImage = new BufferedImage(1024, 1, BufferedImage.TYPE_4BYTE_ABGR);
+        BufferedImage transferImage = new BufferedImage(TRANSFER_FUNCTION_SIZE, 1, BufferedImage.TYPE_4BYTE_ABGR);
         Graphics2D g2d = (Graphics2D) transferImage.getGraphics();
         //TODO Fix this.. Consider best approach in regards to resolution
-        g2d.setPaint(transferFunction.getPaint(0f, transferImage.getWidth()));
-        g2d.drawLine(0, 0, transferImage.getWidth(), 0);
+        g2d.setPaint(transferFunction.getPaint(0f, TRANSFER_FUNCTION_SIZE));
+        g2d.drawLine(0, 0, TRANSFER_FUNCTION_SIZE, 0);
         g2d.dispose();
         
-        byte[] dataElements = (byte[]) transferImage.getRaster().getDataElements(0, 0, transferImage.getWidth(), 1, null);
-        gl4.glTexImage1D(GL4.GL_TEXTURE_1D, 0, GL4.GL_RGBA, transferImage.getWidth(), 0, GL4.GL_RGBA, GL4.GL_UNSIGNED_BYTE, ByteBuffer.wrap(dataElements));
+        byte[] dataElements = (byte[]) transferImage.getRaster().getDataElements(0, 0, TRANSFER_FUNCTION_SIZE, 1, null);
+        gl4.glTexImage1D(GL4.GL_TEXTURE_1D, 0, GL4.GL_RGBA, TRANSFER_FUNCTION_SIZE, 0, GL4.GL_RGBA, GL4.GL_UNSIGNED_BYTE, ByteBuffer.wrap(dataElements));
     }
 
     @Override
