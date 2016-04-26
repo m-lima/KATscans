@@ -1,4 +1,4 @@
-package no.uib.inf252.katscan.view.katview;
+package no.uib.inf252.katscan.data;
 
 import java.awt.EventQueue;
 import java.util.HashMap;
@@ -98,8 +98,16 @@ public class KatViewHandler implements DockingWindowListener {
     }
 
     @Override
-    public void windowRemoved(DockingWindow removedFromWindow, DockingWindow removedWindow) {
+    public void windowClosed(DockingWindow window) {
+        KatViewNode view = currentViews.remove(window);
+        if (view == null) {
+            throw new NullPointerException("Could not find view");
+        }
+        fireViewRemoved(view);
     }
+
+    @Override
+    public void windowRemoved(DockingWindow removedFromWindow, DockingWindow removedWindow) {}
 
     @Override
     public void windowShown(DockingWindow window) {}
@@ -112,15 +120,6 @@ public class KatViewHandler implements DockingWindowListener {
 
     @Override
     public void windowClosing(DockingWindow window) throws OperationAbortedException {}
-
-    @Override
-    public void windowClosed(DockingWindow window) {
-        KatViewNode view = currentViews.remove(window);
-        if (view == null) {
-            throw new NullPointerException("Could not find view");
-        }
-        fireViewRemoved(view);
-    }
 
     @Override
     public void windowUndocking(DockingWindow window) throws OperationAbortedException {}

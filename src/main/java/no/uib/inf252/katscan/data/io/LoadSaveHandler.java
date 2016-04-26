@@ -19,6 +19,7 @@ import javax.swing.JToggleButton;
 import no.uib.inf252.katscan.Init;
 import no.uib.inf252.katscan.data.LoadedData;
 import no.uib.inf252.katscan.data.VoxelMatrix;
+import no.uib.inf252.katscan.util.FileAwareInputStream;
 
 /**
  *
@@ -28,7 +29,7 @@ public class LoadSaveHandler {
     
     private static final String LAST_LOAD = "lastLoad.kat";
     
-    public enum Format {
+    public static enum Format {
         DAT(new DatFormat()),
         RAW(new RawFormat());
         
@@ -41,40 +42,40 @@ public class LoadSaveHandler {
         public LoadSaveFormat getFormat() {
             return format;
         }
-        
-    }
-
-    private LoadSaveHandler() {
     }
     
-    public void load(Format format) {
-        String path = getLastLoad(format);
-        
-        JFileChooser fileChooser = buildFileChooser();
-        fileChooser.setSelectedFile(new File(path));
-        fileChooser.setFileFilter(format.getFormat().getFileFilter());
-        int option = fileChooser.showOpenDialog(Init.getFrameReference());
-        
-        if (option != JFileChooser.APPROVE_OPTION) {
-            return;
-        }
-        
-        File file = fileChooser.getSelectedFile();
-        
-        try {
-            VoxelMatrix voxelMatrix = format.getFormat().loadData(new FileInputStream(file));
-            LoadedData.getInstance().load(file.getName(), file, voxelMatrix);
-            saveLastLoad(format, file);        
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
-        }
+    private final Format format;
+    
+    public LoadSaveHandler(Format format) {
+        this.format = format;
     }
 
-    private String getLastLoad(Format format) {
+    public boolean load(String name, LoadSaveOptions options, File file) {        
+        try (FileAwareInputStream input = new FileAwareInputStream(file)) {
+            VoxelMatrix voxelMatrix = format.getFormat().loadData(input, options);
+            if (LoadedData.getInstance().load(name, file, voxelMatrix)) {
+                saveLastLoad(file);
+                return true;
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(LoadSaveHandler.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return false;
+    }
+    
+    public FormatHeader getHeader(File file) {
+        try (FileAwareInputStream input = new FileAwareInputStream(file)) {
+            return format.getFormat().getHeader(input);
+        } catch (IOException ex) {
+            Logger.getLogger(LoadSaveHandler.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+
+    public String getLastLoad() {
         String path = "";
-        BufferedReader reader = null;
-        try {
-            reader = new BufferedReader(new FileReader(LAST_LOAD));
+        try (BufferedReader reader = new BufferedReader(new FileReader(LAST_LOAD))) {
             while ((path = reader.readLine()) != null) {
                 if (path.startsWith(format.name())) {
                     path = path.substring(format.name().length() + 1);
@@ -83,26 +84,16 @@ public class LoadSaveHandler {
             }
         } catch (FileNotFoundException ex) {
         } catch (IOException ex) {
-            Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException ex) {
-                    Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
-                }
-            }
+            Logger.getLogger(LoadSaveHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
         return path;
     }
     
-    private void saveLastLoad(Format format, File lastFile) {
+    private void saveLastLoad(File lastFile) {
         ArrayList<String> fullFile = new ArrayList<>();
 
         String path;
-        BufferedReader reader = null;
-        try {
-            reader = new BufferedReader(new FileReader(LAST_LOAD));
+        try (BufferedReader reader = new BufferedReader(new FileReader(LAST_LOAD))) {
             while ((path = reader.readLine()) != null) {
                 if (path.startsWith(format.name())) {
                     continue;
@@ -111,20 +102,10 @@ public class LoadSaveHandler {
             }
         } catch (FileNotFoundException ex) {
         } catch (IOException ex) {
-            Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException ex) {
-                    Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
-                }
-            }
+            Logger.getLogger(LoadSaveHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        BufferedWriter writer = null;
-        try {
-            writer = new BufferedWriter(new FileWriter(LAST_LOAD));
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(LAST_LOAD))) {
             writer.write(format.name());
             writer.write(':');
             writer.write(lastFile.getPath());
@@ -134,16 +115,26 @@ public class LoadSaveHandler {
             }
             writer.flush();
         } catch (IOException ex) {
-            Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            if (writer != null) {
-                try {
-                    writer.close();
-                } catch (IOException ex) {
-                    Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
-                }
-            }
+            Logger.getLogger(LoadSaveHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+    
+    public File showLoadDialog(File currentFile) {
+        if (currentFile == null) {
+            currentFile = new File(getLastLoad());
+        }
+        
+        JFileChooser fileChooser = buildFileChooser();
+        fileChooser.setSelectedFile(currentFile);
+        fileChooser.setMultiSelectionEnabled(false);
+        fileChooser.setFileFilter(format.getFormat().getFileFilter());
+        int option = fileChooser.showOpenDialog(Init.getFrameReference());
+        
+        if (option != JFileChooser.APPROVE_OPTION) {
+            return null;
+        }
+        
+        return fileChooser.getSelectedFile();
     }
 
     private JFileChooser buildFileChooser() {
@@ -159,11 +150,4 @@ public class LoadSaveHandler {
         return fileChooser;
     }
 
-    public static LoadSaveHandler getInstance() {
-        return LoadSaveHandlerHolder.INSTANCE;
-    }
-
-    private static class LoadSaveHandlerHolder {
-        private static final LoadSaveHandler INSTANCE = new LoadSaveHandler();
-    }
  }

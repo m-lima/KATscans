@@ -6,15 +6,15 @@ import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.ShortBuffer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
  * @author Marcelo Lima
  */
-public class RawFormat implements LoadSaveFormat {
+class RawFormat implements LoadSaveFormat {
+    
+    private static final int FORMAT_MAX_VALUE = 8192;
     
     private static final FileFilter FILE_FILTER = new FileNameExtensionFilter("Raw volume data", "raw");
 
@@ -22,50 +22,62 @@ public class RawFormat implements LoadSaveFormat {
     public String getName() {
         return "Raw";   
     }
+
+    @Override
+    public FormatHeader getHeader(InputStream stream) throws IOException {
+        ByteBuffer byteBuffer = ByteBuffer.allocate(6);
+        byteBuffer.order(ByteOrder.BIG_ENDIAN);
+        int sizeZ, sizeY, sizeX;
+        
+        if (stream.read(byteBuffer.array()) > 0) {
+            sizeX = byteBuffer.getShort();
+            sizeY = byteBuffer.getShort();
+            sizeZ = byteBuffer.getShort();
+        } else {
+            throw new StreamCorruptedException("Could not read dat header from the stream");
+        }
+        
+        float maxValue = Math.max(sizeX, sizeY);
+        return new FormatHeader(sizeX, sizeY, sizeZ, sizeX / maxValue, sizeY / maxValue, 1d, FORMAT_MAX_VALUE);
+    }
     
     @Override
-    public VoxelMatrix loadData(InputStream stream) {
+    public VoxelMatrix loadData(InputStream stream, LoadSaveOptions options) throws IOException {
         ByteBuffer byteBuffer = ByteBuffer.allocate(6);
         byteBuffer.order(ByteOrder.BIG_ENDIAN);
         int sizeZ, sizeY, sizeX;
 
-        try {
-            VoxelMatrix grid;
-            if (stream.read(byteBuffer.array()) > 0) {
-                sizeX = byteBuffer.getShort();
-                sizeY = byteBuffer.getShort();
-                sizeZ = byteBuffer.getShort();
+        VoxelMatrix grid;
+        if (stream.read(byteBuffer.array()) > 0) {
+            sizeX = byteBuffer.getShort();
+            sizeY = byteBuffer.getShort();
+            sizeZ = byteBuffer.getShort();
 
-                grid = new VoxelMatrix(sizeZ, sizeY, sizeX, 8192);
-            } else {
-                throw new StreamCorruptedException("Could not read dat header from the stream");
-            }
-
-            ShortBuffer shortBuffer;
-            byteBuffer = ByteBuffer.allocate(sizeX * 2);
-            byteBuffer.order(ByteOrder.BIG_ENDIAN);
-            short[] gridData = grid.getData();
-            
-            for (int z = 0; z < sizeZ; z++) {
-                for (int y = 0; y < sizeY; y++) {
-                    if (stream.read(byteBuffer.array()) < sizeX * 2)
-                        throw new IOException("Expected data, but could not be read");
-                    shortBuffer = byteBuffer.asShortBuffer();
-                    shortBuffer.get(gridData, z * sizeY * sizeX + ((sizeY - 1) - y) * sizeX, sizeX);
-                }
-            }
-
-            grid.updateHistogram();
-            return grid;
-        } catch (IOException ex) {
-            Logger.getLogger(RawFormat.class.getName()).log(Level.SEVERE, null, ex);
+            grid = new VoxelMatrix(options);
+        } else {
+            throw new StreamCorruptedException("Could not read dat header from the stream");
         }
 
-        return null;
+        ShortBuffer shortBuffer;
+        byteBuffer = ByteBuffer.allocate(sizeX * 2);
+        byteBuffer.order(ByteOrder.BIG_ENDIAN);
+        short[] gridData = grid.getData();
+
+        for (int z = 0; z < sizeZ; z++) {
+            for (int y = 0; y < sizeY; y++) {
+                if (stream.read(byteBuffer.array()) < sizeX * 2)
+                    throw new IOException("Expected data, but could not be read");
+                shortBuffer = byteBuffer.asShortBuffer();
+                shortBuffer.get(gridData, z * sizeY * sizeX + ((sizeY - 1) - y) * sizeX, sizeX);
+            }
+        }
+
+        grid.updateValues(options);
+        return grid;
     }
 
     @Override
-    public void saveData(OutputStream stream, VoxelMatrix grid) {
+    public void saveData(OutputStream stream, VoxelMatrix grid) throws IOException {
         int sizeX = grid.getSizeX();
         int sizeY = grid.getSizeY();
         int sizeZ = grid.getSizeZ();
@@ -78,22 +90,18 @@ public class RawFormat implements LoadSaveFormat {
         
         short[] gridData = grid.getData();
         
-        try {
-            stream.write(byteBuffer.array());         
-            stream.flush();   
-            byteBuffer = ByteBuffer.allocate(sizeX * 2);
-            byteBuffer.order(ByteOrder.BIG_ENDIAN);
-            
-            for (int z = 0; z < sizeZ; z++) {
-                for (int y = 0; y < sizeY; y++) {
-                    ShortBuffer shortBuffer = byteBuffer.asShortBuffer();
-                    shortBuffer.put(gridData, z * sizeY * sizeX + ((sizeY - 1) - y) * sizeX, sizeX);
-                    stream.write(byteBuffer.array());
-                    stream.flush();
-                }
+        stream.write(byteBuffer.array());         
+        stream.flush();   
+        byteBuffer = ByteBuffer.allocate(sizeX * 2);
+        byteBuffer.order(ByteOrder.BIG_ENDIAN);
+
+        for (int z = 0; z < sizeZ; z++) {
+            for (int y = 0; y < sizeY; y++) {
+                ShortBuffer shortBuffer = byteBuffer.asShortBuffer();
+                shortBuffer.put(gridData, z * sizeY * sizeX + ((sizeY - 1) - y) * sizeX, sizeX);
+                stream.write(byteBuffer.array());
+                stream.flush();
             }
-        } catch (IOException ex) {
-            Logger.getLogger(RawFormat.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 

@@ -1,6 +1,6 @@
 package no.uib.inf252.katscan.view;
 
-import no.uib.inf252.katscan.view.katview.KatViewHandler;
+import no.uib.inf252.katscan.data.KatViewHandler;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;

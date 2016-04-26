@@ -1,7 +1,7 @@
 package no.uib.inf252.katscan.project;
 
-import no.uib.inf252.katscan.project.displayable.Displayable;
 import java.io.File;
+import no.uib.inf252.katscan.project.displayable.Displayable;
 import java.io.Serializable;
 import javax.swing.ImageIcon;
 import javax.swing.tree.MutableTreeNode;
@@ -14,42 +14,42 @@ import no.uib.inf252.katscan.data.VoxelMatrix;
  */
 public class DataFileNode extends Displayable implements Serializable {
     
-    private File file;
-
-    public DataFileNode(File file) {
-        super(file.getName());
-        setUserObject(file);
-    }
-
-    public void setUserObject(File file) {
-        if (file == null || !file.isFile()) {
-            throw new IllegalArgumentException(getClass().getSimpleName() + " nodes cannot be build with invalid file paths.");
-        }
-        
-        setName(file.getName());
+    private final File file;
+    
+    public DataFileNode(String name, File file) {
+        super(name);
         this.file = file;
     }
-    
-    public void setUserObject(String path) {
-        if (path == null || path.trim().isEmpty()) {
-            throw new IllegalArgumentException(getClass().getSimpleName() + " nodes cannot be build with invalid file paths.");
-        }
-        
-        setUserObject(new File(path));
-    }
 
-    @Override
-    public void setUserObject(Object object) {
-        if (object == null) {
-            throw new NullPointerException("The " + getClass().getSimpleName() + " object cannot be null.");
-        }
-        
-        if (object instanceof File) {
-            setUserObject((File) object);
-        } else {
-            setUserObject(object.toString());
-        }
-    }
+//    public void setUserObject(File file) {
+//        if (file == null || !file.isFile()) {
+//            throw new IllegalArgumentException(getClass().getSimpleName() + " nodes cannot be build with invalid file paths.");
+//        }
+//        
+//        setName(file.getName());
+//        this.file = file;
+//    }
+//    
+//    public void setUserObject(String path) {
+//        if (path == null || path.trim().isEmpty()) {
+//            throw new IllegalArgumentException(getClass().getSimpleName() + " nodes cannot be build with invalid file paths.");
+//        }
+//        
+//        setUserObject(new File(path));
+//    }
+//
+//    @Override
+//    public void setUserObject(Object object) {
+//        if (object == null) {
+//            throw new NullPointerException("The " + getClass().getSimpleName() + " object cannot be null.");
+//        }
+//        
+//        if (object instanceof File) {
+//            setUserObject((File) object);
+//        } else {
+//            setUserObject(object.toString());
+//        }
+//    }
 
     @Override
     public VoxelMatrix getMatrix() {

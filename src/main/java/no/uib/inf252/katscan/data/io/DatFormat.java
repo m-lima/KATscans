@@ -10,11 +10,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.filechooser.FileFilter;
+import no.uib.inf252.katscan.util.FileAwareInputStream;
 
 /**
  * @author Marcelo Lima
  */
-public class DatFormat implements LoadSaveFormat {
+class DatFormat implements LoadSaveFormat {
     
     private static final FileFilter FILE_FILTER = new FileNameExtensionFilter("Dat volume data", "dat", "ini");
 
@@ -24,48 +25,108 @@ public class DatFormat implements LoadSaveFormat {
     }
 
     @Override
-    public VoxelMatrix loadData(InputStream stream) {
+    public FormatHeader getHeader(InputStream stream) throws IOException {
         ByteBuffer byteBuffer = ByteBuffer.allocate(6);
         byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
         int sizeZ, sizeY, sizeX;
-
-        try {
-            VoxelMatrix grid;
-            if (stream.read(byteBuffer.array()) > 0) {
-                sizeX = byteBuffer.getShort();
-                sizeY = byteBuffer.getShort();
-                sizeZ = byteBuffer.getShort();
-
-                grid = new VoxelMatrix(sizeZ, sizeY, sizeX, 4096);
-            } else {
-                throw new StreamCorruptedException("Could not read dat header from the stream");
-            }
-
-            ShortBuffer shortBuffer;
-            byteBuffer = ByteBuffer.allocate(sizeX * 2);
-            byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
-            short[] gridData = grid.getData();
-            
-            for (int z = 0; z < sizeZ; z++) {
-                for (int y = 0; y < sizeY; y++) {
-                    if (stream.read(byteBuffer.array()) < sizeX * 2)
-                        throw new IOException("Expected data, but could not be read");
-                    shortBuffer = byteBuffer.asShortBuffer();
-                    shortBuffer.get(gridData, z * sizeY * sizeX + ((sizeY - 1) - y) * sizeX, sizeX);
-                }
-            }
-
-            grid.updateHistogram();
-            return grid;
-        } catch (IOException ex) {
-            Logger.getLogger(DatFormat.class.getName()).log(Level.SEVERE, null, ex);
+        double ratioX = 1d;
+        double ratioY = 1d;
+        double ratioZ = 1d;
+        
+        if (stream.read(byteBuffer.array()) > 0) {
+            sizeX = byteBuffer.getShort();
+            sizeY = byteBuffer.getShort();
+            sizeZ = byteBuffer.getShort();
+        } else {
+            throw new StreamCorruptedException("Could not read dat header from the stream");
         }
-
-        return null;
+        
+        if (stream instanceof FileAwareInputStream) {
+            File file = ((FileAwareInputStream) stream).getFile();
+   
+            String path = file.getAbsolutePath();
+            int index = path.lastIndexOf(".dat");
+            if (index > 0) {
+                path = path.substring(0, index) + ".ini";
+            } else {
+                Logger.getLogger(DatFormat.class.getName()).log(Level.WARNING, "Could not find ini for " + path);
+            }
+            
+            try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
+                String line;
+                for (int i = 0; i < 4; i++) {
+                    line = reader.readLine();
+                    if (i == 0 && !line.startsWith("[DatFile]")) {
+                        break;
+                    }
+                    
+                    if (line.startsWith("oldDat Spacing ")) {
+                        char axis = line.charAt("oldDat Spacing ".length());
+                        if (axis == 'X' || axis == 'x') {
+                            ratioX = Double.parseDouble(line.substring("oldDat Spacing X=".length()));
+                        } else if (axis == 'Y' || axis == 'y') {
+                            ratioY = Double.parseDouble(line.substring("oldDat Spacing Y=".length()));
+                        } else if (axis == 'Z' || axis == 'z') {
+                            ratioZ = Double.parseDouble(line.substring("oldDat Spacing Z=".length()));
+                        }
+                    }
+                }
+            } catch (IOException ex) {
+                Logger.getLogger(DatFormat.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+        } else {
+            Logger.getLogger(DatFormat.class.getName()).log(Level.WARNING, "Could not find ini given stream.");
+        }
+        
+        return new FormatHeader(sizeX, sizeY, sizeZ, ratioX, ratioY, ratioZ, 4096);
     }
 
     @Override
-    public void saveData(OutputStream stream, VoxelMatrix grid) {
+    public VoxelMatrix loadData(InputStream stream, LoadSaveOptions options) throws IOException {
+        ByteBuffer byteBuffer = ByteBuffer.allocate(6);
+        byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
+        int sizeY, sizeX;
+        int optionSizeX = options.getSizeX();
+        int optionSizeY = options.getSizeY();
+        int optionSizeZ = options.getSizeZ();
+
+        VoxelMatrix grid;
+        if (stream.read(byteBuffer.array()) > 0) {
+            sizeX = byteBuffer.getShort();
+            sizeY = byteBuffer.getShort();
+        } else {
+            throw new StreamCorruptedException("Could not read dat header from the stream");
+        }
+        
+        grid = new VoxelMatrix(options);
+
+        ShortBuffer shortBuffer;
+        byteBuffer = ByteBuffer.allocate(sizeX * 2);
+        byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
+        short[] gridData = grid.getData();
+
+        for (int z = 0; z < optionSizeZ; z++) {
+            for (int y = 0; y < sizeY; y++) {
+                if (stream.read(byteBuffer.array()) < sizeX * 2){
+                    throw new IOException("Expected data, but could not be read");
+                }
+                
+                if (y >= optionSizeY) {
+                    continue;
+                }
+                
+                shortBuffer = byteBuffer.asShortBuffer();
+                shortBuffer.get(gridData, z * optionSizeY * optionSizeX + ((sizeY - 1) - y) * optionSizeX, optionSizeX);
+            }
+        }
+
+        grid.updateValues(options);
+        return grid;
+    }
+
+    @Override
+    public void saveData(OutputStream stream, VoxelMatrix grid) throws IOException {
         int sizeX = grid.getSizeX();
         int sizeY = grid.getSizeY();
         int sizeZ = grid.getSizeZ();
@@ -78,22 +139,18 @@ public class DatFormat implements LoadSaveFormat {
         
         short[] gridData = grid.getData();
         
-        try {
-            stream.write(byteBuffer.array());         
-            stream.flush();   
-            byteBuffer = ByteBuffer.allocate(sizeX * 2);
-            byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
-            
-            for (int z = 0; z < sizeZ; z++) {
-                for (int y = 0; y < sizeY; y++) {
-                    ShortBuffer shortBuffer = byteBuffer.asShortBuffer();
-                    shortBuffer.put(gridData, z * sizeY * sizeX + ((sizeY - 1) - y) * sizeX, sizeX);
-                    stream.write(byteBuffer.array());
-                    stream.flush();
-                }
+        stream.write(byteBuffer.array());         
+        stream.flush();   
+        byteBuffer = ByteBuffer.allocate(sizeX * 2);
+        byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
+
+        for (int z = 0; z < sizeZ; z++) {
+            for (int y = 0; y < sizeY; y++) {
+                ShortBuffer shortBuffer = byteBuffer.asShortBuffer();
+                shortBuffer.put(gridData, z * sizeY * sizeX + ((sizeY - 1) - y) * sizeX, sizeX);
+                stream.write(byteBuffer.array());
+                stream.flush();
             }
-        } catch (IOException ex) {
-            Logger.getLogger(DatFormat.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 

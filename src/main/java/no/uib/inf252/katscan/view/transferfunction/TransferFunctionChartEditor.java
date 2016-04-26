@@ -181,7 +181,7 @@ public class TransferFunctionChartEditor extends JPanel implements TransferFunct
             y *= parentHeight;
             y -= MARKER_SIZE_HALF;
 
-            setVisible(x >= 0d && x < parentWidth);
+            setVisible(x >= -MARKER_SIZE && x < parentWidth);
             setBounds((int) x, (int) y, MARKER_SIZE, MARKER_SIZE);
         }
 

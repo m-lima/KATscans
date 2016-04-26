@@ -2,11 +2,13 @@ package no.uib.inf252.katscan.project;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import javax.swing.ImageIcon;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.tree.MutableTreeNode;
 import no.uib.inf252.katscan.data.io.LoadSaveHandler;
+import no.uib.inf252.katscan.view.LoadDiag;
 
 /**
  *
@@ -101,7 +103,7 @@ public class ProjectNode extends KatNode {
             LoadSaveHandler.Format[] formats = LoadSaveHandler.Format.values();
             for (LoadSaveHandler.Format format : formats) {
                 if (format.getFormat().getName() == formatName) {
-                    LoadSaveHandler.getInstance().load(format);
+                    new LoadDiag(format).setVisible(true);
                     break;
                 }
             }

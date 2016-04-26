@@ -4,7 +4,7 @@ in vec4 vertexOutModel;
 layout(binding=0) uniform sampler3D volumeTexture;
 
 uniform int numSamples;
-uniform int lodMultuplier;
+uniform int lodMultiplier;
 uniform float formatFactor;
 
 uniform mat4 model;
@@ -12,7 +12,7 @@ uniform bool orthographic;
 uniform vec3 eyePos;
 uniform vec3 ratio;
 
-const int actualSamples = numSamples * lodMultuplier;
+const int actualSamples = numSamples * lodMultiplier;
 const float stepSize = sqrt(3.0) / float(actualSamples);
 
 void main() {       
@@ -31,7 +31,7 @@ void main() {
     float density;
     vec3 coord;
     for (int i = 0; i < actualSamples; ++i, pos += stepValue) {
-        coord = pos * ratio + 0.5;
+        coord = pos / ratio + 0.5;
         if (coord.x < 0.0 || coord.x > 1.0 ||
             coord.y < 0.0 || coord.y > 1.0 ||
             coord.z < 0.0 || coord.z > 1.0) {

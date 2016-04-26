@@ -194,7 +194,7 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
         
         int uniformLocation;
         if (highLOD) {
-            uniformLocation = gl4.glGetUniformLocation(programName, "lodMultuplier");
+            uniformLocation = gl4.glGetUniformLocation(programName, "lodMultiplier");
             gl4.glUniform1i(uniformLocation, 16);
         }
         
@@ -237,10 +237,11 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
         gl4.glEnableVertexAttribArray(0);
         gl4.glVertexAttribPointer(0, 3, GL.GL_FLOAT, false, 0, 0);
         
+        //TODO randomize starting point
         gl4.glDrawElements(GL.GL_TRIANGLES, displayObject.getIndices().length, GL.GL_UNSIGNED_SHORT, 0);
         
         if (highLOD) {
-            uniformLocation = gl4.glGetUniformLocation(programName, "lodMultuplier");
+            uniformLocation = gl4.glGetUniformLocation(programName, "lodMultiplier");
             gl4.glUniform1i(uniformLocation, 1);
             highLOD = false;
         } else {

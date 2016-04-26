@@ -20,7 +20,7 @@ import no.uib.inf252.katscan.project.DataFileNode;
 import no.uib.inf252.katscan.project.KatNode;
 import no.uib.inf252.katscan.project.ProjectNode;
 import no.uib.inf252.katscan.project.KatViewNode;
-import no.uib.inf252.katscan.view.katview.KatViewHandler;
+import no.uib.inf252.katscan.data.KatViewHandler;
 
 /**
  *
@@ -107,9 +107,9 @@ public class ProjectBrowser extends javax.swing.JPanel implements DataHolderList
     }
     
     @Override
-    public void dataAdded(String name, String file) {
+    public void dataAdded(String name, File file) {
         DefaultTreeModel model = (DefaultTreeModel) treDatasets.getModel();
-        model.insertNodeInto(new DataFileNode(new File(file)), project, project.getChildCount());
+        model.insertNodeInto(new DataFileNode(name, file), project, project.getChildCount());
         treDatasets.expandRow(0);
         fireTreeChanged();
     }

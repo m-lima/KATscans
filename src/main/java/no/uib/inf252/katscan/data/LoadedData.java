@@ -32,7 +32,7 @@ public class LoadedData {
         }
         
         voxelMatrices.put(name, voxelMatrix);
-        fireDataLoaded(name, file.getAbsolutePath());
+        fireDataLoaded(name, file);
         
         return true;
     }
@@ -82,7 +82,7 @@ public class LoadedData {
         listenerList.remove(DataHolderListener.class, listener);
     }
 
-    private void fireDataLoaded(final String name, final String file) {
+    private void fireDataLoaded(final String name, final File file) {
         DataHolderListener[] listeners = listenerList.getListeners(DataHolderListener.class);
 
         for (final DataHolderListener listener : listeners) {

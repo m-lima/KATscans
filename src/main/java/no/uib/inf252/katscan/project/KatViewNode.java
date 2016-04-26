@@ -10,7 +10,7 @@ import no.uib.inf252.katscan.project.displayable.Displayable;
 import net.infonode.docking.View;
 import no.uib.inf252.katscan.util.TransferFunction;
 import no.uib.inf252.katscan.view.katview.Histogram;
-import no.uib.inf252.katscan.view.katview.KatViewHandler;
+import no.uib.inf252.katscan.data.KatViewHandler;
 import no.uib.inf252.katscan.view.katview.TransferFunctionEditor;
 import no.uib.inf252.katscan.view.katview.opengl.CompositeRenderer;
 import no.uib.inf252.katscan.view.katview.opengl.MaximumRenderer;
@@ -53,6 +53,7 @@ public class KatViewNode extends KatNode {
         
         switch (type) {
             case COMPOSITE:
+                //TODO Transfer functions should be a child of displayable and SliceNavigator and CompositeRenderer children of TransferFunction
                 return new KatViewNode(type, displayable, new CompositeRenderer(displayable, new TransferFunction(displayable.getMatrix().getMaxValue())));
             case MAXIMUM:
                 return new KatViewNode(type, displayable, new MaximumRenderer(displayable));

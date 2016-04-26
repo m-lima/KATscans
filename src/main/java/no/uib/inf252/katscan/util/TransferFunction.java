@@ -31,7 +31,8 @@ public class TransferFunction {
     public TransferFunction(int maxValue) {
         points = new ArrayList<>();
         points.add(new TransferFunctionPoint(new Color(0, 0, 0, 0), 0f, this, false));
-        points.add(new TransferFunctionPoint(new Color(255, 255, 255, 255), 1f, this, false));
+        points.add(new TransferFunctionPoint(new Color(255, 255, 255, 255), 0.5f, this));
+        points.add(new TransferFunctionPoint(new Color(0, 0, 0, 0), 1f, this, false));
 
         listenerList = new EventListenerList();
         dirtyPaint = true;

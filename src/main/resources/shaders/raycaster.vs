@@ -11,7 +11,7 @@ uniform mat4 model;
 void main()
 {
     vertexOut = position - 0.5;
-    vertexOut /= ratio;
+    vertexOut *= ratio;
     vertexOutModel = model * vec4(vertexOut, 1.0);
     gl_Position = projection * view * vertexOutModel;
 }

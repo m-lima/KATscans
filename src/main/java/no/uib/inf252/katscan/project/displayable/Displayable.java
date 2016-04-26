@@ -10,7 +10,7 @@ import no.uib.inf252.katscan.data.VoxelMatrix;
 import no.uib.inf252.katscan.project.DataFileNode;
 import no.uib.inf252.katscan.project.KatNode;
 import no.uib.inf252.katscan.project.KatViewNode;
-import no.uib.inf252.katscan.view.katview.KatViewHandler;
+import no.uib.inf252.katscan.data.KatViewHandler;
 
 /**
  *
