@@ -16,11 +16,10 @@ public class LoadSaveOptions {
     
     private final int minValue;
     private final int maxValue;
-    private final boolean cutMinValue;
-    private final boolean cutMaxValue;
+    private final int maxFormatValue;
     private final boolean normalizeValues;
 
-    public LoadSaveOptions(int sizeX, int sizeY, int sizeZ, float ratioX, float ratioY, float ratioZ, int minValue, int maxValue, boolean cutMinValue, boolean cutMaxValue, boolean normalizeValues) {
+    public LoadSaveOptions(int sizeX, int sizeY, int sizeZ, float ratioX, float ratioY, float ratioZ, int minValue, int maxValue, int maxFormatValue, boolean normalizeValues) {
         this.sizeX = sizeX;
         this.sizeY = sizeY;
         this.sizeZ = sizeZ;
@@ -29,8 +28,7 @@ public class LoadSaveOptions {
         this.ratioZ = ratioZ;
         this.minValue = minValue;
         this.maxValue = maxValue;
-        this.cutMinValue = cutMinValue;
-        this.cutMaxValue = cutMaxValue;
+        this.maxFormatValue = maxFormatValue;
         this.normalizeValues = normalizeValues;
     }
 
@@ -66,12 +64,8 @@ public class LoadSaveOptions {
         return maxValue;
     }
 
-    public boolean isCutMinValue() {
-        return cutMinValue;
-    }
-
-    public boolean isCutMaxValue() {
-        return cutMaxValue;
+    public int getMaxFormatValue() {
+        return maxFormatValue;
     }
 
     public boolean isNormalizeValues() {

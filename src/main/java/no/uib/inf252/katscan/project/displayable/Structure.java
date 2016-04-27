@@ -9,7 +9,7 @@ import no.uib.inf252.katscan.data.VoxelMatrix;
  */
 public class Structure extends SubGroup implements Serializable {
 
-    public Structure(String name) {
+    public Structure() {
         super("Structure");
     }
 

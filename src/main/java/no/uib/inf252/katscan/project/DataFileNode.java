@@ -5,7 +5,6 @@ import no.uib.inf252.katscan.project.displayable.Displayable;
 import java.io.Serializable;
 import javax.swing.ImageIcon;
 import javax.swing.tree.MutableTreeNode;
-import no.uib.inf252.katscan.data.LoadedData;
 import no.uib.inf252.katscan.data.VoxelMatrix;
 
 /**
@@ -15,57 +14,22 @@ import no.uib.inf252.katscan.data.VoxelMatrix;
 public class DataFileNode extends Displayable implements Serializable {
     
     private final File file;
+    private final transient VoxelMatrix matrix;
     
-    public DataFileNode(String name, File file) {
+    public DataFileNode(String name, File file, VoxelMatrix matrix) {
         super(name);
         this.file = file;
+        this.matrix = matrix;
     }
-
-//    public void setUserObject(File file) {
-//        if (file == null || !file.isFile()) {
-//            throw new IllegalArgumentException(getClass().getSimpleName() + " nodes cannot be build with invalid file paths.");
-//        }
-//        
-//        setName(file.getName());
-//        this.file = file;
-//    }
-//    
-//    public void setUserObject(String path) {
-//        if (path == null || path.trim().isEmpty()) {
-//            throw new IllegalArgumentException(getClass().getSimpleName() + " nodes cannot be build with invalid file paths.");
-//        }
-//        
-//        setUserObject(new File(path));
-//    }
-//
-//    @Override
-//    public void setUserObject(Object object) {
-//        if (object == null) {
-//            throw new NullPointerException("The " + getClass().getSimpleName() + " object cannot be null.");
-//        }
-//        
-//        if (object instanceof File) {
-//            setUserObject((File) object);
-//        } else {
-//            setUserObject(object.toString());
-//        }
-//    }
 
     @Override
     public VoxelMatrix getMatrix() {
-        return LoadedData.getInstance().getDataset(getName());
+        return matrix;
     }
-    
-//    @Override
-//    public short[] getData() {
-//        VoxelMatrix dataset = LoadedData.getInstance().getDataset(getName());
-//        return dataset.getData();
-//    }
 
     @Override
     public int[] getHistogram() {
-        VoxelMatrix dataset = LoadedData.getInstance().getDataset(getName());
-        return dataset.getHistogram();
+        return matrix.getHistogram();
     }
 
     @Override

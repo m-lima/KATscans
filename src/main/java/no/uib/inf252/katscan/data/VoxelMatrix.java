@@ -12,8 +12,13 @@ public class VoxelMatrix implements Serializable {
     private final short[] grid;
     private final int[] histogram;
     private final float[] ratio;
+    private int minValue;
+    private int maxValue;
     private final int maxFormatValue;
-    private short maxValue;
+    private final boolean normalized;
+//    private short maxValue;
+    
+    private boolean initialized;
 
     public VoxelMatrix(LoadSaveOptions options) {
         sizeX = options.getSizeX();
@@ -32,65 +37,57 @@ public class VoxelMatrix implements Serializable {
         
         grid = new short[sizeZ * sizeY * sizeX];
 
-        this.maxFormatValue = options.getMaxValue();
-        histogram = new int[this.maxFormatValue];
+        minValue = options.getMinValue();
+        maxValue = options.getMaxValue();
+        maxFormatValue = options.getMaxFormatValue();
+        normalized = options.isNormalizeValues();
+        
+        histogram = new int[maxValue - minValue];
 
         int maxSize = Math.max(sizeX, Math.max(sizeY, sizeZ));
         ratio = new float[]{sizeX * options.getRatioX() / maxSize,
                             sizeY * options.getRatioY() / maxSize,
                             sizeZ * options.getRatioZ() / maxSize};
+        
+        initialized = false;
     }
 
-    //TODO test this
-    public void updateValues(LoadSaveOptions options) {
-        if (options.isNormalizeValues()) {
-            double normRatio = options.getMaxValue() - options.getMinValue();
-            normRatio /= maxFormatValue;
+    public void initialize() {
+        for (int i = 0; i < grid.length; i++) {
+            int value = grid[i] & 0xFFFF;
 
-            for (int i = 0; i < grid.length; i++) {
-                int value = (int) ((grid[i] & 0xFFFF) * normRatio);
-                value += options.getMinValue();
-
-                grid[i] = (short) value;
-
-                if (maxValue < value) {
-                    maxValue = (short) value;
-                }
-
-                if (value > 1) {
-                    histogram[value & 0xFFFF]++;
-                }
+            if (value < minValue) {
+                value = 0;
+            } else if (value >= maxValue) {
+                value = 0;
             }
-        } else {
-            for (int i = 0; i < grid.length; i++) {
-                int value = grid[i] & 0xFFFF;
 
-                if (value < options.getMinValue()) {
-                    if (options.isCutMinValue()) {
-                        value = 0;
-                    } else {
-                        value = options.getMinValue();
-                    }
-                    grid[i] = (short) value;
-                } else if (value > options.getMaxValue()) {
-                    if (options.isCutMinValue()) {
-                        value = 0;
-                    } else {
-                        value = options.getMaxValue();
-                    }
-                    grid[i] = (short) value;
+            grid[i] = (short) value;
 
-                }
-
-                if (maxValue < value) {
-                    maxValue = (short) value;
-                }
-
-                if (value > 1) {
-                    histogram[value & 0xFFFF]++;
-                }
+            if (value >= 0) {
+                histogram[value & 0xFFFF]++;
             }
         }
+        
+        if (!normalized) {
+            minValue = 0;
+            maxValue = maxFormatValue;
+        }
+        
+        double normRatio = 65535d / (maxValue - minValue);
+
+        for (int i = 0; i < grid.length; i++) {
+            int value = grid[i] & 0xFFFF;
+            value -= minValue;
+            if (value < 0) {
+                value = 0;
+            }
+            value *= normRatio;
+            
+            grid[i] = (short) value;
+        }
+        
+        initialized = true;
     }
 
     public int getSizeX() {
@@ -106,11 +103,10 @@ public class VoxelMatrix implements Serializable {
     }
 
     public int[] getHistogram() {
+        if (!initialized) {
+            throw new RuntimeException(VoxelMatrix.class.getName() + " has not been initialized yet.");
+        }
         return histogram;
-    }
-
-    public short getMaxValue() {
-        return maxValue;
     }
 
     public float[] getRatio() {
@@ -127,6 +123,20 @@ public class VoxelMatrix implements Serializable {
 
     public short[] getData() {
         return grid;
+    }
+
+    public int getMinValue() {
+        if (!initialized) {
+            throw new RuntimeException(VoxelMatrix.class.getName() + " has not been initialized yet.");
+        }
+        return minValue;
+    }
+
+    public int getMaxValue() {
+        if (!initialized) {
+            throw new RuntimeException(VoxelMatrix.class.getName() + " has not been initialized yet.");
+        }
+        return maxValue;
     }
 
     @Override

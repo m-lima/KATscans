@@ -6,7 +6,6 @@ uniform sampler1D transferFunction;
 
 uniform int numSamples;
 uniform int lodMultiplier;
-uniform float formatFactor;
 
 uniform mat4 model;
 uniform bool orthographic;
@@ -14,7 +13,7 @@ uniform vec3 eyePos;
 uniform vec3 ratio;
 
 const int actualSamples = numSamples * lodMultiplier;
-const float stepSize = sqrt(3.0) / float(actualSamples);
+const float stepSize = 1f / float(actualSamples);
 
 float rand(vec2 co){
   return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
@@ -30,7 +29,7 @@ void main() {
     vec3 rayDirection = normalize(vertexOut - effectiveEyePos);
 
     vec3 stepValue = rayDirection * stepSize;
-    vec3 pos = vertexOut;// + rand(gl_FragCoord.xy) * stepValue;
+    vec3 pos = vertexOut + rand(gl_FragCoord.xy) * stepValue;
 
     float density;
     vec3 coord;
@@ -44,13 +43,15 @@ void main() {
             break;
         }
         
-        density = texture(volumeTexture, coord).x * formatFactor;
+        density = texture(volumeTexture, coord).x;
+        if (density <= 0.0) continue;
         transferColor = texture(transferFunction, density);
 
-        //color = mix(color, transferColor, transferColor.a);
+        transferColor.a /= lodMultiplier;
+        if (transferColor.a <= 0.0) continue;
+
         color.rgb = mix(color.rgb, transferColor.rgb, transferColor.a);
-        color.a += transferColor.a / lodMultiplier;
-        //color.a += (1.0 - color.a) * transferColor.a / lodMultiplier;
+        color.a += transferColor.a;
 
         if (color.a >= 1.0) {
             break;

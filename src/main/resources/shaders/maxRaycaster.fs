@@ -1,19 +1,22 @@
 in vec3 vertexOut;
 in vec4 vertexOutModel;
 
-layout(binding=0) uniform sampler3D volumeTexture;
+uniform sampler3D volumeTexture;
 
 uniform int numSamples;
 uniform int lodMultiplier;
-uniform float formatFactor;
 
 uniform mat4 model;
 uniform bool orthographic;
 uniform vec3 eyePos;
 uniform vec3 ratio;
 
-const int actualSamples = numSamples * lodMultiplier;
-const float stepSize = sqrt(3.0) / float(actualSamples);
+const int actualSamples = numSamples * lodMultiplier / 16;
+const float stepSize = 1f / float(actualSamples);
+
+float rand(vec2 co){
+  return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+}
 
 void main() {       
     vec3 effectiveEyePos = eyePos;
@@ -24,28 +27,31 @@ void main() {
     effectiveEyePos = (inverse(model) * vec4(effectiveEyePos, 1.0)).xyz;
     vec3 rayDirection = normalize(vertexOut - effectiveEyePos);
 
-    vec3 pos = vertexOut;
     vec3 stepValue = rayDirection * stepSize;
+    vec3 pos = vertexOut + rand(gl_FragCoord.xy) * stepValue;
 
-    float colorOut = 0;
     float density;
     vec3 coord;
-    for (int i = 0; i < actualSamples; ++i, pos += stepValue) {
+    float color = 0.0;
+    for (int i = 0; i < actualSamples * 2; ++i, pos += stepValue) {
         coord = pos / ratio + 0.5;
         if (coord.x < 0.0 || coord.x > 1.0 ||
             coord.y < 0.0 || coord.y > 1.0 ||
             coord.z < 0.0 || coord.z > 1.0) {
             break;
         }
-        density = texture(volumeTexture, coord).x * formatFactor;
+        density = texture(volumeTexture, coord).x;
         if (density <= 0.0) continue;
-        colorOut = max(density, colorOut);
-        if (colorOut >= 1.0) break;
+        color = max(density, color);
+        if (color >= 1.0) {
+            color = 1.0;
+            break;
+        }
     }
 
-    gl_FragColor.rgb = vec3(colorOut);
-    if (colorOut < 0.1) colorOut = 0.0;
-    gl_FragColor.a = colorOut;
+    gl_FragColor.rgb = vec3(color);
+    if (color < 0.1) color = 0.0;
+    gl_FragColor.a = color;
 
 //#define COLOR_CUBE
 #ifdef COLOR_CUBE

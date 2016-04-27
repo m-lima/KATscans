@@ -96,6 +96,13 @@ public abstract class KatNode implements MutableTreeNode, Serializable {
     public ImageIcon getIcon() {
         return null;
     }
+    
+    public boolean isParentOf(KatNode node) {
+        if (children == null) {
+            return false;
+        }
+        return children.contains(node);
+    }
 
     @Override
     public KatNode getParent() {
@@ -201,7 +208,6 @@ public abstract class KatNode implements MutableTreeNode, Serializable {
     @Override
     public int hashCode() {
         int hash = 3;
-        hash = 23 * hash + Objects.hashCode(this.parent);
         hash = 23 * hash + Objects.hashCode(this.name);
         return hash;
     }
@@ -219,9 +225,6 @@ public abstract class KatNode implements MutableTreeNode, Serializable {
         }
         final KatNode other = (KatNode) obj;
         if (!Objects.equals(this.name, other.name)) {
-            return false;
-        }
-        if (!Objects.equals(this.parent, other.parent)) {
             return false;
         }
         return true;

@@ -17,7 +17,7 @@ import no.uib.inf252.katscan.util.FileAwareInputStream;
  */
 class DatFormat implements LoadSaveFormat {
     
-    private static final FileFilter FILE_FILTER = new FileNameExtensionFilter("Dat volume data", "dat", "ini");
+    private static final FileFilter FILE_FILTER = new FileNameExtensionFilter("Dat volume data", "dat");
 
     @Override
     public String getName() {
@@ -91,7 +91,6 @@ class DatFormat implements LoadSaveFormat {
         int optionSizeY = options.getSizeY();
         int optionSizeZ = options.getSizeZ();
 
-        VoxelMatrix grid;
         if (stream.read(byteBuffer.array()) > 0) {
             sizeX = byteBuffer.getShort();
             sizeY = byteBuffer.getShort();
@@ -99,16 +98,16 @@ class DatFormat implements LoadSaveFormat {
             throw new StreamCorruptedException("Could not read dat header from the stream");
         }
         
-        grid = new VoxelMatrix(options);
+        VoxelMatrix matrix = new VoxelMatrix(options);
 
         ShortBuffer shortBuffer;
         byteBuffer = ByteBuffer.allocate(sizeX * 2);
         byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
-        short[] gridData = grid.getData();
+        short[] grid = matrix.getData();
 
         for (int z = 0; z < optionSizeZ; z++) {
             for (int y = 0; y < sizeY; y++) {
-                if (stream.read(byteBuffer.array()) < sizeX * 2){
+                if (stream.read(byteBuffer.array()) < sizeX * 2) {
                     throw new IOException("Expected data, but could not be read");
                 }
                 
@@ -117,12 +116,12 @@ class DatFormat implements LoadSaveFormat {
                 }
                 
                 shortBuffer = byteBuffer.asShortBuffer();
-                shortBuffer.get(gridData, z * optionSizeY * optionSizeX + ((sizeY - 1) - y) * optionSizeX, optionSizeX);
+                shortBuffer.get(grid, z * optionSizeY * optionSizeX + ((sizeY - 1) - y) * optionSizeX, optionSizeX);
             }
         }
 
-        grid.updateValues(options);
-        return grid;
+        matrix.initialize();
+        return matrix;
     }
 
     @Override

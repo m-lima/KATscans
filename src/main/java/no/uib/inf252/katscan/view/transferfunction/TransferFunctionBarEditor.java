@@ -38,7 +38,6 @@ public class TransferFunctionBarEditor extends JPanel implements TransferFunctio
     private final Viewer pnlViewer;
     private final JPanel pnlMarker;
     
-    private final double maxValue;
     private double minRange;
     private double maxRange;
     private double ratio;
@@ -48,9 +47,8 @@ public class TransferFunctionBarEditor extends JPanel implements TransferFunctio
         this.transferFunction = transferFunction;
         this.transferFunction.addTransferFunctionListener(this);
         
-        this.maxValue = transferFunction.getMaxValue();
         minRange = 0d;
-        maxRange = this.maxValue;
+        maxRange = 1d;
         ratio = 1d;
         
         Dimension dimension = new Dimension(32, 32);
@@ -119,8 +117,8 @@ public class TransferFunctionBarEditor extends JPanel implements TransferFunctio
     }
     
     public void setRange(double lower, double upper) {
-        minRange = lower / maxValue;
-        maxRange = upper / maxValue;
+        minRange = lower;
+        maxRange = upper;
         ratio = 1d / (maxRange - minRange);
         updateMarkersPositions();
     }

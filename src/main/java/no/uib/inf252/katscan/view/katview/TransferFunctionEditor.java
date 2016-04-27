@@ -4,8 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.geom.Rectangle2D;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
-import no.uib.inf252.katscan.project.displayable.Displayable;
-import no.uib.inf252.katscan.util.TransferFunction;
+import no.uib.inf252.katscan.project.displayable.TransferFunctionNode;
 import no.uib.inf252.katscan.view.component.FullLayout;
 import no.uib.inf252.katscan.view.transferfunction.TransferFunctionBarEditor;
 import no.uib.inf252.katscan.view.transferfunction.TransferFunctionChartEditor;
@@ -27,18 +26,14 @@ public class TransferFunctionEditor extends Histogram implements ChartProgressLi
     private final JPanel pnlBarEditorHolder;
     private final TransferFunctionBarEditor barEditor;
 
-    public TransferFunctionEditor(Displayable displayable, TransferFunction transferFunction) {
+    public TransferFunctionEditor(TransferFunctionNode displayable) {
         super(displayable);
-        
-        if (transferFunction == null) {
-            throw new NullPointerException();
-        }
         
         chart.addProgressListener(this);
         remove(chartPanel);
         
-        barEditor = new TransferFunctionBarEditor(transferFunction);
-        chartEditor = new TransferFunctionChartEditor(transferFunction);
+        barEditor = new TransferFunctionBarEditor(displayable.getTransferFunction());
+        chartEditor = new TransferFunctionChartEditor(displayable.getTransferFunction());
         
         pnlBarEditorHolder = new JPanel(null);
         pnlBarEditorHolder.setPreferredSize(barEditor.getPreferredSize());
@@ -69,8 +64,8 @@ public class TransferFunctionEditor extends Histogram implements ChartProgressLi
                 dataArea,
                 plot.getDomainAxisEdge());
 
-        int y = (int) valueAxis.valueToJava2D(
-                valueAxis.getRange().getUpperBound(),
+        int y = (int) logAxis.valueToJava2D(
+                logAxis.getRange().getUpperBound(),
                 dataArea,
                 plot.getRangeAxisEdge());
 
@@ -79,8 +74,8 @@ public class TransferFunctionEditor extends Histogram implements ChartProgressLi
                 dataArea,
                 plot.getDomainAxisEdge());
 
-        int height = (int) valueAxis.valueToJava2D(
-                valueAxis.getRange().getLowerBound(),
+        int height = (int) logAxis.valueToJava2D(
+                logAxis.getRange().getLowerBound(),
                 dataArea,
                 plot.getRangeAxisEdge());
 
@@ -95,8 +90,8 @@ public class TransferFunctionEditor extends Histogram implements ChartProgressLi
         barEditor.setBounds(x - TransferFunctionBarEditor.MARKER_SIZE_HALF, 0, width + TransferFunctionBarEditor.MARKER_SIZE, pnlBarEditorHolder.getHeight());
         chartEditor.setBounds(x, y, width, height);
 
-        barEditor.setRange(domainAxis.getRange().getLowerBound(), domainAxis.getRange().getUpperBound());
-        chartEditor.setRange(domainAxis.getRange().getLowerBound(), domainAxis.getRange().getUpperBound());
+        barEditor.setRange(domainAxis.getRange().getLowerBound() / displayable.getMatrix().getMaxValue(), domainAxis.getRange().getUpperBound() / displayable.getMatrix().getMaxValue());
+        chartEditor.setRange(domainAxis.getRange().getLowerBound() / displayable.getMatrix().getMaxValue(), domainAxis.getRange().getUpperBound() / displayable.getMatrix().getMaxValue());
     }
 
     @Override

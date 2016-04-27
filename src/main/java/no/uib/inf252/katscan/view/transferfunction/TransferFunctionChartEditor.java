@@ -30,7 +30,6 @@ public class TransferFunctionChartEditor extends JPanel implements TransferFunct
 
     private final TransferFunction transferFunction;
 
-    private final double maxValue;
     private double minRange;
     private double maxRange;
     private double ratio;
@@ -42,9 +41,8 @@ public class TransferFunctionChartEditor extends JPanel implements TransferFunct
 
         setOpaque(false);
 
-        this.maxValue = transferFunction.getMaxValue();
         minRange = 0d;
-        maxRange = this.maxValue;
+        maxRange = 1d;
         ratio = 1d;
 
         buildMarkers();
@@ -73,8 +71,8 @@ public class TransferFunctionChartEditor extends JPanel implements TransferFunct
     }
 
     public void setRange(double lower, double upper) {
-        minRange = lower / maxValue;
-        maxRange = upper / maxValue;
+        minRange = lower;
+        maxRange = upper;
         ratio = 1d / (maxRange - minRange);
         updateMarkersPositions();
     }

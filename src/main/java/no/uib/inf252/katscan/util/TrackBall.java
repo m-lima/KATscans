@@ -56,13 +56,15 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
     private final float[] projection;
     private boolean orthographic;
     private float fov;
+    private final float initialZoom;
     
     private int dirtyValues;
     
     private JPopupMenu popupMenu;
+    private JMenuItem menuOrtho;
     
-    public TrackBall() {
-        eyePosition = new float[] {0f, 0f, 2f};
+    public TrackBall(float initialZoom) {
+        eyePosition = new float[] {0f, 0f, initialZoom};
         targetPosition = new float[] {0f, 0f, 0f};
         initialPosition = new float[3];
         currentPosition = new float[3];
@@ -78,6 +80,7 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
         projection = new float[16];
         orthographic = false;
         fov = FloatUtil.QUARTER_PI;
+        this.initialZoom = initialZoom;
         
         markAllDirty();
     }
@@ -195,6 +198,7 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
         final JMenuItem right = new JMenuItem("Right", new ImageIcon(getClass().getResource("/icons/right.png")));
         final JMenuItem left = new JMenuItem("Left", new ImageIcon(getClass().getResource("/icons/left.png")));
         final JMenuItem reset = new JMenuItem("Reset");
+        menuOrtho = new JMenuItem(orthographic ? "Perspective" : "Orthographic");
         
         ActionListener listener = new ActionListener() {
             @Override
@@ -210,17 +214,20 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
                     currentRotation.rotateByAngleY(-FloatUtil.HALF_PI);
                 } else if (e.getSource() == left) {
                     currentRotation.rotateByAngleY(+FloatUtil.HALF_PI);
-                } else {
+                } else if (e.getSource() == reset) {
                     currentRotation.setIdentity();
                     eyePosition[0] = 0f;
                     eyePosition[1] = 0f;
-                    eyePosition[2] = 5f;
+                    eyePosition[2] = initialZoom;
                     targetPosition[0] = 0f;
                     targetPosition[1] = 0f;
                     targetPosition[2] = 0f;
                     moving = false;
 
                     dirtyValues |= VIEW_DIRTY | ZOOM_DIRTY;
+                } else if (e.getSource() == menuOrtho) {
+                    toggleOrthographic(owner);
+                    return;
                 }
                 dirtyValues |= MODEL_DIRTY | MOVEMENT_DIRTY;
                 owner.repaint();
@@ -233,6 +240,8 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
         back.addActionListener(listener);
         right.addActionListener(listener);
         left.addActionListener(listener);
+        reset.addActionListener(listener);
+        menuOrtho.addActionListener(listener);
         
         popupMenu.add(top);
         popupMenu.add(bottom);
@@ -242,6 +251,8 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
         popupMenu.add(left);
         popupMenu.addSeparator();
         popupMenu.add(reset);
+        popupMenu.addSeparator();
+        popupMenu.add(menuOrtho);
     }
     
     @Override
@@ -392,13 +403,18 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
     @Override
     public void keyReleased(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-            orthographic = !orthographic;
-            Component component = e.getComponent();
-            updateProjection(component.getWidth(), component.getHeight());
-            dirtyValues |= ORTHO_DIRTY;
-            
-            component.repaint();
+            toggleOrthographic(e.getComponent());
         }
+    }
+    
+    private void toggleOrthographic(Component component) {
+        orthographic = !orthographic;
+        if (menuOrtho != null) {
+            menuOrtho.setText(orthographic ? "Perspective" : "Orthographic");
+        }
+        updateProjection(component.getWidth(), component.getHeight());
+        dirtyValues |= ORTHO_DIRTY;
+        component.repaint();
     }
     
 }

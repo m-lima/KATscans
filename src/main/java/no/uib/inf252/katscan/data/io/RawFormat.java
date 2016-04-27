@@ -38,42 +38,49 @@ class RawFormat implements LoadSaveFormat {
         }
         
         float maxValue = Math.max(sizeX, sizeY);
-        return new FormatHeader(sizeX, sizeY, sizeZ, sizeX / maxValue, sizeY / maxValue, 1d, FORMAT_MAX_VALUE);
+        return new FormatHeader(sizeX, sizeY, sizeZ, 1d, 1d, 1d, FORMAT_MAX_VALUE);
     }
     
     @Override
     public VoxelMatrix loadData(InputStream stream, LoadSaveOptions options) throws IOException {
         ByteBuffer byteBuffer = ByteBuffer.allocate(6);
         byteBuffer.order(ByteOrder.BIG_ENDIAN);
-        int sizeZ, sizeY, sizeX;
-
-        VoxelMatrix grid;
+        int sizeY, sizeX;
+        int optionSizeX = options.getSizeX();
+        int optionSizeY = options.getSizeY();
+        int optionSizeZ = options.getSizeZ();
+        
         if (stream.read(byteBuffer.array()) > 0) {
             sizeX = byteBuffer.getShort();
             sizeY = byteBuffer.getShort();
-            sizeZ = byteBuffer.getShort();
-
-            grid = new VoxelMatrix(options);
         } else {
             throw new StreamCorruptedException("Could not read dat header from the stream");
         }
+        
+        VoxelMatrix matrix = new VoxelMatrix(options);
 
         ShortBuffer shortBuffer;
         byteBuffer = ByteBuffer.allocate(sizeX * 2);
         byteBuffer.order(ByteOrder.BIG_ENDIAN);
-        short[] gridData = grid.getData();
+        short[] grid = matrix.getData();
 
-        for (int z = 0; z < sizeZ; z++) {
+        for (int z = 0; z < optionSizeZ; z++) {
             for (int y = 0; y < sizeY; y++) {
-                if (stream.read(byteBuffer.array()) < sizeX * 2)
+                if (stream.read(byteBuffer.array()) < sizeX * 2) {
                     throw new IOException("Expected data, but could not be read");
+                }
+                
+                if (y >= optionSizeY) {
+                    continue;
+                }
+                
                 shortBuffer = byteBuffer.asShortBuffer();
-                shortBuffer.get(gridData, z * sizeY * sizeX + ((sizeY - 1) - y) * sizeX, sizeX);
+                shortBuffer.get(grid, ((optionSizeZ - 1) - z) * optionSizeY * optionSizeX + ((optionSizeY - 1) - y) * optionSizeX, optionSizeX);
             }
         }
 
-        grid.updateValues(options);
-        return grid;
+        matrix.initialize();
+        return matrix;
     }
 
     @Override

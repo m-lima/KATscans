@@ -1,6 +1,5 @@
 package no.uib.inf252.katscan.view;
 
-import no.uib.inf252.katscan.data.KatViewHandler;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
@@ -16,6 +15,8 @@ import javax.swing.AbstractAction;
 import javax.swing.JMenu;
 import javax.swing.JRootPane;
 import javax.swing.KeyStroke;
+import javax.swing.event.TreeModelEvent;
+import javax.swing.event.TreeModelListener;
 import net.infonode.docking.DockingWindow;
 import net.infonode.docking.RootWindow;
 import net.infonode.docking.TabWindow;
@@ -29,10 +30,9 @@ import net.infonode.docking.util.ViewMap;
 import net.infonode.gui.colorprovider.FixedColorProvider;
 import net.infonode.gui.componentpainter.SolidColorComponentPainter;
 import net.infonode.util.Direction;
-import no.uib.inf252.katscan.event.DatasetBrowserListener;
-import no.uib.inf252.katscan.event.KatViewListener;
+import no.uib.inf252.katscan.project.KatNode;
 import no.uib.inf252.katscan.project.KatViewNode;
-import no.uib.inf252.katscan.project.ProjectNode;
+import no.uib.inf252.katscan.project.ProjectHandler;
 import no.uib.inf252.katscan.project.io.PersistenceHandler;
 import no.uib.inf252.katscan.view.project.ProjectBrowser;
 
@@ -40,7 +40,7 @@ import no.uib.inf252.katscan.view.project.ProjectBrowser;
  *
  * @author Marcelo Lima
  */
-public class MainFrame extends javax.swing.JFrame implements DatasetBrowserListener, KatViewListener {
+public class MainFrame extends javax.swing.JFrame implements TreeModelListener {
     
     private static final int DATASET_MENU_POSITION = 1;
     public static final Color THEME_COLOR = new Color(51, 51, 51);
@@ -76,9 +76,8 @@ public class MainFrame extends javax.swing.JFrame implements DatasetBrowserListe
         setSize(1000, 1000);
         setExtendedState(getExtendedState() | MAXIMIZED_BOTH);
 
-        final ProjectBrowser datasetBrowser = new ProjectBrowser();
-        datasetBrowser.addDatasetBrowserListener(this);
-        KatViewHandler.getInstance().addKatViewListener(this);
+        ProjectBrowser datasetBrowser = new ProjectBrowser();
+        ProjectHandler.getInstance().addTreeModelListener(this);
         
         rootWindow = DockingUtil.createRootWindow(new ViewMap(), true);
         properties = rootWindow.getRootWindowProperties();
@@ -93,6 +92,8 @@ public class MainFrame extends javax.swing.JFrame implements DatasetBrowserListe
         Container contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout());
         contentPane.add(rootWindow, BorderLayout.CENTER);
+        
+        setupMenu();
 
 //        loadAutomaticView();
     }
@@ -156,7 +157,8 @@ public class MainFrame extends javax.swing.JFrame implements DatasetBrowserListe
         datasetView.minimize();
     }
 
-    private void setupMenu(JMenu menu) {
+    private void setupMenu() {
+        JMenu menu = ProjectHandler.getInstance().getRoot().getMenu(true);
         if (mbrMain.getComponentCount() > 2) {
             mbrMain.remove(DATASET_MENU_POSITION);
         }
@@ -181,13 +183,38 @@ public class MainFrame extends javax.swing.JFrame implements DatasetBrowserListe
         });
     }
     
+    
     @Override
-    public void treeChanged(ProjectNode root) {
-        setupMenu(root.getMenu(true));
+    public void treeNodesChanged(TreeModelEvent e) {
+        setupMenu();
     }
 
     @Override
-    public void viewAddRequested(KatViewNode view) {
+    public void treeNodesInserted(TreeModelEvent e) {
+        setupMenu();
+        
+        KatNode node = (KatNode) e.getTreePath().getLastPathComponent();
+        int[] childIndices = e.getChildIndices();
+        
+        for (int i = 0; i < childIndices.length; i++) {
+            KatNode child = node.getChildAt(childIndices[i]);
+            if (child instanceof KatViewNode) {
+                addView((KatViewNode) child);
+            }
+        }
+    }
+
+    @Override
+    public void treeNodesRemoved(TreeModelEvent e) {
+        setupMenu();
+    }
+
+    @Override
+    public void treeStructureChanged(TreeModelEvent e) {
+        setupMenu();
+    }
+    
+    private void addView(KatViewNode view) {
         DockingWindow oldViews = rootWindow.getWindow();
 
         TabWindow tabWindow;
@@ -206,12 +233,6 @@ public class MainFrame extends javax.swing.JFrame implements DatasetBrowserListe
         tabWindow.addTab(view.getView());
     }
 
-    @Override
-    public void viewRemoved(KatViewNode view) {}
-
-    @Override
-    public void viewAdded(KatViewNode view) {}
-    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always

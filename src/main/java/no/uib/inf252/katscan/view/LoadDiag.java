@@ -8,8 +8,11 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JSpinner;
+import javax.swing.SpinnerModel;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.TransferHandler;
 import javax.swing.UIManager;
+import static javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import no.uib.inf252.katscan.Init;
@@ -150,6 +153,7 @@ public class LoadDiag extends javax.swing.JDialog {
 
         spnMin.setValue(0);
         spnMax.setValue(header.getMaxFormatValue());
+        ((SpinnerNumberModel)spnMax.getModel()).setMaximum(header.getMaxFormatValue());
         
         oldRatioX = (float) header.getRatioX();
         oldRatioY = (float) header.getRatioY();
@@ -204,7 +208,7 @@ public class LoadDiag extends javax.swing.JDialog {
         getGlassPane().setVisible(true);
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 
-        new Thread() {
+        new Thread("Data Loader") {
             @Override
             public void run() {
                 LoadSaveOptions options = new LoadSaveOptions(
@@ -214,11 +218,17 @@ public class LoadDiag extends javax.swing.JDialog {
                         getSpinnerValue(spnRatioZ).floatValue(),
                         getSpinnerValue(spnMin).intValue(),
                         getSpinnerValue(spnMax).intValue(),
-                        chkMin.isSelected(),
-                        chkMin.isSelected(),
+                        ((Number)((SpinnerNumberModel)spnMax.getModel()).getMaximum()).intValue(),
                         //TODO Normalize before or after applying min/max values?
                         chkNormValues.isSelected());
-                loadHandler.load(txtName.getText(), options, file);
+                try {
+                    loadHandler.load(txtName.getText(), options, file);
+                } catch (Throwable th) {
+                    Logger.getLogger(LoadDiag.class.getName()).log(Level.SEVERE, null, th);
+                    setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+                    getGlassPane().setVisible(false);
+                    return;
+                }
                 dispose();
             }
 

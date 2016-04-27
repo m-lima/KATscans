@@ -7,7 +7,7 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
 import no.uib.inf252.katscan.event.TransferFunctionListener;
-import no.uib.inf252.katscan.project.displayable.Displayable;
+import no.uib.inf252.katscan.project.displayable.TransferFunctionNode;
 import no.uib.inf252.katscan.util.TransferFunction;
 
 /**
@@ -16,14 +16,13 @@ import no.uib.inf252.katscan.util.TransferFunction;
  */
 public class CompositeRenderer extends VolumeRenderer implements TransferFunctionListener {
     
-    private final TransferFunction transferFunction;
     private final int[] textureLocation = new int[1];
     private boolean transferFunctionDirty;
     
-    public CompositeRenderer(Displayable displayable, TransferFunction transferFunction) throws GLException {
+    public CompositeRenderer(TransferFunctionNode displayable) throws GLException {
         super(displayable, "raycaster");
-        this.transferFunction = transferFunction;
-        this.transferFunction.addTransferFunctionListener(this);
+        //TODO Remove listener when done
+        displayable.getTransferFunction().addTransferFunctionListener(this);
     }
 
     @Override
@@ -61,12 +60,16 @@ public class CompositeRenderer extends VolumeRenderer implements TransferFunctio
     private void updateTransferFunction(GL4 gl4) {
         BufferedImage transferImage = new BufferedImage(TransferFunction.TEXTURE_SIZE, 1, BufferedImage.TYPE_4BYTE_ABGR);
         Graphics2D g2d = (Graphics2D) transferImage.getGraphics();
-        g2d.setPaint(transferFunction.getPaint(0f, TransferFunction.TEXTURE_SIZE));
+        g2d.setPaint(getDisplayable().getTransferFunction().getPaint(0f, TransferFunction.TEXTURE_SIZE));
         g2d.drawLine(0, 0, TransferFunction.TEXTURE_SIZE, 0);
         g2d.dispose();
         
         byte[] dataElements = (byte[]) transferImage.getRaster().getDataElements(0, 0, TransferFunction.TEXTURE_SIZE, 1, null);
         gl4.glTexImage1D(GL4.GL_TEXTURE_1D, 0, GL4.GL_RGBA, TransferFunction.TEXTURE_SIZE, 0, GL4.GL_RGBA, GL4.GL_UNSIGNED_INT_8_8_8_8_REV, ByteBuffer.wrap(dataElements));
+    }
+
+    private TransferFunctionNode getDisplayable() {
+        return (TransferFunctionNode) displayable;
     }
 
     @Override
@@ -81,9 +84,4 @@ public class CompositeRenderer extends VolumeRenderer implements TransferFunctio
         repaint();
     }
 
-    //TODO remove
-    public TransferFunction getTransferFunction() {
-        return transferFunction;
-    }
-    
 }

@@ -1,35 +1,21 @@
 package no.uib.inf252.katscan.view.project;
 
-import java.awt.EventQueue;
 import java.awt.Rectangle;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.File;
 import javax.swing.SwingUtilities;
-import javax.swing.event.EventListenerList;
-import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
-import no.uib.inf252.katscan.data.LoadedData;
-import no.uib.inf252.katscan.event.DataHolderListener;
-import no.uib.inf252.katscan.event.DatasetBrowserListener;
-import no.uib.inf252.katscan.event.KatViewListener;
-import no.uib.inf252.katscan.project.DataFileNode;
 import no.uib.inf252.katscan.project.KatNode;
-import no.uib.inf252.katscan.project.ProjectNode;
-import no.uib.inf252.katscan.project.KatViewNode;
-import no.uib.inf252.katscan.data.KatViewHandler;
+import no.uib.inf252.katscan.project.ProjectHandler;
 
 /**
  *
  * @author Marcelo Lima
  */
-public class ProjectBrowser extends javax.swing.JPanel implements DataHolderListener, KatViewListener {
-
-    private ProjectNode project;
-    private final EventListenerList listenerList;
+public class ProjectBrowser extends javax.swing.JPanel {
 
     /**
      * Creates new form DatasetBrowser
@@ -37,14 +23,11 @@ public class ProjectBrowser extends javax.swing.JPanel implements DataHolderList
     public ProjectBrowser() {
         initComponents();
         
-        project = new ProjectNode();
-        listenerList = new EventListenerList();
-        
         ProjectBrowserRenderer renderer = new ProjectBrowserRenderer();
         treDatasets.setCellRenderer(renderer);
         treDatasets.setShowsRootHandles(false);
         treDatasets.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-        treDatasets.setModel(new DefaultTreeModel(project));
+        treDatasets.setModel(ProjectHandler.getInstance());
         treDatasets.setSelectionRow(0);
 
         treDatasets.addMouseListener(new MouseAdapter() {
@@ -71,29 +54,10 @@ public class ProjectBrowser extends javax.swing.JPanel implements DataHolderList
             }
         });
         
-        LoadedData.getInstance().addDataHolderListener(this);
-        KatViewHandler.getInstance().addKatViewListener(this);
     }
     
     public void focusTree() {
         treDatasets.requestFocusInWindow();
-    }
-    
-    public synchronized void addDatasetBrowserListener(DatasetBrowserListener listener) {
-        if (listener == null) {
-            return;
-        }
-        
-        listenerList.add(DatasetBrowserListener.class, listener);
-        listener.treeChanged(project);
-    }
-    
-    public synchronized void removeDatasetBrowserListener(DatasetBrowserListener listener) {
-        if (listener == null) {
-            return;
-        }
-        
-        listenerList.remove(DatasetBrowserListener.class, listener);
     }
     
     private void showPopup(int x, int y) {
@@ -106,40 +70,6 @@ public class ProjectBrowser extends javax.swing.JPanel implements DataHolderList
         node.getPopupMenu().show(treDatasets, x, y);
     }
     
-    @Override
-    public void dataAdded(String name, File file) {
-        DefaultTreeModel model = (DefaultTreeModel) treDatasets.getModel();
-        model.insertNodeInto(new DataFileNode(name, file), project, project.getChildCount());
-        treDatasets.expandRow(0);
-        fireTreeChanged();
-    }
-
-    @Override
-    public void dataRemoved(String name) {
-        for (int i = 0; i < project.getChildCount(); i++) {
-            DataFileNode node = project.getChildAt(i);
-            if (node.equals(name)) {
-                DefaultTreeModel model = (DefaultTreeModel) treDatasets.getModel();
-                model.removeNodeFromParent(node);
-                fireTreeChanged();
-                return;
-            }
-        }
-    }
-    
-    private void fireTreeChanged() {
-        DatasetBrowserListener[] listeners = listenerList.getListeners(DatasetBrowserListener.class);
-
-        for (final DatasetBrowserListener listener : listeners) {
-            EventQueue.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    listener.treeChanged(project);
-                }
-            });
-        }
-    }
-
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -183,22 +113,5 @@ public class ProjectBrowser extends javax.swing.JPanel implements DataHolderList
     private javax.swing.JScrollPane scrDatasets;
     private javax.swing.JTree treDatasets;
     // End of variables declaration//GEN-END:variables
-
-    @Override
-    public void viewAddRequested(KatViewNode view) {}
-
-    @Override
-    public void viewAdded(KatViewNode view) {
-        DefaultTreeModel model = (DefaultTreeModel) treDatasets.getModel();
-        model.insertNodeInto(view, view.getParent(), view.getParent().getChildCount());
-        fireTreeChanged();
-    }
-
-    @Override
-    public void viewRemoved(KatViewNode view) {
-        DefaultTreeModel model = (DefaultTreeModel) treDatasets.getModel();
-        model.removeNodeFromParent(view);
-        fireTreeChanged();
-    }
 
 }

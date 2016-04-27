@@ -18,25 +18,34 @@ import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.util.glsl.ShaderCode;
 import com.jogamp.opengl.util.glsl.ShaderProgram;
+import java.awt.Graphics2D;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.awt.image.BufferedImage;
+import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 import no.uib.inf252.katscan.data.VoxelMatrix;
+import no.uib.inf252.katscan.event.TransferFunctionListener;
 import no.uib.inf252.katscan.project.displayable.Displayable;
+import no.uib.inf252.katscan.project.displayable.TransferFunctionNode;
+import no.uib.inf252.katscan.util.TransferFunction;
 import no.uib.inf252.katscan.view.katview.KatView;
 
 /**
  *
  * @author Marcelo Lima
  */
-public class SliceNavigator extends GLJPanel implements KatView, GLEventListener, MouseWheelListener {
+public class SliceNavigator extends GLJPanel implements KatView, GLEventListener, MouseWheelListener, TransferFunctionListener {
 
     private IntBuffer buffer;
     
     private final Displayable displayable;
     private boolean textureLoaded;
+    
+    private final int[] textureLocation = new int[1];
+    private boolean transferFunctionDirty;
     
     private final String SHADERS_ROOT = "/shaders";
     private final String SHADERS_NAME = "slicer";
@@ -47,13 +56,16 @@ public class SliceNavigator extends GLJPanel implements KatView, GLEventListener
     private float sliceMax;
     private int slice;
 
-    public SliceNavigator(Displayable displayable) throws GLException {
+    public SliceNavigator(TransferFunctionNode displayable) throws GLException {
         super(new GLCapabilities(GLProfile.get(GLProfile.GL4)));
         addGLEventListener(this);
         
         this.displayable = displayable;
         
         addMouseWheelListener(this);
+        
+        //TODO Remove listener when done
+        displayable.getTransferFunction().addTransferFunctionListener(this);
     }
 
     @Override
@@ -80,7 +92,7 @@ public class SliceNavigator extends GLJPanel implements KatView, GLEventListener
             slice = (int) (sliceMax / 2f);
 
             short[] texture = voxelMatrix.getData();
-
+            
             gl4.glGenTextures(1, buffer);
             buffer.position(3);
             gl4.glActiveTexture(GL4.GL_TEXTURE0);
@@ -91,9 +103,18 @@ public class SliceNavigator extends GLJPanel implements KatView, GLEventListener
             gl4.glTexParameteri(GL4.GL_TEXTURE_3D, GL4.GL_TEXTURE_WRAP_S, GL4.GL_CLAMP_TO_EDGE);
             gl4.glTexParameteri(GL4.GL_TEXTURE_3D, GL4.GL_TEXTURE_WRAP_T, GL4.GL_CLAMP_TO_EDGE);
 
-            gl4.glTexImage3D(GL4.GL_TEXTURE_3D, 0, GL4.GL_RED, voxelMatrix.getSizeX(), voxelMatrix.getSizeY(), voxelMatrix.getSizeZ(), 0, GL4.GL_RED, GL4.GL_SHORT, ShortBuffer.wrap(texture));
+            gl4.glTexImage3D(GL4.GL_TEXTURE_3D, 0, GL4.GL_RED, voxelMatrix.getSizeX(), voxelMatrix.getSizeY(), voxelMatrix.getSizeZ(), 0, GL4.GL_RED, GL4.GL_UNSIGNED_SHORT, ShortBuffer.wrap(texture));
 
             checkError(gl4, "Create Texture");
+        
+            gl4.glGenTextures(1, textureLocation, 0);
+            gl4.glBindTexture(GL4.GL_TEXTURE_1D, textureLocation[0]);
+            gl4.glTexParameteri(GL4.GL_TEXTURE_1D, GL4.GL_TEXTURE_MIN_FILTER, GL4.GL_LINEAR);
+            gl4.glTexParameteri(GL4.GL_TEXTURE_1D, GL4.GL_TEXTURE_MAG_FILTER, GL4.GL_LINEAR);
+            gl4.glTexParameteri(GL4.GL_TEXTURE_1D, GL4.GL_TEXTURE_WRAP_R, GL4.GL_CLAMP_TO_BORDER);
+        
+            checkError(gl4, "Create Transfer Function");
+            transferFunctionDirty = true;
         }
         
         ShaderCode vertShader = ShaderCode.create(gl4, GL_VERTEX_SHADER, this.getClass(), SHADERS_ROOT,
@@ -147,7 +168,23 @@ public class SliceNavigator extends GLJPanel implements KatView, GLEventListener
         gl4.glActiveTexture(GL4.GL_TEXTURE0);
         gl4.glBindTexture(GL4.GL_TEXTURE_3D, buffer.get(2));
         
+        if (transferFunctionDirty) {
+            BufferedImage transferImage = new BufferedImage(TransferFunction.TEXTURE_SIZE, 1, BufferedImage.TYPE_4BYTE_ABGR);
+            Graphics2D g2d = (Graphics2D) transferImage.getGraphics();
+            g2d.setPaint(getDisplayable().getTransferFunction().getPaint(0f, TransferFunction.TEXTURE_SIZE));
+            g2d.drawLine(0, 0, TransferFunction.TEXTURE_SIZE, 0);
+            g2d.dispose();
+
+            byte[] dataElements = (byte[]) transferImage.getRaster().getDataElements(0, 0, TransferFunction.TEXTURE_SIZE, 1, null);
+            gl4.glTexImage1D(GL4.GL_TEXTURE_1D, 0, GL4.GL_RGBA, TransferFunction.TEXTURE_SIZE, 0, GL4.GL_RGBA, GL4.GL_UNSIGNED_INT_8_8_8_8_REV, ByteBuffer.wrap(dataElements));
+            transferFunctionDirty = false;
+        }
+        
         gl4.glDrawElements(GL.GL_TRIANGLES, indices.length, GL.GL_UNSIGNED_SHORT, 0);
+    }
+
+    private TransferFunctionNode getDisplayable() {
+        return (TransferFunctionNode) displayable;
     }
 
     @Override
@@ -199,6 +236,18 @@ public class SliceNavigator extends GLJPanel implements KatView, GLEventListener
                 slice = ((int) sliceMax) - 1;
             }
         }        
+        repaint();
+    }
+
+    @Override
+    public void pointCountChanged() {
+        transferFunctionDirty = true;
+        repaint();
+    }
+
+    @Override
+    public void pointValueChanged() {
+        transferFunctionDirty = true;
         repaint();
     }
 

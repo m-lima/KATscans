@@ -1,6 +1,5 @@
 package no.uib.inf252.katscan.project.displayable;
 
-import no.uib.inf252.katscan.project.displayable.Displayable;
 import javax.swing.tree.MutableTreeNode;
 import no.uib.inf252.katscan.project.DataFileNode;
 import no.uib.inf252.katscan.project.ProjectNode;

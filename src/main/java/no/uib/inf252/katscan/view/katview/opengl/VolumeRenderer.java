@@ -70,7 +70,7 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
         this.shaderName = shaderName;
         this.displayable = displayable;
 
-        trackBall = new TrackBall();        
+        trackBall = new TrackBall(2 * displayable.getMatrix().getRatio()[2]);
         trackBall.installTrackBall(this);
 
         displayObject = DisplayObject.getObject(DisplayObject.Type.CUBE);
@@ -150,9 +150,6 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
             gl4.glUseProgram(programName);
             int location = gl4.glGetUniformLocation(programName, "numSamples");
             gl4.glUniform1i(location, numSample);
-            
-            location = gl4.glGetUniformLocation(programName, "formatFactor");
-            gl4.glUniform1f(location, 65536f / voxelMatrix.getMaxValue());
             
             location = gl4.glGetUniformLocation(programName, "ratio");
             gl4.glUniform3fv(location, 1, voxelMatrix.getRatio(), 0);

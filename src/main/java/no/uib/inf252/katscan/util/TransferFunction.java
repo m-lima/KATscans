@@ -26,9 +26,8 @@ public class TransferFunction {
     private boolean dirtyPaint;
     private Color[] colors;
     private float[] colorPoints;
-    private final int maxValue;
 
-    public TransferFunction(int maxValue) {
+    public TransferFunction() {
         points = new ArrayList<>();
         points.add(new TransferFunctionPoint(new Color(0, 0, 0, 0), 0f, this, false));
         points.add(new TransferFunctionPoint(new Color(255, 255, 255, 255), 0.5f, this));
@@ -36,11 +35,6 @@ public class TransferFunction {
 
         listenerList = new EventListenerList();
         dirtyPaint = true;
-        this.maxValue = maxValue;
-    }
-
-    public int getMaxValue() {
-        return maxValue;
     }
 
     public int getPointCount() {

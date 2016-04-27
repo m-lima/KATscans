@@ -4,7 +4,6 @@ import java.awt.Component;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -17,8 +16,9 @@ import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import no.uib.inf252.katscan.Init;
-import no.uib.inf252.katscan.data.LoadedData;
 import no.uib.inf252.katscan.data.VoxelMatrix;
+import no.uib.inf252.katscan.project.DataFileNode;
+import no.uib.inf252.katscan.project.ProjectHandler;
 import no.uib.inf252.katscan.util.FileAwareInputStream;
 
 /**
@@ -53,7 +53,8 @@ public class LoadSaveHandler {
     public boolean load(String name, LoadSaveOptions options, File file) {        
         try (FileAwareInputStream input = new FileAwareInputStream(file)) {
             VoxelMatrix voxelMatrix = format.getFormat().loadData(input, options);
-            if (LoadedData.getInstance().load(name, file, voxelMatrix)) {
+            ProjectHandler projectHandler = ProjectHandler.getInstance();
+            if (projectHandler.insertDataFile(new DataFileNode(name, file, voxelMatrix))) {
                 saveLastLoad(file);
                 return true;
             }

@@ -2,7 +2,10 @@ package no.uib.inf252.katscan.view.katview;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 import no.uib.inf252.katscan.data.VoxelMatrix;
@@ -10,10 +13,16 @@ import no.uib.inf252.katscan.project.displayable.Displayable;
 import no.uib.inf252.katscan.view.MainFrame;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.LogAxis;
+import org.jfree.chart.axis.LogarithmicAxis;
 import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.event.AxisChangeEvent;
+import org.jfree.chart.event.AxisChangeListener;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.StandardXYBarPainter;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
+import org.jfree.data.Range;
 import org.jfree.data.RangeType;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
@@ -25,12 +34,16 @@ import org.jfree.data.xy.XYSeriesCollection;
 public class Histogram extends JPanel implements KatView {
 
     protected final XYPlot plot;
-    protected final NumberAxis valueAxis;
+    protected final LogAxis logAxis;
+    protected final NumberAxis linAxis;
     protected final NumberAxis domainAxis;
     protected final Displayable displayable;
     protected final JFreeChart chart;
     protected final ChartPanel chartPanel;
     protected final XYBarRenderer barRenderer;
+    protected final JMenuItem menuLog;
+    
+    private boolean log;
 
     public Histogram(Displayable displayable) {
         super(new BorderLayout());
@@ -42,12 +55,22 @@ public class Histogram extends JPanel implements KatView {
         
         setBackground(MainFrame.THEME_COLOR);
 
-        valueAxis = new NumberAxis();       
+        logAxis = new LogAxis();
+        linAxis = new NumberAxis();
         domainAxis = new NumberAxis();
         barRenderer = new XYBarRenderer();
         plot = new XYPlot();        
         chart = new JFreeChart(plot);
-        chartPanel = new ChartPanel(chart);
+        chartPanel = new ChartPanel(chart) {
+            @Override
+            public void restoreAutoBounds() {
+                super.restoreAutoBounds();
+                domainAxis.setRange(new Range(Histogram.this.displayable.getMatrix().getMinValue(), Histogram.this.displayable.getMatrix().getMaxValue()));
+            }
+        };
+        
+        menuLog = new JMenuItem("Linear");
+        log = true;
 
         configureChart();
         
@@ -57,13 +80,12 @@ public class Histogram extends JPanel implements KatView {
     }
     
     protected void configureChart() {
-        valueAxis.setTickLabelPaint(UIManager.getDefaults().getColor("Label.foreground"));
+        logAxis.setTickLabelPaint(UIManager.getDefaults().getColor("Label.foreground"));
+        linAxis.setTickLabelPaint(UIManager.getDefaults().getColor("Label.foreground"));
         
         domainAxis.setTickLabelPaint(UIManager.getDefaults().getColor("Label.foreground"));
+        domainAxis.setRange(new Range(displayable.getMatrix().getMinValue(), displayable.getMatrix().getMaxValue()));
         domainAxis.setRangeType(RangeType.POSITIVE);
-        domainAxis.setAutoRangeStickyZero(true);
-        domainAxis.setAutoRangeIncludesZero(true);
-        domainAxis.setFixedAutoRange(displayable.getMatrix().getMaxValue());
         
         barRenderer.setShadowVisible(false);
         barRenderer.setMargin(0);
@@ -72,12 +94,29 @@ public class Histogram extends JPanel implements KatView {
         
         plot.setDomainAxis(domainAxis);
         plot.setBackgroundPaint(null);
-        plot.setRangeAxis(0, valueAxis);
+        plot.setRangeAxis(0, logAxis);
         plot.setRenderer(0, barRenderer);
         plot.mapDatasetToRangeAxis(0, 0);
-        
+                
         chart.setSubtitles(new ArrayList());
         chartPanel.setOpaque(false);
+        
+        chartPanel.getPopupMenu().addSeparator();
+        chartPanel.getPopupMenu().add(menuLog);
+        
+        menuLog.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (log) {
+                    menuLog.setText("Logarithmic");
+                    plot.setRangeAxis(0, linAxis);                    
+                } else {
+                    menuLog.setText("Linear");
+                    plot.setRangeAxis(0, logAxis);                    
+                }
+                log = !log;
+            }
+        });
     }
     
     private void initPlot() {

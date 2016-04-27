@@ -15,6 +15,21 @@ import javax.swing.plaf.metal.MetalLookAndFeel;
 import no.uib.inf252.katscan.view.MainFrame;
 import no.uib.inf252.katscan.view.SplashScreen;
 
+//TODO [ ] Exceptions
+//TODO [ ] Always clip
+//TODO [ ] Raw ratio calculation
+//TODO [ ] Loading size (spinners)
+//TODO [ ] Alpha compositing
+//TODO [ ] Slice as zooms
+//TODO [ ] Icons for all items
+//TODO [ ] Remove reference to model from KatNodes
+//TODO [ ] Remove CUT and STRUCTURE from Transfer Function
+//TODO [ ] Auto-open transfer function or its children
+//TODO [ ] All displayables have TransFunc
+//DONE [X] Raw reverse Z
+//DONE [X] Camera initial zoom
+//DONE [X] Saturation of transfer function
+
 /**
  *
  * @author Marcelo Lima
@@ -83,8 +98,8 @@ public class Init {
                     gc = gs[0].getDefaultConfiguration();
                 }
                 
-                SplashScreen dialog = new SplashScreen(null, gc);
-                dialog.setVisible(true);
+//                SplashScreen dialog = new SplashScreen(null, gc);
+//                dialog.setVisible(true);
 
                 frameReference = new MainFrame(gc);
                 frameReference.setVisible(true);
