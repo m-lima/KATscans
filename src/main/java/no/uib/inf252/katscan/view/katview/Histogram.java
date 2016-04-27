@@ -94,9 +94,6 @@ public class Histogram extends JPanel implements KatView {
         
         plot.setDomainAxis(domainAxis);
         plot.setBackgroundPaint(null);
-        plot.setRangeAxis(0, logAxis);
-        plot.setRenderer(0, barRenderer);
-        plot.mapDatasetToRangeAxis(0, 0);
                 
         chart.setSubtitles(new ArrayList());
         chartPanel.setOpaque(false);
@@ -135,6 +132,10 @@ public class Histogram extends JPanel implements KatView {
                 series.add(i, value);
             }
         }
+        
+        plot.setRangeAxis(0, logAxis);
+        plot.setRenderer(0, barRenderer);
+        plot.mapDatasetToRangeAxis(0, 0);
     }
     
 }
