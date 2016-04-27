@@ -1,4 +1,6 @@
-layout (location = 0) in vec3 position;
+#version 150
+
+ in vec3 position;
 
 out vec3 vertexOut;
 out vec4 vertexOutModel;

@@ -1,6 +1,6 @@
 package no.uib.inf252.katscan.view.katview.opengl;
 
-import com.jogamp.opengl.GL4;
+import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLException;
 import java.awt.Graphics2D;
@@ -28,7 +28,7 @@ public class CompositeRenderer extends VolumeRenderer implements TransferFunctio
     @Override
     protected void preDraw(GLAutoDrawable drawable) {
         if (transferFunctionDirty) {
-            updateTransferFunction(drawable.getGL().getGL4());
+            updateTransferFunction(drawable.getGL().getGL2());
             transferFunctionDirty = false;
         }
     }
@@ -37,27 +37,33 @@ public class CompositeRenderer extends VolumeRenderer implements TransferFunctio
     public void init(GLAutoDrawable drawable) {
         super.init(drawable); 
         
-        GL4 gl4 = drawable.getGL().getGL4();
+        GL2 gl2 = drawable.getGL().getGL2();
         
-        gl4.glGenTextures(1, textureLocation, 0);
-        gl4.glBindTexture(GL4.GL_TEXTURE_1D, textureLocation[0]);
-        gl4.glTexParameteri(GL4.GL_TEXTURE_1D, GL4.GL_TEXTURE_MIN_FILTER, GL4.GL_LINEAR);
-        gl4.glTexParameteri(GL4.GL_TEXTURE_1D, GL4.GL_TEXTURE_MAG_FILTER, GL4.GL_LINEAR);
-        gl4.glTexParameteri(GL4.GL_TEXTURE_1D, GL4.GL_TEXTURE_WRAP_R, GL4.GL_CLAMP_TO_BORDER);
+        gl2.glGenTextures(1, textureLocation, 0);
+        gl2.glActiveTexture(GL2.GL_TEXTURE1);
+        gl2.glBindTexture(GL2.GL_TEXTURE_1D, textureLocation[0]);
+        gl2.glTexParameteri(GL2.GL_TEXTURE_1D, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_LINEAR);
+        gl2.glTexParameteri(GL2.GL_TEXTURE_1D, GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);
+        gl2.glTexParameteri(GL2.GL_TEXTURE_1D, GL2.GL_TEXTURE_WRAP_R, GL2.GL_CLAMP_TO_BORDER);
         transferFunctionDirty = true;
         
-        checkError(gl4, "Create Transfer Function");
+        gl2.glUseProgram(programName);
+            
+        int location = gl2.glGetUniformLocation(programName, "transferFunction");
+        gl2.glUniform1i(location, 1);
+        
+        checkError(gl2, "Create Transfer Function");
     }
 
     @Override
     public void dispose(GLAutoDrawable drawable) {
         super.dispose(drawable);
-        GL4 gl4 = drawable.getGL().getGL4();
+        GL2 gl2 = drawable.getGL().getGL2();
         
-        gl4.glDeleteTextures(0, textureLocation, 0);
+        gl2.glDeleteTextures(1, textureLocation, 0);
     }
     
-    private void updateTransferFunction(GL4 gl4) {
+    private void updateTransferFunction(GL2 gl2) {
         BufferedImage transferImage = new BufferedImage(TransferFunction.TEXTURE_SIZE, 1, BufferedImage.TYPE_4BYTE_ABGR);
         Graphics2D g2d = (Graphics2D) transferImage.getGraphics();
         g2d.setPaint(getDisplayable().getTransferFunction().getPaint(0f, TransferFunction.TEXTURE_SIZE));
@@ -65,7 +71,9 @@ public class CompositeRenderer extends VolumeRenderer implements TransferFunctio
         g2d.dispose();
         
         byte[] dataElements = (byte[]) transferImage.getRaster().getDataElements(0, 0, TransferFunction.TEXTURE_SIZE, 1, null);
-        gl4.glTexImage1D(GL4.GL_TEXTURE_1D, 0, GL4.GL_RGBA, TransferFunction.TEXTURE_SIZE, 0, GL4.GL_RGBA, GL4.GL_UNSIGNED_INT_8_8_8_8_REV, ByteBuffer.wrap(dataElements));
+        gl2.glActiveTexture(GL2.GL_TEXTURE1);
+        gl2.glBindTexture(GL2.GL_TEXTURE_1D, textureLocation[0]);
+        gl2.glTexImage1D(GL2.GL_TEXTURE_1D, 0, GL2.GL_RGBA, TransferFunction.TEXTURE_SIZE, 0, GL2.GL_RGBA, GL2.GL_UNSIGNED_INT_8_8_8_8_REV, ByteBuffer.wrap(dataElements));
     }
 
     private TransferFunctionNode getDisplayable() {

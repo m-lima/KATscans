@@ -1,3 +1,5 @@
+#version 150
+
 in vec3 vertexOut;
 in vec4 vertexOutModel;
 
@@ -11,8 +13,10 @@ uniform bool orthographic;
 uniform vec3 eyePos;
 uniform vec3 ratio;
 
-const int actualSamples = numSamples * lodMultiplier / 16;
-const float stepSize = 1f / float(actualSamples);
+int actualSamples = numSamples * lodMultiplier / 16;
+float stepSize = 1f / float(actualSamples);
+
+out vec4 fragColor;
 
 float rand(vec2 co){
   return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
@@ -33,7 +37,7 @@ void main() {
     float density;
     vec3 coord;
     float color = 0.0;
-    for (int i = 0; i < actualSamples * 2; ++i, pos += stepValue) {
+    for (int i = 0; i < actualSamples * 3; ++i, pos += stepValue) {
         coord = pos / ratio + 0.5;
         if (coord.x < 0.0 || coord.x > 1.0 ||
             coord.y < 0.0 || coord.y > 1.0 ||
@@ -49,9 +53,9 @@ void main() {
         }
     }
 
-    gl_FragColor.rgb = vec3(color);
+    fragColor.rgb = vec3(color);
     if (color < 0.1) color = 0.0;
-    gl_FragColor.a = color;
+    fragColor.a = color;
 
 //#define COLOR_CUBE
 #ifdef COLOR_CUBE
@@ -61,6 +65,6 @@ void main() {
                           (vertexOut.y == maxLimit || vertexOut.y == minLimit) ? 1.0 : 0.0,
                           (vertexOut.z == maxLimit || vertexOut.z == minLimit) ? 1.0 : 0.0,
                           0.25);
-    gl_FragColor += saturated;
+    fragColor += saturated;
 #endif
 }

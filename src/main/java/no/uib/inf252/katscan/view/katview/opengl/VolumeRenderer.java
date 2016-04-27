@@ -7,9 +7,9 @@ import static com.jogamp.opengl.GL.GL_INVALID_OPERATION;
 import static com.jogamp.opengl.GL.GL_INVALID_VALUE;
 import static com.jogamp.opengl.GL.GL_NO_ERROR;
 import static com.jogamp.opengl.GL.GL_OUT_OF_MEMORY;
+import com.jogamp.opengl.GL2;
 import static com.jogamp.opengl.GL2ES2.GL_FRAGMENT_SHADER;
 import static com.jogamp.opengl.GL2ES2.GL_VERTEX_SHADER;
-import com.jogamp.opengl.GL4;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.GLEventListener;
@@ -39,23 +39,21 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
     private static final String SHADERS_ROOT = "/shaders";
     private final String shaderName;
     
-    private static class BUFFER {
-        private static final int VERTICES = 0;
-        private static final int INDICES = 1;
-        private static final int TEXTURE = 2;
-        
-        private static final int VBO_LENGTH = 2;
-        private static final int TEXTURE_LENGTH = 1;
-        private static final int TOTAL_LENGTH = 3;
-    }
+    private static final int VERTICES = 0;
+    private static final int INDICES = 1;
+
+    private static final int VOLUME = 0;
+    private static final int TRANSFER = 1;
+    
+    private final int[] bufferLocation;
+    private final int[] textureLocation;
     
     protected final Displayable displayable;
     
-    private IntBuffer buffers;
     private final TrackBall trackBall;
     private final DisplayObject displayObject;
     
-    private int programName;
+    protected int programName;
     private boolean textureLoaded;
     
     private int numSample;
@@ -64,8 +62,11 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
     private boolean highLOD;
 
     VolumeRenderer(Displayable displayable, String shaderName) throws GLException {
-        super(new GLCapabilities(GLProfile.get(GLProfile.GL4)));
+        super(new GLCapabilities(GLProfile.get(GLProfile.GL2)));
         addGLEventListener(this);
+        
+        bufferLocation = new int[2];
+        textureLocation = new int[1];
         
         this.shaderName = shaderName;
         this.displayable = displayable;
@@ -92,24 +93,22 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
     @Override
     public void init(GLAutoDrawable drawable) {
         trackBall.markAllDirty();
-        buffers = IntBuffer.allocate(BUFFER.TOTAL_LENGTH);
         
         highLOD = true;
         
-        GL4 gl4 = drawable.getGL().getGL4();
+        GL2 gl2 = drawable.getGL().getGL2();
         
-        gl4.glGenBuffers(BUFFER.VBO_LENGTH, buffers);
-        buffers.position(BUFFER.VBO_LENGTH);
+        gl2.glGenBuffers(bufferLocation.length, bufferLocation, 0);
         
         float[] vertices = displayObject.getVertices();
-        gl4.glBindBuffer(GL.GL_ARRAY_BUFFER, buffers.get(BUFFER.VERTICES));
-        gl4.glBufferData(GL.GL_ARRAY_BUFFER, vertices.length * Float.BYTES, FloatBuffer.wrap(vertices), GL.GL_STATIC_DRAW);
+        gl2.glBindBuffer(GL.GL_ARRAY_BUFFER, bufferLocation[VERTICES]);
+        gl2.glBufferData(GL.GL_ARRAY_BUFFER, vertices.length * Float.BYTES, FloatBuffer.wrap(vertices), GL.GL_STATIC_DRAW);
         
         short[] indices = displayObject.getIndices();
-        gl4.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, buffers.get(BUFFER.INDICES));
-        gl4.glBufferData(GL.GL_ELEMENT_ARRAY_BUFFER, indices.length * Short.BYTES, ShortBuffer.wrap(indices), GL.GL_STATIC_DRAW);
+        gl2.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, bufferLocation[INDICES]);
+        gl2.glBufferData(GL.GL_ELEMENT_ARRAY_BUFFER, indices.length * Short.BYTES, ShortBuffer.wrap(indices), GL.GL_STATIC_DRAW);
         
-        checkError(gl4, "Create Buffers");
+        checkError(gl2, "Create Buffers");
         
         VoxelMatrix voxelMatrix = displayable.getMatrix();
         textureLoaded = voxelMatrix != null;
@@ -117,129 +116,132 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
             short[] texture = voxelMatrix.getData();
             
             numSample = (int) Math.cbrt(texture.length);
-
-            gl4.glGenTextures(BUFFER.TEXTURE_LENGTH, buffers);
-            buffers.position(BUFFER.TOTAL_LENGTH);
             
-            gl4.glBindTexture(GL4.GL_TEXTURE_3D, buffers.get(BUFFER.TEXTURE));
-            gl4.glTexParameteri(GL4.GL_TEXTURE_3D, GL4.GL_TEXTURE_MIN_FILTER, GL4.GL_LINEAR);
-            gl4.glTexParameteri(GL4.GL_TEXTURE_3D, GL4.GL_TEXTURE_MAG_FILTER, GL4.GL_LINEAR);
-            gl4.glTexParameteri(GL4.GL_TEXTURE_3D, GL4.GL_TEXTURE_WRAP_R, GL4.GL_CLAMP_TO_BORDER);
-            gl4.glTexParameteri(GL4.GL_TEXTURE_3D, GL4.GL_TEXTURE_WRAP_S, GL4.GL_CLAMP_TO_BORDER);
-            gl4.glTexParameteri(GL4.GL_TEXTURE_3D, GL4.GL_TEXTURE_WRAP_T, GL4.GL_CLAMP_TO_BORDER);
+            gl2.glGenTextures(1, textureLocation, 0);
+            gl2.glActiveTexture(GL2.GL_TEXTURE0 + VOLUME);
+            gl2.glBindTexture(GL2.GL_TEXTURE_3D, textureLocation[VOLUME]);
+            gl2.glTexParameteri(GL2.GL_TEXTURE_3D, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_LINEAR);
+            gl2.glTexParameteri(GL2.GL_TEXTURE_3D, GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);
+            gl2.glTexParameteri(GL2.GL_TEXTURE_3D, GL2.GL_TEXTURE_WRAP_R, GL2.GL_CLAMP_TO_BORDER);
+            gl2.glTexParameteri(GL2.GL_TEXTURE_3D, GL2.GL_TEXTURE_WRAP_S, GL2.GL_CLAMP_TO_BORDER);
+            gl2.glTexParameteri(GL2.GL_TEXTURE_3D, GL2.GL_TEXTURE_WRAP_T, GL2.GL_CLAMP_TO_BORDER);
 
-            gl4.glTexImage3D(GL4.GL_TEXTURE_3D, 0, GL4.GL_RED, voxelMatrix.getSizeX(), voxelMatrix.getSizeY(), voxelMatrix.getSizeZ(), 0, GL4.GL_RED, GL4.GL_UNSIGNED_SHORT, ShortBuffer.wrap(texture));
+            gl2.glTexImage3D(GL2.GL_TEXTURE_3D, 0, GL2.GL_RED, voxelMatrix.getSizeX(), voxelMatrix.getSizeY(), voxelMatrix.getSizeZ(), 0, GL2.GL_RED, GL2.GL_UNSIGNED_SHORT, ShortBuffer.wrap(texture));
 
-            checkError(gl4, "Create Texture");
+            checkError(gl2, "Create Texture");
         }
         
-        ShaderCode vertShader = ShaderCode.create(gl4, GL_VERTEX_SHADER, this.getClass(), SHADERS_ROOT,
+        ShaderCode vertShader = ShaderCode.create(gl2, GL_VERTEX_SHADER, this.getClass(), SHADERS_ROOT,
                 null, shaderName, true);
-        ShaderCode fragShader = ShaderCode.create(gl4, GL_FRAGMENT_SHADER, this.getClass(), SHADERS_ROOT,
+        ShaderCode fragShader = ShaderCode.create(gl2, GL_FRAGMENT_SHADER, this.getClass(), SHADERS_ROOT,
                 null, shaderName, true);
 
         ShaderProgram shaderProgram = new ShaderProgram();
         shaderProgram.add(vertShader);
         shaderProgram.add(fragShader);
-        shaderProgram.init(gl4);
+        shaderProgram.init(gl2);
 
         programName = shaderProgram.program();
-        shaderProgram.link(gl4, System.out);
+        shaderProgram.link(gl2, System.out);
+        
+        gl2.glUseProgram(programName);
+        
+        gl2.glBindFragDataLocation(programName, 0, "fragColor");
+        gl2.glBindAttribLocation(programName, 0, "position");
         
         if (textureLoaded) {
-            gl4.glUseProgram(programName);
-            int location = gl4.glGetUniformLocation(programName, "numSamples");
-            gl4.glUniform1i(location, numSample);
+            int location = gl2.glGetUniformLocation(programName, "numSamples");
+            gl2.glUniform1i(location, numSample);
             
-            location = gl4.glGetUniformLocation(programName, "ratio");
-            gl4.glUniform3fv(location, 1, voxelMatrix.getRatio(), 0);
+            location = gl2.glGetUniformLocation(programName, "ratio");
+            gl2.glUniform3fv(location, 1, voxelMatrix.getRatio(), 0);
+            
+            location = gl2.glGetUniformLocation(programName, "volumeTexture");
+            gl2.glUniform1i(location, 0);
         }
 
-        checkError(gl4, "Create Shaders");
+        checkError(gl2, "Create Shaders");
     }
 
     @Override
     public void dispose(GLAutoDrawable drawable) {
-        GL4 gl4 = drawable.getGL().getGL4();
+        GL2 gl2 = drawable.getGL().getGL2();
         
-        gl4.glDeleteProgram(programName);
-
+        gl2.glDeleteProgram(programName);
+        gl2.glDeleteBuffers(bufferLocation.length, bufferLocation, 0);
+        
         if (textureLoaded) {
-            buffers.position(BUFFER.VBO_LENGTH);
-            gl4.glDeleteTextures(BUFFER.TEXTURE_LENGTH, buffers);
+            gl2.glDeleteTextures(textureLocation.length, textureLocation, 0);
         }
-        
-        buffers.position(0);
-        gl4.glDeleteBuffers(BUFFER.VBO_LENGTH, buffers);
     }
 
     @Override
     public void display(GLAutoDrawable drawable) {
-        GL4 gl4 = drawable.getGL().getGL4();
+        GL2 gl2 = drawable.getGL().getGL2();
 //        gl4.glClearColor(0.234375f, 0.24609375f, 0.25390625f,1.0f);
 //        gl4.glClearColor(0.2f,0.2f,0.2f,1.0f);
-        gl4.glClearColor(0f,0f,0f,1.0f);
-        gl4.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
+        gl2.glClearColor(0f,0f,0f,1.0f);
+        gl2.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
         
 //        gl4.glEnable(GL.GL_DEPTH_TEST);
-        gl4.glEnable(GL.GL_CULL_FACE);
-        gl4.glCullFace(GL.GL_BACK);
-        gl4.glEnable(GL.GL_BLEND);
-        gl4.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
+        gl2.glEnable(GL.GL_CULL_FACE);
+        gl2.glCullFace(GL.GL_BACK);
+        gl2.glEnable(GL.GL_BLEND);
+        gl2.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
         
-        gl4.glUseProgram(programName);
+        gl2.glUseProgram(programName);
         
         int uniformLocation;
         if (highLOD) {
-            uniformLocation = gl4.glGetUniformLocation(programName, "lodMultiplier");
-            gl4.glUniform1i(uniformLocation, 16);
+            uniformLocation = gl2.glGetUniformLocation(programName, "lodMultiplier");
+            gl2.glUniform1i(uniformLocation, 16);
         }
         
         int dirtyValues = trackBall.getDirtyValues();
         if ((dirtyValues & (TrackBall.PROJECTION_DIRTY | TrackBall.VIEW_DIRTY | TrackBall.MODEL_DIRTY | TrackBall.ORTHO_DIRTY)) != 0) {
 
             if ((dirtyValues & TrackBall.PROJECTION_DIRTY) > 0) {
-                uniformLocation = gl4.glGetUniformLocation(programName, "projection");
-                gl4.glUniformMatrix4fv(uniformLocation, 1, false, trackBall.getProjectionMatrix(), 0);
+                uniformLocation = gl2.glGetUniformLocation(programName, "projection");
+                gl2.glUniformMatrix4fv(uniformLocation, 1, false, trackBall.getProjectionMatrix(), 0);
                 trackBall.clearDirtyValues(TrackBall.PROJECTION_DIRTY);
             }
 
             if ((dirtyValues & TrackBall.VIEW_DIRTY) > 0) {
-                uniformLocation = gl4.glGetUniformLocation(programName, "view");
-                gl4.glUniformMatrix4fv(uniformLocation, 1, false, trackBall.getViewMatrix(), 0);                
-                uniformLocation = gl4.glGetUniformLocation(programName, "eyePos");
-                gl4.glUniform3fv(uniformLocation, 1, trackBall.getEyePosition(), 0);
+                uniformLocation = gl2.glGetUniformLocation(programName, "view");
+                gl2.glUniformMatrix4fv(uniformLocation, 1, false, trackBall.getViewMatrix(), 0);                
+                uniformLocation = gl2.glGetUniformLocation(programName, "eyePos");
+                gl2.glUniform3fv(uniformLocation, 1, trackBall.getEyePosition(), 0);
                 trackBall.clearDirtyValues(TrackBall.ZOOM_DIRTY);
                 trackBall.clearDirtyValues(TrackBall.ZOOM_DIRTY);
                 trackBall.clearDirtyValues(TrackBall.FOV_DIRTY);
             }
 
             if ((dirtyValues & TrackBall.MODEL_DIRTY) > 0) {
-                uniformLocation = gl4.glGetUniformLocation(programName, "model");
-                gl4.glUniformMatrix4fv(uniformLocation, 1, false, trackBall.getModelMatrix(), 0);
+                uniformLocation = gl2.glGetUniformLocation(programName, "model");
+                gl2.glUniformMatrix4fv(uniformLocation, 1, false, trackBall.getModelMatrix(), 0);
                 trackBall.clearDirtyValues(TrackBall.MODEL_DIRTY);
             }
 
             if ((dirtyValues & TrackBall.ORTHO_DIRTY) > 0) {
-                uniformLocation = gl4.glGetUniformLocation(programName, "orthographic");
-                gl4.glUniform1i(uniformLocation, trackBall.isOrthographic() ? 1 : 0);
+                uniformLocation = gl2.glGetUniformLocation(programName, "orthographic");
+                gl2.glUniform1i(uniformLocation, trackBall.isOrthographic() ? 1 : 0);
                 trackBall.clearDirtyValues(TrackBall.ORTHO_DIRTY);
             }
         }
         
         preDraw(drawable);
 
-        gl4.glBindBuffer(GL.GL_ARRAY_BUFFER, buffers.get(BUFFER.VERTICES));        
-        gl4.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, buffers.get(BUFFER.INDICES));
-        gl4.glEnableVertexAttribArray(0);
-        gl4.glVertexAttribPointer(0, 3, GL.GL_FLOAT, false, 0, 0);
+        gl2.glBindBuffer(GL.GL_ARRAY_BUFFER, bufferLocation[VERTICES]);        
+        gl2.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, bufferLocation[INDICES]);
+        gl2.glEnableVertexAttribArray(0);
+        gl2.glVertexAttribPointer(0, 3, GL.GL_FLOAT, false, 0, 0);
         
         //TODO randomize starting point
-        gl4.glDrawElements(GL.GL_TRIANGLES, displayObject.getIndices().length, GL.GL_UNSIGNED_SHORT, 0);
+        gl2.glDrawElements(GL.GL_TRIANGLES, displayObject.getIndices().length, GL.GL_UNSIGNED_SHORT, 0);
         
         if (highLOD) {
-            uniformLocation = gl4.glGetUniformLocation(programName, "lodMultiplier");
-            gl4.glUniform1i(uniformLocation, 1);
+            uniformLocation = gl2.glGetUniformLocation(programName, "lodMultiplier");
+            gl2.glUniform1i(uniformLocation, 1);
             highLOD = false;
         } else {
             threadLOD.restart();
