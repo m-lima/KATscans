@@ -1,6 +1,7 @@
 #Heavy files
 *sinusvein*
 misc/
+*.kat
 
 *.class
 
