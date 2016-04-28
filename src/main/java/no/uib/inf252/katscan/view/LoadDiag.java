@@ -8,17 +8,15 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JSpinner;
-import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.TransferHandler;
 import javax.swing.UIManager;
-import static javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import no.uib.inf252.katscan.Init;
 import no.uib.inf252.katscan.data.io.FormatHeader;
+import no.uib.inf252.katscan.data.io.LoadSaveFormat.Format;
 import no.uib.inf252.katscan.data.io.LoadSaveHandler;
-import no.uib.inf252.katscan.data.io.LoadSaveHandler.Format;
 import no.uib.inf252.katscan.data.io.LoadSaveOptions;
 import no.uib.inf252.katscan.view.component.LoadingPanel;
 import no.uib.inf252.katscan.view.component.ValidatableBorder;
@@ -46,7 +44,8 @@ public class LoadDiag extends javax.swing.JDialog {
         super(Init.getFrameReference(), "Load " + format.getFormat().getName() + " file", true);
         loadHandler = new LoadSaveHandler(format);
 
-        initComponents();
+        initComponents();        
+        ((SpinnerNumberModel)spnMax.getModel()).setMaximum(format.getFormat().getMaxValue());
 
         setLocationRelativeTo(Init.getFrameReference());
         setGlassPane(new LoadingPanel());
@@ -152,8 +151,7 @@ public class LoadDiag extends javax.swing.JDialog {
         }
 
         spnMin.setValue(0);
-        spnMax.setValue(header.getMaxFormatValue());
-        ((SpinnerNumberModel)spnMax.getModel()).setMaximum(header.getMaxFormatValue());
+        spnMax.setValue(((SpinnerNumberModel)spnMax.getModel()).getMaximum());
         
         oldRatioX = (float) header.getRatioX();
         oldRatioY = (float) header.getRatioY();

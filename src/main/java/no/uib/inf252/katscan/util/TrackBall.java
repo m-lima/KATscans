@@ -304,8 +304,22 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
 
     @Override
     public void mouseDragged(MouseEvent e) {
+        final int modifiers = e.getModifiers();
+        
+        if ((modifiers & ~(
+                MouseEvent.SHIFT_MASK |
+                MouseEvent.BUTTON1_MASK |
+                MouseEvent.BUTTON2_MASK |
+                MouseEvent.BUTTON3_MASK)) > 0) {
+            return;
+        }
+        
         Component component = e.getComponent();
         if (SwingUtilities.isLeftMouseButton(e)) {
+            if (e.isShiftDown()) {
+                return;
+            }
+            
             getSurfaceVector(e.getX(), e.getY(), component.getWidth(), component.getHeight(), currentPosition);
 
             float angle = FloatUtil.acos(VectorUtil.dotVec3(initialPosition, currentPosition));
@@ -368,6 +382,11 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
     
     @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
+        final int modifiers = e.getModifiers();
+        if ((modifiers & ~(MouseEvent.SHIFT_MASK)) > 0) {
+            return;
+        }
+        
         Component component = e.getComponent();
         component.requestFocus();
         if (e.isShiftDown()) {

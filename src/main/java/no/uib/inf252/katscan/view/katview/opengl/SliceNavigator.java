@@ -1,14 +1,5 @@
 package no.uib.inf252.katscan.view.katview.opengl;
 
-import com.jogamp.opengl.GL;
-import static com.jogamp.opengl.GL.GL_INVALID_ENUM;
-import static com.jogamp.opengl.GL.GL_INVALID_FRAMEBUFFER_OPERATION;
-import static com.jogamp.opengl.GL.GL_INVALID_OPERATION;
-import static com.jogamp.opengl.GL.GL_INVALID_VALUE;
-import static com.jogamp.opengl.GL.GL_NO_ERROR;
-import static com.jogamp.opengl.GL.GL_OUT_OF_MEMORY;
-import static com.jogamp.opengl.GL2ES2.GL_FRAGMENT_SHADER;
-import static com.jogamp.opengl.GL2ES2.GL_VERTEX_SHADER;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLCapabilities;
@@ -81,11 +72,11 @@ public class SliceNavigator extends GLJPanel implements KatView, GLEventListener
         
         gl2.glGenBuffers(bufferLocation.length, bufferLocation, 0);
         
-        gl2.glBindBuffer(GL.GL_ARRAY_BUFFER, bufferLocation[VERTICES]);
-        gl2.glBufferData(GL.GL_ARRAY_BUFFER, vertices.length * Float.BYTES, FloatBuffer.wrap(vertices), GL.GL_STATIC_DRAW);
+        gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, bufferLocation[VERTICES]);
+        gl2.glBufferData(GL2.GL_ARRAY_BUFFER, vertices.length * Float.BYTES, FloatBuffer.wrap(vertices), GL2.GL_STATIC_DRAW);
         
-        gl2.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, bufferLocation[INDICES]);
-        gl2.glBufferData(GL.GL_ELEMENT_ARRAY_BUFFER, indices.length * Short.BYTES, ShortBuffer.wrap(indices), GL.GL_STATIC_DRAW);
+        gl2.glBindBuffer(GL2.GL_ELEMENT_ARRAY_BUFFER, bufferLocation[INDICES]);
+        gl2.glBufferData(GL2.GL_ELEMENT_ARRAY_BUFFER, indices.length * Short.BYTES, ShortBuffer.wrap(indices), GL2.GL_STATIC_DRAW);
         
         checkError(gl2, "Create Buffers");
         
@@ -121,9 +112,9 @@ public class SliceNavigator extends GLJPanel implements KatView, GLEventListener
             transferFunctionDirty = true;
         }
         
-        ShaderCode vertShader = ShaderCode.create(gl2, GL_VERTEX_SHADER, this.getClass(), SHADERS_ROOT,
+        ShaderCode vertShader = ShaderCode.create(gl2, GL2.GL_VERTEX_SHADER, this.getClass(), SHADERS_ROOT,
                 null, SHADERS_NAME, true);
-        ShaderCode fragShader = ShaderCode.create(gl2, GL_FRAGMENT_SHADER, this.getClass(), SHADERS_ROOT,
+        ShaderCode fragShader = ShaderCode.create(gl2, GL2.GL_FRAGMENT_SHADER, this.getClass(), SHADERS_ROOT,
                 null, SHADERS_NAME, true);
 
         ShaderProgram shaderProgram = new ShaderProgram();
@@ -173,10 +164,10 @@ public class SliceNavigator extends GLJPanel implements KatView, GLEventListener
         int location = gl2.glGetUniformLocation(programName, "slice");
         gl2.glUniform1f(location, slice / sliceMax);
         
-        gl2.glBindBuffer(GL.GL_ARRAY_BUFFER, bufferLocation[VERTICES]);        
-        gl2.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, bufferLocation[INDICES]);
+        gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, bufferLocation[VERTICES]);        
+        gl2.glBindBuffer(GL2.GL_ELEMENT_ARRAY_BUFFER, bufferLocation[INDICES]);
         gl2.glEnableVertexAttribArray(0);
-        gl2.glVertexAttribPointer(0, 3, GL.GL_FLOAT, false, 0, 0);
+        gl2.glVertexAttribPointer(0, 3, GL2.GL_FLOAT, false, 0, 0);
         
         if (transferFunctionDirty) {
             BufferedImage transferImage = new BufferedImage(TransferFunction.TEXTURE_SIZE, 1, BufferedImage.TYPE_4BYTE_ABGR);
@@ -193,7 +184,7 @@ public class SliceNavigator extends GLJPanel implements KatView, GLEventListener
             transferFunctionDirty = false;
         }
         
-        gl2.glDrawElements(GL.GL_TRIANGLES, indices.length, GL.GL_UNSIGNED_SHORT, 0);
+        gl2.glDrawElements(GL2.GL_TRIANGLES, indices.length, GL2.GL_UNSIGNED_SHORT, 0);
     }
 
     private TransferFunctionNode getDisplayable() {
@@ -209,25 +200,25 @@ public class SliceNavigator extends GLJPanel implements KatView, GLEventListener
         gl2.glUniform2f(location, width, height);
     }
     
-    private void checkError(GL gl, String location) {
+    private void checkError(GL2 gl, String location) {
 
         int error = gl.glGetError();
-        if (error != GL_NO_ERROR) {
+        if (error != GL2.GL_NO_ERROR) {
             String errorString;
             switch (error) {
-                case GL_INVALID_ENUM:
+                case GL2.GL_INVALID_ENUM:
                     errorString = "GL_INVALID_ENUM";
                     break;
-                case GL_INVALID_VALUE:
+                case GL2.GL_INVALID_VALUE:
                     errorString = "GL_INVALID_VALUE";
                     break;
-                case GL_INVALID_OPERATION:
+                case GL2.GL_INVALID_OPERATION:
                     errorString = "GL_INVALID_OPERATION";
                     break;
-                case GL_INVALID_FRAMEBUFFER_OPERATION:
+                case GL2.GL_INVALID_FRAMEBUFFER_OPERATION:
                     errorString = "GL_INVALID_FRAMEBUFFER_OPERATION";
                     break;
-                case GL_OUT_OF_MEMORY:
+                case GL2.GL_OUT_OF_MEMORY:
                     errorString = "GL_OUT_OF_MEMORY";
                     break;
                 default:

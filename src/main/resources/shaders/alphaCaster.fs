@@ -17,10 +17,26 @@ uniform vec3 ratio;
 int actualSamples = numSamples * lodMultiplier;
 float stepSize = 1f / float(actualSamples);
 
+stepX = vec3(stepSize * ratio.x, 0.0, 0.0);
+stepY = vec3(0.0, stepSize * ratio.y, 0.0);
+stepZ = vec3(0.0, 0.0, stepSize * ratio.z);
+
 out vec4 fragColor;
 
 float rand(vec2 co){
   return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+}
+
+float luma(vec4 color) {
+  return dot(color.rgb, vec3(0.299, 0.587, 0.114));
+}
+
+vec3 getGradient(vec3 pos, float value)
+{
+    float E = texture(volumeTexture, pos + stepX).x;
+    float N = texture(volumeTexture, pos + stepY).x;
+    float U = texture(volumeTexture, pos + stepZ).x;
+    return vec3(E - value, N - value, U - value);
 }
 
 void main() {       
@@ -35,10 +51,15 @@ void main() {
     vec3 stepValue = rayDirection * stepSize;
     vec3 pos = vertexOut + rand(gl_FragCoord.xy) * stepValue;
 
-    float density;
     vec3 coord;
-    fragColor = vec4(0.0);
+
+    float density;
     vec4 transferColor;
+
+    float value;
+    vec3 gradient;
+
+    fragColor = vec4(0.0);
     for (int i = 0; i < actualSamples * 3; ++i, pos += stepValue) {
         coord = pos / ratio + 0.5;
         if (coord.x < 0.0 || coord.x > 1.0 ||
@@ -50,6 +71,9 @@ void main() {
         density = texture(volumeTexture, coord).x;
         if (density <= 0.0) continue;
         transferColor = texture(transferFunction, density);
+
+        value = luma(transferColor);
+        gradient = getGradient(coord, density);
 
         transferColor.a /= lodMultiplier;
         if (transferColor.a <= 0.0) continue;

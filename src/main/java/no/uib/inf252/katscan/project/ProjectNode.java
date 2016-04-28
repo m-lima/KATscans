@@ -2,11 +2,11 @@ package no.uib.inf252.katscan.project;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
 import javax.swing.ImageIcon;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.tree.MutableTreeNode;
+import no.uib.inf252.katscan.data.io.LoadSaveFormat;
 import no.uib.inf252.katscan.data.io.LoadSaveHandler;
 import no.uib.inf252.katscan.view.LoadDiag;
 
@@ -41,8 +41,8 @@ public class ProjectNode extends KatNode {
         loadMenu.setMnemonic('L');
         loadMenu.setIcon(new ImageIcon(ProjectNode.class.getResource("/icons/open.png")));
 
-        LoadSaveHandler.Format[] formats = LoadSaveHandler.Format.values();
-        for (LoadSaveHandler.Format format : formats) {
+        LoadSaveFormat.Format[] formats = LoadSaveFormat.Format.values();
+        for (LoadSaveFormat.Format format : formats) {
             JMenuItem menuItem = new JMenuItem(format.getFormat().getName(), format.getFormat().getMnemonic());
             menuItem.addActionListener(LISTENER);
             loadMenu.add(menuItem);
@@ -100,8 +100,8 @@ public class ProjectNode extends KatNode {
             JMenuItem menuItem = (JMenuItem) e.getSource();
 
             String formatName = menuItem.getText();
-            LoadSaveHandler.Format[] formats = LoadSaveHandler.Format.values();
-            for (LoadSaveHandler.Format format : formats) {
+            LoadSaveFormat.Format[] formats = LoadSaveFormat.Format.values();
+            for (LoadSaveFormat.Format format : formats) {
                 if (format.getFormat().getName() == formatName) {
                     new LoadDiag(format).setVisible(true);
                     break;

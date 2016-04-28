@@ -1,23 +1,16 @@
 package no.uib.inf252.katscan.project;
 
 import java.awt.Component;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.tree.MutableTreeNode;
 import net.infonode.docking.DockingWindow;
 import net.infonode.docking.DockingWindowListener;
 import net.infonode.docking.OperationAbortedException;
 import no.uib.inf252.katscan.project.displayable.Displayable;
 import net.infonode.docking.View;
-import no.uib.inf252.katscan.view.katview.Histogram;
-import no.uib.inf252.katscan.project.displayable.TransferFunctionNode;
-import no.uib.inf252.katscan.view.katview.TransferFunctionEditor;
-import no.uib.inf252.katscan.view.katview.opengl.CompositeRenderer;
-import no.uib.inf252.katscan.view.katview.opengl.MaximumRenderer;
-import no.uib.inf252.katscan.view.katview.opengl.SliceNavigator;
+import no.uib.inf252.katscan.view.katview.KatView.Type;
 
 /**
  *
@@ -25,57 +18,31 @@ import no.uib.inf252.katscan.view.katview.opengl.SliceNavigator;
  */
 public class KatViewNode extends KatNode implements DockingWindowListener {
 
-    public enum Type {
-        COMPOSITE("Composite Renderer", 'C', true),
-        MAXIMUM("Maximum Renderer", 'M', false),
-        SLICE("Slice Navigator", 'S', true),
-        EDITOR("Editor", 'E', true),
-        HISTOGRAM("Histogram", 'H', false);
-
-        private final String name;
-        private final char mnemonic;
-        private final boolean transferFunctionNeeded;
-
-        private Type(String name, char mnemonic, boolean transferFunctionNeeded) {
-            this.name = name;
-            this.mnemonic = mnemonic;
-            this.transferFunctionNeeded = transferFunctionNeeded;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public char getMnemonic() {
-            return mnemonic;
-        }
-
-        public boolean isTransferFunctionNeeded() {
-            return transferFunctionNeeded;
-        }
-
-    }
-
     public static KatViewNode buildKatView(Type type, Displayable displayable) {
         if (type == null || displayable == null) {
             throw new IllegalArgumentException();
         }
         
-        switch (type) {
-            case COMPOSITE:
-                //TODO Transfer functions should be a child of displayable and SliceNavigator and CompositeRenderer children of TransferFunction
-                return new KatViewNode(type, displayable, new CompositeRenderer((TransferFunctionNode) displayable));
-            case MAXIMUM:
-                return new KatViewNode(type, displayable, new MaximumRenderer(displayable));
-            case SLICE:
-                return new KatViewNode(type, displayable, new SliceNavigator((TransferFunctionNode) displayable));
-            case EDITOR:
-                return new KatViewNode(type, displayable, new TransferFunctionEditor((TransferFunctionNode) displayable));
-            case HISTOGRAM:
-                return new KatViewNode(type, displayable, new Histogram(displayable));
-            default:
-                return null;
+        try {
+            return new KatViewNode(type, displayable, type.getConstructor().newInstance(displayable));
+        } catch (Exception ex) {
+            Logger.getLogger(KatViewNode.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
         }
+//        switch (type) {
+//            case COMPOSITE:
+//                return new KatViewNode(type, displayable, new CompositeRenderer((TransferFunctionNode) displayable));
+//            case MAXIMUM:
+//                return new KatViewNode(type, displayable, new MaximumRenderer(displayable));
+//            case SLICE:
+//                return new KatViewNode(type, displayable, new SliceNavigator((TransferFunctionNode) displayable));
+//            case EDITOR:
+//                return new KatViewNode(type, displayable, new TransferFunctionEditor((TransferFunctionNode) displayable));
+//            case HISTOGRAM:
+//                return new KatViewNode(type, displayable, new Histogram(displayable));
+//            default:
+//                return null;
+//        }
     }
     
     private final View view;
@@ -101,7 +68,7 @@ public class KatViewNode extends KatNode implements DockingWindowListener {
     }
 
     public boolean isTransferFunctionNeeded() {
-        return type.transferFunctionNeeded;
+        return type.isTransferFunctionNeeded();
     }
     
     @Override

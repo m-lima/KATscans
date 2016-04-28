@@ -49,6 +49,8 @@ public class VoxelMatrix implements Serializable {
                             sizeY * options.getRatioY() / maxSize,
                             sizeZ * options.getRatioZ() / maxSize};
         
+        System.out.println(ratio);
+        
         initialized = false;
     }
 

@@ -26,6 +26,7 @@ import no.uib.inf252.katscan.view.SplashScreen;
 //TODO [ ] Remove CUT and STRUCTURE from Transfer Function
 //TODO [ ] Auto-open transfer function or its children
 //TODO [ ] All displayables have TransFunc
+//TODO [ ] Precalculate matrices
 //DONE [X] Raw reverse Z
 //DONE [X] Camera initial zoom
 //DONE [X] Saturation of transfer function

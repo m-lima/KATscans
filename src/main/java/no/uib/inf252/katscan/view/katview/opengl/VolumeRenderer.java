@@ -1,15 +1,6 @@
 package no.uib.inf252.katscan.view.katview.opengl;
 
-import com.jogamp.opengl.GL;
-import static com.jogamp.opengl.GL.GL_INVALID_ENUM;
-import static com.jogamp.opengl.GL.GL_INVALID_FRAMEBUFFER_OPERATION;
-import static com.jogamp.opengl.GL.GL_INVALID_OPERATION;
-import static com.jogamp.opengl.GL.GL_INVALID_VALUE;
-import static com.jogamp.opengl.GL.GL_NO_ERROR;
-import static com.jogamp.opengl.GL.GL_OUT_OF_MEMORY;
 import com.jogamp.opengl.GL2;
-import static com.jogamp.opengl.GL2ES2.GL_FRAGMENT_SHADER;
-import static com.jogamp.opengl.GL2ES2.GL_VERTEX_SHADER;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.GLEventListener;
@@ -21,7 +12,6 @@ import com.jogamp.opengl.util.glsl.ShaderProgram;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 import javax.swing.Timer;
 import no.uib.inf252.katscan.data.VoxelMatrix;
@@ -43,7 +33,6 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
     private static final int INDICES = 1;
 
     private static final int VOLUME = 0;
-    private static final int TRANSFER = 1;
     
     private final int[] bufferLocation;
     private final int[] textureLocation;
@@ -101,12 +90,12 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
         gl2.glGenBuffers(bufferLocation.length, bufferLocation, 0);
         
         float[] vertices = displayObject.getVertices();
-        gl2.glBindBuffer(GL.GL_ARRAY_BUFFER, bufferLocation[VERTICES]);
-        gl2.glBufferData(GL.GL_ARRAY_BUFFER, vertices.length * Float.BYTES, FloatBuffer.wrap(vertices), GL.GL_STATIC_DRAW);
+        gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, bufferLocation[VERTICES]);
+        gl2.glBufferData(GL2.GL_ARRAY_BUFFER, vertices.length * Float.BYTES, FloatBuffer.wrap(vertices), GL2.GL_STATIC_DRAW);
         
         short[] indices = displayObject.getIndices();
-        gl2.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, bufferLocation[INDICES]);
-        gl2.glBufferData(GL.GL_ELEMENT_ARRAY_BUFFER, indices.length * Short.BYTES, ShortBuffer.wrap(indices), GL.GL_STATIC_DRAW);
+        gl2.glBindBuffer(GL2.GL_ELEMENT_ARRAY_BUFFER, bufferLocation[INDICES]);
+        gl2.glBufferData(GL2.GL_ELEMENT_ARRAY_BUFFER, indices.length * Short.BYTES, ShortBuffer.wrap(indices), GL2.GL_STATIC_DRAW);
         
         checkError(gl2, "Create Buffers");
         
@@ -131,9 +120,9 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
             checkError(gl2, "Create Texture");
         }
         
-        ShaderCode vertShader = ShaderCode.create(gl2, GL_VERTEX_SHADER, this.getClass(), SHADERS_ROOT,
+        ShaderCode vertShader = ShaderCode.create(gl2, GL2.GL_VERTEX_SHADER, this.getClass(), SHADERS_ROOT,
                 null, shaderName, true);
-        ShaderCode fragShader = ShaderCode.create(gl2, GL_FRAGMENT_SHADER, this.getClass(), SHADERS_ROOT,
+        ShaderCode fragShader = ShaderCode.create(gl2, GL2.GL_FRAGMENT_SHADER, this.getClass(), SHADERS_ROOT,
                 null, shaderName, true);
 
         ShaderProgram shaderProgram = new ShaderProgram();
@@ -181,13 +170,14 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
 //        gl4.glClearColor(0.234375f, 0.24609375f, 0.25390625f,1.0f);
 //        gl4.glClearColor(0.2f,0.2f,0.2f,1.0f);
         gl2.glClearColor(0f,0f,0f,1.0f);
-        gl2.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
+        gl2.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
         
-//        gl4.glEnable(GL.GL_DEPTH_TEST);
-        gl2.glEnable(GL.GL_CULL_FACE);
-        gl2.glCullFace(GL.GL_BACK);
-        gl2.glEnable(GL.GL_BLEND);
-        gl2.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
+//        gl4.glEnable(GL2.GL_DEPTH_TEST);
+        gl2.glEnable(GL2.GL_CULL_FACE);
+        gl2.glCullFace(GL2.GL_BACK);
+        gl2.glEnable(GL2.GL_BLEND);
+        gl2.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);
+//        gl2.glBlendFunc(GL2.GL_ONE_MINUS_DST_ALPHA, GL2.GL_ONE);
         
         gl2.glUseProgram(programName);
         
@@ -231,13 +221,13 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
         
         preDraw(drawable);
 
-        gl2.glBindBuffer(GL.GL_ARRAY_BUFFER, bufferLocation[VERTICES]);        
-        gl2.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, bufferLocation[INDICES]);
+        gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, bufferLocation[VERTICES]);        
+        gl2.glBindBuffer(GL2.GL_ELEMENT_ARRAY_BUFFER, bufferLocation[INDICES]);
         gl2.glEnableVertexAttribArray(0);
-        gl2.glVertexAttribPointer(0, 3, GL.GL_FLOAT, false, 0, 0);
+        gl2.glVertexAttribPointer(0, 3, GL2.GL_FLOAT, false, 0, 0);
         
         //TODO randomize starting point
-        gl2.glDrawElements(GL.GL_TRIANGLES, displayObject.getIndices().length, GL.GL_UNSIGNED_SHORT, 0);
+        gl2.glDrawElements(GL2.GL_TRIANGLES, displayObject.getIndices().length, GL2.GL_UNSIGNED_SHORT, 0);
         
         if (highLOD) {
             uniformLocation = gl2.glGetUniformLocation(programName, "lodMultiplier");
@@ -254,25 +244,25 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
         trackBall.updateProjection(width, height);
     }
     
-    protected void checkError(GL gl, String location) {
+    protected void checkError(GL2 gl, String location) {
 
         int error = gl.glGetError();
-        if (error != GL_NO_ERROR) {
+        if (error != GL2.GL_NO_ERROR) {
             String errorString;
             switch (error) {
-                case GL_INVALID_ENUM:
+                case GL2.GL_INVALID_ENUM:
                     errorString = "GL_INVALID_ENUM";
                     break;
-                case GL_INVALID_VALUE:
+                case GL2.GL_INVALID_VALUE:
                     errorString = "GL_INVALID_VALUE";
                     break;
-                case GL_INVALID_OPERATION:
+                case GL2.GL_INVALID_OPERATION:
                     errorString = "GL_INVALID_OPERATION";
                     break;
-                case GL_INVALID_FRAMEBUFFER_OPERATION:
+                case GL2.GL_INVALID_FRAMEBUFFER_OPERATION:
                     errorString = "GL_INVALID_FRAMEBUFFER_OPERATION";
                     break;
-                case GL_OUT_OF_MEMORY:
+                case GL2.GL_OUT_OF_MEMORY:
                     errorString = "GL_OUT_OF_MEMORY";
                     break;
                 default:

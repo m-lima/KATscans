@@ -5,6 +5,7 @@ import javax.swing.tree.MutableTreeNode;
 import no.uib.inf252.katscan.data.VoxelMatrix;
 import no.uib.inf252.katscan.project.KatViewNode;
 import no.uib.inf252.katscan.util.TransferFunction;
+import no.uib.inf252.katscan.view.katview.KatView.Type;
 
 /**
  *
@@ -65,7 +66,7 @@ public class TransferFunctionNode extends Displayable {
     }
     
     @Override
-    protected boolean typeAcceptable(KatViewNode.Type type) {
+    protected boolean typeAcceptable(Type type) {
         return type.isTransferFunctionNeeded();
     }
     

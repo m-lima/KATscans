@@ -11,7 +11,7 @@ import no.uib.inf252.katscan.project.displayable.Displayable;
 public class MaximumRenderer extends VolumeRenderer {
     
     public MaximumRenderer(Displayable displayable) throws GLException {
-        super(displayable, "maxRaycaster");
+        super(displayable, "maxCaster");
     }
 
     @Override

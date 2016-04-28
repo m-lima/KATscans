@@ -9,8 +9,8 @@ import javax.swing.JMenuItem;
 import no.uib.inf252.katscan.data.VoxelMatrix;
 import no.uib.inf252.katscan.project.KatNode;
 import no.uib.inf252.katscan.project.KatViewNode;
-import no.uib.inf252.katscan.project.KatViewNode.Type;
 import no.uib.inf252.katscan.project.ProjectHandler;
+import no.uib.inf252.katscan.view.katview.KatView.Type;
 
 /**
  *
@@ -34,8 +34,8 @@ public abstract class Displayable extends KatNode implements ActionListener {
     protected JMenu getMainMenu() {
         JMenu menu = new JMenu(getName());
         
-        KatViewNode.Type[] types = KatViewNode.Type.values();
-        for (final KatViewNode.Type type : types) {
+        Type[] types = Type.values();
+        for (final Type type : types) {
             if (typeAcceptable(type)) {
                 JMenuItem item = new JMenuItem(type.getName(), type.getMnemonic());
                 item.addActionListener(new ActionListener() {
