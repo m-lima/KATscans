@@ -51,9 +51,11 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
     private float xPosOld;
 
     private final float[] tempMatrix;
-    private final float[] tempMatrix2;
     
+    private final float[] modelMatrix;
+    private final float[] viewMatrix;
     private final float[] projection;
+    
     private boolean orthographic;
     private float fov;
     private final float initialZoom;
@@ -75,9 +77,11 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
         moving = false;
         
         tempMatrix = new float[16];
-        tempMatrix2 = new float[16];
         
+        modelMatrix = new float[16];
+        viewMatrix = new float[16];
         projection = new float[16];
+        
         orthographic = false;
         fov = FloatUtil.QUARTER_PI;
         this.initialZoom = initialZoom;
@@ -101,13 +105,12 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
     }
     
     public float[] getModelMatrix() {
-        FloatUtil.makeTranslation(tempMatrix, true, translation[0], translation[1], translation[2]);
-        FloatUtil.multMatrix(tempMatrix, currentRotation.toMatrix(tempMatrix2, 0));
-        return tempMatrix;
+        FloatUtil.makeTranslation(modelMatrix, true, translation[0], translation[1], translation[2]);
+        return FloatUtil.multMatrix(modelMatrix, currentRotation.toMatrix(tempMatrix, 0));
     }
     
     public float[] getViewMatrix() {
-        return FloatUtil.makeLookAt(tempMatrix, 0, eyePosition, 0, targetPosition, 0, UP_VECTOR, 0, tempMatrix2);
+        return FloatUtil.makeLookAt(viewMatrix, 0, eyePosition, 0, targetPosition, 0, UP_VECTOR, 0, tempMatrix);
     }
     
     public float[] getProjectionMatrix() {
@@ -158,9 +161,9 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
             float bottom =  -1.0f * top;
             float left   = aspect * bottom;
             float right  = aspect * top;
-            FloatUtil.makeOrtho(projection, 0, true, left, right, bottom, top, 0.1f, 100f);
+            FloatUtil.makeOrtho(projection, 0, true, left, right, bottom, top, 0.1f, 50f);
         } else {
-            FloatUtil.makePerspective(projection, 0, true, fov, aspect, 0.1f, 100f);
+            FloatUtil.makePerspective(projection, 0, true, fov, aspect, 0.1f, 50f);
         }
         
         dirtyValues |= PROJECTION_DIRTY;

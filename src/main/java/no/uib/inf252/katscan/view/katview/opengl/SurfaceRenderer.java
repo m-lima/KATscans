@@ -6,8 +6,6 @@ import com.jogamp.opengl.GLException;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.LinearGradientPaint;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -21,7 +19,7 @@ import no.uib.inf252.katscan.util.TransferFunction;
  *
  * @author Marcelo Lima
  */
-public class SurfRenderer extends VolumeRenderer implements MouseMotionListener, MouseListener {
+public class SurfaceRenderer extends VolumeRenderer implements MouseMotionListener, MouseListener {
     
     private final int[] colorLocation = new int[1];
     private static byte[] colors;
@@ -31,8 +29,8 @@ public class SurfRenderer extends VolumeRenderer implements MouseMotionListener,
     
     private int lastY;
     
-    public SurfRenderer(Displayable displayable) throws GLException {
-        super(displayable, "surfCaster");
+    public SurfaceRenderer(Displayable displayable) throws GLException {
+        super(displayable, "surfaceCaster");
         
         initializeColors();
         
@@ -91,8 +89,8 @@ public class SurfRenderer extends VolumeRenderer implements MouseMotionListener,
         Graphics2D g2d = (Graphics2D) colorImage.getGraphics();
         
         g2d.setPaint(new LinearGradientPaint(0f, 0f, 2048f, 0f,
-                new float[] {0f, 500f / 4096f, 1024f / 4096f, 2048f / 4096f, 1f},
-                new Color[] {new Color(0, true), new Color(255, 230, 210), Color.RED, Color.WHITE, new Color(0, true)}));
+                new float[] {0f, 1200f / 4096f, 1250f / 4096f, 1300f / 4096f, 2048f / 4096f, 1f},
+                new Color[] {new Color(255, 220, 200), new Color(255, 220, 200), Color.RED, new Color(180, 120, 120), Color.WHITE, Color.BLUE}));
         
         g2d.drawLine(0, 0, 2048, 0);
         g2d.dispose();

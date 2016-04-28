@@ -10,14 +10,19 @@ uniform float threshold;
 uniform int numSamples;
 uniform int lodMultiplier;
 
-uniform mat4 model;
 uniform mat4 view;
+uniform mat4 model;
+uniform mat3 invModel;
+uniform mat3 normalMatrix;
 uniform bool orthographic;
 uniform vec3 eyePos;
 uniform vec3 ratio;
 
+uniform vec3 lightPos = normalize(vec3(-2.0, 2.0, 1.0));
+
 int actualSamples = numSamples * lodMultiplier;
-float stepSize = 1f / float(actualSamples);
+float stepSize = 1f / actualSamples;
+int maxDistance = int(sqrt(3.0) * actualSamples) << 1;
 
 vec3 stepX = vec3(stepSize * lodMultiplier * ratio.x, 0.0, 0.0);
 vec3 stepY = vec3(0.0, stepSize * lodMultiplier * ratio.y, 0.0);
@@ -47,33 +52,34 @@ void main() {
         effectiveEyePos.xy = vertexOutModel.xy;
     } 
 
-    effectiveEyePos = (inverse(model) * vec4(effectiveEyePos, 1.0)).xyz;
+    effectiveEyePos = invModel * effectiveEyePos;
     vec3 rayDirection = normalize(vertexOut - effectiveEyePos);
 
-    vec3 stepValue = rayDirection * stepSize;
+    vec3 stepValue = rayDirection * stepSize / ratio;
     vec3 pos = vertexOut + rand(gl_FragCoord.xy) * stepValue;
+    pos = pos / ratio + 0.5;
 
-    vec3 coord;
     float density;
     vec3 normal;
     vec3 color;
+    float lightReflection;
     fragColor = vec4(0.0);
-    for (int i = 0; i < actualSamples * 3; ++i, pos += stepValue) {
-        coord = pos / ratio + 0.5;
-        if (coord.x < 0.0 || coord.x > 1.0 ||
-            coord.y < 0.0 || coord.y > 1.0 ||
-            coord.z < 0.0 || coord.z > 1.0) {
+    for (int i = 0; i < maxDistance; i++, pos += stepValue) {
+        if (pos.x < 0.0 || pos.x > 1.0 ||
+            pos.y < 0.0 || pos.y > 1.0 ||
+            pos.z < 0.0 || pos.z > 1.0) {
             break;
         }
         
-        density = texture(volumeTexture, coord).x;
+        density = texture(volumeTexture, pos).x;
         if (density <= threshold) continue;
-        normal = normalize(mat3(transpose(inverse(view * model))) * getGradient(coord, density));
-        //normal = normalize(mat3(view * model) * getGradient(coord, density));
+        //normal = normalize(mat3(inverse(model)) * getGradient(pos, density));
+        //normal = normalize(mat3(transpose(inverse(view * model))) * getGradient(pos, density));
+        //normal = normalize(mat3(transpose(inverse(view * model))) * getGradient(pos, density));
+        normal = normalize(normalMatrix * getGradient(pos, density));
 
-        vec3 light = normalize(vec3(-2, 2, 1));
-        float df = abs(dot(normal, light));
-        color = df * texture(colors, density).rgb;
+        float lightReflection = abs(dot(normal, lightPos));
+        color = lightReflection * texture(colors, density).rgb;
         fragColor = vec4(color, 1.0);
 
         break;

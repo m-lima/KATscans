@@ -8,13 +8,14 @@ uniform sampler3D volumeTexture;
 uniform int numSamples;
 uniform int lodMultiplier;
 
-uniform mat4 model;
+uniform mat3 invModel;
 uniform bool orthographic;
 uniform vec3 eyePos;
 uniform vec3 ratio;
 
-int actualSamples = numSamples * lodMultiplier / 16;
-float stepSize = 1f / float(actualSamples);
+int actualSamples = (numSamples * lodMultiplier) >> 4;
+float stepSize = 1f / actualSamples;
+int maxDistance = int(sqrt(3.0) * actualSamples) << 1;
 
 out vec4 fragColor;
 
@@ -28,23 +29,23 @@ void main() {
         effectiveEyePos.xy = vertexOutModel.xy;
     } 
 
-    effectiveEyePos = (inverse(model) * vec4(effectiveEyePos, 1.0)).xyz;
+    effectiveEyePos = invModel * effectiveEyePos;
     vec3 rayDirection = normalize(vertexOut - effectiveEyePos);
 
-    vec3 stepValue = rayDirection * stepSize;
+    vec3 stepValue = rayDirection * stepSize / ratio;
     vec3 pos = vertexOut + rand(gl_FragCoord.xy) * stepValue;
+    pos = pos / ratio + 0.5;
 
     float density;
-    vec3 coord;
     float color = 0.0;
-    for (int i = 0; i < actualSamples * 3; ++i, pos += stepValue) {
-        coord = pos / ratio + 0.5;
-        if (coord.x < 0.0 || coord.x > 1.0 ||
-            coord.y < 0.0 || coord.y > 1.0 ||
-            coord.z < 0.0 || coord.z > 1.0) {
+    for (int i = 0; i < maxDistance; i++, pos += stepValue) {
+        if (pos.x < 0.0 || pos.x > 1.0 ||
+            pos.y < 0.0 || pos.y > 1.0 ||
+            pos.z < 0.0 || pos.z > 1.0) {
             break;
         }
-        density = texture(volumeTexture, coord).x;
+
+        density = texture(volumeTexture, pos).x;
         if (density <= 0.0) continue;
         color = max(density, color);
         if (color >= 1.0) {
@@ -56,15 +57,4 @@ void main() {
     fragColor.rgb = vec3(color);
     if (color < 0.1) color = 0.0;
     fragColor.a = color;
-
-//#define COLOR_CUBE
-#ifdef COLOR_CUBE
-    float minLimit = -0.5;
-    float maxLimit = 0.5;
-    vec4 saturated = vec4((vertexOut.x == maxLimit || vertexOut.x == minLimit) ? 1.0 : 0.0,
-                          (vertexOut.y == maxLimit || vertexOut.y == minLimit) ? 1.0 : 0.0,
-                          (vertexOut.z == maxLimit || vertexOut.z == minLimit) ? 1.0 : 0.0,
-                          0.25);
-    fragColor += saturated;
-#endif
 }

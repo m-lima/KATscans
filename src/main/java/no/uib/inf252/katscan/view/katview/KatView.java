@@ -10,7 +10,7 @@ import no.uib.inf252.katscan.view.katview.opengl.AlphaRenderer;
 import no.uib.inf252.katscan.view.katview.opengl.CompositeRenderer;
 import no.uib.inf252.katscan.view.katview.opengl.MaximumRenderer;
 import no.uib.inf252.katscan.view.katview.opengl.SliceNavigator;
-import no.uib.inf252.katscan.view.katview.opengl.SurfRenderer;
+import no.uib.inf252.katscan.view.katview.opengl.SurfaceRenderer;
 
 /**
  *
@@ -21,7 +21,7 @@ public interface KatView {
     public enum Type {
         COMPOSITE("Composite Renderer", 'C', true, CompositeRenderer.class),
         ALPHA("Alpha Renderer", 'A', true, AlphaRenderer.class),
-        SURF("Surface Renderer", 'U', false, SurfRenderer.class),
+        SURF("Surface Renderer", 'U', false, SurfaceRenderer.class),
         MAXIMUM("Maximum Renderer", 'M', false, MaximumRenderer.class),
         SLICE("Slice Navigator", 'S', true, SliceNavigator.class),
         EDITOR("Editor", 'E', true, TransferFunctionEditor.class),

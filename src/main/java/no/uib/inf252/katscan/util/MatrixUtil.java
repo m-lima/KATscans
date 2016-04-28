@@ -1,10 +1,14 @@
 package no.uib.inf252.katscan.util;
 
+import com.jogamp.opengl.math.FloatUtil;
+
 /**
  *
  * @author Marcelo Lima
  */
 public class MatrixUtil {
+    
+    private static final float[] tempMatrix = new float[16];
     
     public static String toString(float[] matrix) {
         StringBuilder stringBuilder = new StringBuilder();
@@ -26,5 +30,30 @@ public class MatrixUtil {
         }
         return stringBuilder.toString();
     }
-
+    
+    public static float[] getMatrix3(float[] matrix4) {
+        synchronized (tempMatrix) {
+            int k = 0;
+            for (int i = 0; i < 11; i++) {
+                if ((i + 1) % 4 == 0) {
+                    continue;
+                }
+                tempMatrix[k++] = matrix4[i];
+            }
+            return tempMatrix;
+        }
+    }
+    
+    public static float[] getInverse(float[] motrix) {
+        synchronized (tempMatrix) {
+            return FloatUtil.invertMatrix(motrix, tempMatrix);
+        }
+    }
+    
+    public static float[] multiply(float[] matrix1, float[] matrix2) {
+        synchronized (tempMatrix) {
+            return FloatUtil.multMatrix(matrix1, matrix2, tempMatrix);
+        }
+    }
+    
 }

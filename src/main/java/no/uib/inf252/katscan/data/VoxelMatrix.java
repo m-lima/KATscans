@@ -1,6 +1,7 @@
 package no.uib.inf252.katscan.data;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import no.uib.inf252.katscan.data.io.LoadSaveOptions;
 
 /**
@@ -48,8 +49,6 @@ public class VoxelMatrix implements Serializable {
         ratio = new float[]{sizeX * options.getRatioX() / maxSize,
                             sizeY * options.getRatioY() / maxSize,
                             sizeZ * options.getRatioZ() / maxSize};
-        
-        System.out.println(ratio);
         
         initialized = false;
     }
