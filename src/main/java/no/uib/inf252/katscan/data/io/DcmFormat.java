@@ -12,20 +12,20 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 /**
  * @author Marcelo Lima
  */
-class RawFormat implements LoadSaveFormat {
+class DcmFormat implements LoadSaveFormat {
     
-    private static final int FORMAT_MAX_VALUE = 255;
+    private static final int FORMAT_MAX_VALUE = 8192;
     
-    private static final FileFilter FILE_FILTER = new FileNameExtensionFilter("Raw volume data", "raw");
+    private static final FileFilter FILE_FILTER = new FileNameExtensionFilter("DICOM volume data", "dcm");
 
     @Override
     public String getName() {
-        return "Raw";   
+        return "Dcm";   
     }
 
     @Override
     public char getMnemonic() {
-        return 'R';
+        return 'C';
     }
 
     @Override
@@ -73,13 +73,14 @@ class RawFormat implements LoadSaveFormat {
         
         VoxelMatrix matrix = new VoxelMatrix(options);
 
-        byteBuffer = ByteBuffer.allocate(sizeX);
+        ShortBuffer shortBuffer;
+        byteBuffer = ByteBuffer.allocate(sizeX * 2);
         byteBuffer.order(ByteOrder.BIG_ENDIAN);
         short[] grid = matrix.getData();
 
         for (int z = 0; z < optionSizeZ; z++) {
             for (int y = 0; y < sizeY; y++) {
-                if (stream.read(byteBuffer.array()) < sizeX) {
+                if (stream.read(byteBuffer.array()) < sizeX * 2) {
                     throw new IOException("Expected data, but could not be read");
                 }
                 
@@ -87,10 +88,8 @@ class RawFormat implements LoadSaveFormat {
                     continue;
                 }
                 
-                byte[] byteArray = byteBuffer.array();
-                for (int i = 0; i < byteArray.length; i++) {
-                    grid[((optionSizeZ - 1) - z) * optionSizeY * optionSizeX + ((optionSizeY - 1) - y) * optionSizeX + i] = byteArray[i];
-                }
+                shortBuffer = byteBuffer.asShortBuffer();
+                shortBuffer.get(grid, ((optionSizeZ - 1) - z) * optionSizeY * optionSizeX + ((optionSizeY - 1) - y) * optionSizeX, optionSizeX);
             }
         }
 

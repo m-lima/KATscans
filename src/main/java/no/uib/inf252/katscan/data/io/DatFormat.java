@@ -17,11 +17,28 @@ import no.uib.inf252.katscan.util.FileAwareInputStream;
  */
 class DatFormat implements LoadSaveFormat {
     
+    private static final int FORMAT_MAX_VALUE = 4096;
+    
     private static final FileFilter FILE_FILTER = new FileNameExtensionFilter("Dat volume data", "dat");
 
     @Override
     public String getName() {
         return "Dat";
+    }
+
+    @Override
+    public char getMnemonic() {
+        return 'D';
+    }
+
+    @Override
+    public FileFilter getFileFilter() {
+        return FILE_FILTER;
+    }
+
+    @Override
+    public int getMaxValue() {
+        return FORMAT_MAX_VALUE;
     }
 
     @Override
@@ -79,7 +96,7 @@ class DatFormat implements LoadSaveFormat {
             Logger.getLogger(DatFormat.class.getName()).log(Level.WARNING, "Could not find ini given stream.");
         }
         
-        return new FormatHeader(sizeX, sizeY, sizeZ, ratioX, ratioY, ratioZ, 4096);
+        return new FormatHeader(sizeX, sizeY, sizeZ, ratioX, ratioY, ratioZ);
     }
 
     @Override
@@ -151,15 +168,5 @@ class DatFormat implements LoadSaveFormat {
                 stream.flush();
             }
         }
-    }
-
-    @Override
-    public char getMnemonic() {
-        return 'D';
-    }
-
-    @Override
-    public FileFilter getFileFilter() {
-        return FILE_FILTER;
     }
 }

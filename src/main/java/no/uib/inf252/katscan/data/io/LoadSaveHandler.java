@@ -17,6 +17,7 @@ import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import no.uib.inf252.katscan.Init;
 import no.uib.inf252.katscan.data.VoxelMatrix;
+import no.uib.inf252.katscan.data.io.LoadSaveFormat.Format;
 import no.uib.inf252.katscan.project.DataFileNode;
 import no.uib.inf252.katscan.project.ProjectHandler;
 import no.uib.inf252.katscan.util.FileAwareInputStream;
@@ -28,21 +29,6 @@ import no.uib.inf252.katscan.util.FileAwareInputStream;
 public class LoadSaveHandler {
     
     private static final String LAST_LOAD = "lastLoad.kat";
-    
-    public static enum Format {
-        DAT(new DatFormat()),
-        RAW(new RawFormat());
-        
-        private final LoadSaveFormat format;
-
-        private Format(LoadSaveFormat format) {
-            this.format = format;
-        }
-
-        public LoadSaveFormat getFormat() {
-            return format;
-        }
-    }
     
     private final Format format;
     
@@ -122,7 +108,10 @@ public class LoadSaveHandler {
     
     public File showLoadDialog(File currentFile) {
         if (currentFile == null) {
-            currentFile = new File(getLastLoad());
+            String path = getLastLoad();
+            if (!(path == null || path.isEmpty())) {
+                currentFile = new File(path);
+            }
         }
         
         JFileChooser fileChooser = buildFileChooser();
