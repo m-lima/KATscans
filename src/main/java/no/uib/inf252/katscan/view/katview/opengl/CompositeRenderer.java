@@ -52,7 +52,7 @@ public class CompositeRenderer extends VolumeRenderer implements TransferFunctio
         int location = gl2.glGetUniformLocation(programName, "transferFunction");
         gl2.glUniform1i(location, 1);
         
-        checkError(gl2, "Create Transfer Function");
+        checkError(gl2, "Create transfer function");
     }
 
     @Override
@@ -61,6 +61,7 @@ public class CompositeRenderer extends VolumeRenderer implements TransferFunctio
         GL2 gl2 = drawable.getGL().getGL2();
         
         gl2.glDeleteTextures(1, textureLocation, 0);
+        checkError(gl2, "Dispose Composite Renderer");
     }
     
     private void updateTransferFunction(GL2 gl2) {
@@ -74,6 +75,7 @@ public class CompositeRenderer extends VolumeRenderer implements TransferFunctio
         gl2.glActiveTexture(GL2.GL_TEXTURE1);
         gl2.glBindTexture(GL2.GL_TEXTURE_1D, textureLocation[0]);
         gl2.glTexImage1D(GL2.GL_TEXTURE_1D, 0, GL2.GL_RGBA, TransferFunction.TEXTURE_SIZE, 0, GL2.GL_RGBA, GL2.GL_UNSIGNED_INT_8_8_8_8_REV, ByteBuffer.wrap(dataElements));
+        checkError(gl2, "Update transfer function");
     }
 
     private TransferFunctionNode getDisplayable() {

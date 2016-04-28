@@ -36,8 +36,11 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
 
     private static final int VOLUME = 0;
     
+    private static final int FRONT_FACE = 0;
+    
     private final int[] bufferLocation;
     private final int[] textureLocation;
+    private final int[] frameBuffer;
     
     protected final Displayable displayable;
     
@@ -45,8 +48,7 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
     private final DisplayObject displayObject;
     
     protected int programName;
-    private boolean textureLoaded;
-    
+
     private int numSample;
     
     private Timer threadLOD;
@@ -60,6 +62,7 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
         
         bufferLocation = new int[2];
         textureLocation = new int[1];
+        frameBuffer = new int[1];
         
         this.shaderName = shaderName;
         this.displayable = displayable;
@@ -87,12 +90,45 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
 
     @Override
     public void init(GLAutoDrawable drawable) {
-        trackBall.markAllDirty();
+        VoxelMatrix voxelMatrix = displayable.getMatrix();
+        if (voxelMatrix == null) {
+            throw new RuntimeException("Could not load the volume data");
+        }
         
+        trackBall.markAllDirty();
         highLOD = true;
         
         GL2 gl2 = drawable.getGL().getGL2();
+        loadVertices(gl2);
+        loadTexture(gl2, voxelMatrix);
+        loadFrameBuffer(gl2);
+        loadProgram(gl2);
+        loadInitialUniforms(gl2, voxelMatrix);
+    }
+
+    private void loadInitialUniforms(GL2 gl2, VoxelMatrix voxelMatrix) {
+        gl2.glUseProgram(programName);
         
+        gl2.glBindFragDataLocation(programName, 0, "fragColor");
+        gl2.glBindAttribLocation(programName, 0, "position");
+        
+        int location = gl2.glGetUniformLocation(programName, "numSamples");
+        gl2.glUniform1i(location, numSample);
+
+        location = gl2.glGetUniformLocation(programName, "ratio");
+        gl2.glUniform3fv(location, 1, voxelMatrix.getRatio(), 0);
+
+        location = gl2.glGetUniformLocation(programName, "volumeTexture");
+        gl2.glUniform1i(location, 0);
+
+        checkError(gl2, "Load initial uniforms");
+    }
+
+    private void loadFrameBuffer(GL2 gl2) {
+        checkError(gl2, "Load FrameBuffer");
+    }
+
+    private void loadVertices(GL2 gl2) {
         gl2.glGenBuffers(bufferLocation.length, bufferLocation, 0);
         
         float[] vertices = displayObject.getVertices();
@@ -103,61 +139,42 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
         gl2.glBindBuffer(GL2.GL_ELEMENT_ARRAY_BUFFER, bufferLocation[INDICES]);
         gl2.glBufferData(GL2.GL_ELEMENT_ARRAY_BUFFER, indices.length * Short.BYTES, ShortBuffer.wrap(indices), GL2.GL_STATIC_DRAW);
         
-        checkError(gl2, "Create Buffers");
-        
-        VoxelMatrix voxelMatrix = displayable.getMatrix();
-        textureLoaded = voxelMatrix != null;
-        if (textureLoaded) {
-            short[] texture = voxelMatrix.getData();
-            
-            numSample = (int) Math.sqrt(voxelMatrix.getSizeX() * voxelMatrix.getSizeX() 
-                                      + voxelMatrix.getSizeY() * voxelMatrix.getSizeY()
-                                      + voxelMatrix.getSizeZ() * voxelMatrix.getSizeZ());
-            
-            gl2.glGenTextures(1, textureLocation, 0);
-            gl2.glActiveTexture(GL2.GL_TEXTURE0 + VOLUME);
-            gl2.glBindTexture(GL2.GL_TEXTURE_3D, textureLocation[VOLUME]);
-            gl2.glTexParameteri(GL2.GL_TEXTURE_3D, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_LINEAR);
-            gl2.glTexParameteri(GL2.GL_TEXTURE_3D, GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);
-            gl2.glTexParameteri(GL2.GL_TEXTURE_3D, GL2.GL_TEXTURE_WRAP_R, GL2.GL_CLAMP_TO_BORDER);
-            gl2.glTexParameteri(GL2.GL_TEXTURE_3D, GL2.GL_TEXTURE_WRAP_S, GL2.GL_CLAMP_TO_BORDER);
-            gl2.glTexParameteri(GL2.GL_TEXTURE_3D, GL2.GL_TEXTURE_WRAP_T, GL2.GL_CLAMP_TO_BORDER);
+        checkError(gl2, "Load vertices");
+    }
 
-            gl2.glTexImage3D(GL2.GL_TEXTURE_3D, 0, GL2.GL_RED, voxelMatrix.getSizeX(), voxelMatrix.getSizeY(), voxelMatrix.getSizeZ(), 0, GL2.GL_RED, GL2.GL_UNSIGNED_SHORT, ShortBuffer.wrap(texture));
-
-            checkError(gl2, "Create Texture");
-        }
-        
+    private void loadProgram(GL2 gl2) throws GLException {
         ShaderCode vertShader = ShaderCode.create(gl2, GL2.GL_VERTEX_SHADER, this.getClass(), SHADERS_ROOT,
                 null, shaderName, true);
         ShaderCode fragShader = ShaderCode.create(gl2, GL2.GL_FRAGMENT_SHADER, this.getClass(), SHADERS_ROOT,
                 null, shaderName, true);
-
+        
         ShaderProgram shaderProgram = new ShaderProgram();
         shaderProgram.add(vertShader);
         shaderProgram.add(fragShader);
         shaderProgram.init(gl2);
-
+        
         programName = shaderProgram.program();
         shaderProgram.link(gl2, System.out);
-        
-        gl2.glUseProgram(programName);
-        
-        gl2.glBindFragDataLocation(programName, 0, "fragColor");
-        gl2.glBindAttribLocation(programName, 0, "position");
-        
-        if (textureLoaded) {
-            int location = gl2.glGetUniformLocation(programName, "numSamples");
-            gl2.glUniform1i(location, numSample);
-            
-            location = gl2.glGetUniformLocation(programName, "ratio");
-            gl2.glUniform3fv(location, 1, voxelMatrix.getRatio(), 0);
-            
-            location = gl2.glGetUniformLocation(programName, "volumeTexture");
-            gl2.glUniform1i(location, 0);
-        }
+        checkError(gl2, "Load and compile program");
+    }
 
-        checkError(gl2, "Create Shaders");
+    private void loadTexture(GL2 gl2, VoxelMatrix voxelMatrix) throws RuntimeException {
+        short[] texture = voxelMatrix.getData();
+        
+        numSample = (int) Math.sqrt(voxelMatrix.getSizeX() * voxelMatrix.getSizeX()
+                + voxelMatrix.getSizeY() * voxelMatrix.getSizeY()
+                + voxelMatrix.getSizeZ() * voxelMatrix.getSizeZ());
+        
+        gl2.glGenTextures(1, textureLocation, 0);
+        gl2.glActiveTexture(GL2.GL_TEXTURE0 + VOLUME);
+        gl2.glBindTexture(GL2.GL_TEXTURE_3D, textureLocation[VOLUME]);
+        gl2.glTexParameteri(GL2.GL_TEXTURE_3D, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_LINEAR);
+        gl2.glTexParameteri(GL2.GL_TEXTURE_3D, GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);
+        gl2.glTexParameteri(GL2.GL_TEXTURE_3D, GL2.GL_TEXTURE_WRAP_R, GL2.GL_CLAMP_TO_BORDER);
+        gl2.glTexParameteri(GL2.GL_TEXTURE_3D, GL2.GL_TEXTURE_WRAP_S, GL2.GL_CLAMP_TO_BORDER);
+        gl2.glTexParameteri(GL2.GL_TEXTURE_3D, GL2.GL_TEXTURE_WRAP_T, GL2.GL_CLAMP_TO_BORDER);
+        gl2.glTexImage3D(GL2.GL_TEXTURE_3D, 0, GL2.GL_RED, voxelMatrix.getSizeX(), voxelMatrix.getSizeY(), voxelMatrix.getSizeZ(), 0, GL2.GL_RED, GL2.GL_UNSIGNED_SHORT, ShortBuffer.wrap(texture));
+        checkError(gl2, "Create Texture");
     }
 
     @Override
@@ -167,34 +184,66 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
         gl2.glDeleteProgram(programName);
         gl2.glDeleteBuffers(bufferLocation.length, bufferLocation, 0);
         
-        if (textureLoaded) {
-            gl2.glDeleteTextures(textureLocation.length, textureLocation, 0);
-        }
+        gl2.glDeleteTextures(textureLocation.length, textureLocation, 0);
+        checkError(gl2, "Dispose");
     }
 
     @Override
     public void display(GLAutoDrawable drawable) {
+        int uniformLocation;
         GL2 gl2 = drawable.getGL().getGL2();
+        initializeRender(gl2);
+        
+        if (highLOD) {
+            uniformLocation = gl2.glGetUniformLocation(programName, "lodMultiplier");
+            gl2.glUniform1i(uniformLocation, 16);
+        }
+        
+        checkAndLoadUpdates(gl2);        
+        preDraw(drawable);
+        checkError(gl2, "Pre draw");        
+        draw(gl2);
+        
+        if (highLOD) {
+            uniformLocation = gl2.glGetUniformLocation(programName, "lodMultiplier");
+            gl2.glUniform1i(uniformLocation, 1);
+            highLOD = false;
+        } else {
+            threadLOD.restart();
+        }        
+    }
+
+    private void draw(GL2 gl2) {
+        gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, bufferLocation[VERTICES]);
+        gl2.glBindBuffer(GL2.GL_ELEMENT_ARRAY_BUFFER, bufferLocation[INDICES]);
+        gl2.glEnableVertexAttribArray(0);
+        gl2.glVertexAttribPointer(0, 3, GL2.GL_FLOAT, false, 0, 0);
+        
+        gl2.glDrawElements(GL2.GL_TRIANGLES, displayObject.getIndices().length, GL2.GL_UNSIGNED_SHORT, 0);
+
+        checkError(gl2, "Draw");
+    }
+
+    private void initializeRender(GL2 gl2) {
 //        gl4.glClearColor(0.234375f, 0.24609375f, 0.25390625f,1.0f);
 //        gl4.glClearColor(0.2f,0.2f,0.2f,1.0f);
         gl2.glClearColor(0f,0f,0f,1.0f);
         gl2.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
-        
+
 //        gl4.glEnable(GL2.GL_DEPTH_TEST);
         gl2.glEnable(GL2.GL_CULL_FACE);
         gl2.glCullFace(GL2.GL_BACK);
         gl2.glEnable(GL2.GL_BLEND);
         gl2.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);
 //        gl2.glBlendFunc(GL2.GL_ONE_MINUS_DST_ALPHA, GL2.GL_ONE);
-        
-        gl2.glUseProgram(programName);
-        
+
+        gl2.glUseProgram(programName);   
+
+        checkError(gl2, "Initialize render");
+    }
+
+    private void checkAndLoadUpdates(GL2 gl2) {
         int uniformLocation;
-        if (highLOD) {
-            uniformLocation = gl2.glGetUniformLocation(programName, "lodMultiplier");
-            gl2.glUniform1i(uniformLocation, 16);
-        }
-        
         int dirtyValues = trackBall.getDirtyValues();
         if ((dirtyValues & (TrackBall.PROJECTION_DIRTY | TrackBall.VIEW_DIRTY | TrackBall.MODEL_DIRTY | TrackBall.ORTHO_DIRTY)) != 0) {
 
@@ -248,24 +297,6 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
             }
             checkError(gl2, "Update dirty values");
         }
-        
-        preDraw(drawable);
-
-        gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, bufferLocation[VERTICES]);        
-        gl2.glBindBuffer(GL2.GL_ELEMENT_ARRAY_BUFFER, bufferLocation[INDICES]);
-        gl2.glEnableVertexAttribArray(0);
-        gl2.glVertexAttribPointer(0, 3, GL2.GL_FLOAT, false, 0, 0);
-        
-        gl2.glDrawElements(GL2.GL_TRIANGLES, displayObject.getIndices().length, GL2.GL_UNSIGNED_SHORT, 0);
-        
-        if (highLOD) {
-            uniformLocation = gl2.glGetUniformLocation(programName, "lodMultiplier");
-            gl2.glUniform1i(uniformLocation, 1);
-            highLOD = false;
-        } else {
-            threadLOD.restart();
-        }
-        
     }
 
     @Override

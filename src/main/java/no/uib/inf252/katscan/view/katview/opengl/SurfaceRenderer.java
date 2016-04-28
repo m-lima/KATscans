@@ -46,9 +46,9 @@ public class SurfaceRenderer extends VolumeRenderer implements MouseMotionListen
             gl2.glUseProgram(programName);
             int location = gl2.glGetUniformLocation(programName, "threshold");
             gl2.glUniform1f(location, threshold);
-            checkError(gl2, "Inject threshold");
             
             thresholdDirty = false;
+            checkError(gl2, "Inject threshold");
         }
     }
 
@@ -82,6 +82,7 @@ public class SurfaceRenderer extends VolumeRenderer implements MouseMotionListen
         GL2 gl2 = drawable.getGL().getGL2();
         
         gl2.glDeleteTextures(1, colorLocation, 0);
+        checkError(gl2, "Dispose Surface Renderer");
     }
     
     private synchronized void initializeColors() {
