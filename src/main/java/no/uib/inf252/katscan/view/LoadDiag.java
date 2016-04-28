@@ -3,11 +3,16 @@ package no.uib.inf252.katscan.view;
 import java.awt.Color;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.io.File;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.AbstractAction;
+import javax.swing.JRootPane;
 import javax.swing.JSpinner;
+import javax.swing.KeyStroke;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.TransferHandler;
 import javax.swing.UIManager;
@@ -36,6 +41,8 @@ public class LoadDiag extends javax.swing.JDialog {
     private float oldRatioX = 1f;
     private float oldRatioY = 1f;
     private float oldRatioZ = 1f;
+    
+    private boolean loading;
 
     /**
      * Creates new form LoadDataFileDiag
@@ -49,9 +56,24 @@ public class LoadDiag extends javax.swing.JDialog {
 
         setLocationRelativeTo(Init.getFrameReference());
         setGlassPane(new LoadingPanel());
-
+        
         txtFileBorder = new ValidatableBorder();
+        setupTxtFile();
+        loading = false;
+        
+        getRootPane().getInputMap(JRootPane.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "cancel");
+        getRootPane().getActionMap().put("cancel", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (!loading) {
+                    dispose();
+                }
+            }
+        });
+    }
 
+    private void setupTxtFile() {
+        
         txtFile.setDragEnabled(true);
         txtFile.setBorder(txtFileBorder);
         txtFile.setTransferHandler(new TransferHandler() {
@@ -205,6 +227,7 @@ public class LoadDiag extends javax.swing.JDialog {
     private void load() {
         getGlassPane().setVisible(true);
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+        loading = true;
 
         new Thread("Data Loader") {
             @Override
@@ -225,6 +248,7 @@ public class LoadDiag extends javax.swing.JDialog {
                     Logger.getLogger(LoadDiag.class.getName()).log(Level.SEVERE, null, th);
                     setDefaultCloseOperation(DISPOSE_ON_CLOSE);
                     getGlassPane().setVisible(false);
+                    loading = false;
                     return;
                 }
                 dispose();
