@@ -115,7 +115,7 @@ public class TransferFunctionBarEditor extends JPanel implements TransferFunctio
         }
         repaint();
     }
-    
+
     public void setRange(double lower, double upper) {
         minRange = lower;
         maxRange = upper;

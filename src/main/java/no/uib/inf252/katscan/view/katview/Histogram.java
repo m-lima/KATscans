@@ -126,7 +126,7 @@ public class Histogram extends JPanel implements KatView {
         plot.setDataset(0, collection);
 
         int value;
-        for (int i = 0; i < dataset.getMaxValue(); i++) {
+        for (int i = 0; i < histogram.length; i++) {
             value = histogram[i];
             if (value > 0) {
                 series.add(i, value);

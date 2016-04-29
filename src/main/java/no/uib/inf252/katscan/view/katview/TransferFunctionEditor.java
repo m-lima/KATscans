@@ -4,7 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.geom.Rectangle2D;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
-import no.uib.inf252.katscan.project.displayable.TransferFunctionNode;
+import no.uib.inf252.katscan.project.displayable.Displayable;
 import no.uib.inf252.katscan.view.component.FullLayout;
 import no.uib.inf252.katscan.view.transferfunction.TransferFunctionBarEditor;
 import no.uib.inf252.katscan.view.transferfunction.TransferFunctionChartEditor;
@@ -26,7 +26,7 @@ public class TransferFunctionEditor extends Histogram implements ChartProgressLi
     private final JPanel pnlBarEditorHolder;
     private final TransferFunctionBarEditor barEditor;
 
-    public TransferFunctionEditor(TransferFunctionNode displayable) {
+    public TransferFunctionEditor(Displayable displayable) {
         super(displayable);
         
         chart.addProgressListener(this);
@@ -90,8 +90,18 @@ public class TransferFunctionEditor extends Histogram implements ChartProgressLi
         barEditor.setBounds(x - TransferFunctionBarEditor.MARKER_SIZE_HALF, 0, width + TransferFunctionBarEditor.MARKER_SIZE, pnlBarEditorHolder.getHeight());
         chartEditor.setBounds(x, y, width, height);
 
-        barEditor.setRange(domainAxis.getRange().getLowerBound() / displayable.getMatrix().getMaxValue(), domainAxis.getRange().getUpperBound() / displayable.getMatrix().getMaxValue());
-        chartEditor.setRange(domainAxis.getRange().getLowerBound() / displayable.getMatrix().getMaxValue(), domainAxis.getRange().getUpperBound() / displayable.getMatrix().getMaxValue());
+        double gapBound = displayable.getMatrix().getMinValue();
+        double minBound = domainAxis.getRange().getLowerBound() - gapBound;
+        double maxBound = domainAxis.getRange().getUpperBound() - gapBound;
+        double rangeBound = displayable.getMatrix().getMaxValue() - gapBound;
+        
+        minBound /= rangeBound;
+        maxBound /= rangeBound;
+        gapBound /= rangeBound;
+        
+        //barEditor.setRange((domainAxis.getRange().getLowerBound() - displayable.getMatrix().getMinValue()) / displayable.getMatrix().getMaxValue(), domainAxis.getRange().getUpperBound() / displayable.getMatrix().getMaxValue());
+        barEditor.setRange(minBound, maxBound);
+        chartEditor.setRange(minBound, maxBound);
     }
 
     @Override

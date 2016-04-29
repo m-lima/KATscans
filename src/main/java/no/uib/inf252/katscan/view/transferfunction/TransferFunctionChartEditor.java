@@ -32,6 +32,7 @@ public class TransferFunctionChartEditor extends JPanel implements TransferFunct
 
     private double minRange;
     private double maxRange;
+    private double gapRange;
     private double ratio;
 
     public TransferFunctionChartEditor(TransferFunction transferFunction) {
@@ -43,6 +44,7 @@ public class TransferFunctionChartEditor extends JPanel implements TransferFunct
 
         minRange = 0d;
         maxRange = 1d;
+        gapRange = 0d;
         ratio = 1d;
 
         buildMarkers();
