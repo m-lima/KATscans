@@ -18,7 +18,7 @@ uniform bool orthographic;
 uniform vec3 eyePos;
 uniform vec3 ratio;
 
-uniform vec3 lightPos = normalize(vec3(-2.0, 2.0, 1.0));
+uniform vec3 lightPos = normalize(vec3(2.0, -2.0, -5.0));
 
 int actualSamples = numSamples * lodMultiplier;
 float stepSize = 1f / actualSamples;
@@ -72,13 +72,17 @@ void main() {
         }
         
         density = texture(volumeTexture, pos).x;
-        if (density <= threshold) continue;
+        if (density <= threshold) {
+            pos += stepValue * (lodMultiplier - 1);
+            i += lodMultiplier - 1;
+            continue;
+        }
         //normal = normalize(mat3(inverse(model)) * getGradient(pos, density));
         //normal = normalize(mat3(transpose(inverse(view * model))) * getGradient(pos, density));
         //normal = normalize(mat3(transpose(inverse(view * model))) * getGradient(pos, density));
         normal = normalize(normalMatrix * getGradient(pos, density));
 
-        float lightReflection = abs(dot(normal, lightPos));
+        float lightReflection = dot(normal, lightPos);
         color = lightReflection * texture(colors, density).rgb;
         fragColor = vec4(color, 1.0);
 

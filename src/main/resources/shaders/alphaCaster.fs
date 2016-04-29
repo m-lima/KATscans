@@ -97,3 +97,17 @@ void main() {
     fragColor += saturated;
 #endif
 }
+/*
+density = texture(volumeTexture, coord).x;
+        transferColor = texture(transferFunction, density);
+        transferColor.a /= lodMultiplier;
+        if (transferColor.a <= 0.0) continue;
+
+        color.rgb = color.rgb * color.a * (1 - transferColor.a) + transferColor.rgb * transferColor.a;
+        color.a = color.a * (1 - transferColor.a) + transferColor.a;
+
+        //color = mix(color, transferColor, transferColor.a);
+        //color.rgb = mix(color.rgb, transferColor.rgb, transferColor.a);
+        //color.a += transferColor.a / lodMultiplier;
+        //color.a += (1.0 - color.a) * transferColor.a / lodMultiplier;
+		*/
