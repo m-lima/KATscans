@@ -5,6 +5,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
@@ -67,7 +68,10 @@ public class ProjectBrowser extends javax.swing.JPanel {
         }
 
         KatNode node = (KatNode) path.getLastPathComponent();
-        node.getPopupMenu().show(treDatasets, x, y);
+        JPopupMenu popupMenu = node.getPopupMenu();
+        if (popupMenu != null) {
+            popupMenu.show(treDatasets, x, y);
+        }
     }
     
     /**

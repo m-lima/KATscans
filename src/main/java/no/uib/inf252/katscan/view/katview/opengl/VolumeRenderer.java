@@ -31,12 +31,14 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
     private static final String SHADERS_ROOT = "/shaders";
     private final String shaderName;
     
-    private static final int VERTICES = 0;
-    private static final int INDICES = 1;
+    private static final int BUFFER_VERTICES = 0;
+    private static final int BUFFER_INDICES = 1;
 
-    private static final int VOLUME = 0;
+    private static final int TEXTURE_VOLUME = 0;
+    private static final int TEXTURE_FRAME_BUFFER = 1;
+    protected static final int TEXTURE_COUNT_PARENT = 2;
     
-    private static final int FRONT_FACE = 0;
+    private static final int FRAME_BUFFER_FRONT = 0;
     
     private final int[] bufferLocation;
     private final int[] textureLocation;
@@ -61,7 +63,7 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
         addGLEventListener(this);
         
         bufferLocation = new int[2];
-        textureLocation = new int[1];
+        textureLocation = new int[2];
         frameBuffer = new int[1];
         
         this.shaderName = shaderName;
@@ -92,7 +94,7 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
     public void init(GLAutoDrawable drawable) {
         VoxelMatrix voxelMatrix = displayable.getMatrix();
         if (voxelMatrix == null) {
-            throw new RuntimeException("Could not load the volume data");
+            throw new GLException("Could not load the volume data");
         }
         
         trackBall.markAllDirty();
@@ -125,18 +127,34 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
     }
 
     private void loadFrameBuffer(GL2 gl2) {
-        checkError(gl2, "Load FrameBuffer");
+//        gl2.glGenFramebuffers(1, frameBuffer, FRAME_BUFFER_FRONT);
+//        gl2.glBindFramebuffer(GL2.GL_FRAMEBUFFER, frameBuffer[FRAME_BUFFER_FRONT]);
+//        
+//        gl2.glGenTextures(1, textureLocation, TEXTURE_FRAME_BUFFER);
+//        gl2.glActiveTexture(GL2.GL_TEXTURE0 + TEXTURE_FRAME_BUFFER);
+//        gl2.glBindTexture(GL2.GL_TEXTURE_2D, textureLocation[TEXTURE_FRAME_BUFFER]);
+//        
+//        gl2.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_NEAREST);
+//        gl2.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_NEAREST);
+//        
+//        gl2.glTexImage2D(GL2.GL_TEXTURE_2D, 0, GL2.GL_RGB, getWidth(), getHeight(), 0, GL2.GL_RGB, GL2.GL_UNSIGNED_BYTE, 0);
+//        
+//        if (gl2.glCheckFramebufferStatus(GL2.GL_FRAMEBUFFER) != GL2.GL_FRAMEBUFFER_COMPLETE) {
+//            throw new GLException("Failed to load frame buffer");
+//        }
+//        
+//        checkError(gl2, "Load FrameBuffer");
     }
 
     private void loadVertices(GL2 gl2) {
         gl2.glGenBuffers(bufferLocation.length, bufferLocation, 0);
         
         float[] vertices = displayObject.getVertices();
-        gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, bufferLocation[VERTICES]);
+        gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, bufferLocation[BUFFER_VERTICES]);
         gl2.glBufferData(GL2.GL_ARRAY_BUFFER, vertices.length * Float.BYTES, FloatBuffer.wrap(vertices), GL2.GL_STATIC_DRAW);
         
         short[] indices = displayObject.getIndices();
-        gl2.glBindBuffer(GL2.GL_ELEMENT_ARRAY_BUFFER, bufferLocation[INDICES]);
+        gl2.glBindBuffer(GL2.GL_ELEMENT_ARRAY_BUFFER, bufferLocation[BUFFER_INDICES]);
         gl2.glBufferData(GL2.GL_ELEMENT_ARRAY_BUFFER, indices.length * Short.BYTES, ShortBuffer.wrap(indices), GL2.GL_STATIC_DRAW);
         
         checkError(gl2, "Load vertices");
@@ -165,9 +183,9 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
                 + voxelMatrix.getSizeY() * voxelMatrix.getSizeY()
                 + voxelMatrix.getSizeZ() * voxelMatrix.getSizeZ());
         
-        gl2.glGenTextures(1, textureLocation, 0);
-        gl2.glActiveTexture(GL2.GL_TEXTURE0 + VOLUME);
-        gl2.glBindTexture(GL2.GL_TEXTURE_3D, textureLocation[VOLUME]);
+        gl2.glGenTextures(1, textureLocation, TEXTURE_VOLUME);
+        gl2.glActiveTexture(GL2.GL_TEXTURE0 + TEXTURE_VOLUME);
+        gl2.glBindTexture(GL2.GL_TEXTURE_3D, textureLocation[TEXTURE_VOLUME]);
         gl2.glTexParameteri(GL2.GL_TEXTURE_3D, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_LINEAR);
         gl2.glTexParameteri(GL2.GL_TEXTURE_3D, GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);
         gl2.glTexParameteri(GL2.GL_TEXTURE_3D, GL2.GL_TEXTURE_WRAP_R, GL2.GL_CLAMP_TO_BORDER);
@@ -214,8 +232,8 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
     }
 
     private void draw(GL2 gl2) {
-        gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, bufferLocation[VERTICES]);
-        gl2.glBindBuffer(GL2.GL_ELEMENT_ARRAY_BUFFER, bufferLocation[INDICES]);
+        gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, bufferLocation[BUFFER_VERTICES]);
+        gl2.glBindBuffer(GL2.GL_ELEMENT_ARRAY_BUFFER, bufferLocation[BUFFER_INDICES]);
         gl2.glEnableVertexAttribArray(0);
         gl2.glVertexAttribPointer(0, 3, GL2.GL_FLOAT, false, 0, 0);
         
@@ -302,6 +320,11 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
     @Override
     public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {
         trackBall.updateProjection(width, height);
+        //TODO Resize
+//        GL2 gl2 = drawable.getGL().getGL2();
+//        gl2.glActiveTexture(GL2.GL_TEXTURE0 + TEXTURE_TRANSFER);
+//        gl2.glBindTexture(GL2.GL_TEXTURE_1D, textureLocation[0]);
+//        gl2.glTexImage1D(GL2.GL_TEXTURE_1D, 0, GL2.GL_RGBA, TransferFunction.TEXTURE_SIZE, 0, GL2.GL_RGBA, GL2.GL_UNSIGNED_INT_8_8_8_8_REV, ByteBuffer.wrap(dataElements));
     }
     
     protected void checkError(GL2 gl, String location) {

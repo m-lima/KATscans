@@ -1,22 +1,19 @@
 package no.uib.inf252.katscan.project.displayable;
 
 import java.io.Serializable;
+import javax.swing.JMenuItem;
 import no.uib.inf252.katscan.data.VoxelMatrix;
+import no.uib.inf252.katscan.util.TransferFunction;
 
 /**
  *
  * @author Marcelo Lima
  */
-public class Structure extends SubGroup implements Serializable {
+public class StructureNode extends SubGroup implements Serializable {
 
-    public Structure() {
+    public StructureNode() {
         super("Structure");
     }
-
-//    @Override
-//    public short[] getData() {
-//        return getParent().getData();
-//    }
 
     @Override
     public VoxelMatrix getMatrix() {
@@ -26,6 +23,16 @@ public class Structure extends SubGroup implements Serializable {
     @Override
     public int[] getHistogram() {
         return getParent().getHistogram();
+    }
+
+    @Override
+    public TransferFunction getTransferFunction() {
+        return getParent().getTransferFunction();
+    }
+
+    @Override
+    protected JMenuItem[] getExtraMenus() {
+        return null;
     }
 
 }

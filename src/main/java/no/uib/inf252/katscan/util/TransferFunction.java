@@ -16,6 +16,33 @@ import no.uib.inf252.katscan.event.TransferFunctionListener;
  * @author Marcelo Lima
  */
 public class TransferFunction {
+    
+    public enum Type {
+        BASIC("Basic", "Make Basic", 'B'),
+        BODY("Human", "Make Human", 'H');
+
+        private final String text;
+        private final String makeText;
+        private final char mnemonic;
+
+        private Type(String text, String makeText, char mnemonic) {
+            this.text = text;
+            this.makeText = makeText;
+            this.mnemonic = mnemonic;
+        }
+
+        public String getText() {
+            return text;
+        }
+
+        public String getMakeText() {
+            return makeText;
+        }
+
+        public char getMnemonic() {
+            return mnemonic;
+        }
+    }
 
     public static final int TEXTURE_SIZE = 2048;
     public static final float MIN_STEP = 1f / TEXTURE_SIZE;
@@ -26,15 +53,38 @@ public class TransferFunction {
     private boolean dirtyPaint;
     private Color[] colors;
     private float[] colorPoints;
-
-    public TransferFunction() {
+    
+    public TransferFunction(Type type) {
         points = new ArrayList<>();
-        points.add(new TransferFunctionPoint(new Color(0, 0, 0, 0), 0f, this, false));
-        points.add(new TransferFunctionPoint(new Color(255, 255, 255, 255), 0.5f, this));
-        points.add(new TransferFunctionPoint(new Color(0, 0, 0, 0), 1f, this, false));
-
         listenerList = new EventListenerList();
+        setType(type);
+    }
+    
+    public final void setType(Type type) {
+        if (type == null) {
+            throw new NullPointerException("No type was provided.");
+        }
+        points.clear();
+        
+        switch(type) {
+            case BASIC:
+                points.add(new TransferFunctionPoint(new Color(0, 0, 0, 0), 0f, this, false));
+                points.add(new TransferFunctionPoint(new Color(255, 255, 255, 255), 0.5f, this));
+                points.add(new TransferFunctionPoint(new Color(0, 0, 0, 0), 1f, this, false));
+                break;
+            case BODY:
+                points.add(new TransferFunctionPoint(new Color(0, 0, 0, 0), 0f, this, false));
+                points.add(new TransferFunctionPoint(new Color(255, 220, 180), MIN_STEP, this));
+                points.add(new TransferFunctionPoint(new Color(255, 220, 180), 1200f / 4096f, this));
+                points.add(new TransferFunctionPoint(new Color(255, 255, 255), 1250f / 4096f, this));
+                points.add(new TransferFunctionPoint(new Color(255, 220, 180), 1300f / 4096f, this));
+                points.add(new TransferFunctionPoint(new Color(255, 255, 255), 2048f / 4096f, this));
+                points.add(new TransferFunctionPoint(new Color(255, 255, 255), 1f - MIN_STEP, this));
+                points.add(new TransferFunctionPoint(new Color(0, 0, 0, 0), 1f, this, false));
+                break;
+        }
         dirtyPaint = true;
+        firePointCountChanged();
     }
 
     public int getPointCount() {
@@ -75,6 +125,10 @@ public class TransferFunction {
     private void valueChanged() {
         dirtyPaint = true;
         firePointValueChanged();
+    }
+    
+    public LinearGradientPaint getPaint() {
+        return getPaint(0f, TEXTURE_SIZE);
     }
 
     //TODO Proper gradient; see https://en.wikipedia.org/wiki/Lab_color_space

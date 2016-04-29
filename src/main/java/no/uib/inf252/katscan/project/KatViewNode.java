@@ -10,6 +10,7 @@ import net.infonode.docking.DockingWindowListener;
 import net.infonode.docking.OperationAbortedException;
 import no.uib.inf252.katscan.project.displayable.Displayable;
 import net.infonode.docking.View;
+import no.uib.inf252.katscan.event.TransferFunctionListener;
 import no.uib.inf252.katscan.view.katview.KatView.Type;
 
 /**
@@ -29,33 +30,17 @@ public class KatViewNode extends KatNode implements DockingWindowListener {
             Logger.getLogger(KatViewNode.class.getName()).log(Level.SEVERE, null, ex);
             return null;
         }
-//        switch (type) {
-//            case COMPOSITE:
-//                return new KatViewNode(type, displayable, new CompositeRenderer((TransferFunctionNode) displayable));
-//            case MAXIMUM:
-//                return new KatViewNode(type, displayable, new MaximumRenderer(displayable));
-//            case SLICE:
-//                return new KatViewNode(type, displayable, new SliceNavigator((TransferFunctionNode) displayable));
-//            case EDITOR:
-//                return new KatViewNode(type, displayable, new TransferFunctionEditor((TransferFunctionNode) displayable));
-//            case HISTOGRAM:
-//                return new KatViewNode(type, displayable, new Histogram(displayable));
-//            default:
-//                return null;
-//        }
     }
     
     private final View view;
-    private final Type type;
 
     private KatViewNode(Type type, Displayable displayable, Component component) {
-        super(type.getName());
+        super(type.getText());
         if (displayable == null || component == null) {
             throw new NullPointerException();
         }
         
-        this.type = type;
-        this.view = new View(type.getName() + " - " + displayable.getName(), null, component);
+        this.view = new View(type.getText() + " - " + displayable.getName(), null, component);
         view.addListener(this);
     }
 
@@ -67,10 +52,6 @@ public class KatViewNode extends KatNode implements DockingWindowListener {
         view.close();
     }
 
-    public boolean isTransferFunctionNeeded() {
-        return type.isTransferFunctionNeeded();
-    }
-    
     @Override
     public Displayable getParent() {
         return (Displayable) super.getParent();
@@ -122,6 +103,10 @@ public class KatViewNode extends KatNode implements DockingWindowListener {
     @Override
     public void windowClosed(DockingWindow window) {
         ProjectHandler.getInstance().removeNodeFromParent(this);
+        
+        //TODO Fix this (Remove TransferFunctionListener)
+        //FIXME Fix this (Remove TransferFunctionListener)
+        getParent().getTransferFunction().removeTransferFunctionListener((TransferFunctionListener) getView());
     }
 
     @Override

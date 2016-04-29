@@ -10,6 +10,7 @@ import no.uib.inf252.katscan.data.VoxelMatrix;
 import no.uib.inf252.katscan.project.KatNode;
 import no.uib.inf252.katscan.project.KatViewNode;
 import no.uib.inf252.katscan.project.ProjectHandler;
+import no.uib.inf252.katscan.util.TransferFunction;
 import no.uib.inf252.katscan.view.katview.KatView.Type;
 
 /**
@@ -18,12 +19,13 @@ import no.uib.inf252.katscan.view.katview.KatView.Type;
  */
 public abstract class Displayable extends KatNode implements ActionListener {
     
+    private static final String TRANSFER = "Add Tranfer Function";
+    private static final String CUT = "Add Cut";
+    private static final String STRUCTURE = "Add Structure";
     private static final String REMOVE = "Remove";
-    private static final String TRANSFER = "Tranfer Function";
-    private static final String CUT = "Cut";
-    private static final String STRUCTURE = "Structure";
 
     public abstract VoxelMatrix getMatrix();
+    public abstract TransferFunction getTransferFunction();
     public abstract int[] getHistogram();
 
     public Displayable(String name) {
@@ -36,37 +38,48 @@ public abstract class Displayable extends KatNode implements ActionListener {
         
         Type[] types = Type.values();
         for (final Type type : types) {
-            if (typeAcceptable(type)) {
-                JMenuItem item = new JMenuItem(type.getName(), type.getMnemonic());
-                item.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        KatViewNode view = KatViewNode.buildKatView(type, Displayable.this);
-                        ProjectHandler.getInstance().insertNodeInto(view, Displayable.this, getChildCount());
-                    }
-                });
-                menu.add(item);
-            }
+            JMenuItem item = new JMenuItem(type.getText(), type.getMnemonic());
+            item.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    KatViewNode view = KatViewNode.buildKatView(type, Displayable.this);
+                    ProjectHandler.getInstance().insertNodeInto(view, Displayable.this, getChildCount());
+                }
+            });
+            menu.add(item);
         }
         if (types.length > 0) {
             menu.addSeparator();
         }
         
+        JMenuItem[] extraMenus = getExtraMenus();
+        if (extraMenus != null && extraMenus.length > 0) {
+            for (JMenuItem extraMenu : extraMenus) {
+                menu.add(extraMenu);
+            }
+            menu.addSeparator();
+        }
+        
+        JMenu transferMenu = new JMenu(TRANSFER);
+        transferMenu.setMnemonic('T');
+        
         JMenuItem cutMenu = new JMenuItem(CUT, 'U');
         JMenuItem structureMenu = new JMenuItem(STRUCTURE, 'R');
         JMenuItem removeMenu = new JMenuItem(REMOVE, 'R');
         
+        TransferFunction.Type[] transferTypes = TransferFunction.Type.values();
+        for (TransferFunction.Type type : transferTypes) {
+            JMenuItem subMenu = new JMenuItem(type.getText(), type.getMnemonic());
+            subMenu.addActionListener(this);
+            transferMenu.add(subMenu);
+        }
+        
+        transferMenu.addActionListener(this);
         cutMenu.addActionListener(this);
         structureMenu.addActionListener(this);
         removeMenu.addActionListener(this);
         
-        JMenuItem[] extraMenus = getExtraMenus();
-        if (extraMenus != null) {
-            for (JMenuItem extraMenu : extraMenus) {
-                menu.add(extraMenu);
-            }
-        }
-        
+        menu.add(transferMenu);
         menu.add(cutMenu);
         menu.add(structureMenu);
         menu.addSeparator();
@@ -74,10 +87,8 @@ public abstract class Displayable extends KatNode implements ActionListener {
         
         return menu;
     }
-
-    public JMenu getMenu() {
-        return null;
-    }
+    
+    protected abstract JMenuItem[] getExtraMenus();
 
     @Override
     public int hashCode() {
@@ -108,17 +119,6 @@ public abstract class Displayable extends KatNode implements ActionListener {
         }
     }
     
-    protected boolean typeAcceptable(Type type) {
-        return !type.isTransferFunctionNeeded();
-    }
-    
-    protected JMenuItem[] getExtraMenus() {
-        JMenuItem transfer = new JMenuItem(TRANSFER, 'T');
-        transfer.addActionListener(this);
-        
-        return new JMenuItem[] {transfer};
-    }
-
     @Override
     public void actionPerformed(ActionEvent e) {
         JMenuItem item  = (JMenuItem) e.getSource();
@@ -127,15 +127,20 @@ public abstract class Displayable extends KatNode implements ActionListener {
             case REMOVE:
                 remove();
                 break;
-            case TRANSFER:
-                ProjectHandler.getInstance().insertNodeInto(new TransferFunctionNode(), this, getChildCount());
-                break;
             case CUT:
-                ProjectHandler.getInstance().insertNodeInto(new Cut(), this, getChildCount());
+                ProjectHandler.getInstance().insertNodeInto(new CutNode(), this, getChildCount());
                 break;
             case STRUCTURE:
-                ProjectHandler.getInstance().insertNodeInto(new Structure(), this, getChildCount());
+                ProjectHandler.getInstance().insertNodeInto(new StructureNode(), this, getChildCount());
                 break;
+            default:
+                TransferFunction.Type[] types = TransferFunction.Type.values();
+                for (TransferFunction.Type type : types) {
+                    if (type.getText().equals(text)) {
+                        ProjectHandler.getInstance().insertNodeInto(new TransferFunctionNode(type), this, getChildCount());
+                        return;
+                    }
+                }
         }
     }
 

@@ -20,6 +20,9 @@ import no.uib.inf252.katscan.util.TransferFunction;
  * @author Marcelo Lima
  */
 public class SurfaceRenderer extends VolumeRenderer implements MouseMotionListener, MouseListener {
+
+    private static final int TEXTURE_COLOR_LOCAL = 0;
+    private static final int TEXTURE_COLOR = TEXTURE_COUNT_PARENT + TEXTURE_COLOR_LOCAL;
     
     private final int[] colorLocation = new int[1];
     private static byte[] colors;
@@ -36,7 +39,7 @@ public class SurfaceRenderer extends VolumeRenderer implements MouseMotionListen
         
         addMouseListener(this);
         addMouseMotionListener(this);
-        threshold = 0.5f;
+        threshold = 0.2f;
     }
 
     @Override
@@ -59,8 +62,8 @@ public class SurfaceRenderer extends VolumeRenderer implements MouseMotionListen
         
         GL2 gl2 = drawable.getGL().getGL2();
         
-        gl2.glGenTextures(1, colorLocation, 0);
-        gl2.glActiveTexture(GL2.GL_TEXTURE1);
+        gl2.glGenTextures(1, colorLocation, TEXTURE_COLOR_LOCAL);
+        gl2.glActiveTexture(GL2.GL_TEXTURE0 + TEXTURE_COLOR);
         gl2.glBindTexture(GL2.GL_TEXTURE_1D, colorLocation[0]);
         gl2.glTexParameteri(GL2.GL_TEXTURE_1D, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_LINEAR);
         gl2.glTexParameteri(GL2.GL_TEXTURE_1D, GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);
@@ -71,7 +74,7 @@ public class SurfaceRenderer extends VolumeRenderer implements MouseMotionListen
         gl2.glUseProgram(programName);
             
         int location = gl2.glGetUniformLocation(programName, "colors");
-        gl2.glUniform1i(location, 1);
+        gl2.glUniform1i(location, TEXTURE_COLOR);
         
         checkError(gl2, "Inject colors");
     }
@@ -81,7 +84,7 @@ public class SurfaceRenderer extends VolumeRenderer implements MouseMotionListen
         super.dispose(drawable);
         GL2 gl2 = drawable.getGL().getGL2();
         
-        gl2.glDeleteTextures(1, colorLocation, 0);
+        gl2.glDeleteTextures(colorLocation.length, colorLocation, 0);
         checkError(gl2, "Dispose Surface Renderer");
     }
     
@@ -89,9 +92,10 @@ public class SurfaceRenderer extends VolumeRenderer implements MouseMotionListen
         BufferedImage colorImage = new BufferedImage(2048, 1, BufferedImage.TYPE_4BYTE_ABGR);
         Graphics2D g2d = (Graphics2D) colorImage.getGraphics();
         
-        g2d.setPaint(new LinearGradientPaint(0f, 0f, 2048f, 0f,
-                new float[] {0f, 1200f / 4096f, 1250f / 4096f, 1300f / 4096f, 2048f / 4096f, 1f},
-                new Color[] {new Color(255, 220, 200), new Color(255, 220, 200), Color.RED, new Color(180, 120, 120), Color.WHITE, Color.BLUE}));
+//        g2d.setPaint(new LinearGradientPaint(0f, 0f, 2048f, 0f,
+//                new float[] {0f, 1200f / 4096f, 1250f / 4096f, 1300f / 4096f, 2048f / 4096f, 1f},
+//                new Color[] {new Color(255, 220, 180), new Color(255, 220, 180), Color.RED, new Color(255, 220, 180), Color.WHITE, Color.BLUE}));
+        g2d.setPaint(displayable.getTransferFunction().getPaint());
         
         g2d.drawLine(0, 0, 2048, 0);
         g2d.dispose();

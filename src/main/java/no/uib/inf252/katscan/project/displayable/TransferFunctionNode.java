@@ -1,29 +1,25 @@
 package no.uib.inf252.katscan.project.displayable;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import javax.swing.JMenuItem;
-import javax.swing.tree.MutableTreeNode;
 import no.uib.inf252.katscan.data.VoxelMatrix;
-import no.uib.inf252.katscan.project.KatViewNode;
 import no.uib.inf252.katscan.util.TransferFunction;
-import no.uib.inf252.katscan.view.katview.KatView.Type;
+import no.uib.inf252.katscan.util.TransferFunction.Type;
 
 /**
  *
  * @author Marcelo Lima
  */
-public class TransferFunctionNode extends Displayable {
+public class TransferFunctionNode extends SubGroup implements ActionListener {
     
-    private final TransferFunction transferFunction;
+    private transient final TransferFunction transferFunction;
 
-    public TransferFunctionNode() {
+    public TransferFunctionNode(Type type) {
         super("Transfer Function");
-        transferFunction = new TransferFunction();
+        transferFunction = new TransferFunction(type);
     }
 
-    public TransferFunction getTransferFunction() {
-        return transferFunction;
-    }
-    
     @Override
     public VoxelMatrix getMatrix() {
         return getParent().getMatrix();
@@ -35,43 +31,37 @@ public class TransferFunctionNode extends Displayable {
     }
 
     @Override
-    public boolean getAllowsChildren() {
-        return true;
+    public TransferFunction getTransferFunction() {
+        return transferFunction;
     }
 
     @Override
-    public Displayable getParent() {
-        return (Displayable) super.getParent();
-    }
-
-    @Override
-    public void setParent(MutableTreeNode newParent) {
-        if (newParent instanceof Displayable) {
-            super.setParent(newParent);
-        } else {
-            throw new IllegalArgumentException("Can only have " + Displayable.class.getSimpleName() + " nodes as parents of " + getClass().getSimpleName() + " nodes.");
-        }
-    }
-
-    @Override
-    public void insert(MutableTreeNode child, int index) {
-        if (!(child instanceof KatViewNode)) {
-            throw new IllegalArgumentException("Can only have " + KatViewNode.class.getName() + " nodes as children of " + getClass().getSimpleName() + " nodes.");
-        }
-        if (((KatViewNode)child).isTransferFunctionNeeded()) {
-            super.insert(child, index);
-        } else {
-            throw new IllegalArgumentException("Can only have " + KatViewNode.class.getName() + " nodes that use transfer functions as children of " + getClass().getSimpleName() + " nodes.");
-        }
-    }
-    
-    @Override
-    protected boolean typeAcceptable(Type type) {
-        return type.isTransferFunctionNeeded();
-    }
-    
     protected JMenuItem[] getExtraMenus() {
-        return null;
+        Type[] types = TransferFunction.Type.values();
+        JMenuItem[] extraMenus = new JMenuItem[types.length];
+        
+        for (int i = 0; i < types.length; i++) {
+            Type type = types[i];
+            JMenuItem item = new JMenuItem(type.getMakeText(), type.getMnemonic());
+            item.addActionListener(this);
+            extraMenus[i] = item;
+        }
+        
+        return extraMenus;
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        JMenuItem item  = (JMenuItem) e.getSource();
+        String text = item.getText();
+        
+        TransferFunction.Type[] types = TransferFunction.Type.values();
+        for (TransferFunction.Type type : types) {
+            if (type.getMakeText().equals(text)) {
+                transferFunction.setType(type);
+                return;
+            }
+        }
     }
 
 }

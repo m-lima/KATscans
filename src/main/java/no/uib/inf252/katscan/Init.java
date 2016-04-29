@@ -16,19 +16,22 @@ import no.uib.inf252.katscan.view.MainFrame;
 import no.uib.inf252.katscan.view.SplashScreen;
 
 //TODO [ ] Exceptions
-//TODO [ ] Always clip
-//TODO [ ] Raw ratio calculation
-//TODO [ ] Loading size (spinners)
 //TODO [ ] Alpha compositing
 //TODO [ ] Slice as zooms
 //TODO [ ] Icons for all items
 //TODO [ ] Remove reference to model from KatNodes
 //TODO [ ] Remove CUT and STRUCTURE from Transfer Function
 //TODO [ ] Auto-open transfer function or its children
-//TODO [ ] All displayables have TransFunc
-//TODO [ ] Precalculate matrices
-//TODO [ ] Max raycasting distance
-//TODO [ ] Raycasting steps
+//TODO [ ] FIND AWESOME DEFAULT TRANSFER FUNCTION!!!!!!!!!!!!
+//TODO [ ] Load Hand from the top and see the oversampling.. Fix with frame buffer
+//TODO [ ] Loading glass pane when building view
+//DONE [X] All displayables have TransFunc
+//TODO [X] Raycasting steps
+//DONE [X] Precalculate matrices
+//DONE [X] Max raycasting distance
+//DONE [X] Always clip
+//DONE [X] Raw ratio calculation
+//DONE [X] Loading size (spinners)
 //DONE [X] Raw reverse Z
 //DONE [X] Camera initial zoom
 //DONE [X] Saturation of transfer function

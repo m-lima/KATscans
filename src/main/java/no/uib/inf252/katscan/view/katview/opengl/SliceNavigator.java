@@ -19,7 +19,7 @@ import java.nio.ShortBuffer;
 import no.uib.inf252.katscan.data.VoxelMatrix;
 import no.uib.inf252.katscan.event.TransferFunctionListener;
 import no.uib.inf252.katscan.project.displayable.Displayable;
-import no.uib.inf252.katscan.project.displayable.TransferFunctionNode;
+import no.uib.inf252.katscan.project.displayable.Displayable;
 import no.uib.inf252.katscan.util.TransferFunction;
 import no.uib.inf252.katscan.view.katview.KatView;
 
@@ -51,7 +51,7 @@ public class SliceNavigator extends GLJPanel implements KatView, GLEventListener
     private float sliceMax;
     private int slice;
 
-    public SliceNavigator(TransferFunctionNode displayable) throws GLException {
+    public SliceNavigator(Displayable displayable) throws GLException {
         super(new GLCapabilities(GLProfile.get(GLProfile.GL2)));
         addGLEventListener(this);
         
@@ -62,7 +62,6 @@ public class SliceNavigator extends GLJPanel implements KatView, GLEventListener
         
         addMouseWheelListener(this);
         
-        //TODO Remove listener when done
         displayable.getTransferFunction().addTransferFunctionListener(this);
     }
 
@@ -172,7 +171,7 @@ public class SliceNavigator extends GLJPanel implements KatView, GLEventListener
         if (transferFunctionDirty) {
             BufferedImage transferImage = new BufferedImage(TransferFunction.TEXTURE_SIZE, 1, BufferedImage.TYPE_4BYTE_ABGR);
             Graphics2D g2d = (Graphics2D) transferImage.getGraphics();
-            g2d.setPaint(getDisplayable().getTransferFunction().getPaint(0f, TransferFunction.TEXTURE_SIZE));
+            g2d.setPaint(displayable.getTransferFunction().getPaint());
             g2d.drawLine(0, 0, TransferFunction.TEXTURE_SIZE, 0);
             g2d.dispose();
 
@@ -185,10 +184,6 @@ public class SliceNavigator extends GLJPanel implements KatView, GLEventListener
         }
         
         gl2.glDrawElements(GL2.GL_TRIANGLES, indices.length, GL2.GL_UNSIGNED_SHORT, 0);
-    }
-
-    private TransferFunctionNode getDisplayable() {
-        return (TransferFunctionNode) displayable;
     }
 
     @Override

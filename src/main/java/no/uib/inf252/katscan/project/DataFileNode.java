@@ -4,8 +4,10 @@ import java.io.File;
 import no.uib.inf252.katscan.project.displayable.Displayable;
 import java.io.Serializable;
 import javax.swing.ImageIcon;
+import javax.swing.JMenuItem;
 import javax.swing.tree.MutableTreeNode;
 import no.uib.inf252.katscan.data.VoxelMatrix;
+import no.uib.inf252.katscan.util.TransferFunction;
 
 /**
  *
@@ -15,11 +17,13 @@ public class DataFileNode extends Displayable implements Serializable {
     
     private final File file;
     private final transient VoxelMatrix matrix;
+    private final transient TransferFunction transferFunction;
     
     public DataFileNode(String name, File file, VoxelMatrix matrix) {
         super(name);
         this.file = file;
         this.matrix = matrix;
+        transferFunction = new TransferFunction(TransferFunction.Type.BASIC);
     }
 
     @Override
@@ -30,6 +34,11 @@ public class DataFileNode extends Displayable implements Serializable {
     @Override
     public int[] getHistogram() {
         return matrix.getHistogram();
+    }
+
+    @Override
+    public TransferFunction getTransferFunction() {
+        return transferFunction;
     }
 
     @Override
@@ -62,6 +71,11 @@ public class DataFileNode extends Displayable implements Serializable {
     @Override
     public ImageIcon getIcon() {
         return new ImageIcon(getClass().getResource("/icons/tree/file.png"));
+    }
+
+    @Override
+    protected JMenuItem[] getExtraMenus() {
+        return null;
     }
     
 }
