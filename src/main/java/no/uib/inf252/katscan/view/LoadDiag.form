@@ -167,21 +167,13 @@
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
                               <Component id="lblMin" max="32767" attributes="0"/>
-                              <Group type="102" attributes="0">
-                                  <Component id="spnMin" max="32767" attributes="0"/>
-                                  <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="chkMin" min="-2" max="-2" attributes="0"/>
-                              </Group>
                               <Component id="lblMax" alignment="0" max="32767" attributes="0"/>
-                              <Group type="102" alignment="0" attributes="0">
-                                  <Component id="spnMax" max="32767" attributes="0"/>
-                                  <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="chkMax" min="-2" max="-2" attributes="0"/>
-                              </Group>
-                              <Group type="102" alignment="0" attributes="0">
+                              <Component id="spnMin" alignment="0" max="32767" attributes="0"/>
+                              <Group type="102" attributes="0">
                                   <Component id="chkNormValues" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace min="0" pref="3" max="32767" attributes="0"/>
+                                  <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                               </Group>
+                              <Component id="spnMax" max="32767" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
@@ -193,19 +185,14 @@
                           <EmptySpace min="-2" pref="8" max="-2" attributes="0"/>
                           <Component id="lblMin" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="3" attributes="0">
-                              <Component id="spnMin" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="chkMin" alignment="3" min="-2" max="-2" attributes="0"/>
-                          </Group>
+                          <Component id="spnMin" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="lblMax" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="3" attributes="0">
-                              <Component id="spnMax" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="chkMax" alignment="3" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="spnMax" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace pref="30" max="32767" attributes="0"/>
                           <Component id="chkNormValues" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -217,6 +204,11 @@
                   </Properties>
                 </Component>
                 <Component class="javax.swing.JSpinner" name="spnMin">
+                  <Properties>
+                    <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
+                      <SpinnerModel initial="1" minimum="0" numberType="java.lang.Integer" stepSize="1" type="number"/>
+                    </Property>
+                  </Properties>
                   <Events>
                     <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="spnMinStateChanged"/>
                   </Events>
@@ -227,34 +219,20 @@
                   </Properties>
                 </Component>
                 <Component class="javax.swing.JSpinner" name="spnMax">
+                  <Properties>
+                    <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
+                      <SpinnerModel initial="0" numberType="java.lang.Integer" stepSize="1" type="number"/>
+                    </Property>
+                  </Properties>
                   <Events>
                     <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="spnMaxStateChanged"/>
                   </Events>
-                </Component>
-                <Component class="javax.swing.JCheckBox" name="chkMin">
-                  <Properties>
-                    <Property name="selected" type="boolean" value="true"/>
-                    <Property name="text" type="java.lang.String" value="Clip"/>
-                    <Property name="horizontalAlignment" type="int" value="11"/>
-                    <Property name="horizontalTextPosition" type="int" value="10"/>
-                  </Properties>
-                </Component>
-                <Component class="javax.swing.JCheckBox" name="chkMax">
-                  <Properties>
-                    <Property name="selected" type="boolean" value="true"/>
-                    <Property name="text" type="java.lang.String" value="Clip"/>
-                    <Property name="horizontalAlignment" type="int" value="11"/>
-                    <Property name="horizontalTextPosition" type="int" value="10"/>
-                  </Properties>
                 </Component>
                 <Component class="javax.swing.JCheckBox" name="chkNormValues">
                   <Properties>
                     <Property name="selected" type="boolean" value="true"/>
                     <Property name="text" type="java.lang.String" value="Normalize values"/>
                   </Properties>
-                  <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="chkNormValuesActionPerformed"/>
-                  </Events>
                 </Component>
               </SubComponents>
             </Container>
@@ -271,7 +249,7 @@
               <Properties>
                 <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                   <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-                    <TitledBorder title="Axis ratio"/>
+                    <TitledBorder title="Size"/>
                   </Border>
                 </Property>
               </Properties>
@@ -282,7 +260,6 @@
                       <Group type="102" attributes="0">
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="lblSizeX" max="32767" attributes="0"/>
                               <Group type="102" alignment="0" attributes="0">
                                   <Component id="lnlRatioX" linkSize="2" max="32767" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
@@ -293,13 +270,27 @@
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="spnRatioY" max="32767" attributes="0"/>
                               </Group>
-                              <Component id="lblSizeY" alignment="0" max="32767" attributes="0"/>
-                              <Component id="lblSizeZ" alignment="0" max="32767" attributes="0"/>
-                              <Component id="chkNormSize" alignment="1" max="32767" attributes="0"/>
+                              <Component id="chkNormSize" alignment="1" pref="131" max="32767" attributes="0"/>
                               <Group type="102" alignment="0" attributes="0">
                                   <Component id="lnlRatioZ" linkSize="2" max="32767" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="spnRatioZ" max="32767" attributes="0"/>
+                              </Group>
+                              <Group type="102" attributes="0">
+                                  <Component id="lblSizeZ" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Component id="spnSizeZ" max="32767" attributes="0"/>
+                              </Group>
+                              <Group type="102" alignment="0" attributes="0">
+                                  <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                                      <Component id="lblSizeY" alignment="0" max="32767" attributes="0"/>
+                                      <Component id="lblSizeX" alignment="0" max="32767" attributes="0"/>
+                                  </Group>
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Group type="103" groupAlignment="0" attributes="0">
+                                      <Component id="spnSizeX" max="32767" attributes="0"/>
+                                      <Component id="spnSizeY" max="32767" attributes="0"/>
+                                  </Group>
                               </Group>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
@@ -310,11 +301,20 @@
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="0" attributes="0">
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="lblSizeX" min="-2" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="3" attributes="0">
+                              <Component id="lblSizeX" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="spnSizeX" alignment="3" min="-2" max="-2" attributes="0"/>
+                          </Group>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="lblSizeY" min="-2" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="3" attributes="0">
+                              <Component id="lblSizeY" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="spnSizeY" alignment="3" min="-2" max="-2" attributes="0"/>
+                          </Group>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="lblSizeZ" min="-2" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="3" attributes="0">
+                              <Component id="lblSizeZ" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="spnSizeZ" alignment="3" min="-2" max="-2" attributes="0"/>
+                          </Group>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="chkNormSize" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
@@ -387,17 +387,38 @@
                 </Component>
                 <Component class="javax.swing.JLabel" name="lblSizeX">
                   <Properties>
-                    <Property name="text" type="java.lang.String" value="X: 0"/>
+                    <Property name="text" type="java.lang.String" value="X:"/>
                   </Properties>
                 </Component>
                 <Component class="javax.swing.JLabel" name="lblSizeY">
                   <Properties>
-                    <Property name="text" type="java.lang.String" value="Y: 0"/>
+                    <Property name="text" type="java.lang.String" value="Y:"/>
                   </Properties>
                 </Component>
                 <Component class="javax.swing.JLabel" name="lblSizeZ">
                   <Properties>
-                    <Property name="text" type="java.lang.String" value="Z: 0"/>
+                    <Property name="text" type="java.lang.String" value="Z:"/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JSpinner" name="spnSizeX">
+                  <Properties>
+                    <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
+                      <SpinnerModel initial="2" minimum="1" numberType="java.lang.Integer" stepSize="1" type="number"/>
+                    </Property>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JSpinner" name="spnSizeY">
+                  <Properties>
+                    <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
+                      <SpinnerModel initial="2" minimum="1" numberType="java.lang.Integer" stepSize="1" type="number"/>
+                    </Property>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JSpinner" name="spnSizeZ">
+                  <Properties>
+                    <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
+                      <SpinnerModel initial="2" minimum="1" numberType="java.lang.Integer" stepSize="1" type="number"/>
+                    </Property>
                   </Properties>
                 </Component>
               </SubComponents>

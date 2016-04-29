@@ -93,11 +93,8 @@ public class LoadDiag extends javax.swing.JDialog {
                         List data = (List) transferable.getTransferData(DataFlavor.javaFileListFlavor);
                         File file = (File) data.get(0);
                         txtFile.setText(file.getPath());
-                        
-                        extractFileName();
-                        extractValues();
                         return true;
-                    } else if (dataFlavor.equals(DataFlavor.stringFlavor)) {
+                    } else {
                         Transferable transferable = support.getTransferable();
                         String incoming = (String) transferable.getTransferData(DataFlavor.stringFlavor);
                         
@@ -107,7 +104,6 @@ public class LoadDiag extends javax.swing.JDialog {
                         }
                     }
                 } catch (Throwable th) {
-                    Logger.getLogger(LoadDiag.class.getName()).log(Level.SEVERE, null, th);
                     return false;
                 }
                 return false;
@@ -132,8 +128,6 @@ public class LoadDiag extends javax.swing.JDialog {
         });
 
         txtFile.setText(loadHandler.getLastLoad());
-        extractFileName();
-        extractValues();
     }
 
     private void validateFile() {
@@ -171,7 +165,15 @@ public class LoadDiag extends javax.swing.JDialog {
         if (header == null) {
             return;
         }
-
+        
+        ((SpinnerNumberModel)spnSizeX.getModel()).setMaximum(header.getSizeX());
+        ((SpinnerNumberModel)spnSizeY.getModel()).setMaximum(header.getSizeY());
+        ((SpinnerNumberModel)spnSizeZ.getModel()).setMaximum(header.getSizeZ());
+        
+        spnSizeX.setValue(header.getSizeX());
+        spnSizeY.setValue(header.getSizeY());
+        spnSizeZ.setValue(header.getSizeZ());
+        
         spnMin.setValue(0);
         spnMax.setValue(((SpinnerNumberModel)spnMax.getModel()).getMaximum());
         
@@ -192,30 +194,24 @@ public class LoadDiag extends javax.swing.JDialog {
         chkNormSize.setEnabled(valid);
         chkNormValues.setEnabled(valid);
         txtFileBorder.setValid(valid);
+        spnSizeX.setEnabled(valid);
+        spnSizeY.setEnabled(valid);
+        spnSizeZ.setEnabled(valid);
 
         if (valid) {
             spnRatioX.setEnabled(!chkNormSize.isSelected());
             spnRatioY.setEnabled(!chkNormSize.isSelected());
             spnRatioZ.setEnabled(!chkNormSize.isSelected());
             
-            chkMin.setEnabled(!chkNormValues.isSelected());
-            chkMax.setEnabled(!chkNormValues.isSelected());
-            
             txtFile.setBackground(UIManager.getColor("TextField.background"));
             header = loadHandler.getHeader(file);
             
-            if (header != null) {
-                lblSizeX.setText("X: " + header.getSizeX());
-                lblSizeY.setText("Y: " + header.getSizeY());
-                lblSizeZ.setText("Z: " + header.getSizeZ());
-            }
+            extractFileName();
+            extractValues();
         } else {
             spnRatioX.setEnabled(false);
             spnRatioY.setEnabled(false);
             spnRatioZ.setEnabled(false);
-            
-            chkMin.setEnabled(false);
-            chkMax.setEnabled(false);
             
             txtFile.setBackground(INVALID_COLOR);
             
@@ -233,14 +229,15 @@ public class LoadDiag extends javax.swing.JDialog {
             @Override
             public void run() {
                 LoadSaveOptions options = new LoadSaveOptions(
-                        header.getSizeX(), header.getSizeY(), header.getSizeZ(),
+                        getSpinnerValue(spnSizeX).intValue(),
+                        getSpinnerValue(spnSizeY).intValue(),
+                        getSpinnerValue(spnSizeZ).intValue(),
                         getSpinnerValue(spnRatioX).floatValue(),
                         getSpinnerValue(spnRatioY).floatValue(),
                         getSpinnerValue(spnRatioZ).floatValue(),
                         getSpinnerValue(spnMin).intValue(),
                         getSpinnerValue(spnMax).intValue(),
                         ((Number)((SpinnerNumberModel)spnMax.getModel()).getMaximum()).intValue(),
-                        //TODO Normalize before or after applying min/max values?
                         chkNormValues.isSelected());
                 try {
                     loadHandler.load(txtName.getText(), options, file);
@@ -304,8 +301,6 @@ public class LoadDiag extends javax.swing.JDialog {
         spnMin = new javax.swing.JSpinner();
         lblMax = new javax.swing.JLabel();
         spnMax = new javax.swing.JSpinner();
-        chkMin = new javax.swing.JCheckBox();
-        chkMax = new javax.swing.JCheckBox();
         chkNormValues = new javax.swing.JCheckBox();
         pnlMainSize = new javax.swing.JPanel();
         pnlRatio = new javax.swing.JPanel();
@@ -319,6 +314,9 @@ public class LoadDiag extends javax.swing.JDialog {
         lblSizeX = new javax.swing.JLabel();
         lblSizeY = new javax.swing.JLabel();
         lblSizeZ = new javax.swing.JLabel();
+        spnSizeX = new javax.swing.JSpinner();
+        spnSizeY = new javax.swing.JSpinner();
+        spnSizeZ = new javax.swing.JSpinner();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -363,6 +361,7 @@ public class LoadDiag extends javax.swing.JDialog {
 
         lblMin.setText("Minimum");
 
+        spnMin.setModel(new javax.swing.SpinnerNumberModel(1, 0, null, 1));
         spnMin.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
                 spnMinStateChanged(evt);
@@ -371,29 +370,15 @@ public class LoadDiag extends javax.swing.JDialog {
 
         lblMax.setText("Maximum");
 
+        spnMax.setModel(new javax.swing.SpinnerNumberModel());
         spnMax.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
                 spnMaxStateChanged(evt);
             }
         });
 
-        chkMin.setSelected(true);
-        chkMin.setText("Clip");
-        chkMin.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
-        chkMin.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
-
-        chkMax.setSelected(true);
-        chkMax.setText("Clip");
-        chkMax.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
-        chkMax.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
-
         chkNormValues.setSelected(true);
         chkNormValues.setText("Normalize values");
-        chkNormValues.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                chkNormValuesActionPerformed(evt);
-            }
-        });
 
         javax.swing.GroupLayout pnlValuesLayout = new javax.swing.GroupLayout(pnlValues);
         pnlValues.setLayout(pnlValuesLayout);
@@ -403,18 +388,12 @@ public class LoadDiag extends javax.swing.JDialog {
                 .addContainerGap()
                 .addGroup(pnlValuesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(lblMin, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(pnlValuesLayout.createSequentialGroup()
-                        .addComponent(spnMin)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(chkMin))
                     .addComponent(lblMax, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(pnlValuesLayout.createSequentialGroup()
-                        .addComponent(spnMax)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(chkMax))
+                    .addComponent(spnMin)
                     .addGroup(pnlValuesLayout.createSequentialGroup()
                         .addComponent(chkNormValues)
-                        .addGap(0, 3, Short.MAX_VALUE)))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(spnMax))
                 .addContainerGap())
         );
         pnlValuesLayout.setVerticalGroup(
@@ -423,17 +402,14 @@ public class LoadDiag extends javax.swing.JDialog {
                 .addGap(8, 8, 8)
                 .addComponent(lblMin)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(pnlValuesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(spnMin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(chkMin))
+                .addComponent(spnMin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(lblMax)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(pnlValuesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(spnMax, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(chkMax))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(chkNormValues))
+                .addComponent(spnMax, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 30, Short.MAX_VALUE)
+                .addComponent(chkNormValues)
+                .addContainerGap())
         );
 
         javax.swing.GroupLayout pnlMainOtherLayout = new javax.swing.GroupLayout(pnlMainOther);
@@ -464,7 +440,7 @@ public class LoadDiag extends javax.swing.JDialog {
 
         pnlMainSize.setLayout(new java.awt.GridLayout(0, 1));
 
-        pnlRatio.setBorder(javax.swing.BorderFactory.createTitledBorder("Axis ratio"));
+        pnlRatio.setBorder(javax.swing.BorderFactory.createTitledBorder("Size"));
 
         chkNormSize.setText("Normalize size");
         chkNormSize.addActionListener(new java.awt.event.ActionListener() {
@@ -488,11 +464,17 @@ public class LoadDiag extends javax.swing.JDialog {
 
         spnRatioZ.setModel(new javax.swing.SpinnerNumberModel(1.0f, 1.0f, null, 0.1f));
 
-        lblSizeX.setText("X: 0");
+        lblSizeX.setText("X:");
 
-        lblSizeY.setText("Y: 0");
+        lblSizeY.setText("Y:");
 
-        lblSizeZ.setText("Z: 0");
+        lblSizeZ.setText("Z:");
+
+        spnSizeX.setModel(new javax.swing.SpinnerNumberModel(2, 1, null, 1));
+
+        spnSizeY.setModel(new javax.swing.SpinnerNumberModel(2, 1, null, 1));
+
+        spnSizeZ.setModel(new javax.swing.SpinnerNumberModel(2, 1, null, 1));
 
         javax.swing.GroupLayout pnlRatioLayout = new javax.swing.GroupLayout(pnlRatio);
         pnlRatio.setLayout(pnlRatioLayout);
@@ -501,7 +483,6 @@ public class LoadDiag extends javax.swing.JDialog {
             .addGroup(pnlRatioLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(pnlRatioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblSizeX, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(pnlRatioLayout.createSequentialGroup()
                         .addComponent(lnlRatioX, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -510,13 +491,23 @@ public class LoadDiag extends javax.swing.JDialog {
                         .addComponent(lnlRatioY, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(spnRatioY))
-                    .addComponent(lblSizeY, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(lblSizeZ, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(chkNormSize, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(chkNormSize, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 131, Short.MAX_VALUE)
                     .addGroup(pnlRatioLayout.createSequentialGroup()
                         .addComponent(lnlRatioZ, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(spnRatioZ)))
+                        .addComponent(spnRatioZ))
+                    .addGroup(pnlRatioLayout.createSequentialGroup()
+                        .addComponent(lblSizeZ)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(spnSizeZ))
+                    .addGroup(pnlRatioLayout.createSequentialGroup()
+                        .addGroup(pnlRatioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(lblSizeY, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(lblSizeX, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(pnlRatioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(spnSizeX)
+                            .addComponent(spnSizeY))))
                 .addContainerGap())
         );
 
@@ -526,11 +517,17 @@ public class LoadDiag extends javax.swing.JDialog {
             pnlRatioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnlRatioLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(lblSizeX)
+                .addGroup(pnlRatioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblSizeX)
+                    .addComponent(spnSizeX, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(lblSizeY)
+                .addGroup(pnlRatioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblSizeY)
+                    .addComponent(spnSizeY, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(lblSizeZ)
+                .addGroup(pnlRatioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblSizeZ)
+                    .addComponent(spnSizeZ, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(chkNormSize)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -597,8 +594,6 @@ public class LoadDiag extends javax.swing.JDialog {
         File newFile = loadHandler.showLoadDialog(file);
         if (newFile != null) {
             txtFile.setText(newFile.getPath());
-            extractFileName();
-            extractValues();
         }
     }//GEN-LAST:event_btnSearchActionPerformed
 
@@ -624,11 +619,6 @@ public class LoadDiag extends javax.swing.JDialog {
         updateRatios(true);
     }//GEN-LAST:event_chkNormSizeActionPerformed
 
-    private void chkNormValuesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkNormValuesActionPerformed
-        chkMin.setEnabled(!chkNormValues.isSelected());
-        chkMax.setEnabled(!chkNormValues.isSelected());
-    }//GEN-LAST:event_chkNormValuesActionPerformed
-
     private void spnMaxStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_spnMaxStateChanged
         int minValue = getSpinnerValue(spnMin).intValue() + 1;
         if (getSpinnerValue(spnMax).intValue() < minValue) {
@@ -647,8 +637,6 @@ public class LoadDiag extends javax.swing.JDialog {
     private javax.swing.JButton btnCancel;
     private javax.swing.JButton btnOk;
     private javax.swing.JButton btnSearch;
-    private javax.swing.JCheckBox chkMax;
-    private javax.swing.JCheckBox chkMin;
     private javax.swing.JCheckBox chkNormSize;
     private javax.swing.JCheckBox chkNormValues;
     private javax.swing.JLabel lblMax;
@@ -670,6 +658,9 @@ public class LoadDiag extends javax.swing.JDialog {
     private javax.swing.JSpinner spnRatioX;
     private javax.swing.JSpinner spnRatioY;
     private javax.swing.JSpinner spnRatioZ;
+    private javax.swing.JSpinner spnSizeX;
+    private javax.swing.JSpinner spnSizeY;
+    private javax.swing.JSpinner spnSizeZ;
     private javax.swing.JTextField txtFile;
     private javax.swing.JTextField txtName;
     // End of variables declaration//GEN-END:variables
