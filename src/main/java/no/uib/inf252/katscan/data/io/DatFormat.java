@@ -133,7 +133,7 @@ class DatFormat implements LoadSaveFormat {
                 }
                 
                 shortBuffer = byteBuffer.asShortBuffer();
-                shortBuffer.get(grid, z * optionSizeY * optionSizeX + ((sizeY - 1) - y) * optionSizeX, optionSizeX);
+                shortBuffer.get(grid, z * optionSizeY * optionSizeX + ((optionSizeY - 1) - y) * optionSizeX, optionSizeX);
             }
         }
 
