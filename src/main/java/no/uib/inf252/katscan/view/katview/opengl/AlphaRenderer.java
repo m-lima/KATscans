@@ -46,9 +46,7 @@ public class AlphaRenderer extends VolumeRenderer implements TransferFunctionLis
         gl2.glTexParameteri(GL2.GL_TEXTURE_1D, GL2.GL_TEXTURE_WRAP_R, GL2.GL_CLAMP_TO_BORDER);
         transferFunctionDirty = true;
         
-        gl2.glUseProgram(programName);
-            
-        int location = gl2.glGetUniformLocation(programName, "transferFunction");
+        int location = gl2.glGetUniformLocation(mainProgram, "transferFunction");
         gl2.glUniform1i(location, 1);
         
         checkError(gl2, "Create Transfer Function");

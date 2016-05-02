@@ -76,7 +76,7 @@ public class TransferFunction {
                 points.add(new TransferFunctionPoint(new Color(0, 0, 0, 0), 0f, this, false));
                 points.add(new TransferFunctionPoint(new Color(255, 220, 180), MIN_STEP, this));
                 points.add(new TransferFunctionPoint(new Color(255, 220, 180), 1200f / 4096f, this));
-                points.add(new TransferFunctionPoint(new Color(255, 255, 255), 1250f / 4096f, this));
+                points.add(new TransferFunctionPoint(new Color(255, 0, 0), 1250f / 4096f, this));
                 points.add(new TransferFunctionPoint(new Color(255, 220, 180), 1300f / 4096f, this));
                 points.add(new TransferFunctionPoint(new Color(255, 255, 255), 2048f / 4096f, this));
                 points.add(new TransferFunctionPoint(new Color(255, 255, 255), 1f - MIN_STEP, this));

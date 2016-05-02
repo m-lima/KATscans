@@ -3,15 +3,14 @@ package no.uib.inf252.katscan.view.katview.opengl;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLException;
-import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.LinearGradientPaint;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
 import javax.swing.SwingUtilities;
+import no.uib.inf252.katscan.event.TransferFunctionListener;
 import no.uib.inf252.katscan.project.displayable.Displayable;
 import no.uib.inf252.katscan.util.TransferFunction;
 
@@ -19,7 +18,7 @@ import no.uib.inf252.katscan.util.TransferFunction;
  *
  * @author Marcelo Lima
  */
-public class SurfaceRenderer extends VolumeRenderer implements MouseMotionListener, MouseListener {
+public class SurfaceRenderer extends VolumeRenderer implements MouseMotionListener, MouseListener, TransferFunctionListener {
 
     private static final int TEXTURE_COLOR_LOCAL = 0;
     private static final int TEXTURE_COLOR = TEXTURE_COUNT_PARENT + TEXTURE_COLOR_LOCAL;
@@ -32,26 +31,34 @@ public class SurfaceRenderer extends VolumeRenderer implements MouseMotionListen
     
     private int lastY;
     
+    private boolean colorsDirty;
+    
     public SurfaceRenderer(Displayable displayable) throws GLException {
         super(displayable, "surfaceCaster");
         
-        initializeColors();
+        updateColors();
         
         addMouseListener(this);
         addMouseMotionListener(this);
+        displayable.getTransferFunction().addTransferFunctionListener(this);
         threshold = 0.2f;
     }
 
     @Override
     protected void preDraw(GLAutoDrawable drawable) {
+        GL2 gl2 = drawable.getGL().getGL2();
         if (thresholdDirty) {
-            GL2 gl2 = drawable.getGL().getGL2();
-            gl2.glUseProgram(programName);
-            int location = gl2.glGetUniformLocation(programName, "threshold");
+            int location = gl2.glGetUniformLocation(mainProgram, "threshold");
             gl2.glUniform1f(location, threshold);
             
             thresholdDirty = false;
             checkError(gl2, "Inject threshold");
+        }
+        
+        if (colorsDirty) {
+            gl2.glActiveTexture(GL2.GL_TEXTURE0 + TEXTURE_COLOR);
+            gl2.glBindTexture(GL2.GL_TEXTURE_1D, colorLocation[0]);
+            gl2.glTexImage1D(GL2.GL_TEXTURE_1D, 0, GL2.GL_RGBA, TransferFunction.TEXTURE_SIZE, 0, GL2.GL_RGBA, GL2.GL_UNSIGNED_INT_8_8_8_8_REV, ByteBuffer.wrap(colors));
         }
     }
 
@@ -71,9 +78,7 @@ public class SurfaceRenderer extends VolumeRenderer implements MouseMotionListen
         
         gl2.glTexImage1D(GL2.GL_TEXTURE_1D, 0, GL2.GL_RGBA, TransferFunction.TEXTURE_SIZE, 0, GL2.GL_RGBA, GL2.GL_UNSIGNED_INT_8_8_8_8_REV, ByteBuffer.wrap(colors));
         
-        gl2.glUseProgram(programName);
-            
-        int location = gl2.glGetUniformLocation(programName, "colors");
+        int location = gl2.glGetUniformLocation(mainProgram, "colors");
         gl2.glUniform1i(location, TEXTURE_COLOR);
         
         checkError(gl2, "Inject colors");
@@ -88,7 +93,7 @@ public class SurfaceRenderer extends VolumeRenderer implements MouseMotionListen
         checkError(gl2, "Dispose Surface Renderer");
     }
     
-    private synchronized void initializeColors() {
+    private synchronized void updateColors() {
         BufferedImage colorImage = new BufferedImage(2048, 1, BufferedImage.TYPE_4BYTE_ABGR);
         Graphics2D g2d = (Graphics2D) colorImage.getGraphics();
         
@@ -100,6 +105,7 @@ public class SurfaceRenderer extends VolumeRenderer implements MouseMotionListen
         g2d.drawLine(0, 0, 2048, 0);
         g2d.dispose();
         colors = (byte[]) colorImage.getRaster().getDataElements(0, 0, 2048, 1, null);
+        colorsDirty = true;
     }
 
     @Override
@@ -154,5 +160,17 @@ public class SurfaceRenderer extends VolumeRenderer implements MouseMotionListen
 
     @Override
     public void mouseExited(MouseEvent e) {}
+
+    @Override
+    public void pointCountChanged() {
+        updateColors();
+        repaint();
+    }
+
+    @Override
+    public void pointValueChanged() {
+        updateColors();
+        repaint();
+    }
 
 }

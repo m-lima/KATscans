@@ -106,7 +106,9 @@ public class KatViewNode extends KatNode implements DockingWindowListener {
         
         //TODO Fix this (Remove TransferFunctionListener)
         //FIXME Fix this (Remove TransferFunctionListener)
-        getParent().getTransferFunction().removeTransferFunctionListener((TransferFunctionListener) getView());
+        if (getView() instanceof TransferFunctionListener) {
+            getParent().getTransferFunction().removeTransferFunctionListener((TransferFunctionListener) getView());
+        }
     }
 
     @Override

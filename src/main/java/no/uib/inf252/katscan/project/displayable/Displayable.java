@@ -42,8 +42,14 @@ public abstract class Displayable extends KatNode implements ActionListener {
             item.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    KatViewNode view = KatViewNode.buildKatView(type, Displayable.this);
-                    ProjectHandler.getInstance().insertNodeInto(view, Displayable.this, getChildCount());
+                    //TODO Parallelize view launching
+//                    new Thread("View launching thread") {
+//                        @Override
+//                        public void run() {
+                            KatViewNode view = KatViewNode.buildKatView(type, Displayable.this);
+                            ProjectHandler.getInstance().insertNodeInto(view, Displayable.this, getChildCount());
+//                        }
+//                    }.start();
                 }
             });
             menu.add(item);

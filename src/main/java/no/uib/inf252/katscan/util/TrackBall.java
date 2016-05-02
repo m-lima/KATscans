@@ -56,6 +56,9 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
     private final float[] viewMatrix;
     private final float[] projection;
     
+    private boolean reuseModel;
+    private boolean reuseView;
+    
     private boolean orthographic;
     private float fov;
     private final float initialZoom;
@@ -98,6 +101,8 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
     
     public void markAllDirty() {
         dirtyValues = MODEL_DIRTY | VIEW_DIRTY | PROJECTION_DIRTY | ZOOM_DIRTY | ORTHO_DIRTY | FOV_DIRTY | MOVEMENT_DIRTY;
+        reuseModel = false;
+        reuseView = false;
     }
 
     public Quaternion getCurrentRotation() {
@@ -105,12 +110,22 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
     }
     
     public float[] getModelMatrix() {
-        FloatUtil.makeTranslation(modelMatrix, true, translation[0], translation[1], translation[2]);
-        return FloatUtil.multMatrix(modelMatrix, currentRotation.toMatrix(tempMatrix, 0));
+        if (reuseModel) {
+            return modelMatrix;
+        } else {
+            reuseModel = true;
+            FloatUtil.makeTranslation(modelMatrix, true, translation[0], translation[1], translation[2]);
+            return FloatUtil.multMatrix(modelMatrix, currentRotation.toMatrix(tempMatrix, 0));
+        }
     }
     
     public float[] getViewMatrix() {
-        return FloatUtil.makeLookAt(viewMatrix, 0, eyePosition, 0, targetPosition, 0, UP_VECTOR, 0, tempMatrix);
+        if (reuseView) {
+            return viewMatrix;
+        } else {
+            reuseView = true;
+            return FloatUtil.makeLookAt(viewMatrix, 0, eyePosition, 0, targetPosition, 0, UP_VECTOR, 0, tempMatrix);
+        }
     }
     
     public float[] getProjectionMatrix() {
@@ -228,11 +243,13 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
                     moving = false;
 
                     dirtyValues |= VIEW_DIRTY | ZOOM_DIRTY;
+                    reuseView = false;
                 } else if (e.getSource() == menuOrtho) {
                     toggleOrthographic(owner);
                     return;
                 }
                 dirtyValues |= MODEL_DIRTY | MOVEMENT_DIRTY;
+                reuseModel = false;
                 owner.repaint();
             }
         };
@@ -339,6 +356,7 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
             moving = true;
             
             dirtyValues |= MODEL_DIRTY | MOVEMENT_DIRTY;
+            reuseModel = false;
         } else if (SwingUtilities.isMiddleMouseButton(e)){
             int deltaY = e.getY() - yPos;
             
@@ -362,6 +380,7 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
                 }
 
                 dirtyValues |= ZOOM_DIRTY | VIEW_DIRTY;
+                reuseView = false;
             }
             yPos = e.getY();
             
@@ -375,6 +394,7 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
             moving = true;
             
             dirtyValues |= VIEW_DIRTY | MOVEMENT_DIRTY;
+            reuseView = false;
         }
         component.repaint();
     }
@@ -409,6 +429,7 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
             }
             
             dirtyValues |= ZOOM_DIRTY | VIEW_DIRTY;
+            reuseView = false;
         }
         
         component.repaint();
