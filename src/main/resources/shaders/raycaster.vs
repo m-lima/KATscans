@@ -15,5 +15,9 @@ void main()
     vertexOut = position - 0.5;
     vertexOut *= ratio;
     vertexOutModel = model * vec4(vertexOut, 1.0);
+
+    //vertexOut = position;
+    //vertexOutModel = model * vec4((vertexOut - 0.5) * ratio, 1.0);
+    
     gl_Position = projection * view * vertexOutModel;
 }

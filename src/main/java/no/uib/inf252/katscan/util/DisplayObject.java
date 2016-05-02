@@ -41,6 +41,7 @@ public class DisplayObject {
 
     private final float[] vertices;
     private final short[] indices;
+    private final short[] indicesRev;
 
     private DisplayObject(Type type) {
         switch (type) {
@@ -54,6 +55,9 @@ public class DisplayObject {
                 indices = new short[]{
                     0, 1, 2
                 };
+                indicesRev = new short[]{
+                    0, 2, 1
+                };
                 break;
             case SQUARE:
                 vertices = new float[]{
@@ -65,6 +69,10 @@ public class DisplayObject {
                 indices = new short[]{
                     0, 1, 2,
                     0, 3, 2
+                };
+                indicesRev = new short[] {
+                    0, 2, 1,
+                    0, 2, 3
                 };
                 break;
             case CUBE:
@@ -87,21 +95,6 @@ public class DisplayObject {
                     1.0f, 1.0f, 1.0f
                 };
                 indices = new short[]{
-                    //Back
-//                    1, 7, 5,
-//                    7, 1, 3,
-//                    0, 6, 2,
-//                    6, 0, 4,
-//                    0, 3, 1,
-//                    3, 0, 2,
-//                    7, 4, 5,
-//                    4, 7, 6,
-//                    2, 7, 3,
-//                    7, 2, 6,
-//                    1, 4, 0,
-//                    4, 1, 5
-                    
-                    //Orig
                     1, 5, 7,
                     7, 3, 1,
                     0, 2, 6,
@@ -115,6 +108,20 @@ public class DisplayObject {
                     1, 0, 4,
                     4, 5, 1
                 };
+                indicesRev = new short[]{
+                    1, 7, 5,
+                    7, 1, 3,
+                    0, 6, 2,
+                    6, 0, 4,
+                    0, 3, 1,
+                    3, 0, 2,
+                    7, 4, 5,
+                    4, 7, 6,
+                    2, 7, 3,
+                    7, 2, 6,
+                    1, 4, 0,
+                    4, 1, 5
+                };
                 break;
         }
     }
@@ -123,7 +130,11 @@ public class DisplayObject {
         return vertices;
     }
 
-    public short[] getIndices() {
+    public short[] getIndicesCW() {
         return indices;
+    }
+    
+    public short[] getIndicesCCW() {
+        return indicesRev;
     }
 }
