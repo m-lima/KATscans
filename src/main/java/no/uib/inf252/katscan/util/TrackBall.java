@@ -31,6 +31,7 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
     public static final int ORTHO_DIRTY = 0b10000;
     public static final int FOV_DIRTY = 0b100000;
     public static final int MOVEMENT_DIRTY = 0b1000000;
+    public static final int SLICE_DIRTY = 0b10000000;
     
     private static final float[] UP_VECTOR = new float[] {0f, 1f, 0f};
     
@@ -62,6 +63,7 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
     private boolean orthographic;
     private float fov;
     private final float initialZoom;
+    private float slice;
     
     private int dirtyValues;
     
@@ -70,7 +72,7 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
     
     public TrackBall(float initialZoom) {
         eyePosition = new float[] {0f, 0f, initialZoom};
-        targetPosition = new float[] {0f, 0f, 0f};
+        targetPosition = new float[] {0f, 0f, -50f};
         initialPosition = new float[3];
         currentPosition = new float[3];
         axis = new float[3];
@@ -87,6 +89,7 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
         
         orthographic = false;
         fov = FloatUtil.QUARTER_PI;
+        slice = 0f;
         this.initialZoom = initialZoom;
         
         markAllDirty();
@@ -97,12 +100,6 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
         component.addMouseMotionListener(this);
         component.addMouseWheelListener(this);
         component.addKeyListener(this);
-    }
-    
-    public void markAllDirty() {
-        dirtyValues = MODEL_DIRTY | VIEW_DIRTY | PROJECTION_DIRTY | ZOOM_DIRTY | ORTHO_DIRTY | FOV_DIRTY | MOVEMENT_DIRTY;
-        reuseModel = false;
-        reuseView = false;
     }
 
     public Quaternion getCurrentRotation() {
@@ -152,16 +149,30 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
         return fov;
     }
 
+    public float getSlice() {
+        return slice;
+    }
+
     public boolean isMoving() {
         return moving;
     }
     
+    private int getAllDirtyFlags() {
+        return MODEL_DIRTY | VIEW_DIRTY | PROJECTION_DIRTY | ZOOM_DIRTY | ORTHO_DIRTY | FOV_DIRTY | MOVEMENT_DIRTY | SLICE_DIRTY;
+    }
+    
+    public void markAllDirty() {
+        dirtyValues = getAllDirtyFlags();
+        reuseModel = false;
+        reuseView = false;
+    }
+    
     public void clearDirtyValues() {
-        clearDirtyValues(MODEL_DIRTY | VIEW_DIRTY | PROJECTION_DIRTY | ZOOM_DIRTY | ORTHO_DIRTY | FOV_DIRTY | MOVEMENT_DIRTY);
+        clearDirtyValues(getAllDirtyFlags());
     }
     
     public void clearDirtyValues(int values) {
-        if (values < 0 || values > (MODEL_DIRTY | VIEW_DIRTY | PROJECTION_DIRTY | ZOOM_DIRTY | ORTHO_DIRTY | FOV_DIRTY | MOVEMENT_DIRTY)) {
+        if (values < 0 || values > getAllDirtyFlags()) {
             throw new IllegalArgumentException("Invalid flags: " + Integer.toBinaryString(values) + "(" + values + ")");
         }
         
@@ -239,11 +250,15 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
                     eyePosition[2] = initialZoom;
                     targetPosition[0] = 0f;
                     targetPosition[1] = 0f;
-                    targetPosition[2] = 0f;
+                    targetPosition[2] = -50f;
+                    fov = FloatUtil.QUARTER_PI;
                     moving = false;
+                    slice = 0f;
+                    updateProjection(owner.getWidth(), owner.getHeight());
 
-                    dirtyValues |= VIEW_DIRTY | ZOOM_DIRTY;
+                    markAllDirty();
                     reuseView = false;
+                    reuseModel = false;
                 } else if (e.getSource() == menuOrtho) {
                     toggleOrthographic(owner);
                     return;
@@ -324,19 +339,20 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
 
     @Override
     public void mouseDragged(MouseEvent e) {
-        final int modifiers = e.getModifiers();
+        final int modifiers = e.getModifiersEx();
         
         if ((modifiers & ~(
-                MouseEvent.SHIFT_MASK |
-                MouseEvent.BUTTON1_MASK |
-                MouseEvent.BUTTON2_MASK |
-                MouseEvent.BUTTON3_MASK)) > 0) {
+                MouseEvent.SHIFT_DOWN_MASK |
+                MouseEvent.ALT_DOWN_MASK |
+                MouseEvent.BUTTON1_DOWN_MASK |
+                MouseEvent.BUTTON2_DOWN_MASK |
+                MouseEvent.BUTTON3_DOWN_MASK)) > 0) {
             return;
         }
         
         Component component = e.getComponent();
         if (SwingUtilities.isLeftMouseButton(e)) {
-            if (e.isShiftDown()) {
+            if (e.isShiftDown() || e.isAltDown()) {
                 return;
             }
             
@@ -357,7 +373,7 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
             
             dirtyValues |= MODEL_DIRTY | MOVEMENT_DIRTY;
             reuseModel = false;
-        } else if (SwingUtilities.isMiddleMouseButton(e)){
+        } else if (SwingUtilities.isMiddleMouseButton(e)) {
             int deltaY = e.getY() - yPos;
             
             moving = true;
@@ -373,18 +389,31 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
                 }
 
                 updateProjection(component.getWidth(), component.getHeight());
+            } else if ((modifiers & MouseEvent.ALT_DOWN_MASK) > 0) {
+                slice -= deltaY * 0.0025f;
+                if (slice <= 0f) {
+                    slice = 0f;
+                }
+                
+                dirtyValues += SLICE_DIRTY;
             } else {
                 eyePosition[2] += deltaY / (4f * 16f);
                 if (orthographic) {
                     updateProjection(component.getWidth(), component.getHeight());
                 }
+                
+                slice += deltaY / (4f * 16f);
 
-                dirtyValues |= ZOOM_DIRTY | VIEW_DIRTY;
+                dirtyValues |= ZOOM_DIRTY | VIEW_DIRTY | SLICE_DIRTY;
                 reuseView = false;
             }
             yPos = e.getY();
             
         } else if (SwingUtilities.isRightMouseButton(e)){
+            if (e.isShiftDown() || e.isAltDown()) {
+                return;
+            }
+            
             eyePosition[0] = xPosOld + (xPos - e.getX()) * (eyePosition[2] - 1f) / component.getWidth();
             targetPosition[0] = eyePosition[0];
             
@@ -406,7 +435,7 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
     @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
         final int modifiers = e.getModifiers();
-        if ((modifiers & ~(MouseEvent.SHIFT_MASK)) > 0) {
+        if ((modifiers & ~(MouseEvent.SHIFT_MASK | MouseEvent.ALT_MASK)) > 0) {
             return;
         }
         
@@ -422,13 +451,22 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
             }
             
             updateProjection(component.getWidth(), component.getHeight());
+        } else if (e.isAltDown()) {
+            slice -= e.getWheelRotation() * 0.05f;
+            if (slice <= 0f) {
+                slice = 0f;
+            }
+            
+            dirtyValues += SLICE_DIRTY;
         } else {
             eyePosition[2] += e.getWheelRotation() / 4f;
             if (orthographic) {
                 updateProjection(component.getWidth(), component.getHeight());
             }
             
-            dirtyValues |= ZOOM_DIRTY | VIEW_DIRTY;
+            slice += e.getWheelRotation() / 4f;
+            
+            dirtyValues |= ZOOM_DIRTY | VIEW_DIRTY | SLICE_DIRTY;
             reuseView = false;
         }
         

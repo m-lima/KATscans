@@ -191,7 +191,7 @@ public class SliceNavigator extends GLJPanel implements KatView, GLEventListener
         
         gl2.glUseProgram(programName);
         int location = gl2.glGetUniformLocation(programName, "screenSize");
-        gl2.glUniform2f(location, width, height);
+        gl2.glUniform2i(location, width, height);
     }
     
     private void checkError(GL2 gl, String location) {

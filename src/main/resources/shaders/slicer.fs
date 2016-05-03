@@ -1,7 +1,7 @@
 #version 150
 
 uniform float slice;
-uniform vec2 screenSize;
+uniform ivec2 screenSize;
 uniform sampler3D volumeTexture;
 uniform sampler1D transferFunction;
 

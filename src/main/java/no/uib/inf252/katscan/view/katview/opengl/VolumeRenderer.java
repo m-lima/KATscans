@@ -8,7 +8,6 @@ import com.jogamp.opengl.GLException;
 import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.math.FloatUtil;
-import com.jogamp.opengl.util.glsl.ShaderProgram;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
@@ -36,11 +35,13 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
 
     private static final String SHADERS_ROOT = "/shaders/";
     private static final String SHADER_RAYCASTER_NAME = "raycaster";
+    private static final String SHADER_MAIN_NAME = "maincaster";
     private final String shaderName;
 
     private static final int SHADER_RAYCASTER_VERTEX = 0;
     private static final int SHADER_RAYCASTER_FRAG = 1;
-    private static final int SHADER_MAIN = 2;
+    private static final int SHADER_MAIN_VERTEX = 2;
+    private static final int SHADER_MAIN_FRAG = 3;
 
     private static final int BUFFER_VERTICES = 0;
     private static final int BUFFER_INDICES = 1;
@@ -77,7 +78,7 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
         super(new GLCapabilities(GLProfile.get(GLProfile.GL2)));
         addGLEventListener(this);
 
-        shaderLocation = new int[3];
+        shaderLocation = new int[4];
         bufferLocation = new int[3];
         textureLocation = new int[2];
         frameBuffer = new int[1];
@@ -188,7 +189,8 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
     private void loadPrograms(GL2 gl2) throws GLException {
         loadAndCompileShader(SHADER_RAYCASTER_NAME, SHADER_RAYCASTER_VERTEX, GL2.GL_VERTEX_SHADER, gl2);
         loadAndCompileShader(SHADER_RAYCASTER_NAME, SHADER_RAYCASTER_FRAG, GL2.GL_FRAGMENT_SHADER, gl2);
-        loadAndCompileShader(shaderName, SHADER_MAIN, GL2.GL_FRAGMENT_SHADER, gl2);
+        loadAndCompileShader(SHADER_MAIN_NAME, SHADER_MAIN_VERTEX, GL2.GL_VERTEX_SHADER, gl2);
+        loadAndCompileShader(shaderName, SHADER_MAIN_FRAG, GL2.GL_FRAGMENT_SHADER, gl2);
 
         raycastingProgram = gl2.glCreateProgram();
         if (raycastingProgram == 0) {
@@ -208,11 +210,11 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
         checkLink(gl2, raycastingProgram);
         checkError(gl2, "Link raycasting program");
         
-        gl2.glAttachShader(mainProgram, shaderLocation[SHADER_RAYCASTER_VERTEX]);
-        gl2.glAttachShader(mainProgram, shaderLocation[SHADER_MAIN]);
+        gl2.glAttachShader(mainProgram, shaderLocation[SHADER_MAIN_VERTEX]);
+        gl2.glAttachShader(mainProgram, shaderLocation[SHADER_MAIN_FRAG]);
         gl2.glLinkProgram(mainProgram);
-        gl2.glDetachShader(mainProgram, shaderLocation[SHADER_RAYCASTER_VERTEX]);
-        gl2.glDetachShader(mainProgram, shaderLocation[SHADER_MAIN]);
+        gl2.glDetachShader(mainProgram, shaderLocation[SHADER_MAIN_VERTEX]);
+        gl2.glDetachShader(mainProgram, shaderLocation[SHADER_MAIN_FRAG]);
         checkLink(gl2, mainProgram);
         checkError(gl2, "Link main program");
         
@@ -224,7 +226,8 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
     private void loadAndCompileShader(String codeFile, int location, int type, GL2 gl2) throws GLException {
         String[] shaderCode = new String[1];
         StringBuilder codeBuilder = new StringBuilder();
-        try (BufferedReader reader = new BufferedReader(new FileReader(getClass().getResource(SHADERS_ROOT + codeFile + (type == GL2.GL_VERTEX_SHADER ? ".vp" : ".fp")).getFile()))) {
+        codeFile += type == GL2.GL_VERTEX_SHADER ? ".vp" : ".fp";
+        try (BufferedReader reader = new BufferedReader(new FileReader(getClass().getResource(SHADERS_ROOT + codeFile).getFile()))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 codeBuilder.append(line);
@@ -243,7 +246,7 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
         gl2.glShaderSource(shader, 1, shaderCode, new int[]{shaderCode[0].length()}, 0);
         gl2.glCompileShader(shader);
         shaderLocation[location] = shader;
-        checkCompile(gl2, shader);
+        checkCompile(gl2, shader, codeFile);
         checkError(gl2, "Load and compile shader");
     }
 
@@ -272,7 +275,10 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
         gl2.glUniform3fv(location, 1, voxelMatrix.getRatio(), 0);
 
         location = gl2.glGetUniformLocation(mainProgram, "volumeTexture");
-        gl2.glUniform1i(location, 0);
+        gl2.glUniform1i(location, TEXTURE_VOLUME);
+
+        location = gl2.glGetUniformLocation(mainProgram, "raycastTexture");
+        gl2.glUniform1i(location, TEXTURE_FRAME_BUFFER);
 
         checkError(gl2, "Load initial main uniforms");
     }
@@ -281,17 +287,18 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
     public void display(GLAutoDrawable drawable) {
         int uniformLocation;
         GL2 gl2 = drawable.getGL().getGL2();
-        initializeRender(gl2);
 
         gl2.glBindFramebuffer(GL2.GL_FRAMEBUFFER, frameBuffer[FRAME_BUFFER_FRONT]);
         gl2.glViewport(0, 0, getWidth(), getHeight());
+        initializeRender(gl2);
         gl2.glUseProgram(raycastingProgram);
         
         checkAndLoadRaycastingUpdates(gl2);
-        draw(gl2);
+        draw(gl2, false);
 
         gl2.glBindFramebuffer(GL2.GL_FRAMEBUFFER, 0);
         gl2.glViewport(0, 0, getWidth(), getHeight());
+        initializeRender(gl2);
         gl2.glUseProgram(mainProgram);
 
         if (highLOD) {
@@ -302,7 +309,7 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
         checkAndLoadMainUpdates(gl2);
         preDraw(drawable);
         checkError(gl2, "Pre draw");
-        draw(gl2);
+        draw(gl2, true);
 
         if (highLOD) {
             uniformLocation = gl2.glGetUniformLocation(mainProgram, "lodMultiplier");
@@ -317,7 +324,7 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
 //        gl4.glClearColor(0.234375f, 0.24609375f, 0.25390625f,1.0f);
 //        gl4.glClearColor(0.2f,0.2f,0.2f,1.0f);
         gl2.glClearColor(0f, 0f, 0f, 1.0f);
-        gl2.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
+        gl2.glClear(GL2.GL_COLOR_BUFFER_BIT);
 
 //        gl4.glEnable(GL2.GL_DEPTH_TEST);
         gl2.glEnable(GL2.GL_CULL_FACE);
@@ -332,7 +339,7 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
     private void checkAndLoadRaycastingUpdates(GL2 gl2) {
         int uniformLocation;
         int dirtyValues = trackBall.getDirtyValues();
-        if ((dirtyValues & (TrackBall.PROJECTION_DIRTY | TrackBall.VIEW_DIRTY | TrackBall.MODEL_DIRTY | TrackBall.ORTHO_DIRTY)) != 0) {
+        if ((dirtyValues & (TrackBall.PROJECTION_DIRTY | TrackBall.VIEW_DIRTY | TrackBall.MODEL_DIRTY)) != 0) {
 
             if ((dirtyValues & TrackBall.PROJECTION_DIRTY) > 0) {
                 uniformLocation = gl2.glGetUniformLocation(raycastingProgram, "projection");
@@ -356,7 +363,7 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
     private void checkAndLoadMainUpdates(GL2 gl2) {
         int uniformLocation;
         int dirtyValues = trackBall.getDirtyValues();
-        if ((dirtyValues & (TrackBall.PROJECTION_DIRTY | TrackBall.VIEW_DIRTY | TrackBall.MODEL_DIRTY | TrackBall.ORTHO_DIRTY)) != 0) {
+        if ((dirtyValues & (TrackBall.PROJECTION_DIRTY | TrackBall.VIEW_DIRTY | TrackBall.MODEL_DIRTY | TrackBall.ORTHO_DIRTY | TrackBall.SLICE_DIRTY)) != 0) {
 
             if ((dirtyValues & TrackBall.PROJECTION_DIRTY) > 0) {
                 uniformLocation = gl2.glGetUniformLocation(mainProgram, "projection");
@@ -364,15 +371,10 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
                 trackBall.clearDirtyValues(TrackBall.PROJECTION_DIRTY);
             }
 
-            float[] viewMatrix = null;
-            float[] modelMatrix = null;
             if ((dirtyValues & (TrackBall.VIEW_DIRTY | TrackBall.MODEL_DIRTY)) > 0) {
                 uniformLocation = gl2.glGetUniformLocation(mainProgram, "normalMatrix");
                 if (uniformLocation >= 0) {
-                    viewMatrix = trackBall.getViewMatrix();
-                    modelMatrix = trackBall.getModelMatrix();
-
-                    float[] normalMatrix = MatrixUtil.multiply(viewMatrix, modelMatrix);
+                    float[] normalMatrix = MatrixUtil.multiply(trackBall.getViewMatrix(), trackBall.getModelMatrix());
                     MatrixUtil.getInverse(normalMatrix);
                     normalMatrix = FloatUtil.transposeMatrix(normalMatrix, tempMatrix);
                     normalMatrix = MatrixUtil.getMatrix3(normalMatrix);
@@ -381,11 +383,8 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
             }
 
             if ((dirtyValues & TrackBall.VIEW_DIRTY) > 0) {
-                if (viewMatrix == null) {
-                    viewMatrix = trackBall.getViewMatrix();
-                }
                 uniformLocation = gl2.glGetUniformLocation(mainProgram, "view");
-                gl2.glUniformMatrix4fv(uniformLocation, 1, false, viewMatrix, 0);
+                gl2.glUniformMatrix4fv(uniformLocation, 1, false, trackBall.getViewMatrix(), 0);
                 uniformLocation = gl2.glGetUniformLocation(mainProgram, "eyePos");
                 gl2.glUniform3fv(uniformLocation, 1, trackBall.getEyePosition(), 0);
 
@@ -395,13 +394,10 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
             }
 
             if ((dirtyValues & TrackBall.MODEL_DIRTY) > 0) {
-                if (modelMatrix == null) {
-                    modelMatrix = trackBall.getModelMatrix();
-                }
                 uniformLocation = gl2.glGetUniformLocation(mainProgram, "model");
-                gl2.glUniformMatrix4fv(uniformLocation, 1, false, modelMatrix, 0);
+                gl2.glUniformMatrix4fv(uniformLocation, 1, false, trackBall.getModelMatrix(), 0);
                 uniformLocation = gl2.glGetUniformLocation(mainProgram, "invModel");
-                gl2.glUniformMatrix3fv(uniformLocation, 1, false, MatrixUtil.getMatrix3(MatrixUtil.getInverse(modelMatrix)), 0);
+                gl2.glUniformMatrix3fv(uniformLocation, 1, false, MatrixUtil.getMatrix3(MatrixUtil.getInverse(trackBall.getModelMatrix())), 0);
                 trackBall.clearDirtyValues(TrackBall.MODEL_DIRTY);
             }
 
@@ -411,13 +407,19 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
                 trackBall.clearDirtyValues(TrackBall.ORTHO_DIRTY);
             }
             
+            if ((dirtyValues & TrackBall.SLICE_DIRTY) > 0) {
+                uniformLocation = gl2.glGetUniformLocation(mainProgram, "slice");
+                gl2.glUniform1f(uniformLocation, trackBall.getSlice());
+                trackBall.clearDirtyValues(TrackBall.SLICE_DIRTY);
+            }
+            
             checkError(gl2, "Update main dirty values");
         }
     }
 
-    private void draw(GL2 gl2) {
+    private void draw(GL2 gl2, boolean back) {
         gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, bufferLocation[BUFFER_VERTICES]);
-        gl2.glBindBuffer(GL2.GL_ELEMENT_ARRAY_BUFFER, bufferLocation[BUFFER_INDICES]);
+        gl2.glBindBuffer(GL2.GL_ELEMENT_ARRAY_BUFFER, bufferLocation[back ? BUFFER_INDICES_REV : BUFFER_INDICES]);
         gl2.glEnableVertexAttribArray(0);
         gl2.glVertexAttribPointer(0, 3, GL2.GL_FLOAT, false, 0, 0);
 
@@ -434,6 +436,10 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
         gl2.glActiveTexture(GL2.GL_TEXTURE0 + TEXTURE_FRAME_BUFFER);
         gl2.glBindTexture(GL2.GL_TEXTURE_2D, textureLocation[TEXTURE_FRAME_BUFFER]);
         gl2.glTexImage2D(GL2.GL_TEXTURE_2D, 0, GL2.GL_RGB, width, height, 0, GL2.GL_RGB, GL2.GL_UNSIGNED_BYTE, null);
+        
+        gl2.glUseProgram(mainProgram);
+        int location = gl2.glGetUniformLocation(mainProgram, "screenSize");
+        gl2.glUniform2i(location, width, height);
     }
 
     @Override
@@ -481,17 +487,20 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
         }
     }
 
-    protected boolean checkCompile(GL2 gl2, int shader) {
+    protected boolean checkCompile(GL2 gl2, int shader, String shaderName) {
         int[] returnValue = new int[1];
         gl2.glGetShaderiv(shader, GL2.GL_COMPILE_STATUS, returnValue, 0);
+
         if (returnValue[0] == GL2.GL_FALSE) {
             gl2.glGetShaderiv(shader, GL2.GL_INFO_LOG_LENGTH, returnValue, 0);
+
             if (returnValue[0] > 0) {
                 IntBuffer written = IntBuffer.allocate(1);
                 ByteBuffer log = ByteBuffer.allocate(returnValue[0]);
                 gl2.glGetShaderInfoLog(shader, returnValue[0], written, log);
                 byte[] logArray = log.array();
-                System.err.println("Compilation error on shader number " + shader);
+                
+                System.err.println("Compilation error on " + shaderName);
                 for (byte letter : logArray) {
                     System.err.print((char) letter);
                 }
@@ -505,14 +514,16 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
     protected boolean checkLink(GL2 gl2, int program) {
         int[] returnValue = new int[1];
         gl2.glGetProgramiv(program, GL2.GL_LINK_STATUS, returnValue, 0);
+        
         if (returnValue[0] == GL2.GL_FALSE) {
             gl2.glGetShaderiv(program, GL2.GL_INFO_LOG_LENGTH, returnValue, 0);
+            
             if (returnValue[0] > 0) {
                 IntBuffer written = IntBuffer.allocate(1);
                 ByteBuffer log = ByteBuffer.allocate(returnValue[0]);
                 gl2.glGetProgramInfoLog(program, returnValue[0], written, log);
                 byte[] logArray = log.array();
-                System.err.println("Link error on program");
+                System.err.println("Link error on " + (program == raycastingProgram ? "raycasting" : "main") + " program");
                 for (byte letter : logArray) {
                     System.err.print((char) letter);
                 }

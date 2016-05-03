@@ -4,11 +4,14 @@ in vec3 vertexOut;
 in vec4 vertexOutModel;
 
 uniform sampler3D volumeTexture;
+uniform sampler2D raycastTexture;
 uniform sampler1D colors;
 uniform float threshold;
 
 uniform int numSamples;
 uniform int lodMultiplier;
+uniform ivec2 screenSize;
+uniform float slice;
 
 uniform mat4 view;
 uniform mat4 model;
@@ -22,7 +25,8 @@ uniform vec3 lightPos = normalize(vec3(2.0, -2.0, -5.0));
 
 int actualSamples = numSamples * lodMultiplier;
 float stepSize = 1f / actualSamples;
-int maxDistance = int(sqrt(3.0) * actualSamples) << 1;
+
+const vec3 zero = vec3(0.0);
 
 vec3 stepX = vec3(stepSize * lodMultiplier * ratio.x, 0.0, 0.0);
 vec3 stepY = vec3(0.0, stepSize * lodMultiplier * ratio.y, 0.0);
@@ -54,27 +58,35 @@ void main() {
 
     effectiveEyePos = invModel * effectiveEyePos;
     vec3 rayDirection = normalize(vertexOut - effectiveEyePos);
-
     vec3 stepValue = rayDirection * stepSize / ratio;
-    vec3 pos = vertexOut + rand(gl_FragCoord.xy) * stepValue;
-    pos = pos / ratio + 0.5;
 
+    vec3 pos = texture(raycastTexture, vec2(gl_FragCoord.x / screenSize.x, gl_FragCoord.y / screenSize.y)).rgb;
+    if (pos == zero) {
+        pos = effectiveEyePos;
+        pos += slice * rayDirection;
+        pos = pos / ratio + 0.5;
+    } else {
+        if (distance((pos - 0.5) * ratio, effectiveEyePos) < slice) {
+            pos = effectiveEyePos;
+            pos += slice * rayDirection;
+            pos = pos / ratio + 0.5;
+        }
+    }
+
+    pos += rand(gl_FragCoord.xy) * stepValue;
+
+    float dist = distance(pos, vertexOut);
+    float stepDist = length(stepValue);
     float density;
     vec3 normal;
     vec3 color;
     float lightReflection;
     fragColor = vec4(0.0);
-    for (int i = 0; i < maxDistance; i++, pos += stepValue) {
-        if (pos.x < 0.0 || pos.x > 1.0 ||
-            pos.y < 0.0 || pos.y > 1.0 ||
-            pos.z < 0.0 || pos.z > 1.0) {
-            break;
-        }
-        
+    while (dist > 0.0) {
         density = texture(volumeTexture, pos).x;
         if (density <= threshold) {
-            pos += stepValue * (lodMultiplier - 1);
-            i += lodMultiplier - 1;
+            pos += stepValue * lodMultiplier;
+            dist -= stepDist * lodMultiplier;
             continue;
         }
         //normal = normalize(mat3(inverse(model)) * getGradient(pos, density));
