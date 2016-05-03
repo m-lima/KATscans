@@ -1,12 +1,12 @@
 package no.uib.inf252.katscan.project;
 
 import java.io.File;
-import no.uib.inf252.katscan.project.displayable.Displayable;
 import java.io.Serializable;
 import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
 import javax.swing.tree.MutableTreeNode;
 import no.uib.inf252.katscan.data.VoxelMatrix;
+import no.uib.inf252.katscan.project.displayable.Displayable;
 import no.uib.inf252.katscan.util.TransferFunction;
 
 /**

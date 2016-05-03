@@ -3,15 +3,11 @@ package no.uib.inf252.katscan.view.project;
 import java.awt.Rectangle;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import javax.swing.JPopupMenu;
-import javax.swing.SwingUtilities;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import no.uib.inf252.katscan.project.KatNode;
 import no.uib.inf252.katscan.project.ProjectHandler;
-import no.uib.inf252.katscan.view.component.draggable.DraggableHandler;
 
 /**
  *

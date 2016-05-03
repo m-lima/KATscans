@@ -7,7 +7,6 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.tree.MutableTreeNode;
 import no.uib.inf252.katscan.data.io.LoadSaveFormat;
-import no.uib.inf252.katscan.data.io.LoadSaveHandler;
 import no.uib.inf252.katscan.view.LoadDiag;
 
 /**

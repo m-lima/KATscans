@@ -12,7 +12,6 @@ import java.nio.ByteBuffer;
 import javax.swing.SwingUtilities;
 import no.uib.inf252.katscan.event.TransferFunctionListener;
 import no.uib.inf252.katscan.project.displayable.Displayable;
-import no.uib.inf252.katscan.util.TrackBall;
 import no.uib.inf252.katscan.util.TransferFunction;
 
 /**

@@ -9,9 +9,9 @@ import javax.swing.JMenu;
 import net.infonode.docking.DockingWindow;
 import net.infonode.docking.DockingWindowListener;
 import net.infonode.docking.OperationAbortedException;
-import no.uib.inf252.katscan.project.displayable.Displayable;
 import net.infonode.docking.View;
 import no.uib.inf252.katscan.event.TransferFunctionListener;
+import no.uib.inf252.katscan.project.displayable.Displayable;
 import no.uib.inf252.katscan.view.katview.KatView;
 import no.uib.inf252.katscan.view.katview.KatView.Type;
 

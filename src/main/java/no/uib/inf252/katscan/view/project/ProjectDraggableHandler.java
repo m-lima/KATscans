@@ -1,13 +1,9 @@
 package no.uib.inf252.katscan.view.project;
 
-import java.awt.Component;
 import java.awt.Point;
 import java.awt.dnd.DragGestureEvent;
-import java.awt.dnd.DragSourceDropEvent;
-import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.image.BufferedImage;
-import java.lang.reflect.Constructor;
 import java.util.List;
 import no.uib.inf252.katscan.project.DataFileNode;
 import no.uib.inf252.katscan.project.KatNode;

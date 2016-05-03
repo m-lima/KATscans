@@ -1,13 +1,12 @@
 package no.uib.inf252.katscan.data.io;
 
-import no.uib.inf252.katscan.data.VoxelMatrix;
-
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.ShortBuffer;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import no.uib.inf252.katscan.data.VoxelMatrix;
 
 /**
  * @author Marcelo Lima
