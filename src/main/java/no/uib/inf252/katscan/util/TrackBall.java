@@ -238,6 +238,7 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
                 } else if (e.getSource() == bottom) {
                     currentRotation.rotateByAngleX(-FloatUtil.HALF_PI);
                 } else if (e.getSource() == back) {
+                    currentRotation.rotateByAngleX(FloatUtil.PI);
                     currentRotation.rotateByAngleZ(FloatUtil.PI);
                 } else if (e.getSource() == right) {
                     currentRotation.rotateByAngleY(-FloatUtil.HALF_PI);
