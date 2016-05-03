@@ -2,6 +2,7 @@ package no.uib.inf252.katscan.project.displayable;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Objects;
 import javax.swing.JMenu;
@@ -114,15 +115,18 @@ public abstract class Displayable extends KatNode implements ActionListener {
     protected void remove() {
         //TODO Remove reference to ProjectHandler
         ProjectHandler.getInstance().removeNodeFromParent(this);
+        
         Enumeration<KatNode> children = children();
+        ArrayList<KatNode> childrenList = new ArrayList<>();
         while(children.hasMoreElements()) {
-            KatNode child = children.nextElement();
-            if (child instanceof Displayable) {
-                ((Displayable) child).remove();
-                return;
-            } else if (child instanceof KatViewNode) {
-                ((KatViewNode) child).getView().close();
-                return;
+            childrenList.add(children.nextElement());
+        }
+        
+        for (KatNode katNode : childrenList) {
+            if (katNode instanceof Displayable) {
+                ((Displayable) katNode).remove();
+            } else if (katNode instanceof KatViewNode) {
+                ((KatViewNode) katNode).getView().close();
             }
         }
     }
