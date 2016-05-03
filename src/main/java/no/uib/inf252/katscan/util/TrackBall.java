@@ -414,10 +414,10 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
                 return;
             }
             
-            eyePosition[0] = xPosOld + (xPos - e.getX()) * (eyePosition[2] - 1f) / component.getWidth();
+            eyePosition[0] = xPosOld + (xPos - e.getX()) / (float) component.getWidth();
             targetPosition[0] = eyePosition[0];
             
-            eyePosition[1] = yPosOld - (yPos - e.getY()) * (eyePosition[2] - 1f) / component.getHeight();
+            eyePosition[1] = yPosOld - (yPos - e.getY()) / (float) component.getHeight();
             targetPosition[1] = eyePosition[1];
             
             moving = true;
