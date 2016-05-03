@@ -25,7 +25,7 @@ const vec3 zero = vec3(0.0);
 out vec4 fragColor;
 
 float rand(vec2 co){
-  return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+    return fract(sin(dot(co.xy, vec2(12.9898,78.233))) * 43758.5453);
 }
 
 void main() {       
@@ -42,18 +42,23 @@ void main() {
     if (pos == zero) {
         pos = effectiveEyePos;
         pos += slice * rayDirection;
-        pos = pos / ratio + 0.5;
+        pos = (pos / ratio) + 0.5;
     } else {
-        if (distance((pos - 0.5) * ratio, effectiveEyePos) < slice) {
+        float dist = distance((pos - 0.5) * ratio, effectiveEyePos);
+        if (dist < slice) {
             pos = effectiveEyePos;
             pos += slice * rayDirection;
-            pos = pos / ratio + 0.5;
+            pos = (pos / ratio) + 0.5;
+        } else {
+            pos = effectiveEyePos;
+            pos += dist * rayDirection;
+            pos = (pos / ratio) + 0.5;
         }
     }
 
     pos += rand(gl_FragCoord.xy) * stepValue;
 
-    float dist = distance(pos, vertexOut);
+    float dist = distance((vertexOut / ratio) + 0.5, pos);
     float stepDist = length(stepValue);
     float density;
     vec4 transferColor;

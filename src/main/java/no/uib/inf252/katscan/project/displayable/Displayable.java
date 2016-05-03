@@ -26,7 +26,7 @@ public abstract class Displayable extends KatNode implements ActionListener {
 
     public abstract VoxelMatrix getMatrix();
     public abstract TransferFunction getTransferFunction();
-    public abstract int[] getHistogram();
+//    public abstract int[] getHistogram();
 
     public Displayable(String name) {
         super(name);
@@ -119,8 +119,10 @@ public abstract class Displayable extends KatNode implements ActionListener {
             KatNode child = children.nextElement();
             if (child instanceof Displayable) {
                 ((Displayable) child).remove();
+                return;
             } else if (child instanceof KatViewNode) {
                 ((KatViewNode) child).getView().close();
+                return;
             }
         }
     }

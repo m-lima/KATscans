@@ -32,11 +32,6 @@ public class DataFileNode extends Displayable implements Serializable {
     }
 
     @Override
-    public int[] getHistogram() {
-        return matrix.getHistogram();
-    }
-
-    @Override
     public TransferFunction getTransferFunction() {
         return transferFunction;
     }

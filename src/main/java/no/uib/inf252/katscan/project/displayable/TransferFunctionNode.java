@@ -26,11 +26,6 @@ public class TransferFunctionNode extends SubGroup implements ActionListener {
     }
 
     @Override
-    public int[] getHistogram() {
-        return getParent().getHistogram();
-    }
-
-    @Override
     public TransferFunction getTransferFunction() {
         return transferFunction;
     }

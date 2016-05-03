@@ -74,9 +74,15 @@ public class TransferFunction {
                 break;
             case BODY:
                 points.add(new TransferFunctionPoint(new Color(0, 0, 0, 0), 0f, this, false));
-                points.add(new TransferFunctionPoint(new Color(255, 220, 180), MIN_STEP, this));
-                points.add(new TransferFunctionPoint(new Color(255, 220, 180), 1200f / 4096f, this));
-                points.add(new TransferFunctionPoint(new Color(255, 0, 0), 1250f / 4096f, this));
+                points.add(new TransferFunctionPoint(new Color(255, 180, 170), MIN_STEP, this));
+                points.add(new TransferFunctionPoint(new Color(255, 180, 170), 1010f / 4096f, this));
+                points.add(new TransferFunctionPoint(new Color(150, 0, 50), 1024f / 4096f, this));
+                points.add(new TransferFunctionPoint(new Color(255, 150, 150), 1037f / 4096f, this));
+                points.add(new TransferFunctionPoint(new Color(165, 85, 110), 1050f / 4096f, this));
+                points.add(new TransferFunctionPoint(new Color(100, 0, 0), 1110f / 4096f, this));                
+                points.add(new TransferFunctionPoint(new Color(255, 220, 180), 1220f / 4096f, this));
+                points.add(new TransferFunctionPoint(new Color(255, 0, 0), 1230f / 4096f, this));
+                points.add(new TransferFunctionPoint(new Color(255, 0, 0), 1290f / 4096f, this));
                 points.add(new TransferFunctionPoint(new Color(255, 220, 180), 1300f / 4096f, this));
                 points.add(new TransferFunctionPoint(new Color(255, 255, 255), 2048f / 4096f, this));
                 points.add(new TransferFunctionPoint(new Color(255, 255, 255), 1f - MIN_STEP, this));

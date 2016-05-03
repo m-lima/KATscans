@@ -1,7 +1,6 @@
 package no.uib.inf252.katscan.data;
 
 import java.io.Serializable;
-import java.util.Arrays;
 import no.uib.inf252.katscan.data.io.LoadSaveOptions;
 
 /**
@@ -21,6 +20,31 @@ public class VoxelMatrix implements Serializable {
     
     private boolean initialized;
 
+    public VoxelMatrix(VoxelMatrix matrix) {
+        if (!matrix.initialized) {
+            throw new RuntimeException(VoxelMatrix.class.getName() + " has not been initialized yet.");            
+        }
+        
+        sizeX = matrix.sizeX;
+        sizeY = matrix.sizeY;
+        sizeZ = matrix.sizeZ;
+        
+        minValue = matrix.minValue;
+        maxValue = matrix.maxValue;
+        maxFormatValue = matrix.maxFormatValue;
+        normalized = matrix.normalized;
+        
+        grid = new short[matrix.grid.length];
+        histogram = new int[matrix.histogram.length];
+        ratio = new float[matrix.ratio.length];
+        
+        System.arraycopy(matrix.grid, 0, grid, 0, grid.length);
+        System.arraycopy(matrix.histogram, 0, histogram, 0, histogram.length);
+        System.arraycopy(matrix.ratio, 0, ratio, 0, ratio.length);
+        
+        initialize();
+    }
+    
     public VoxelMatrix(LoadSaveOptions options) {
         sizeX = options.getSizeX();
         sizeY = options.getSizeY();

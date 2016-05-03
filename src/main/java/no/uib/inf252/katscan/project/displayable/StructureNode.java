@@ -21,11 +21,6 @@ public class StructureNode extends SubGroup implements Serializable {
     }
 
     @Override
-    public int[] getHistogram() {
-        return getParent().getHistogram();
-    }
-
-    @Override
     public TransferFunction getTransferFunction() {
         return getParent().getTransferFunction();
     }
