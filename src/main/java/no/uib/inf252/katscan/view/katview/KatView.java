@@ -5,6 +5,7 @@ import java.lang.reflect.Constructor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import no.uib.inf252.katscan.project.displayable.Displayable;
+import no.uib.inf252.katscan.util.TrackBall;
 import no.uib.inf252.katscan.view.katview.opengl.AlphaRenderer;
 import no.uib.inf252.katscan.view.katview.opengl.CompositeRenderer;
 import no.uib.inf252.katscan.view.katview.opengl.MaximumRenderer;
@@ -35,14 +36,14 @@ public interface KatView {
             this.text = text;
             this.mnemonic = mnemonic;
             
-            Constructor<? extends Component> newCOnstructor = null;
+            Constructor<? extends Component> newConstructor = null;
             try {
-                newCOnstructor = clazz.getConstructor(Displayable.class);
+                newConstructor = clazz.getConstructor(Displayable.class);
             } catch (NoSuchMethodException | SecurityException ex) {
                 Logger.getLogger(Type.class.getName()).log(Level.SEVERE, null, ex);
             }
             
-            constructor = newCOnstructor;
+            constructor = newConstructor;
         }
 
         public String getText() {
@@ -58,5 +59,8 @@ public interface KatView {
         }
 
     }
+    
+    public TrackBall getTrackBall();
+    public void setTrackBall(TrackBall trackBall);
     
 }

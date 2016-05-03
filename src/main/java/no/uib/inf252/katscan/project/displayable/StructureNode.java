@@ -1,6 +1,7 @@
 package no.uib.inf252.katscan.project.displayable;
 
 import java.io.Serializable;
+import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
 import no.uib.inf252.katscan.data.VoxelMatrix;
 import no.uib.inf252.katscan.util.TransferFunction;
@@ -28,6 +29,11 @@ public class StructureNode extends SubGroup implements Serializable {
     @Override
     protected JMenuItem[] getExtraMenus() {
         return null;
+    }
+
+    @Override
+    public ImageIcon getIcon() {
+        return new ImageIcon(getClass().getResource("/icons/tree/structure.png"));
     }
 
 }

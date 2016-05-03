@@ -221,6 +221,10 @@ public class LoadDiag extends javax.swing.JDialog {
     }
 
     private void load() {
+        if (loading) {
+            return;
+        }
+        
         getGlassPane().setVisible(true);
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         loading = true;

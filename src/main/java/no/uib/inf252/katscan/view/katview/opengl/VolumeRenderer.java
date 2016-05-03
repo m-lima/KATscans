@@ -538,4 +538,15 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
         return true;
     }
 
+    @Override
+    public TrackBall getTrackBall() {
+        return trackBall;
+    }
+
+    @Override
+    public void setTrackBall(TrackBall trackBall) {
+        this.trackBall.assimilate(trackBall);
+        repaint();
+    }
+
 }

@@ -62,7 +62,7 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
     
     private boolean orthographic;
     private float fov;
-    private final float initialZoom;
+    private float initialZoom;
     private float slice;
     
     private int dirtyValues;
@@ -497,6 +497,29 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
         updateProjection(component.getWidth(), component.getHeight());
         dirtyValues |= ORTHO_DIRTY;
         component.repaint();
+    }
+
+    public void assimilate(TrackBall trackBall) {
+        System.arraycopy(trackBall.eyePosition, 0, this.eyePosition, 0, eyePosition.length);
+        System.arraycopy(trackBall.targetPosition, 0, this.targetPosition, 0, targetPosition.length);
+        System.arraycopy(trackBall.currentPosition, 0, this.currentPosition, 0, currentPosition.length);
+        System.arraycopy(trackBall.axis, 0, this.axis, 0, axis.length);
+        this.initialRotation.set(trackBall.initialRotation);
+        this.currentRotation.set(trackBall.currentRotation);
+        System.arraycopy(trackBall.translation, 0, this.translation, 0, translation.length);
+        this.moving = trackBall.moving;
+        
+        System.arraycopy(trackBall.tempMatrix, 0, this.tempMatrix, 0, tempMatrix.length);
+        
+        System.arraycopy(trackBall.modelMatrix, 0, this.modelMatrix, 0, modelMatrix.length);
+        System.arraycopy(trackBall.viewMatrix, 0, this.viewMatrix, 0, viewMatrix.length);
+        System.arraycopy(trackBall.projection, 0, this.projection, 0, projection.length);
+        
+        this.orthographic = trackBall.orthographic;
+        this.fov = trackBall.fov;
+        this.slice = trackBall.slice;
+        this.initialZoom = trackBall.initialZoom;
+        markAllDirty();
     }
     
 }

@@ -2,6 +2,7 @@ package no.uib.inf252.katscan.project.displayable;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
 import no.uib.inf252.katscan.data.VoxelMatrix;
 import no.uib.inf252.katscan.util.TransferFunction;
@@ -57,6 +58,11 @@ public class TransferFunctionNode extends SubGroup implements ActionListener {
                 return;
             }
         }
+    }
+
+    @Override
+    public ImageIcon getIcon() {
+        return new ImageIcon(getClass().getResource("/icons/tree/transfer.png"));
     }
 
 }

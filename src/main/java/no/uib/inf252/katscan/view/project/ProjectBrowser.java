@@ -11,6 +11,7 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import no.uib.inf252.katscan.project.KatNode;
 import no.uib.inf252.katscan.project.ProjectHandler;
+import no.uib.inf252.katscan.view.component.draggable.DraggableHandler;
 
 /**
  *
@@ -30,15 +31,8 @@ public class ProjectBrowser extends javax.swing.JPanel {
         treDatasets.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
         treDatasets.setModel(ProjectHandler.getInstance());
         treDatasets.setSelectionRow(0);
-
-        treDatasets.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (SwingUtilities.isRightMouseButton(e)) {
-                    showPopup(e.getX(), e.getY());
-                }
-            }
-        });
+        treDatasets.setDraggable(true);
+        treDatasets.setDragHandler(new ProjectDraggableHandler());
 
         treDatasets.addKeyListener(new KeyAdapter() {
             @Override
@@ -85,7 +79,7 @@ public class ProjectBrowser extends javax.swing.JPanel {
 
         pnlMain = new javax.swing.JPanel();
         scrDatasets = new javax.swing.JScrollPane();
-        treDatasets = new javax.swing.JTree();
+        treDatasets = new no.uib.inf252.katscan.view.component.draggable.DraggableTree();
 
         setLayout(new java.awt.BorderLayout());
 
@@ -115,7 +109,7 @@ public class ProjectBrowser extends javax.swing.JPanel {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel pnlMain;
     private javax.swing.JScrollPane scrDatasets;
-    private javax.swing.JTree treDatasets;
+    private no.uib.inf252.katscan.view.component.draggable.DraggableTree treDatasets;
     // End of variables declaration//GEN-END:variables
 
 }

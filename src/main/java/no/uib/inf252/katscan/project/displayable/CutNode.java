@@ -25,11 +25,13 @@ public class CutNode extends SubGroup implements Serializable, CutListener {
 
     public CutNode() {
         super("Cut");
-        cutMatrix = new VoxelMatrix(getParent().getMatrix());
     }
     
     @Override
     public VoxelMatrix getMatrix() {
+        if (cutMatrix == null) {
+            cutMatrix = new VoxelMatrix(getParent().getMatrix());
+        }
         return cutMatrix;
     }
 

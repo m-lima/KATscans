@@ -19,6 +19,7 @@ import java.nio.ShortBuffer;
 import no.uib.inf252.katscan.data.VoxelMatrix;
 import no.uib.inf252.katscan.event.TransferFunctionListener;
 import no.uib.inf252.katscan.project.displayable.Displayable;
+import no.uib.inf252.katscan.util.TrackBall;
 import no.uib.inf252.katscan.util.TransferFunction;
 import no.uib.inf252.katscan.view.katview.KatView;
 
@@ -248,5 +249,13 @@ public class SliceNavigator extends GLJPanel implements KatView, GLEventListener
         transferFunctionDirty = true;
         repaint();
     }
+
+    @Override
+    public TrackBall getTrackBall() {
+        return null;
+    }
+
+    @Override
+    public void setTrackBall(TrackBall trackBall) {}
 
 }

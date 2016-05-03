@@ -10,15 +10,12 @@ import javax.swing.JPanel;
 import javax.swing.UIManager;
 import no.uib.inf252.katscan.data.VoxelMatrix;
 import no.uib.inf252.katscan.project.displayable.Displayable;
+import no.uib.inf252.katscan.util.TrackBall;
 import no.uib.inf252.katscan.view.MainFrame;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.LogAxis;
-import org.jfree.chart.axis.LogarithmicAxis;
 import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.axis.ValueAxis;
-import org.jfree.chart.event.AxisChangeEvent;
-import org.jfree.chart.event.AxisChangeListener;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.StandardXYBarPainter;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
@@ -137,5 +134,13 @@ public class Histogram extends JPanel implements KatView {
         plot.setRenderer(0, barRenderer);
         plot.mapDatasetToRangeAxis(0, 0);
     }
+
+    @Override
+    public TrackBall getTrackBall() {
+        return null;
+    }
+
+    @Override
+    public void setTrackBall(TrackBall trackBall) {}
     
 }

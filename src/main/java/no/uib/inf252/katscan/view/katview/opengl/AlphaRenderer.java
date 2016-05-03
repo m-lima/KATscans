@@ -15,12 +15,15 @@ import no.uib.inf252.katscan.util.TransferFunction;
  * @author Marcelo Lima
  */
 public class AlphaRenderer extends VolumeRenderer implements TransferFunctionListener {
+
+    private static final int TEXTURE_TRANSFER_LOCAL = 0;
+    private static final int TEXTURE_TRANSFER = TEXTURE_COUNT_PARENT + TEXTURE_TRANSFER_LOCAL;
     
     private final int[] textureLocation = new int[1];
     private boolean transferFunctionDirty;
     
     public AlphaRenderer(Displayable displayable) throws GLException {
-        super(displayable, "alphaCaster");
+        super(displayable, "compoCaster");
         displayable.getTransferFunction().addTransferFunctionListener(this);
     }
 
@@ -38,18 +41,18 @@ public class AlphaRenderer extends VolumeRenderer implements TransferFunctionLis
         
         GL2 gl2 = drawable.getGL().getGL2();
         
-        gl2.glGenTextures(1, textureLocation, 0);
-        gl2.glActiveTexture(GL2.GL_TEXTURE1);
-        gl2.glBindTexture(GL2.GL_TEXTURE_1D, textureLocation[0]);
+        gl2.glGenTextures(1, textureLocation, TEXTURE_TRANSFER_LOCAL);
+        gl2.glActiveTexture(GL2.GL_TEXTURE0 + TEXTURE_TRANSFER);
+        gl2.glBindTexture(GL2.GL_TEXTURE_1D, textureLocation[TEXTURE_TRANSFER_LOCAL]);
         gl2.glTexParameteri(GL2.GL_TEXTURE_1D, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_LINEAR);
         gl2.glTexParameteri(GL2.GL_TEXTURE_1D, GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);
         gl2.glTexParameteri(GL2.GL_TEXTURE_1D, GL2.GL_TEXTURE_WRAP_R, GL2.GL_CLAMP_TO_BORDER);
         transferFunctionDirty = true;
         
         int location = gl2.glGetUniformLocation(mainProgram, "transferFunction");
-        gl2.glUniform1i(location, 1);
+        gl2.glUniform1i(location, TEXTURE_TRANSFER);
         
-        checkError(gl2, "Create Transfer Function");
+        checkError(gl2, "Create transfer function");
     }
 
     @Override
@@ -57,7 +60,8 @@ public class AlphaRenderer extends VolumeRenderer implements TransferFunctionLis
         super.dispose(drawable);
         GL2 gl2 = drawable.getGL().getGL2();
         
-        gl2.glDeleteTextures(1, textureLocation, 0);
+        gl2.glDeleteTextures(textureLocation.length, textureLocation, 0);
+        checkError(gl2, "Dispose Composite Renderer");
     }
     
     private void updateTransferFunction(GL2 gl2) {
@@ -68,9 +72,10 @@ public class AlphaRenderer extends VolumeRenderer implements TransferFunctionLis
         g2d.dispose();
         
         byte[] dataElements = (byte[]) transferImage.getRaster().getDataElements(0, 0, TransferFunction.TEXTURE_SIZE, 1, null);
-        gl2.glActiveTexture(GL2.GL_TEXTURE1);
+        gl2.glActiveTexture(GL2.GL_TEXTURE0 + TEXTURE_TRANSFER);
         gl2.glBindTexture(GL2.GL_TEXTURE_1D, textureLocation[0]);
         gl2.glTexImage1D(GL2.GL_TEXTURE_1D, 0, GL2.GL_RGBA, TransferFunction.TEXTURE_SIZE, 0, GL2.GL_RGBA, GL2.GL_UNSIGNED_INT_8_8_8_8_REV, ByteBuffer.wrap(dataElements));
+        checkError(gl2, "Update transfer function");
     }
 
     @Override

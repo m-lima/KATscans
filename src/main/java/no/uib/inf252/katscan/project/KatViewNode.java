@@ -4,6 +4,7 @@ import java.awt.Component;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.ImageIcon;
 import javax.swing.JMenu;
 import net.infonode.docking.DockingWindow;
 import net.infonode.docking.DockingWindowListener;
@@ -11,6 +12,7 @@ import net.infonode.docking.OperationAbortedException;
 import no.uib.inf252.katscan.project.displayable.Displayable;
 import net.infonode.docking.View;
 import no.uib.inf252.katscan.event.TransferFunctionListener;
+import no.uib.inf252.katscan.view.katview.KatView;
 import no.uib.inf252.katscan.view.katview.KatView.Type;
 
 /**
@@ -18,6 +20,9 @@ import no.uib.inf252.katscan.view.katview.KatView.Type;
  * @author Marcelo Lima
  */
 public class KatViewNode extends KatNode implements DockingWindowListener {
+    
+    private final Type type;
+    private final KatView katView;
 
     public static KatViewNode buildKatView(Type type, Displayable displayable) {
         if (type == null || displayable == null) {
@@ -42,6 +47,8 @@ public class KatViewNode extends KatNode implements DockingWindowListener {
         
         this.view = new View(type.getText() + " - " + displayable.getName(), null, component);
         view.addListener(this);
+        this.type = type;
+        this.katView = (KatView) component;
     }
 
     public View getView() {
@@ -65,6 +72,19 @@ public class KatViewNode extends KatNode implements DockingWindowListener {
     @Override
     public boolean getAllowsChildren() {
         return false;
+    }
+
+    public Type getType() {
+        return type;
+    }
+
+    public KatView getKatView() {
+        return katView;
+    }
+
+    @Override
+    public ImageIcon getIcon() {
+        return new ImageIcon(getClass().getResource("/icons/tree/view.png"));
     }
 
     @Override
