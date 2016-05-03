@@ -3,7 +3,10 @@ package no.uib.inf252.katscan.view.project;
 import java.awt.Rectangle;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import javax.swing.JPopupMenu;
+import javax.swing.SwingUtilities;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import no.uib.inf252.katscan.project.KatNode;
@@ -29,6 +32,15 @@ public class ProjectBrowser extends javax.swing.JPanel {
         treDatasets.setSelectionRow(0);
         treDatasets.setDraggable(true);
         treDatasets.setDragHandler(new ProjectDraggableHandler());
+
+        treDatasets.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (SwingUtilities.isRightMouseButton(e)) {
+                    showPopup(e.getX(), e.getY());
+                }
+            }
+        });
 
         treDatasets.addKeyListener(new KeyAdapter() {
             @Override

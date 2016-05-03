@@ -61,18 +61,16 @@ void main() {
     float dist = distance((vertexOut / ratio) + 0.5, pos);
     float stepDist = length(stepValue);
     float density;
-    vec4 transferColor;
+    vec3 transferColor;
+    vec4 src;
     fragColor = vec4(0.0);
     for (;dist > 0.0; dist -= stepDist, pos += stepValue) {
         density = texture(volumeTexture, pos).x;
         if (density <= 0.0) continue;
-        transferColor = texture(transferFunction, density);
-
-        transferColor.a /= lodMultiplier;
-        if (transferColor.a <= 0.0) continue;
-
-        fragColor.rgb = mix(fragColor.rgb, transferColor.rgb, transferColor.a);
-        fragColor.a += transferColor.a;
+        transferColor = texture(transferFunction, density).rgb;
+        src = vec4(0.5 * (transferColor + 1.0), dot(transferColor, transferColor));
+        src.rgb *= src.a;
+        fragColor = (1.0 - fragColor.a) * src + fragColor;        
 
         if (fragColor.a >= 1.0) {
             break;

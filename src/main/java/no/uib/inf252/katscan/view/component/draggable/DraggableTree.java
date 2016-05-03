@@ -57,7 +57,7 @@ public class DraggableTree extends JTree implements DragSourceListener, DropTarg
         try {
             initialFlavor = new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType);
         } catch (ClassNotFoundException cnfe) {
-            Logger.getLogger(DraggableList.class.getName()).log(Level.SEVERE, null, cnfe);
+            Logger.getLogger(DraggableTree.class.getName()).log(Level.SEVERE, null, cnfe);
         }
         LOCAL_OBJECT_FLAVOR = initialFlavor;
         SUPPORTED_FLAVORS = new DataFlavor[] {LOCAL_OBJECT_FLAVOR, DraggableTree.LOCAL_OBJECT_FLAVOR};
