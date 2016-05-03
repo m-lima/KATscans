@@ -9,7 +9,7 @@ import no.uib.inf252.katscan.data.io.LoadSaveOptions;
 public class VoxelMatrix implements Serializable {
 
     private final int sizeX, sizeY, sizeZ;
-    private final short[] grid;
+    private short[] grid;
     private final int[] histogram;
     private final float[] ratio;
     private int minValue;
