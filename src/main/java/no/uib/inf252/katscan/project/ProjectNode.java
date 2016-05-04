@@ -2,6 +2,8 @@ package no.uib.inf252.katscan.project;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Enumeration;
 import javax.swing.ImageIcon;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -16,6 +18,8 @@ import no.uib.inf252.katscan.view.LoadDiag;
 public class ProjectNode extends KatNode {
 
     private static final ProjectMenuListener LISTENER = new ProjectMenuListener();
+    private static final String CLEAR_ALL = "Clear all";
+    private static final String RENAME = "Rename";
 
     public ProjectNode() {
         super("New project");
@@ -29,7 +33,7 @@ public class ProjectNode extends KatNode {
         menu.add(getLoadDataset());
         menu.add(getClearDatasets());
         menu.addSeparator();
-        JMenuItem item = new JMenuItem("Rename", 'R');
+        JMenuItem item = new JMenuItem(RENAME, 'R');
         item.setIcon(new ImageIcon(ProjectNode.class.getResource("/icons/edit.png")));
         menu.add(item);
         return menu;
@@ -51,9 +55,23 @@ public class ProjectNode extends KatNode {
     }
 
     private JMenuItem getClearDatasets() {
-        JMenuItem clearDatasets = new JMenuItem("Clear all", 'C');
+        JMenuItem clearDatasets = new JMenuItem(CLEAR_ALL, 'C');
         clearDatasets.setIcon(new ImageIcon(ProjectNode.class.getResource("/icons/closeData.png")));
-        clearDatasets.addActionListener(LISTENER);
+        clearDatasets.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+        
+                Enumeration<KatNode> children = children();
+                ArrayList<DataFileNode> childrenList = new ArrayList<>();
+                while(children.hasMoreElements()) {
+                    childrenList.add((DataFileNode) children.nextElement());
+                }
+                
+                for (DataFileNode dataNode : childrenList) {
+                    dataNode.remove();
+                }
+            }
+        });
         return clearDatasets;
     }
 
@@ -103,7 +121,7 @@ public class ProjectNode extends KatNode {
             for (LoadSaveFormat.Format format : formats) {
                 if (format.getFormat().getName() == formatName) {
                     new LoadDiag(format).setVisible(true);
-                    break;
+                    return;
                 }
             }
         }
