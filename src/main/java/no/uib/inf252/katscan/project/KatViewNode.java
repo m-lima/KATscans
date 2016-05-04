@@ -1,7 +1,6 @@
 package no.uib.inf252.katscan.project;
 
 import java.awt.Component;
-import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.ImageIcon;
@@ -85,21 +84,6 @@ public class KatViewNode extends KatNode implements DockingWindowListener {
     @Override
     public ImageIcon getIcon() {
         return new ImageIcon(getClass().getResource("/icons/tree/view.png"));
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = super.hashCode();
-        hash = 17 * hash + Objects.hashCode(view);
-        return hash;
-    }
-    
-    @Override
-    public boolean equals(Object obj) {
-        if (super.equals(obj)) {
-            return view.equals(((KatViewNode)obj).view);
-        }
-        return false;
     }
 
     @Override

@@ -1,21 +1,25 @@
 package no.uib.inf252.katscan.project;
 
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.Objects;
 import javax.swing.ImageIcon;
 import javax.swing.JMenu;
 import javax.swing.JPopupMenu;
 import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeNode;
+import no.uib.inf252.katscan.view.component.draggable.DraggableTree;
 
 /**
  *
  * @author Marcelo Lima
  */
-public abstract class KatNode implements MutableTreeNode, Serializable {
+public abstract class KatNode implements MutableTreeNode, Serializable, Transferable {
 
     private KatNode parent;
     private String name;
@@ -40,9 +44,8 @@ public abstract class KatNode implements MutableTreeNode, Serializable {
 
     private final ArrayList<JMenu> getChildrenMenu() {
         ArrayList<JMenu> childrenMenu = new ArrayList<>();
-        Enumeration<KatNode> children = children();
-        while (children.hasMoreElements()) {
-            final JMenu menu = children.nextElement().getMenu(true);
+        for (KatNode child : children) {
+            final JMenu menu = child.getMenu(true);
             if (menu != null) {
                 childrenMenu.add(menu);
             }
@@ -119,8 +122,8 @@ public abstract class KatNode implements MutableTreeNode, Serializable {
         if (object == null) {
             throw new NullPointerException("The " + getClass().getSimpleName() + " object cannot be null.");
         }
-        String name = object.toString();
-        setName(name);
+        String newName = object.toString();
+        setName(newName);
     }
 
     @Override
@@ -206,28 +209,28 @@ public abstract class KatNode implements MutableTreeNode, Serializable {
     }
 
     @Override
-    public int hashCode() {
-        int hash = 3;
-        hash = 23 * hash + Objects.hashCode(this.name);
-        return hash;
+    public DataFlavor[] getTransferDataFlavors() {
+        return new DataFlavor[] {DraggableTree.LOCAL_OBJECT_FLAVOR, DraggableTree.LOCAL_OBJECT_FLAVOR};
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
+    public boolean isDataFlavorSupported(DataFlavor flavor) {
+        for (DataFlavor transferDataFlavor : getTransferDataFlavors()) {
+            if (!flavor.equals(transferDataFlavor)) {
+                return false;
+            }
         }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final KatNode other = (KatNode) obj;
-        if (!Objects.equals(this.name, other.name)) {
-            return false;
-        }
+
         return true;
+    }
+
+    @Override
+    public KatNode getTransferData(DataFlavor flavor) throws UnsupportedFlavorException, IOException {
+        if (isDataFlavorSupported (flavor)){
+            return this;
+        } else {
+            throw new UnsupportedFlavorException(flavor);
+        }
     }
 
 }
