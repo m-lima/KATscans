@@ -29,7 +29,11 @@ public class CutNode extends SubGroup implements Serializable, CutListener {
     @Override
     public VoxelMatrix getMatrix() {
         if (cutMatrix == null) {
-            cutMatrix = new VoxelMatrix(getParent().getMatrix());
+            VoxelMatrix matrix = getParent().getMatrix();
+            cutMatrix = new VoxelMatrix(matrix, (int) (matrix.getSizeX() * 0.25), (int) (matrix.getSizeX() * 0.75),
+                                                (int) (matrix.getSizeY() * 0.25), (int) (matrix.getSizeY() * 0.75),
+                                                (int) (matrix.getSizeZ() * 0.25), (int) (matrix.getSizeZ() * 0.75));
+                                        
         }
         return cutMatrix;
     }
@@ -54,7 +58,6 @@ public class CutNode extends SubGroup implements Serializable, CutListener {
         return null;
     }
 
-    //TODO Implement cut
     @Override
     public void cutUpdated(int minX, int maxX, int minY, int maxY, int minZ, int maxZ) {
     }

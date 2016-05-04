@@ -16,7 +16,6 @@ public class VoxelMatrix implements Serializable {
     private int maxValue;
     private final int maxFormatValue;
     private final boolean normalized;
-//    private short maxValue;
     
     private boolean initialized;
 
@@ -42,7 +41,51 @@ public class VoxelMatrix implements Serializable {
         System.arraycopy(matrix.histogram, 0, histogram, 0, histogram.length);
         System.arraycopy(matrix.ratio, 0, ratio, 0, ratio.length);
         
-        initialize();
+        initialized = true;
+    }
+    
+    public VoxelMatrix(VoxelMatrix matrix, int minX, int maxX,
+                                           int minY, int maxY,
+                                           int minZ, int maxZ) {
+        
+        sizeX = maxX - minX;
+        sizeY = maxY - minY;
+        sizeZ = maxZ - minZ;
+        
+        if (sizeX <= 0 || sizeY <= 0 || sizeZ <= 0) {
+            throw new IllegalArgumentException("Trying to create a sub VoxelMatrix with negative size.");
+        }
+        
+        if (sizeX > matrix.sizeX || sizeY > matrix.sizeY || sizeZ > matrix.sizeZ) {
+            throw new IllegalArgumentException("Trying to create a sub VoxelMatrix larger than the original.");
+        }
+        
+        minValue = matrix.minValue;
+        maxValue = matrix.maxValue;
+        maxFormatValue = matrix.maxFormatValue;
+        normalized = matrix.normalized;
+        
+        grid = new short[sizeX * sizeY * sizeZ];
+        histogram = new int[matrix.histogram.length];
+        ratio = new float[matrix.ratio.length];        
+        
+        System.arraycopy(matrix.ratio, 0, ratio, 0, ratio.length);
+        
+        int i = 0;
+        double normRatio = (maxValue - minValue) / 65535d;
+        for (int z = minZ; z < maxZ; z++) {
+            for (int y = minY; y < maxY; y++) {
+                for (int x = minX; x < maxX; x++) {
+                    int value = matrix.grid[z * matrix.sizeY * matrix.sizeX + y * matrix.sizeX + x] & 0xFFFF;
+                    grid[i] = (short) value;
+                    value *= normRatio;
+                    histogram[value]++;
+                    i++;
+                }
+            }            
+        }
+        
+        initialized = true;
     }
     
     public VoxelMatrix(LoadSaveOptions options) {
