@@ -226,8 +226,12 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
         final JMenuItem back = new JMenuItem("Back", new ImageIcon(getClass().getResource("/icons/back.png")));
         final JMenuItem right = new JMenuItem("Right", new ImageIcon(getClass().getResource("/icons/right.png")));
         final JMenuItem left = new JMenuItem("Left", new ImageIcon(getClass().getResource("/icons/left.png")));
-        final JMenuItem reset = new JMenuItem("Reset");
-        menuOrtho = new JMenuItem(orthographic ? "Perspective" : "Orthographic");
+        final JMenuItem reset = new JMenuItem("Reset", new ImageIcon(getClass().getResource("/icons/reset.png")));
+        if (orthographic) {
+            menuOrtho = new JMenuItem("Perspective", new ImageIcon(getClass().getResource("/icons/perspective.png")));
+        } else {
+            menuOrtho = new JMenuItem("Orthographic", new ImageIcon(getClass().getResource("/icons/ortho.png")));
+        }
         
         ActionListener listener = new ActionListener() {
             @Override
@@ -492,7 +496,13 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
     private void toggleOrthographic(Component component) {
         orthographic = !orthographic;
         if (menuOrtho != null) {
-            menuOrtho.setText(orthographic ? "Perspective" : "Orthographic");
+            if (orthographic) {
+                menuOrtho.setText("Perspective");
+                menuOrtho.setIcon(new ImageIcon(getClass().getResource("/icons/perspective.png")));
+            } else {
+                menuOrtho.setText("Orthographic");
+                menuOrtho.setIcon(new ImageIcon(getClass().getResource("/icons/ortho.png")));
+            }
         }
         updateProjection(component.getWidth(), component.getHeight());
         dirtyValues |= ORTHO_DIRTY;
