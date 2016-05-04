@@ -25,11 +25,11 @@ uniform vec3 lightPos = normalize(vec3(-2.0, 2.0, 5.0));
 int actualSamples = numSamples;
 float stepSize = 1f / actualSamples;
 
-const vec3 zero = vec3(0.0);
+float stepDist;
+vec3 rayDirection;
+vec3 effectiveEyePos;
 
-//vec3 stepX = vec3(stepSize * lodMultiplier * ratio.x, 0.0, 0.0);
-//vec3 stepY = vec3(0.0, stepSize * lodMultiplier * ratio.y, 0.0);
-//vec3 stepZ = vec3(0.0, 0.0, stepSize * lodMultiplier * ratio.z);
+const vec3 zero = vec3(0.0);
 
 out vec4 fragColor;
 
@@ -37,11 +37,7 @@ float rand(vec2 co){
     return fract(sin(dot(co.xy, vec2(12.9898,78.233))) * 43758.5453);
 }
 
-float luma(vec4 color) {
-    return dot(color.rgb, vec3(0.299, 0.587, 0.114));
-}
-
-vec3 getGradient(vec3 pos, float value, float stepDist) {
+vec3 getGradient(vec3 pos, float value) {
     vec3 stepX = vec3(stepDist, 0.0, 0.0);
     vec3 stepY = vec3(0.0, stepDist, 0.0);
     vec3 stepZ = vec3(0.0, 0.0, stepDist);
@@ -55,47 +51,37 @@ vec3 getGradient(vec3 pos, float value, float stepDist) {
     return vec3(x2 - x1, y2 - y1, z2 - z1);
 }
 
-vec3 gradient2(vec3 pos, float value, vec3 stepValue) {
-    float x1 = texture(volumeTexture, pos + vec3(stepValue.z, stepValue.y, -stepValue.x)).x;
-    float x2 = texture(volumeTexture, pos + vec3(-stepValue.z, stepValue.y, stepValue.x)).x;
-    float y1 = texture(volumeTexture, pos + vec3(stepValue.x, stepValue.z, -stepValue.y)).x;
-    float y2 = texture(volumeTexture, pos + vec3(stepValue.x, -stepValue.z, stepValue.y)).x;
-    float z = texture(volumeTexture, pos + stepValue).x;
-    return invModel * vec3(x2 - x1, y2 - y1, value - z);
-}
-
 void main() {       
-    vec3 effectiveEyePos = eyePos;
+    effectiveEyePos = eyePos;
     if (orthographic) {
         effectiveEyePos.xy = vertexOutModel.xy;
     } 
 
     effectiveEyePos = invModel * effectiveEyePos;
-    vec3 rayDirection = normalize(vertexOut - effectiveEyePos);
+    rayDirection = normalize(vertexOut - effectiveEyePos);
     vec3 stepValue = rayDirection * stepSize / ratio;
+
+    vec3 slicePos = effectiveEyePos;
+    slicePos += slice * rayDirection;
+    slicePos = (slicePos / ratio) + 0.5;
 
     vec3 pos = texture(raycastTexture, vec2(gl_FragCoord.x / screenSize.x, gl_FragCoord.y / screenSize.y)).rgb;
     if (pos == zero) {
-        pos = effectiveEyePos;
-        pos += slice * rayDirection;
-        pos = (pos / ratio) + 0.5;
+        pos = slicePos;
     } else {
         float dist = distance((pos - 0.5) * ratio, effectiveEyePos);
         if (dist < slice) {
-            pos = effectiveEyePos;
-            pos += slice * rayDirection;
-            pos = (pos / ratio) + 0.5;
+            pos = slicePos;
         } else {
             pos = effectiveEyePos;
             pos += dist * rayDirection;
             pos = (pos / ratio) + 0.5;
+            pos += rand(gl_FragCoord.xy) * stepValue;
         }
     }
 
-    pos += rand(gl_FragCoord.xy) * stepValue;
-
     float dist = distance((vertexOut / ratio) + 0.5, pos);
-    float stepDist = length(stepValue);
+    stepDist = length(stepValue);
     float density;
     vec3 normal;
     vec3 color;
@@ -107,13 +93,14 @@ void main() {
             dist -= stepDist;
             continue;
         }
-        //normal = normalize(mat3(inverse(model)) * getGradient(pos, density));
-        //normal = normalize(mat3(transpose(inverse(view * model))) * getGradient(pos, density));
-        //normal = normalize(mat3(transpose(inverse(view * model))) * getGradient(pos, density));
-        //normal = normalize(normalMatrix * gradient2(pos, density, stepValue));
-        normal = normalize(normalMatrix * getGradient(pos, density, stepDist));
 
-        float lightReflection = dot(normal, lightPos);
+        if (pos == slicePos) {
+            lightReflection = 1.0;
+        } else {
+            normal = normalize(normalMatrix * getGradient(pos, density));
+            lightReflection = dot(normal, lightPos);
+        }
+
         color = lightReflection * texture(colors, density).rgb;
         fragColor = vec4(color, 1.0);
 
