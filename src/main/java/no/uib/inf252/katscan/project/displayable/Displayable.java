@@ -4,7 +4,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.Objects;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import no.uib.inf252.katscan.data.VoxelMatrix;
@@ -27,7 +26,6 @@ public abstract class Displayable extends KatNode implements ActionListener {
 
     public abstract VoxelMatrix getMatrix();
     public abstract TransferFunction getTransferFunction();
-//    public abstract int[] getHistogram();
 
     public Displayable(String name) {
         super(name);
@@ -97,22 +95,7 @@ public abstract class Displayable extends KatNode implements ActionListener {
     
     protected abstract JMenuItem[] getExtraMenus();
 
-    @Override
-    public int hashCode() {
-        int hash = super.hashCode();
-        hash = 27 * hash + Objects.hashCode(getMatrix());
-        return hash;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (super.equals(obj)) {
-            return getMatrix().equals(((Displayable)obj).getMatrix());
-        }
-        return false;
-    }
-    
-    protected void remove() {
+    public void remove() {
         //TODO Remove reference to ProjectHandler
         ProjectHandler.getInstance().removeNodeFromParent(this);
         
