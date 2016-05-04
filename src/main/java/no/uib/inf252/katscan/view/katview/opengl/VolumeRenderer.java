@@ -17,6 +17,8 @@ import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.Timer;
@@ -33,6 +35,8 @@ import no.uib.inf252.katscan.view.katview.KatView;
  */
 public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEventListener {
 
+    private static final String PROPERTY_TRACKBALL = "TrackBall";
+    
     private static final String SHADERS_ROOT = "/shaders/";
     private static final String SHADER_RAYCASTER_NAME = "raycaster";
     private static final String SHADER_MAIN_NAME = "maincaster";
@@ -539,13 +543,24 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
     }
 
     @Override
-    public TrackBall getTrackBall() {
-        return trackBall;
+    public Map<String, Object> packProperties() {
+        HashMap<String, Object> properties = new HashMap<>();
+        properties.put(PROPERTY_TRACKBALL, trackBall);
+        return properties;
     }
 
     @Override
-    public void setTrackBall(TrackBall trackBall) {
-        this.trackBall.assimilate(trackBall);
+    public void loadProperties(Map<String, Object> properties) {
+        if (properties == null || properties.isEmpty()) {
+            return;
+        }
+        
+        TrackBall newTrackBall = (TrackBall) properties.get(PROPERTY_TRACKBALL);
+        if (newTrackBall == null) {
+            return;
+        }
+        
+        this.trackBall.assimilate(newTrackBall);
         repaint();
     }
 

@@ -9,6 +9,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
+import java.util.Map;
 import javax.swing.SwingUtilities;
 import no.uib.inf252.katscan.event.TransferFunctionListener;
 import no.uib.inf252.katscan.project.displayable.Displayable;
@@ -20,6 +21,8 @@ import no.uib.inf252.katscan.util.TransferFunction;
  */
 public class SurfaceRenderer extends VolumeRenderer implements MouseMotionListener, MouseListener, TransferFunctionListener {
 
+    private static final String PROPERTY_THRESHOLD = "Threshold";
+    
     private static final int TEXTURE_COLOR_LOCAL = 0;
     private static final int TEXTURE_COLOR = TEXTURE_COUNT_PARENT + TEXTURE_COLOR_LOCAL;
     
@@ -170,6 +173,30 @@ public class SurfaceRenderer extends VolumeRenderer implements MouseMotionListen
     @Override
     public void pointValueChanged() {
         updateColors();
+        repaint();
+    }
+
+    @Override
+    public Map<String, Object> packProperties() {
+        Map<String, Object> properties = super.packProperties();
+        properties.put(PROPERTY_THRESHOLD, threshold);
+        return properties;
+    }
+
+    @Override
+    public void loadProperties(Map<String, Object> properties) {
+        super.loadProperties(properties);
+        if (properties == null || properties.isEmpty()) {
+            return;
+        }
+        
+        Float newThreshold = (Float) properties.get(PROPERTY_THRESHOLD);
+        if (newThreshold == null) {
+            return;
+        }
+        
+        this.threshold = newThreshold;
+        thresholdDirty = true;
         repaint();
     }
 

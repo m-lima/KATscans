@@ -23,7 +23,7 @@ import no.uib.inf252.katscan.data.io.FormatHeader;
 import no.uib.inf252.katscan.data.io.LoadSaveFormat.Format;
 import no.uib.inf252.katscan.data.io.LoadSaveHandler;
 import no.uib.inf252.katscan.data.io.LoadSaveOptions;
-import no.uib.inf252.katscan.view.component.LoadingPanel;
+import no.uib.inf252.katscan.view.component.image.LoadingPanel;
 import no.uib.inf252.katscan.view.component.ValidatableBorder;
 
 /**
@@ -55,7 +55,7 @@ public class LoadDiag extends javax.swing.JDialog {
         ((SpinnerNumberModel)spnMax.getModel()).setMaximum(format.getFormat().getMaxValue());
 
         setLocationRelativeTo(Init.getFrameReference());
-        setGlassPane(new LoadingPanel());
+        setGlassPane(new LoadingPanel(true));
         
         txtFileBorder = new ValidatableBorder();
         setupTxtFile();

@@ -13,7 +13,7 @@ import javax.swing.JMenu;
 import javax.swing.JPopupMenu;
 import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeNode;
-import no.uib.inf252.katscan.view.component.draggable.DraggableTree;
+import no.uib.inf252.katscan.view.component.DraggableTree;
 
 /**
  *
@@ -44,10 +44,12 @@ public abstract class KatNode implements MutableTreeNode, Serializable, Transfer
 
     private final ArrayList<JMenu> getChildrenMenu() {
         ArrayList<JMenu> childrenMenu = new ArrayList<>();
-        for (KatNode child : children) {
-            final JMenu menu = child.getMenu(true);
-            if (menu != null) {
-                childrenMenu.add(menu);
+        if (children != null) {
+            for (KatNode child : children) {
+                final JMenu menu = child.getMenu(true);
+                if (menu != null) {
+                    childrenMenu.add(menu);
+                }
             }
         }
         return childrenMenu;

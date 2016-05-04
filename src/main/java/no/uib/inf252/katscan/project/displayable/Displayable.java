@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.tree.MutableTreeNode;
 import no.uib.inf252.katscan.data.VoxelMatrix;
 import no.uib.inf252.katscan.project.KatNode;
 import no.uib.inf252.katscan.project.KatViewNode;
@@ -17,7 +18,7 @@ import no.uib.inf252.katscan.view.katview.KatView.Type;
  *
  * @author Marcelo Lima
  */
-public abstract class Displayable extends KatNode implements ActionListener {
+public abstract class Displayable extends KatNode {
     
     private static final String TRANSFER = "Add Tranfer Function";
     private static final String CUT = "Add Cut";
@@ -41,14 +42,8 @@ public abstract class Displayable extends KatNode implements ActionListener {
             item.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    //TODO Parallelize view launching
-//                    new Thread("View launching thread") {
-//                        @Override
-//                        public void run() {
-                            KatViewNode view = KatViewNode.buildKatView(type, Displayable.this);
-                            ProjectHandler.getInstance().insertNodeInto(view, Displayable.this, getChildCount());
-//                        }
-//                    }.start();
+                    KatViewNode view = KatViewNode.buildKatView(type);
+                    ProjectHandler.getInstance().insertNodeInto(view, Displayable.this, getChildCount());
                 }
             });
             menu.add(item);
@@ -70,19 +65,21 @@ public abstract class Displayable extends KatNode implements ActionListener {
         
         JMenuItem cutMenu = new JMenuItem(CUT, 'U');
         JMenuItem structureMenu = new JMenuItem(STRUCTURE, 'R');
-        JMenuItem removeMenu = new JMenuItem(REMOVE, 'R');
+        JMenuItem removeMenu = new JMenuItem(REMOVE, 'E');
+        
+        MenuListener listener = new MenuListener();
         
         TransferFunction.Type[] transferTypes = TransferFunction.Type.values();
         for (TransferFunction.Type type : transferTypes) {
             JMenuItem subMenu = new JMenuItem(type.getText(), type.getMnemonic());
-            subMenu.addActionListener(this);
+            subMenu.addActionListener(listener);
             transferMenu.add(subMenu);
         }
         
-        transferMenu.addActionListener(this);
-        cutMenu.addActionListener(this);
-        structureMenu.addActionListener(this);
-        removeMenu.addActionListener(this);
+        transferMenu.addActionListener(listener);
+        cutMenu.addActionListener(listener);
+        structureMenu.addActionListener(listener);
+        removeMenu.addActionListener(listener);
         
         menu.add(transferMenu);
         menu.add(cutMenu);
@@ -113,30 +110,44 @@ public abstract class Displayable extends KatNode implements ActionListener {
             }
         }
     }
-    
+
     @Override
-    public void actionPerformed(ActionEvent e) {
-        JMenuItem item  = (JMenuItem) e.getSource();
-        String text = item.getText();
-        switch(text) {
-            case REMOVE:
-                remove();
-                break;
-            case CUT:
-                ProjectHandler.getInstance().insertNodeInto(new CutNode(), this, getChildCount());
-                break;
-            case STRUCTURE:
-                ProjectHandler.getInstance().insertNodeInto(new StructureNode(), this, getChildCount());
-                break;
-            default:
-                TransferFunction.Type[] types = TransferFunction.Type.values();
-                for (TransferFunction.Type type : types) {
-                    if (type.getText().equals(text)) {
-                        ProjectHandler.getInstance().insertNodeInto(new TransferFunctionNode(type), this, getChildCount());
-                        return;
-                    }
-                }
+    public void setParent(MutableTreeNode newParent) {
+        super.setParent(newParent);
+        
+        Enumeration<KatNode> children = children();
+        while (children.hasMoreElements()) {
+            children.nextElement().setParent(this);
         }
+    }
+    
+    private class MenuListener implements ActionListener {
+    
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            JMenuItem item  = (JMenuItem) e.getSource();
+            String text = item.getText();
+            switch(text) {
+                case REMOVE:
+                    remove();
+                    break;
+                case CUT:
+                    ProjectHandler.getInstance().insertNodeInto(new CutNode(), Displayable.this, getChildCount());
+                    break;
+                case STRUCTURE:
+                    ProjectHandler.getInstance().insertNodeInto(new StructureNode(), Displayable.this, getChildCount());
+                    break;
+                default:
+                    TransferFunction.Type[] types = TransferFunction.Type.values();
+                    for (TransferFunction.Type type : types) {
+                        if (type.getText().equals(text)) {
+                            ProjectHandler.getInstance().insertNodeInto(new TransferFunctionNode(type), Displayable.this, getChildCount());
+                            return;
+                        }
+                    }
+            }
+        }
+        
     }
 
 }

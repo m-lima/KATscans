@@ -65,4 +65,7 @@ public class TransferFunctionNode extends SubGroup implements ActionListener {
         return new ImageIcon(getClass().getResource("/icons/tree/transfer.png"));
     }
 
+    @Override
+    protected void updateData() {}
+
 }

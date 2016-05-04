@@ -2,10 +2,10 @@ package no.uib.inf252.katscan.view.katview;
 
 import java.awt.Component;
 import java.lang.reflect.Constructor;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import no.uib.inf252.katscan.project.displayable.Displayable;
-import no.uib.inf252.katscan.util.TrackBall;
 import no.uib.inf252.katscan.view.katview.opengl.AlphaRenderer;
 import no.uib.inf252.katscan.view.katview.opengl.CompositeRenderer;
 import no.uib.inf252.katscan.view.katview.opengl.MaximumRenderer;
@@ -60,7 +60,7 @@ public interface KatView {
 
     }
     
-    public TrackBall getTrackBall();
-    public void setTrackBall(TrackBall trackBall);
+    public Map<String, Object> packProperties();
+    public void loadProperties(Map<String, Object> properties);
     
 }

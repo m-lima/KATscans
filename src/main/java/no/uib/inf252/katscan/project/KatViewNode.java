@@ -1,16 +1,20 @@
 package no.uib.inf252.katscan.project;
 
 import java.awt.Component;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.ImageIcon;
 import javax.swing.JMenu;
+import javax.swing.tree.MutableTreeNode;
 import net.infonode.docking.DockingWindow;
 import net.infonode.docking.DockingWindowListener;
 import net.infonode.docking.OperationAbortedException;
 import net.infonode.docking.View;
 import no.uib.inf252.katscan.event.TransferFunctionListener;
 import no.uib.inf252.katscan.project.displayable.Displayable;
+import no.uib.inf252.katscan.view.component.image.LoadingPanel;
 import no.uib.inf252.katscan.view.katview.KatView;
 import no.uib.inf252.katscan.view.katview.KatView.Type;
 
@@ -21,35 +25,30 @@ import no.uib.inf252.katscan.view.katview.KatView.Type;
 public class KatViewNode extends KatNode implements DockingWindowListener {
     
     private final Type type;
-    private final KatView katView;
+    private final View view;
+    private boolean newView;
 
-    public static KatViewNode buildKatView(Type type, Displayable displayable) {
-        if (type == null || displayable == null) {
+    public static KatViewNode buildKatView(Type type) {
+        if (type == null) {
             throw new IllegalArgumentException();
         }
         
         try {
-            return new KatViewNode(type, displayable, type.getConstructor().newInstance(displayable));
+            return new KatViewNode(type);
         } catch (Exception ex) {
             Logger.getLogger(KatViewNode.class.getName()).log(Level.SEVERE, null, ex);
             return null;
         }
     }
-    
-    private final View view;
 
-    private KatViewNode(Type type, Displayable displayable, Component component) {
+    private KatViewNode(Type type) {
         super(type.getText());
-        if (displayable == null || component == null) {
-            throw new NullPointerException();
-        }
-        
-        this.view = new View(type.getText() + " - " + displayable.getName(), null, component);
+        newView = true;
+        this.view = new View(type.getText() + " - Loading", null, new LoadingPanel(false));
         view.addListener(this);
         this.type = type;
-        this.katView = (KatView) component;
     }
-
+    
     public View getView() {
         return view;
     }
@@ -73,12 +72,60 @@ public class KatViewNode extends KatNode implements DockingWindowListener {
         return false;
     }
 
-    public Type getType() {
-        return type;
+    public boolean isNewView() {
+        return newView;
     }
 
-    public KatView getKatView() {
-        return katView;
+    public void setNewView(boolean newView) {
+        this.newView = newView;
+    }
+
+    @Override
+    public void setParent(MutableTreeNode newParent) {
+        if (!(newParent instanceof Displayable)) {
+            throw new IllegalArgumentException("Can only have " + Displayable.class.getSimpleName() + " nodes as parents of " + getClass().getSimpleName() + " nodes.");
+        }
+        
+        final Displayable displayable = (Displayable) newParent;
+        final Component component = view.getComponent();
+        
+        if (component instanceof TransferFunctionListener) {
+            Displayable parent = getParent();
+            if (parent != null) {
+                parent.getTransferFunction().removeTransferFunctionListener((TransferFunctionListener) component);
+            }
+        }
+        
+        view.setComponent(new LoadingPanel(false));
+        view.getViewProperties().setTitle(type.getText() + " - Loading");
+        
+        super.setParent(displayable);
+        
+        //TODO Parallelize view launching
+        new Thread("View launching thread") {
+            @Override
+            public void run() {
+                try {
+                    Map<String, Object> properties = null;
+                    if (component instanceof KatView) {
+                        properties = ((KatView) component).packProperties();
+                    }
+
+                    Component katView = type.getConstructor().newInstance(displayable);
+                    ((KatView)katView).loadProperties(properties);
+
+                    view.getViewProperties().setTitle(type.getText() + " - " + displayable.getName());
+                    view.setComponent(katView);
+                } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+                    Logger.getLogger(KatViewNode.class.getName()).log(Level.SEVERE, null, ex);
+                    view.close();
+                }
+            }
+        }.start();
+    }
+
+    public Type getType() {
+        return type;
     }
 
     @Override
@@ -110,8 +157,8 @@ public class KatViewNode extends KatNode implements DockingWindowListener {
         
         //TODO Fix this (Remove TransferFunctionListener)
         //FIXME Fix this (Remove TransferFunctionListener)
-        if (getView() instanceof TransferFunctionListener) {
-            getParent().getTransferFunction().removeTransferFunctionListener((TransferFunctionListener) getView());
+        if (getView().getComponent() instanceof TransferFunctionListener) {
+            getParent().getTransferFunction().removeTransferFunctionListener((TransferFunctionListener) getView().getComponent());
         }
     }
 

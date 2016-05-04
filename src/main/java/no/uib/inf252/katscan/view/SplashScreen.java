@@ -79,7 +79,7 @@ public class SplashScreen extends javax.swing.JDialog {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        pnlBackground = new no.uib.inf252.katscan.view.component.SplashImage();
+        pnlBackground = new no.uib.inf252.katscan.view.component.image.SplashImage();
         pnlTitle = new javax.swing.JPanel();
         btnClose = new javax.swing.JButton();
         pgrProgress = new no.uib.inf252.katscan.view.component.ProgressBar();
@@ -132,7 +132,7 @@ public class SplashScreen extends javax.swing.JDialog {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnClose;
     private no.uib.inf252.katscan.view.component.ProgressBar pgrProgress;
-    private no.uib.inf252.katscan.view.component.SplashImage pnlBackground;
+    private no.uib.inf252.katscan.view.component.image.SplashImage pnlBackground;
     private javax.swing.JPanel pnlTitle;
     // End of variables declaration//GEN-END:variables
 }

@@ -16,7 +16,7 @@ public class ProjectHandler extends DefaultTreeModel {
         insertNodeInto(node, getRoot(), getRoot().getChildCount());
         return true;
     }
-    
+
     @Override
     public ProjectNode getRoot() {
         return (ProjectNode) super.getRoot();

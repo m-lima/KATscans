@@ -17,16 +17,16 @@ import no.uib.inf252.katscan.view.SplashScreen;
 
 //TODO [ ] Exceptions
 //TODO [ ] Alpha compositing
-//TODO [ ] Slice as zooms
 //TODO [ ] Icons for all items
 //TODO [ ] Remove reference to model from KatNodes
 //TODO [ ] Remove CUT and STRUCTURE from Transfer Function
-//TODO [ ] Auto-open transfer function or its children
 //TODO [ ] FIND AWESOME DEFAULT TRANSFER FUNCTION!!!!!!!!!!!!
-//TODO [ ] Load Hand from the top and see the oversampling.. Fix with frame buffer
 //TODO [ ] Loading glass pane when building view
+//DONE [X] Load Hand from the top and see the oversampling.. Fix with frame buffer
+//DONE [X] Auto-open transfer function or its children
+//DONE [X] Slice as zooms
 //DONE [X] All displayables have TransFunc
-//TODO [X] Raycasting steps
+//DONE [X] Raycasting steps
 //DONE [X] Precalculate matrices
 //DONE [X] Max raycasting distance
 //DONE [X] Always clip
@@ -53,7 +53,8 @@ public class Init {
             UIDefaults lookAndFeelDefaults = UIManager.getLookAndFeelDefaults();
             Set<Map.Entry<Object, Object>> entrySet = lookAndFeelDefaults.entrySet();
             for (Map.Entry<Object, Object> entry : entrySet) {
-                if (entry.getKey().toString().toLowerCase().contains("icon")) {
+                String name = entry.getKey().toString();
+                if (!name.startsWith("Tree") && name.toLowerCase().contains("icon")) {
                     icons.add(new AbstractMap.SimpleEntry<>(entry));
                 }
             }

@@ -199,7 +199,9 @@ public class MainFrame extends javax.swing.JFrame implements TreeModelListener {
         for (int i = 0; i < childIndices.length; i++) {
             KatNode child = node.getChildAt(childIndices[i]);
             if (child instanceof KatViewNode) {
-                addView((KatViewNode) child);
+                if (((KatViewNode) child).isNewView()) {
+                    addView((KatViewNode) child);
+                }
             }
         }
     }
@@ -230,6 +232,7 @@ public class MainFrame extends javax.swing.JFrame implements TreeModelListener {
         }
 
         view.getView().setPreferredMinimizeDirection(Direction.RIGHT);
+        view.setNewView(false);
         tabWindow.addTab(view.getView());
     }
 

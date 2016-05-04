@@ -13,6 +13,8 @@ public abstract class SubGroup extends Displayable {
     public SubGroup(String name) {
         super(name);
     }
+    
+    protected abstract void updateData();
 
     @Override
     public Displayable getParent() {
@@ -26,6 +28,8 @@ public abstract class SubGroup extends Displayable {
         } else {
             throw new IllegalArgumentException("Can only have " + Displayable.class.getSimpleName() + " nodes as parents of " + getClass().getSimpleName() + " nodes.");
         }
+        
+        updateData();
     }
 
     @Override

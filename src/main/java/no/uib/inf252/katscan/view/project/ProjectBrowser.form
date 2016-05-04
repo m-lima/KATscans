@@ -51,7 +51,7 @@
 
           <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
           <SubComponents>
-            <Component class="no.uib.inf252.katscan.view.component.draggable.DraggableTree" name="treDatasets">
+            <Component class="no.uib.inf252.katscan.view.component.DraggableTree" name="treDatasets">
               <Properties>
                 <Property name="model" type="javax.swing.tree.TreeModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
                   <Connection code="null" type="code"/>

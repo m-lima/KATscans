@@ -1,4 +1,4 @@
-package no.uib.inf252.katscan.view.component;
+package no.uib.inf252.katscan.view.component.image;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;

@@ -16,10 +16,11 @@ import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
+import java.util.HashMap;
+import java.util.Map;
 import no.uib.inf252.katscan.data.VoxelMatrix;
 import no.uib.inf252.katscan.event.TransferFunctionListener;
 import no.uib.inf252.katscan.project.displayable.Displayable;
-import no.uib.inf252.katscan.util.TrackBall;
 import no.uib.inf252.katscan.util.TransferFunction;
 import no.uib.inf252.katscan.view.katview.KatView;
 
@@ -28,6 +29,8 @@ import no.uib.inf252.katscan.view.katview.KatView;
  * @author Marcelo Lima
  */
 public class SliceNavigator extends GLJPanel implements KatView, GLEventListener, MouseWheelListener, TransferFunctionListener {
+
+    private static final String PROPERTY_SLICE = "Slice";
     
     private static final int VERTICES = 0;
     private static final int INDICES = 1;
@@ -58,6 +61,8 @@ public class SliceNavigator extends GLJPanel implements KatView, GLEventListener
         bufferLocation = new int[2];
         textureLocation = new int[2];
         
+        slice = (int) (sliceMax / 2f);
+        
         this.displayable = displayable;
         
         addMouseWheelListener(this);
@@ -84,7 +89,9 @@ public class SliceNavigator extends GLJPanel implements KatView, GLEventListener
         textureLoaded = voxelMatrix != null;
         if (textureLoaded) {
             sliceMax = voxelMatrix.getSizeZ();
-            slice = (int) (sliceMax / 2f);
+            if (slice >= sliceMax) {
+                slice = ((int) sliceMax) - 1;
+            }
 
             short[] texture = voxelMatrix.getData();
             
@@ -250,11 +257,25 @@ public class SliceNavigator extends GLJPanel implements KatView, GLEventListener
     }
 
     @Override
-    public TrackBall getTrackBall() {
-        return null;
+    public Map<String, Object> packProperties() {
+        HashMap<String, Object> properties = new HashMap<>();
+        properties.put(PROPERTY_SLICE, slice);
+        return properties;
     }
 
     @Override
-    public void setTrackBall(TrackBall trackBall) {}
+    public void loadProperties(Map<String, Object> properties) {
+        if (properties == null || properties.isEmpty()) {
+            return;
+        }
+        
+        Integer newSlice = (Integer) properties.get(PROPERTY_SLICE);
+        if (newSlice == null) {
+            return;
+        }
+        
+        this.slice = newSlice;
+        repaint();
+    }
 
 }

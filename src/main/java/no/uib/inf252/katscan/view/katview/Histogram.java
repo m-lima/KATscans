@@ -5,12 +5,12 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Map;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 import no.uib.inf252.katscan.data.VoxelMatrix;
 import no.uib.inf252.katscan.project.displayable.Displayable;
-import no.uib.inf252.katscan.util.TrackBall;
 import no.uib.inf252.katscan.view.MainFrame;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -136,11 +136,11 @@ public class Histogram extends JPanel implements KatView {
     }
 
     @Override
-    public TrackBall getTrackBall() {
+    public Map<String, Object> packProperties() {
         return null;
     }
 
     @Override
-    public void setTrackBall(TrackBall trackBall) {}
+    public void loadProperties(Map<String, Object> properties) {}
     
 }

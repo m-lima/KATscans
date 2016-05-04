@@ -1,4 +1,4 @@
-package no.uib.inf252.katscan.view.component;
+package no.uib.inf252.katscan.view.component.image;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;
@@ -15,10 +15,13 @@ import javax.swing.JPanel;
  */
 public class LoadingPanel extends JPanel {
 
-    public LoadingPanel() {
+    private final boolean transparent;
+    
+    public LoadingPanel(boolean transparent) {
         super(new GridBagLayout());
         setBackground(Color.BLACK);
-        setOpaque(false);
+        setOpaque(!transparent);
+        this.transparent = transparent;
         
         JLabel loadingIcon = new JLabel(new ImageIcon(getClass().getResource("/img/loading.gif")));
         add(loadingIcon);
@@ -26,7 +29,9 @@ public class LoadingPanel extends JPanel {
 
     @Override
     public void paint(Graphics g) {
-        ((Graphics2D)g).setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, 0.5f));
+        if (transparent) {
+            ((Graphics2D)g).setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, 0.5f));
+        }
         super.paint(g); //To change body of generated methods, choose Tools | Templates.
     }
 

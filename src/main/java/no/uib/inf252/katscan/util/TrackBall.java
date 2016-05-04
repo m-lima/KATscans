@@ -510,6 +510,10 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
     }
 
     public void assimilate(TrackBall trackBall) {
+        if (trackBall == null) {
+            return;
+        }
+        
         System.arraycopy(trackBall.eyePosition, 0, this.eyePosition, 0, eyePosition.length);
         System.arraycopy(trackBall.targetPosition, 0, this.targetPosition, 0, targetPosition.length);
         System.arraycopy(trackBall.currentPosition, 0, this.currentPosition, 0, currentPosition.length);

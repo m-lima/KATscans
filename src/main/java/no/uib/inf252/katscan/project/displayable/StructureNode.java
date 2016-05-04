@@ -36,4 +36,7 @@ public class StructureNode extends SubGroup implements Serializable {
         return new ImageIcon(getClass().getResource("/icons/tree/structure.png"));
     }
 
+    @Override
+    protected void updateData() {}
+
 }

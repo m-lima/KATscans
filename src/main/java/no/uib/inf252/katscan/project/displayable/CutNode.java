@@ -59,6 +59,11 @@ public class CutNode extends SubGroup implements Serializable, CutListener {
     }
 
     @Override
+    protected void updateData() {
+        cutMatrix = null;
+    }
+
+    @Override
     public void cutUpdated(int minX, int maxX, int minY, int maxY, int minZ, int maxZ) {
     }
     
