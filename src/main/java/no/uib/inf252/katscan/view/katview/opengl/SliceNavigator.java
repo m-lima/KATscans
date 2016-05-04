@@ -177,7 +177,6 @@ public class SliceNavigator extends GLJPanel implements KatView, GLEventListener
 
             byte[] dataElements = (byte[]) transferImage.getRaster().getDataElements(0, 0, TransferFunction.TEXTURE_SIZE, 1, null);
             gl2.glActiveTexture(GL2.GL_TEXTURE0 + TRANSFER);
-            //TODO http://stackoverflow.com/questions/25252512/how-can-i-pass-multiple-textures-to-a-single-shader
             gl2.glBindTexture(GL2.GL_TEXTURE_1D, textureLocation[TRANSFER]);
             gl2.glTexImage1D(GL2.GL_TEXTURE_1D, 0, GL2.GL_RGBA, TransferFunction.TEXTURE_SIZE, 0, GL2.GL_RGBA, GL2.GL_UNSIGNED_INT_8_8_8_8_REV, ByteBuffer.wrap(dataElements));
             transferFunctionDirty = false;
