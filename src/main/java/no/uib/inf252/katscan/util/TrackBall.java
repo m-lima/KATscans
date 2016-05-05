@@ -384,7 +384,7 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
             moving = true;
             dirtyValues |= MOVEMENT_DIRTY;
             
-            if (e.isShiftDown()) {
+            if ((modifiers & MouseEvent.ALT_DOWN_MASK) > 0) {
                 fov += deltaY * FloatUtil.PI / (180f * 16f);
 
                 if (fov > FloatUtil.PI) {
@@ -394,7 +394,7 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
                 }
 
                 updateProjection(component.getWidth(), component.getHeight());
-            } else if ((modifiers & MouseEvent.ALT_DOWN_MASK) > 0) {
+            } else if (e.isShiftDown()) {
                 slice -= deltaY * 0.0025f;
                 if (slice <= 0f) {
                     slice = 0f;
@@ -446,7 +446,7 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
         
         Component component = e.getComponent();
         component.requestFocus();
-        if (e.isShiftDown()) {
+        if (e.isAltDown()) {
             fov += e.getWheelRotation() * FloatUtil.PI / 180f;
             
             if (fov > FloatUtil.PI) {
@@ -456,7 +456,7 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
             }
             
             updateProjection(component.getWidth(), component.getHeight());
-        } else if (e.isAltDown()) {
+        } else if (e.isShiftDown()) {
             slice -= e.getWheelRotation() * 0.05f;
             if (slice <= 0f) {
                 slice = 0f;
