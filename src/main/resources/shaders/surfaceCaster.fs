@@ -19,8 +19,8 @@ uniform bool orthographic;
 uniform vec3 eyePos;
 uniform vec3 ratio;
 
-uniform vec3 lightPos = normalize(vec3(-2.0, 2.0, 5.0));
-uniform vec3 lightPosFront = normalize(vec3(2.0, -2.0, -5.0));
+uniform vec3 lightPos;
+uniform vec3 lightPosFront;
 
 int actualSamples = numSamples;
 float stepSize = 1f / actualSamples;
