@@ -89,13 +89,6 @@ public class KatViewNode extends KatNode implements DockingWindowListener {
         final Displayable displayable = (Displayable) newParent;
         final Component component = view.getComponent();
         
-        if (component instanceof TransferFunctionListener) {
-            Displayable parent = getParent();
-            if (parent != null) {
-                parent.getTransferFunction().removeTransferFunctionListener((TransferFunctionListener) component);
-            }
-        }
-        
         view.setComponent(new LoadingPanel(false));
         view.getViewProperties().setTitle(type.getText() + " - Loading");
         
@@ -106,6 +99,13 @@ public class KatViewNode extends KatNode implements DockingWindowListener {
             @Override
             public void run() {
                 try {
+                    if (component instanceof TransferFunctionListener) {
+                        Displayable parent = getParent();
+                        if (parent != null) {
+                            parent.getTransferFunction().removeTransferFunctionListener((TransferFunctionListener) component);
+                        }
+                    }
+        
                     Map<String, Object> properties = null;
                     if (component instanceof KatView) {
                         properties = ((KatView) component).packProperties();
