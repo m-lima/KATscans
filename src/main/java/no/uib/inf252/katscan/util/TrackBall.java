@@ -38,12 +38,15 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
     private final float[] eyePosition;
     private final float[] targetPosition;
     private final float[] lightPosition;
+    private final float[] initialLightPosition;
     
     private final float[] initialPosition;
     private final float[] currentPosition;
     private final float[] axis;
+    
     private final Quaternion initialRotation;
     private final Quaternion currentRotation;
+    
     private final float[] translation;
     
     private int xPos;
@@ -76,6 +79,7 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
         eyePosition = new float[] {0f, 0f, initialZoom};
         targetPosition = new float[] {0f, 0f, -50f};
         lightPosition = VectorUtil.normalizeVec3(new float[] {-2f, 2f, 5f});
+        initialLightPosition = VectorUtil.normalizeVec3(new float[] {-2f, 2f, 5f});
         initialPosition = new float[3];
         currentPosition = new float[3];
         axis = new float[3];
@@ -109,10 +113,6 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
         component.addKeyListener(this);
     }
 
-    public Quaternion getCurrentRotation() {
-        return currentRotation;
-    }
-    
     public float[] getModelMatrix() {
         if (reuseModel) {
             return modelMatrix;
@@ -360,9 +360,8 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
         } else if (SwingUtilities.isLeftMouseButton(e)) {
             Component component = e.getComponent();
             getSurfaceVector(e.getX(), e.getY(), component.getWidth(), component.getHeight(), initialPosition);
-            if (!e.isShiftDown()) {
-                initialRotation.set(currentRotation);
-            }
+            initialRotation.set(currentRotation);
+            System.arraycopy(lightPosition, 0, initialLightPosition, 0, lightPosition.length);
         }
     }
 
@@ -398,16 +397,19 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
                 return;
             }
             
+            getSurfaceVector(e.getX(), e.getY(), component.getWidth(), component.getHeight(), currentPosition);
+
+            float angle = FloatUtil.acos(VectorUtil.dotVec3(initialPosition, currentPosition));
+            VectorUtil.crossVec3(axis, initialPosition, currentPosition);
+            VectorUtil.normalizeVec3(axis);
+            
             if (e.isShiftDown()) {
-                getSurfaceVector(e.getX(), e.getY(), component.getWidth(), component.getHeight(), lightPosition);
+                System.arraycopy(initialLightPosition, 0, lightPosition, 0, lightPosition.length);
+                initialRotation.setIdentity().rotateByAngleNormalAxis(angle, axis[0], axis[1], axis[2]);
+                initialRotation.rotateVector(lightPosition, 0, lightPosition, 0);
+                
                 dirtyValues |= LIGHT_DIRTY;
             } else {
-                getSurfaceVector(e.getX(), e.getY(), component.getWidth(), component.getHeight(), currentPosition);
-
-                float angle = FloatUtil.acos(VectorUtil.dotVec3(initialPosition, currentPosition));
-                VectorUtil.crossVec3(axis, initialPosition, currentPosition);
-                VectorUtil.normalizeVec3(axis);
-
                 initialRotation.toMatrix(tempMatrix, 0);
                 initialRotation.conjugate().rotateVector(axis, 0, axis, 0);
                 initialRotation.setFromMatrix(tempMatrix, 0);
