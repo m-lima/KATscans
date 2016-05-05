@@ -6,9 +6,11 @@ import com.jogamp.opengl.math.FloatUtil;
  *
  * @author Marcelo Lima
  */
-public class MatrixUtil {
+public final class MatrixUtil {
     
     private static final float[] tempMatrix = new float[16];
+    
+    private MatrixUtil() {};
     
     public static String toString(float[] matrix) {
         StringBuilder stringBuilder = new StringBuilder();
