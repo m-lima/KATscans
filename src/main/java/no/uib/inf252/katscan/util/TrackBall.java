@@ -24,19 +24,20 @@ import javax.swing.SwingUtilities;
  */
 public class TrackBall implements MouseListener, MouseMotionListener, MouseWheelListener, KeyListener {
     
-    public static final int MODEL_DIRTY = 0b1;
-    public static final int VIEW_DIRTY = 0b10;
-    public static final int PROJECTION_DIRTY = 0b100;
-    public static final int ZOOM_DIRTY = 0b1000;
-    public static final int ORTHO_DIRTY = 0b10000;
-    public static final int FOV_DIRTY = 0b100000;
-    public static final int MOVEMENT_DIRTY = 0b1000000;
-    public static final int SLICE_DIRTY = 0b10000000;
+    public static final int MODEL_DIRTY =       0b1;
+    public static final int VIEW_DIRTY =        0b10;
+    public static final int PROJECTION_DIRTY =  0b100;
+    public static final int ZOOM_DIRTY =        0b1000;
+    public static final int ORTHO_DIRTY =       0b10000;
+    public static final int FOV_DIRTY =         0b100000;
+    public static final int SLICE_DIRTY =       0b1000000;
+    public static final int LIGHT_DIRTY =       0b10000000;
     
     private static final float[] UP_VECTOR = new float[] {0f, 1f, 0f};
     
     private final float[] eyePosition;
     private final float[] targetPosition;
+    private final float[] lightPosition;
     
     private final float[] initialPosition;
     private final float[] currentPosition;
@@ -44,7 +45,6 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
     private final Quaternion initialRotation;
     private final Quaternion currentRotation;
     private final float[] translation;
-    private boolean moving;
     
     private int xPos;
     private int yPos;
@@ -55,10 +55,12 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
     
     private final float[] modelMatrix;
     private final float[] viewMatrix;
-    private final float[] projection;
+    private final float[] projectionMatrix;
+    private final float[] normalMatrix;
     
     private boolean reuseModel;
     private boolean reuseView;
+    private boolean reuseNormal;
     
     private boolean orthographic;
     private float fov;
@@ -73,24 +75,29 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
     public TrackBall(float initialZoom) {
         eyePosition = new float[] {0f, 0f, initialZoom};
         targetPosition = new float[] {0f, 0f, -50f};
+        lightPosition = VectorUtil.normalizeVec3(new float[] {-2f, 2f, 5f});
         initialPosition = new float[3];
         currentPosition = new float[3];
         axis = new float[3];
         initialRotation = new Quaternion();
         currentRotation = new Quaternion();
         translation = new float[] {0f, 0f, 0f};
-        moving = false;
         
         tempMatrix = new float[16];
         
         modelMatrix = new float[16];
         viewMatrix = new float[16];
-        projection = new float[16];
+        projectionMatrix = new float[16];
+        normalMatrix = new float[16];
         
         orthographic = false;
         fov = FloatUtil.QUARTER_PI;
         slice = 0f;
         this.initialZoom = initialZoom;
+        
+        reuseModel = false;
+        reuseView = false;
+        reuseNormal = false;
         
         markAllDirty();
     }
@@ -126,11 +133,28 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
     }
     
     public float[] getProjectionMatrix() {
-        return projection;
+        return projectionMatrix;
+    }
+
+    public float[] getNormalMatrix() {
+        if (reuseNormal) {
+            return normalMatrix;
+        } else {
+            reuseNormal = true;
+            FloatUtil.multMatrix(getViewMatrix(), getModelMatrix(), normalMatrix);
+            FloatUtil.invertMatrix(normalMatrix, normalMatrix);            
+            FloatUtil.transposeMatrix(normalMatrix, tempMatrix);
+            MatrixUtil.getMatrix3(tempMatrix, normalMatrix);
+            return normalMatrix;
+        }
     }
 
     public float[] getEyePosition() {
         return eyePosition;
+    }
+
+    public float[] getLightPosition() {
+        return lightPosition;
     }
     
     public float getZoom() {
@@ -153,12 +177,8 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
         return slice;
     }
 
-    public boolean isMoving() {
-        return moving;
-    }
-    
     private int getAllDirtyFlags() {
-        return MODEL_DIRTY | VIEW_DIRTY | PROJECTION_DIRTY | ZOOM_DIRTY | ORTHO_DIRTY | FOV_DIRTY | MOVEMENT_DIRTY | SLICE_DIRTY;
+        return MODEL_DIRTY | VIEW_DIRTY | PROJECTION_DIRTY | ZOOM_DIRTY | ORTHO_DIRTY | FOV_DIRTY | SLICE_DIRTY | LIGHT_DIRTY;
     }
     
     public void markAllDirty() {
@@ -187,12 +207,17 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
             float bottom =  -1.0f * top;
             float left   = aspect * bottom;
             float right  = aspect * top;
-            FloatUtil.makeOrtho(projection, 0, true, left, right, bottom, top, 0.1f, 50f);
+            FloatUtil.makeOrtho(projectionMatrix, 0, true, left, right, bottom, top, 0.1f, 50f);
         } else {
-            FloatUtil.makePerspective(projection, 0, true, fov, aspect, 0.1f, 50f);
+            FloatUtil.makePerspective(projectionMatrix, 0, true, fov, aspect, 0.1f, 50f);
         }
         
         dirtyValues |= PROJECTION_DIRTY;
+    }
+    
+    private void updateMatrices() {
+        reuseNormal = false;
+        getNormalMatrix();
     }
     
     private void getSurfaceVector(int x, int y, double width, double height, float[] point) {
@@ -250,26 +275,34 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
                     currentRotation.rotateByAngleY(+FloatUtil.HALF_PI);
                 } else if (e.getSource() == reset) {
                     currentRotation.setIdentity();
+                    
                     eyePosition[0] = 0f;
                     eyePosition[1] = 0f;
                     eyePosition[2] = initialZoom;
+                    
+                    lightPosition[0] = -0.34815532f;
+                    lightPosition[1] = 0.34815532f;
+                    lightPosition[2] = 0.87038827f;
+                    
                     targetPosition[0] = 0f;
                     targetPosition[1] = 0f;
                     targetPosition[2] = -50f;
+                    
                     fov = FloatUtil.QUARTER_PI;
-                    moving = false;
                     slice = 0f;
                     updateProjection(owner.getWidth(), owner.getHeight());
 
                     markAllDirty();
                     reuseView = false;
                     reuseModel = false;
+                    updateMatrices();
                 } else if (e.getSource() == menuOrtho) {
                     toggleOrthographic(owner);
                     return;
                 }
-                dirtyValues |= MODEL_DIRTY | MOVEMENT_DIRTY;
+                dirtyValues |= MODEL_DIRTY;
                 reuseModel = false;
+                updateMatrices();
                 owner.repaint();
             }
         };
@@ -307,6 +340,16 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
 
     @Override
     public void mousePressed(MouseEvent e) {
+        final int modifiers = e.getModifiersEx();
+        
+        if ((modifiers & ~(
+                MouseEvent.SHIFT_DOWN_MASK |
+                MouseEvent.BUTTON1_DOWN_MASK |
+                MouseEvent.BUTTON2_DOWN_MASK |
+                MouseEvent.BUTTON3_DOWN_MASK)) > 0) {
+            return;
+        }
+        
         if (SwingUtilities.isRightMouseButton(e)) {
             xPos = e.getX();
             yPos = e.getY();
@@ -316,10 +359,9 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
             yPos = e.getY();
         } else if (SwingUtilities.isLeftMouseButton(e)) {
             Component component = e.getComponent();
-            if (SwingUtilities.isMiddleMouseButton(e)) {
-            } else if (SwingUtilities.isLeftMouseButton(e)) {
+            getSurfaceVector(e.getX(), e.getY(), component.getWidth(), component.getHeight(), initialPosition);
+            if (!e.isShiftDown()) {
                 initialRotation.set(currentRotation);
-                getSurfaceVector(e.getX(), e.getY(), component.getWidth(), component.getHeight(), initialPosition);
             }
         }
     }
@@ -327,11 +369,6 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
     @Override
     public void mouseReleased(MouseEvent e) {
         e.getComponent().requestFocusInWindow();
-        if (moving) {
-            moving = false;
-            dirtyValues |= MOVEMENT_DIRTY;
-            e.getComponent().repaint();
-        }
     }
 
     @Override
@@ -357,32 +394,33 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
         
         Component component = e.getComponent();
         if (SwingUtilities.isLeftMouseButton(e)) {
-            if (e.isShiftDown() || e.isAltDown()) {
+            if (e.isAltDown()) {
                 return;
             }
             
-            getSurfaceVector(e.getX(), e.getY(), component.getWidth(), component.getHeight(), currentPosition);
+            if (e.isShiftDown()) {
+                getSurfaceVector(e.getX(), e.getY(), component.getWidth(), component.getHeight(), lightPosition);
+                dirtyValues |= LIGHT_DIRTY;
+            } else {
+                getSurfaceVector(e.getX(), e.getY(), component.getWidth(), component.getHeight(), currentPosition);
 
-            float angle = FloatUtil.acos(VectorUtil.dotVec3(initialPosition, currentPosition));
-            
-            VectorUtil.crossVec3(axis, initialPosition, currentPosition);
-            VectorUtil.normalizeVec3(axis);
-            initialRotation.toMatrix(tempMatrix, 0);
-            initialRotation.conjugate().rotateVector(axis, 0, axis, 0);
-            initialRotation.setFromMatrix(tempMatrix, 0);
+                float angle = FloatUtil.acos(VectorUtil.dotVec3(initialPosition, currentPosition));
+                VectorUtil.crossVec3(axis, initialPosition, currentPosition);
+                VectorUtil.normalizeVec3(axis);
 
-            currentRotation.set(initialRotation);
-            currentRotation.rotateByAngleNormalAxis(angle, axis[0], axis[1], axis[2]);
-            
-            moving = true;
-            
-            dirtyValues |= MODEL_DIRTY | MOVEMENT_DIRTY;
-            reuseModel = false;
+                initialRotation.toMatrix(tempMatrix, 0);
+                initialRotation.conjugate().rotateVector(axis, 0, axis, 0);
+                initialRotation.setFromMatrix(tempMatrix, 0);
+
+                currentRotation.set(initialRotation);
+                currentRotation.rotateByAngleNormalAxis(angle, axis[0], axis[1], axis[2]);
+
+                dirtyValues |= MODEL_DIRTY;
+                reuseModel = false;
+                updateMatrices();
+            }
         } else if (SwingUtilities.isMiddleMouseButton(e)) {
             int deltaY = e.getY() - yPos;
-            
-            moving = true;
-            dirtyValues |= MOVEMENT_DIRTY;
             
             if ((modifiers & MouseEvent.ALT_DOWN_MASK) > 0) {
                 fov += deltaY * FloatUtil.PI / (180f * 16f);
@@ -411,6 +449,7 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
 
                 dirtyValues |= ZOOM_DIRTY | VIEW_DIRTY | SLICE_DIRTY;
                 reuseView = false;
+                updateMatrices();
             }
             yPos = e.getY();
             
@@ -425,10 +464,9 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
             eyePosition[1] = yPosOld - (yPos - e.getY()) / (float) component.getHeight();
             targetPosition[1] = eyePosition[1];
             
-            moving = true;
-            
-            dirtyValues |= VIEW_DIRTY | MOVEMENT_DIRTY;
+            dirtyValues |= VIEW_DIRTY;
             reuseView = false;
+            updateMatrices();
         }
         component.repaint();
     }
@@ -473,6 +511,7 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
             
             dirtyValues |= ZOOM_DIRTY | VIEW_DIRTY | SLICE_DIRTY;
             reuseView = false;
+            updateMatrices();
         }
         
         component.repaint();
@@ -516,23 +555,28 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
         
         System.arraycopy(trackBall.eyePosition, 0, this.eyePosition, 0, eyePosition.length);
         System.arraycopy(trackBall.targetPosition, 0, this.targetPosition, 0, targetPosition.length);
+        System.arraycopy(trackBall.lightPosition, 0, this.lightPosition, 0, lightPosition.length);
+        
         System.arraycopy(trackBall.currentPosition, 0, this.currentPosition, 0, currentPosition.length);
-        System.arraycopy(trackBall.axis, 0, this.axis, 0, axis.length);
-        this.initialRotation.set(trackBall.initialRotation);
         this.currentRotation.set(trackBall.currentRotation);
         System.arraycopy(trackBall.translation, 0, this.translation, 0, translation.length);
-        this.moving = trackBall.moving;
-        
-        System.arraycopy(trackBall.tempMatrix, 0, this.tempMatrix, 0, tempMatrix.length);
         
         System.arraycopy(trackBall.modelMatrix, 0, this.modelMatrix, 0, modelMatrix.length);
         System.arraycopy(trackBall.viewMatrix, 0, this.viewMatrix, 0, viewMatrix.length);
-        System.arraycopy(trackBall.projection, 0, this.projection, 0, projection.length);
+        System.arraycopy(trackBall.projectionMatrix, 0, this.projectionMatrix, 0, projectionMatrix.length);
+        System.arraycopy(trackBall.normalMatrix, 0, this.normalMatrix, 0, normalMatrix.length);
         
         this.orthographic = trackBall.orthographic;
         this.fov = trackBall.fov;
-        this.slice = trackBall.slice;
         this.initialZoom = trackBall.initialZoom;
+        this.slice = trackBall.slice;
+        
+        this.reuseModel = trackBall.reuseModel;
+        this.reuseView = trackBall.reuseView;
+        if (!trackBall.reuseNormal) {
+            updateMatrices();
+        }
+        
         markAllDirty();
     }
     

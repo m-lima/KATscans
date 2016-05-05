@@ -44,9 +44,20 @@ public class MatrixUtil {
         }
     }
     
-    public static float[] getInverse(float[] motrix) {
+    public static float[] getMatrix3(float[] matrix4, float[] matrix3) {
+        int k = 0;
+        for (int i = 0; i < 11; i++) {
+            if ((i + 1) % 4 == 0) {
+                continue;
+            }
+            matrix3[k++] = matrix4[i];
+        }
+        return matrix3;
+    }
+    
+    public static float[] getInverse(float[] matrix) {
         synchronized (tempMatrix) {
-            return FloatUtil.invertMatrix(motrix, tempMatrix);
+            return FloatUtil.invertMatrix(matrix, tempMatrix);
         }
     }
     
