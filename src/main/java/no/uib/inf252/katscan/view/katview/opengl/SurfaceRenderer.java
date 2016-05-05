@@ -21,7 +21,8 @@ import no.uib.inf252.katscan.util.TransferFunction;
  */
 public class SurfaceRenderer extends VolumeRenderer implements MouseMotionListener, MouseListener, TransferFunctionListener {
 
-    private static final String PROPERTY_THRESHOLD = "Threshold";
+    private static final String PROPERTY_THRESHOLD_LO = "Threshold Low";
+    private static final String PROPERTY_THRESHOLD_HI = "Threshold High";
     
     private static final int TEXTURE_COLOR_LOCAL = 0;
     private static final int TEXTURE_COLOR = TEXTURE_COUNT_PARENT + TEXTURE_COLOR_LOCAL;
@@ -29,8 +30,10 @@ public class SurfaceRenderer extends VolumeRenderer implements MouseMotionListen
     private final int[] colorLocation = new int[1];
     private static byte[] colors;
     
-    private float threshold;
-    private boolean thresholdDirty;
+    private float thresholdLo;
+    private float thresholdHi;
+    private boolean thresholdLoDirty;
+    private boolean thresholdHiDirty;
     
     private int lastY;
     
@@ -44,18 +47,27 @@ public class SurfaceRenderer extends VolumeRenderer implements MouseMotionListen
         addMouseListener(this);
         addMouseMotionListener(this);
         displayable.getTransferFunction().addTransferFunctionListener(this);
-        threshold = 0.2f;
+        thresholdLo = 0.2f;
+        thresholdHi = 0.5f;
     }
 
     @Override
     protected void preDraw(GLAutoDrawable drawable) {
         GL2 gl2 = drawable.getGL().getGL2();
-        if (thresholdDirty) {
-            int location = gl2.glGetUniformLocation(mainProgram, "threshold");
-            gl2.glUniform1f(location, threshold);
+        if (thresholdLoDirty) {
+            int location = gl2.glGetUniformLocation(mainProgram, "thresholdLo");
+            gl2.glUniform1f(location, thresholdLo);
             
-            thresholdDirty = false;
-            checkError(gl2, "Inject threshold");
+            thresholdLoDirty = false;
+            checkError(gl2, "Inject low threshold");
+        }
+        
+        if (thresholdHiDirty) {
+            int location = gl2.glGetUniformLocation(mainProgram, "thresholdHi");
+            gl2.glUniform1f(location, thresholdHi);
+            
+            thresholdHiDirty = false;
+            checkError(gl2, "Inject high threshold");
         }
         
         if (colorsDirty) {
@@ -68,7 +80,8 @@ public class SurfaceRenderer extends VolumeRenderer implements MouseMotionListen
     @Override
     public void init(GLAutoDrawable drawable) {
         super.init(drawable); 
-        thresholdDirty = true;
+        thresholdLoDirty = true;
+        thresholdHiDirty = true;
         
         GL2 gl2 = drawable.getGL().getGL2();
         
@@ -100,9 +113,6 @@ public class SurfaceRenderer extends VolumeRenderer implements MouseMotionListen
         BufferedImage colorImage = new BufferedImage(2048, 1, BufferedImage.TYPE_4BYTE_ABGR);
         Graphics2D g2d = (Graphics2D) colorImage.getGraphics();
         
-//        g2d.setPaint(new LinearGradientPaint(0f, 0f, 2048f, 0f,
-//                new float[] {0f, 1200f / 4096f, 1250f / 4096f, 1300f / 4096f, 2048f / 4096f, 1f},
-//                new Color[] {new Color(255, 220, 180), new Color(255, 220, 180), Color.RED, new Color(255, 220, 180), Color.WHITE, Color.BLUE}));
         g2d.setPaint(displayable.getTransferFunction().getPaint());
         
         g2d.drawLine(0, 0, 2048, 0);
@@ -113,32 +123,86 @@ public class SurfaceRenderer extends VolumeRenderer implements MouseMotionListen
 
     @Override
     public void mouseDragged(MouseEvent e) {
-        final int modifiers = e.getModifiers();
-        if ((modifiers & ~(MouseEvent.CTRL_MASK | MouseEvent.BUTTON1_MASK)) > 0) {
+        final int modifiers = e.getModifiersEx();
+        if ((modifiers & ~(MouseEvent.CTRL_DOWN_MASK |
+                           MouseEvent.BUTTON1_DOWN_MASK |
+                           MouseEvent.BUTTON2_DOWN_MASK |
+                           MouseEvent.BUTTON3_DOWN_MASK)) > 0) {
             return;
         }
         
-        if (SwingUtilities.isLeftMouseButton(e)) {
-            if (e.isControlDown()) {
+        if (e.isControlDown()) {
+            if (SwingUtilities.isLeftMouseButton(e)) {
                 float deltaY = (e.getY() - lastY) / 10000f;
                 lastY = e.getY();
                 
-                if (deltaY < 0f && threshold == 0f) {
+                if (deltaY < 0f && thresholdLo == 0f) {
                     return;
                 }
                 
-                if (deltaY > 0f && threshold == 1f) {
+                if (deltaY > 0f && thresholdLo == thresholdHi) {
                     return;
                 }
                 
-                threshold += deltaY;
-                if (threshold < 0f) {
-                    threshold = 0f;
-                } else if (threshold > 1f) {
-                    threshold = 1f;
+                thresholdLo += deltaY;
+                if (thresholdLo < 0f) {
+                    thresholdLo = 0f;
+                } else if (thresholdLo > thresholdHi) {
+                    thresholdLo = thresholdHi;
                 }
                 
-                thresholdDirty = true;
+                thresholdLoDirty = true;
+                repaint();
+            } else if (SwingUtilities.isRightMouseButton(e)) {
+                float deltaY = (e.getY() - lastY) / -10000f;
+                lastY = e.getY();
+                
+                if (deltaY < 0f && thresholdHi == thresholdLo) {
+                    return;
+                }
+                
+                if (deltaY > 0f && thresholdHi == 1f) {
+                    return;
+                }
+                
+                thresholdHi += deltaY;
+                if (thresholdHi < thresholdLo) {
+                    thresholdHi = thresholdLo;
+                } else if (thresholdHi > 1f) {
+                    thresholdHi = 1f;
+                }
+                
+                thresholdHiDirty = true;
+                repaint();
+            } else if (SwingUtilities.isMiddleMouseButton(e)) {
+                float deltaY = (e.getY() - lastY) / 10000f;
+                lastY = e.getY();
+                float diff = thresholdHi - thresholdLo;
+                
+                if (deltaY < 0f) {
+                    if (thresholdLo == 0f) {
+                        return;
+                    }
+                    
+                    thresholdLo += deltaY;
+                    if (thresholdLo < 0f) {
+                        thresholdLo = 0f;
+                    }
+                    thresholdHi = thresholdLo + diff;
+                } else {
+                    if (thresholdHi == 1f) {
+                        return;
+                    }
+                    
+                    thresholdHi += deltaY;
+                    if (thresholdHi > 1f) {
+                        thresholdHi = 1f;
+                    }
+                    thresholdLo = thresholdHi - diff;
+                }
+                
+                thresholdLoDirty = true;
+                thresholdHiDirty = true;
                 repaint();
             }
         }
@@ -179,7 +243,8 @@ public class SurfaceRenderer extends VolumeRenderer implements MouseMotionListen
     @Override
     public Map<String, Object> packProperties() {
         Map<String, Object> properties = super.packProperties();
-        properties.put(PROPERTY_THRESHOLD, threshold);
+        properties.put(PROPERTY_THRESHOLD_LO, thresholdLo);
+        properties.put(PROPERTY_THRESHOLD_HI, thresholdHi);
         return properties;
     }
 
@@ -190,13 +255,18 @@ public class SurfaceRenderer extends VolumeRenderer implements MouseMotionListen
             return;
         }
         
-        Float newThreshold = (Float) properties.get(PROPERTY_THRESHOLD);
-        if (newThreshold == null) {
-            return;
+        Float newThreshold = (Float) properties.get(PROPERTY_THRESHOLD_LO);
+        if (newThreshold != null) {
+            this.thresholdLo = newThreshold;
+            thresholdLoDirty = true;
         }
         
-        this.threshold = newThreshold;
-        thresholdDirty = true;
+        newThreshold = (Float) properties.get(PROPERTY_THRESHOLD_HI);
+        if (newThreshold != null) {
+            this.thresholdHi = newThreshold;
+            thresholdHiDirty = true;
+        }
+        
         repaint();
     }
 

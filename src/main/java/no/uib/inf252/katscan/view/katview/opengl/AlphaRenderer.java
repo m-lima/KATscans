@@ -23,7 +23,7 @@ public class AlphaRenderer extends VolumeRenderer implements TransferFunctionLis
     private boolean transferFunctionDirty;
     
     public AlphaRenderer(Displayable displayable) throws GLException {
-        super(displayable, "compoCaster");
+        super(displayable, "alphaCaster");
         displayable.getTransferFunction().addTransferFunctionListener(this);
     }
 

@@ -299,6 +299,8 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
         
         checkAndLoadRaycastingUpdates(gl2);
         draw(gl2, false);
+        gl2.glFlush();
+        gl2.glFinish();
 
         gl2.glBindFramebuffer(GL2.GL_FRAMEBUFFER, 0);
         gl2.glViewport(0, 0, getWidth(), getHeight());
@@ -314,6 +316,8 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
         preDraw(drawable);
         checkError(gl2, "Pre draw");
         draw(gl2, true);
+        gl2.glFlush();
+        gl2.glFinish();
 
         if (highLOD) {
             uniformLocation = gl2.glGetUniformLocation(mainProgram, "lodMultiplier");
@@ -369,12 +373,9 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
         int dirtyValues = trackBall.getDirtyValues();
         if ((dirtyValues & (TrackBall.PROJECTION_DIRTY | TrackBall.VIEW_DIRTY | TrackBall.MODEL_DIRTY | TrackBall.ORTHO_DIRTY | TrackBall.SLICE_DIRTY)) != 0) {
 
-//            if ((dirtyValues & (TrackBall.VIEW_DIRTY | TrackBall.MODEL_DIRTY | TrackBall.PROJECTION_DIRTY)) > 0) {
             if ((dirtyValues & (TrackBall.VIEW_DIRTY | TrackBall.MODEL_DIRTY)) > 0) {
                 uniformLocation = gl2.glGetUniformLocation(mainProgram, "normalMatrix");
                 if (uniformLocation >= 0) {
-//                    float[] normalMatrix = MatrixUtil.multiply(trackBall.getProjectionMatrix(), trackBall.getViewMatrix());
-//                    FloatUtil.multMatrix(normalMatrix, trackBall.getModelMatrix());
                     float[] normalMatrix = MatrixUtil.multiply(trackBall.getViewMatrix(), trackBall.getModelMatrix());
                     MatrixUtil.getInverse(normalMatrix);
                     normalMatrix = FloatUtil.transposeMatrix(normalMatrix, tempMatrix);

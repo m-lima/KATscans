@@ -6,14 +6,13 @@ in vec4 vertexOutModel;
 uniform sampler3D volumeTexture;
 uniform sampler2D raycastTexture;
 uniform sampler1D colors;
-uniform float threshold;
+uniform float thresholdLo;
+uniform float thresholdHi;
 
 uniform int numSamples;
 uniform ivec2 screenSize;
 uniform float slice;
 
-uniform mat4 view;
-uniform mat4 model;
 uniform mat3 invModel;
 uniform mat3 normalMatrix;
 uniform bool orthographic;
@@ -21,6 +20,7 @@ uniform vec3 eyePos;
 uniform vec3 ratio;
 
 uniform vec3 lightPos = normalize(vec3(-2.0, 2.0, 5.0));
+uniform vec3 lightPosFront = normalize(vec3(2.0, -2.0, -5.0));
 
 int actualSamples = numSamples;
 float stepSize = 1f / actualSamples;
@@ -37,7 +37,7 @@ float rand(vec2 co){
     return fract(sin(dot(co.xy, vec2(12.9898,78.233))) * 43758.5453);
 }
 
-vec3 getGradient(vec3 pos, float value) {
+vec3 getGradient(vec3 pos) {
     vec3 stepX = vec3(stepDist, 0.0, 0.0);
     vec3 stepY = vec3(0.0, stepDist, 0.0);
     vec3 stepZ = vec3(0.0, 0.0, stepDist);
@@ -86,19 +86,32 @@ void main() {
     vec3 normal;
     vec3 color;
     float lightReflection;
+    bool invert = false;
     while (dist > 0.0) {
         density = texture(volumeTexture, pos).x;
-        if (density <= threshold) {
+        if (density < thresholdLo) {
             pos += stepValue;
             dist -= stepDist;
+            invert = false;
+            continue;
+        }
+
+        if (density > thresholdHi) {
+            pos += stepValue;
+            dist -= stepDist;
+            invert = true;
             continue;
         }
 
         if (pos == slicePos) {
             lightReflection = 1.0;
         } else {
-            normal = normalize(normalMatrix * getGradient(pos, density));
-            lightReflection = dot(normal, lightPos);
+            normal = normalize(normalMatrix * getGradient(pos));
+            if (invert) {
+                lightReflection = dot(normal, lightPosFront);
+            } else {
+                lightReflection = dot(normal, lightPos);
+            }
         }
 
         color = lightReflection * texture(colors, density).rgb;
