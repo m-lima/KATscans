@@ -22,6 +22,7 @@ import net.infonode.docking.DockingWindow;
 import net.infonode.docking.RootWindow;
 import net.infonode.docking.TabWindow;
 import net.infonode.docking.View;
+import net.infonode.docking.WindowBar;
 import net.infonode.docking.properties.DockingWindowProperties;
 import net.infonode.docking.properties.RootWindowProperties;
 import net.infonode.docking.theme.DockingWindowsTheme;
@@ -53,6 +54,9 @@ public class MainFrame extends javax.swing.JFrame implements TreeModelListener {
     private final RootWindow rootWindow;
     private final RootWindowProperties properties;
     private final View datasetView;
+    private final ProjectBrowser datasetBrowser;
+    
+    private boolean pojectBrowserMinized;
     
     /**
      * Creates new form MainFrame
@@ -77,7 +81,7 @@ public class MainFrame extends javax.swing.JFrame implements TreeModelListener {
         setSize(1000, 1000);
         setExtendedState(getExtendedState() | MAXIMIZED_BOTH);
 
-        ProjectBrowser datasetBrowser = new ProjectBrowser();
+        datasetBrowser = new ProjectBrowser();
         ProjectHandler.getInstance().addTreeModelListener(this);
         
         rootWindow = DockingUtil.createRootWindow(new ViewMap(), true);
@@ -95,36 +99,7 @@ public class MainFrame extends javax.swing.JFrame implements TreeModelListener {
         contentPane.add(rootWindow, BorderLayout.CENTER);
         
         setupMenu();
-
-//        loadAutomaticView();
     }
-
-//    private void loadAutomaticView() {
-//        try {
-//            File file = new File("C:\\Users\\mflim_000\\Documents\\Code\\Java\\Maven\\KATscan\\misc\\datasets\\sinusveins-256x256x166.dat");
-//            VoxelMatrix voxelMatrix = new DatFormat().loadData(new FileInputStream(file));
-//            LoadedData.getInstance().load("Sinus", file, voxelMatrix);
-//            DockingWindow oldViews = rootWindow.getWindow();
-//
-//            TabWindow tabWindow;
-//            if (oldViews instanceof TabWindow) {
-//                tabWindow = (TabWindow) oldViews;
-//            } else {
-//                tabWindow = new TabWindow();
-//                tabWindow.setBackground(THEME_COLOR);
-//                if (oldViews != null) {
-//                    tabWindow.addTab(oldViews);
-//                }
-//                rootWindow.setWindow(tabWindow);
-//            }
-//
-//            View view = new View("Sinus", null, new CompositeRenderer(Displayable.getByName("Sinus"), new TransferFunction()));
-//            view.setPreferredMinimizeDirection(Direction.RIGHT);
-//            tabWindow.addTab(view);
-//        } catch (FileNotFoundException ex) {
-//            Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-//    }
 
     private void setupRootView(BufferedImage image) {
         rootWindow.setBackgroundColor(THEME_COLOR);
@@ -156,6 +131,7 @@ public class MainFrame extends javax.swing.JFrame implements TreeModelListener {
         datasetView.setPreferredMinimizeDirection(Direction.LEFT);
         tabWindow.addTab(datasetView);
         datasetView.minimize();
+        pojectBrowserMinized = true;
     }
 
     private void setupMenu() {
@@ -167,18 +143,19 @@ public class MainFrame extends javax.swing.JFrame implements TreeModelListener {
         mbrMain.validate();
     }
 
-    //TODO Set global keys
     private void setupGlobalKeys() {
         getRootPane().getInputMap(JRootPane.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_1, KeyEvent.CTRL_DOWN_MASK), "showTree");
         getRootPane().getActionMap().put("showTree", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (datasetView.isVisible()) {
-                    datasetView.restore();
-//                    datasetView.show();
-//                    ((DatasetBrowser) datasetView.getComponent()).focusTree();
+                if (pojectBrowserMinized) {
+                    datasetView.makeVisible();
+                    datasetBrowser.focusTree();
+                    pojectBrowserMinized = false;
                 } else {
+                    datasetView.restore();
                     datasetView.minimize();
+                    pojectBrowserMinized = true;
                 }
             }
         });

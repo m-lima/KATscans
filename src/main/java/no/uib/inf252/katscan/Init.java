@@ -19,9 +19,8 @@ import no.uib.inf252.katscan.view.SplashScreen;
 //TODO [ ] Alpha compositing
 //TODO [ ] Icons for all items
 //TODO [ ] Remove reference to model from KatNodes
-//TODO [ ] Remove CUT and STRUCTURE from Transfer Function
-//TODO [ ] FIND AWESOME DEFAULT TRANSFER FUNCTION!!!!!!!!!!!!
-//TODO [ ] Loading glass pane when building view
+//DONE [X] Loading glass pane when building view
+//DONE [X] FIND AWESOME DEFAULT TRANSFER FUNCTION!!!!!!!!!!!!
 //DONE [X] Load Hand from the top and see the oversampling.. Fix with frame buffer
 //DONE [X] Auto-open transfer function or its children
 //DONE [X] Slice as zooms
