@@ -16,6 +16,9 @@ uniform bool orthographic;
 uniform vec3 eyePos;
 uniform vec3 ratio;
 
+uniform vec3 minValues;
+uniform vec3 maxValues;
+
 int actualSamples = (numSamples * lodMultiplier) >> 4;
 float stepSize = 1f / actualSamples;
 
@@ -62,6 +65,12 @@ void main() {
     float density;
     float color = 0.0;
     for (;dist > 0.0; dist -= stepDist, pos += stepValue) {
+        if (pos.x < minValues.x || pos.x >= maxValues.x ||
+            pos.y < minValues.y || pos.y >= maxValues.y ||
+            pos.z < minValues.z || pos.z >= maxValues.z) {
+            continue;
+        }
+
         density = texture(volumeTexture, pos).x;
         if (density <= 0.0) continue;
         color = max(density, color);

@@ -13,6 +13,7 @@ import java.util.Map;
 import javax.swing.SwingUtilities;
 import no.uib.inf252.katscan.event.TransferFunctionListener;
 import no.uib.inf252.katscan.project.displayable.Displayable;
+import no.uib.inf252.katscan.project.displayable.StructureNode;
 import no.uib.inf252.katscan.util.TransferFunction;
 
 /**
@@ -49,6 +50,18 @@ public class SurfaceRenderer extends VolumeRenderer implements MouseMotionListen
         displayable.getTransferFunction().addTransferFunctionListener(this);
         thresholdLo = 0.2f;
         thresholdHi = 0.5f;
+    }
+
+    @Override
+    public boolean acceptsStructure() {
+        return true;
+    }
+
+    @Override
+    public void createStructure(int x, int y, float threshold) {
+        super.createStructure(x, y, threshold); //To change body of generated methods, choose Tools | Templates.
+        StructureNode structure = new StructureNode();
+        
     }
 
     @Override

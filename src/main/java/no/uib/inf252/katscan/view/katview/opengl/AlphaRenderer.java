@@ -28,6 +28,11 @@ public class AlphaRenderer extends VolumeRenderer implements TransferFunctionLis
     }
 
     @Override
+    public boolean acceptsStructure() {
+        return true;
+    }
+
+    @Override
     protected void preDraw(GLAutoDrawable drawable) {
         if (transferFunctionDirty) {
             updateTransferFunction(drawable.getGL().getGL2());

@@ -5,6 +5,7 @@ import java.lang.reflect.Constructor;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import no.uib.inf252.katscan.project.KatViewNode;
 import no.uib.inf252.katscan.project.displayable.Displayable;
 import no.uib.inf252.katscan.view.katview.opengl.AlphaRenderer;
 import no.uib.inf252.katscan.view.katview.opengl.CompositeRenderer;
@@ -62,5 +63,4 @@ public interface KatView {
     
     public Map<String, Object> packProperties();
     public void loadProperties(Map<String, Object> properties);
-    
 }

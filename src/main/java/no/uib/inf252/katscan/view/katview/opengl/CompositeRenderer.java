@@ -28,6 +28,11 @@ public class CompositeRenderer extends VolumeRenderer implements TransferFunctio
     }
 
     @Override
+    public boolean acceptsStructure() {
+        return true;
+    }
+
+    @Override
     protected void preDraw(GLAutoDrawable drawable) {
         if (transferFunctionDirty) {
             updateTransferFunction(drawable.getGL().getGL2());

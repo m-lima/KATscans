@@ -147,7 +147,6 @@ public class TransferFunction {
         return getPaint(0f, TEXTURE_SIZE);
     }
 
-    //TODO Proper gradient; see https://en.wikipedia.org/wiki/Lab_color_space
     public LinearGradientPaint getPaint(float startX, float endX) {
         if (dirtyPaint) {
             rebuildPaint();

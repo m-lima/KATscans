@@ -16,6 +16,7 @@ import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -74,7 +75,7 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
 
     private Timer threadLOD;
     private boolean highLOD;
-
+    
     VolumeRenderer(Displayable displayable, String shaderName) throws GLException {
         super(new GLCapabilities(GLProfile.get(GLProfile.GL2)));
         addGLEventListener(this);
@@ -92,7 +93,7 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
 
         numSample = 256;
 
-        threadLOD = new Timer(500, new ActionListener() {
+        threadLOD = new Timer(750, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 highLOD = true;
@@ -102,7 +103,10 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
         threadLOD.setRepeats(false);
     }
 
-    abstract protected void preDraw(GLAutoDrawable drawable);
+    protected abstract void preDraw(GLAutoDrawable drawable);
+    
+    public abstract boolean acceptsStructure();
+    public void createStructure(int x, int y, float threshold) {}
 
     @Override
     public void init(GLAutoDrawable drawable) {
@@ -366,7 +370,14 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
     private void checkAndLoadMainUpdates(GL2 gl2) {
         int uniformLocation;
         int dirtyValues = trackBall.getDirtyValues();
-        if ((dirtyValues & (TrackBall.PROJECTION_DIRTY | TrackBall.VIEW_DIRTY | TrackBall.MODEL_DIRTY | TrackBall.ORTHO_DIRTY | TrackBall.SLICE_DIRTY | TrackBall.LIGHT_DIRTY)) != 0) {
+        if ((dirtyValues & (TrackBall.PROJECTION_DIRTY |
+                            TrackBall.VIEW_DIRTY |
+                            TrackBall.MODEL_DIRTY |
+                            TrackBall.ORTHO_DIRTY |
+                            TrackBall.SLICE_DIRTY |
+                            TrackBall.LIGHT_DIRTY |
+                            TrackBall.MIN_DIRTY |
+                            TrackBall.MAX_DIRTY)) != 0) {
 
             if ((dirtyValues & (TrackBall.VIEW_DIRTY | TrackBall.MODEL_DIRTY)) > 0) {
                 uniformLocation = gl2.glGetUniformLocation(mainProgram, "normalMatrix");
@@ -418,6 +429,18 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
                 uniformLocation = gl2.glGetUniformLocation(mainProgram, "lightPosFront");
                 gl2.glUniform3f(uniformLocation, -lightPos[0], -lightPos[1], -lightPos[2]);
                 trackBall.clearDirtyValues(TrackBall.LIGHT_DIRTY);
+            }
+            
+            if ((dirtyValues & TrackBall.MIN_DIRTY) > 0) {
+                uniformLocation = gl2.glGetUniformLocation(mainProgram, "minValues");
+                gl2.glUniform3fv(uniformLocation, 1, trackBall.getMinValues(), 0);
+                trackBall.clearDirtyValues(TrackBall.MIN_DIRTY);
+            }
+            
+            if ((dirtyValues & TrackBall.MAX_DIRTY) > 0) {
+                uniformLocation = gl2.glGetUniformLocation(mainProgram, "maxValues");
+                gl2.glUniform3fv(uniformLocation, 1, trackBall.getMaxValues(), 0);
+                trackBall.clearDirtyValues(TrackBall.MAX_DIRTY);
             }
             
             checkError(gl2, "Update main dirty values");

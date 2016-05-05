@@ -210,9 +210,7 @@ public class VoxelMatrix implements Serializable {
     @Override
     public int hashCode() {
         int hash = 5;
-        //TODO Watchout!!
         hash = 89 * hash + System.identityHashCode(this.grid);
-//        hash = 89 * hash + Arrays.hashCode(this.grid);
         return hash;
     }
 
@@ -229,13 +227,9 @@ public class VoxelMatrix implements Serializable {
         }
         final VoxelMatrix other = (VoxelMatrix) obj;
 
-        //TODO Watchout!!
         if (this.grid != other.grid) {
             return false;
         }
-//        if (!Arrays.equals(this.grid, other.grid)) {
-//            return false;
-//        }
         return true;
     }
 

@@ -99,7 +99,6 @@ public class KatViewNode extends KatNode implements DockingWindowListener {
         
         super.setParent(displayable);
         
-        //TODO Parallelize view launching
         new Thread("View launching thread") {
             @Override
             public void run() {
@@ -160,8 +159,6 @@ public class KatViewNode extends KatNode implements DockingWindowListener {
     public void windowClosed(DockingWindow window) {
         ProjectHandler.getInstance().removeNodeFromParent(this);
         
-        //TODO Fix this (Remove TransferFunctionListener)
-        //FIXME Fix this (Remove TransferFunctionListener)
         if (getView().getComponent() instanceof TransferFunctionListener) {
             getParent().getTransferFunction().removeTransferFunctionListener((TransferFunctionListener) getView().getComponent());
         }

@@ -19,6 +19,9 @@ uniform bool orthographic;
 uniform vec3 eyePos;
 uniform vec3 ratio;
 
+uniform vec3 minValues;
+uniform vec3 maxValues;
+
 uniform vec3 lightPos;
 uniform vec3 lightPosFront;
 
@@ -87,12 +90,22 @@ void main() {
     vec3 color;
     float lightReflection;
     bool invert = false;
+    bool noGradient = true;
     while (dist > 0.0) {
+        if (pos.x < minValues.x || pos.x >= maxValues.x ||
+            pos.y < minValues.y || pos.y >= maxValues.y ||
+            pos.z < minValues.z || pos.z >= maxValues.z) {
+            pos += stepValue;
+            dist -= stepDist;
+            continue;
+        }
+
         density = texture(volumeTexture, pos).x;
         if (density < thresholdLo) {
             pos += stepValue;
             dist -= stepDist;
             invert = false;
+            noGradient = false;
             continue;
         }
 
@@ -100,10 +113,11 @@ void main() {
             pos += stepValue;
             dist -= stepDist;
             invert = true;
+            noGradient = false;
             continue;
         }
 
-        if (pos == slicePos) {
+        if (noGradient) {
             lightReflection = 1.0;
         } else {
             normal = normalize(normalMatrix * getGradient(pos));

@@ -18,6 +18,9 @@ uniform bool orthographic;
 uniform vec3 eyePos;
 uniform vec3 ratio;
 
+uniform vec3 minValues;
+uniform vec3 maxValues;
+
 uniform vec3 lightPos = normalize(vec3(-2.0, 2.0, 5.0));
 
 int actualSamples = numSamples * lodMultiplier;
@@ -94,6 +97,12 @@ void main() {
     stepDist = length(stepValue);
     fragColor = vec4(0.0);
     for (;dist > 0.0; dist -= stepDist, pos += stepValue) {
+        if (pos.x < minValues.x || pos.x >= maxValues.x ||
+            pos.y < minValues.y || pos.y >= maxValues.y ||
+            pos.z < minValues.z || pos.z >= maxValues.z) {
+            continue;
+        }
+
         density = texture(volumeTexture, pos).x;
         if (density <= 0.0) continue;
 

@@ -15,6 +15,11 @@ public class MaximumRenderer extends VolumeRenderer {
     }
 
     @Override
+    public boolean acceptsStructure() {
+        return false;
+    }
+
+    @Override
     protected void preDraw(GLAutoDrawable drawable) {}
     
 }
