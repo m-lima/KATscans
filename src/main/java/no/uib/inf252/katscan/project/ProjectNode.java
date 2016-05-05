@@ -27,6 +27,11 @@ public class ProjectNode extends KatNode {
     }
 
     @Override
+    protected KatNode internalCopy() {
+        throw new UnsupportedOperationException(getClass().getSimpleName() + " nodes cannot be copied");
+    }
+
+    @Override
     protected JMenu getMainMenu() {
         JMenu menu = new JMenu("Datasets");
         menu.setMnemonic('D');

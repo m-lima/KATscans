@@ -41,7 +41,20 @@ public abstract class KatNode implements MutableTreeNode, Serializable, Transfer
     }
     
     protected abstract JMenu getMainMenu();
-
+    protected abstract KatNode internalCopy();
+    
+    public final KatNode copy() {
+        KatNode copy = internalCopy();
+        
+        if (children != null) {
+            for (int i = 0; i < children.size(); i++) {
+                copy.insert(children.get(i).copy(), i);
+            }
+        }
+        
+        return copy;
+    }
+    
     private final ArrayList<JMenu> getChildrenMenu() {
         ArrayList<JMenu> childrenMenu = new ArrayList<>();
         if (children != null) {

@@ -17,6 +17,11 @@ public class StructureNode extends SubGroup implements Serializable {
     }
 
     @Override
+    protected StructureNode internalCopy() {
+        return new StructureNode();
+    }
+
+    @Override
     public VoxelMatrix getMatrix() {
         return getParent().getMatrix();
     }

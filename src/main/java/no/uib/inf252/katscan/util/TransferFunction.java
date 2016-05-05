@@ -60,6 +60,16 @@ public class TransferFunction {
         setType(type);
     }
     
+    public TransferFunction(TransferFunction transferFunction) {
+        points = new ArrayList<>();
+        listenerList = new EventListenerList();
+        
+        for (TransferFunctionPoint point : transferFunction.points) {
+            points.add(new TransferFunctionPoint(point, this));
+        }
+        dirtyPaint = true;
+    }
+    
     public final void setType(Type type) {
         if (type == null) {
             throw new NullPointerException("No type was provided.");
@@ -225,6 +235,13 @@ public class TransferFunction {
         private TransferFunction owner;
         private boolean movable;
 
+        private TransferFunctionPoint(TransferFunctionPoint other, TransferFunction owner) {
+            this.color = other.color;
+            this.point = other.point;
+            this.owner = owner;
+            this.movable = other.movable;
+        }
+        
         private TransferFunctionPoint(Color color, float point, TransferFunction owner) {
             this(color, point, owner, true);
         }

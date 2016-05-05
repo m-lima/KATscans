@@ -27,6 +27,11 @@ public class DataFileNode extends Displayable implements Serializable {
     }
 
     @Override
+    protected DataFileNode internalCopy() {
+        return new DataFileNode(getName(), new File(file.getAbsolutePath()), new VoxelMatrix(matrix));
+    }
+
+    @Override
     public VoxelMatrix getMatrix() {
         return matrix;
     }

@@ -21,6 +21,16 @@ public class TransferFunctionNode extends SubGroup implements ActionListener {
         transferFunction = new TransferFunction(type);
     }
 
+    private TransferFunctionNode(TransferFunction transferFunction) {
+        super("Transfer Function");
+        this.transferFunction = transferFunction;
+    }
+
+    @Override
+    protected TransferFunctionNode internalCopy() {
+        return new TransferFunctionNode(new TransferFunction(transferFunction));
+    }
+
     @Override
     public VoxelMatrix getMatrix() {
         return getParent().getMatrix();

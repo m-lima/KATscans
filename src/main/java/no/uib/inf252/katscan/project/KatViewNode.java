@@ -58,6 +58,11 @@ public class KatViewNode extends KatNode implements DockingWindowListener {
     }
 
     @Override
+    protected KatViewNode internalCopy() {
+        return new KatViewNode(type);
+    }
+
+    @Override
     public Displayable getParent() {
         return (Displayable) super.getParent();
     }

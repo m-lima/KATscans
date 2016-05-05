@@ -8,6 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
@@ -192,16 +193,20 @@ public class MainFrame extends javax.swing.JFrame implements TreeModelListener {
     @Override
     public void treeNodesInserted(TreeModelEvent e) {
         setupMenu();
-        
         KatNode node = (KatNode) e.getTreePath().getLastPathComponent();
-        int[] childIndices = e.getChildIndices();
-        
-        for (int i = 0; i < childIndices.length; i++) {
-            KatNode child = node.getChildAt(childIndices[i]);
+        traverseAndFindViews(node);
+    }
+    
+    private void traverseAndFindViews(KatNode node) {
+        Enumeration<KatNode> children = node.children();
+        while (children.hasMoreElements()) {
+            KatNode child = children.nextElement();
             if (child instanceof KatViewNode) {
                 if (((KatViewNode) child).isNewView()) {
                     addView((KatViewNode) child);
                 }
+            } else {
+                traverseAndFindViews(child);
             }
         }
     }

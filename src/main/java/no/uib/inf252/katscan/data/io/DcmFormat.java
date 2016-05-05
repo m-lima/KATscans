@@ -13,7 +13,7 @@ import no.uib.inf252.katscan.data.VoxelMatrix;
  */
 class DcmFormat implements LoadSaveFormat {
     
-    private static final int FORMAT_MAX_VALUE = 8192;
+    private static final int FORMAT_MAX_VALUE = 4096;
     
     private static final FileFilter FILE_FILTER = new FileNameExtensionFilter("DICOM volume data", "dcm");
 

@@ -1,6 +1,7 @@
 package no.uib.inf252.katscan.view.component;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -11,6 +12,7 @@ import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DragGestureEvent;
 import java.awt.dnd.DragGestureListener;
 import java.awt.dnd.DragSource;
+import java.awt.dnd.DragSourceContext;
 import java.awt.dnd.DragSourceDragEvent;
 import java.awt.dnd.DragSourceDropEvent;
 import java.awt.dnd.DragSourceEvent;
@@ -20,6 +22,7 @@ import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetEvent;
 import java.awt.dnd.DropTargetListener;
+import java.awt.image.BufferedImage;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JTree;
@@ -32,9 +35,6 @@ import no.uib.inf252.katscan.project.ProjectNode;
 import no.uib.inf252.katscan.project.displayable.Displayable;
 
 /**
- *
- * @see DraggableList
- * @see DraggableItem
  *
  * @author Marcelo
  */
@@ -70,8 +70,8 @@ public class DraggableTree extends JTree implements DragSourceListener, DropTarg
         getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 
         dragSource = new DragSource();
-        dragSource.createDefaultDragGestureRecognizer(this, DnDConstants.ACTION_MOVE, this);
-        new DropTarget(this, this);
+        dragSource.createDefaultDragGestureRecognizer(this, DnDConstants.ACTION_COPY_OR_MOVE, this);
+        new DropTarget(this, DnDConstants.ACTION_COPY_OR_MOVE, this);
     }
 
     public void finishDnD() {
@@ -129,8 +129,20 @@ public class DraggableTree extends JTree implements DragSourceListener, DropTarg
             finishDnD();
             return;
         }
+        
+        Point clickPoint = dge.getDragOrigin();
+        Rectangle pathBounds = getPathBounds(selectedPath);
+        Point clickOffset = new Point(clickPoint.x - pathBounds.x, clickPoint.y - pathBounds.y);
+        
+        BufferedImage image = new BufferedImage(pathBounds.width, pathBounds.height, BufferedImage.TYPE_4BYTE_ABGR);
+        Graphics2D g2d = image.createGraphics();
+        
+        Component renderer = getCellRenderer().getTreeCellRendererComponent(this, node, true, false, node.isLeaf(), getRowForPath(selectedPath), false);
+        renderer.setSize(pathBounds.width, pathBounds.height);
+        renderer.paint(g2d);
+        g2d.dispose();
 
-        dragSource.startDrag(dge, DragSource.DefaultMoveDrop, node, this);
+        dragSource.startDrag(dge, DragSource.DefaultMoveDrop, image, clickOffset, node, this);
     }
 
     @Override
@@ -145,7 +157,7 @@ public class DraggableTree extends JTree implements DragSourceListener, DropTarg
                     dtde.rejectDrag();
                     finishDnD();
                 } else {
-                    dtde.acceptDrag(DnDConstants.ACTION_MOVE);
+                    dtde.acceptDrag(dtde.getDropAction());
                 }
             } catch (Exception ex) {
                 Logger.getLogger(DraggableTree.class.getName()).log(Level.SEVERE, null, ex);
@@ -216,13 +228,20 @@ public class DraggableTree extends JTree implements DragSourceListener, DropTarg
     @Override
     public void drop(DropTargetDropEvent dtde) {
         if (checkDropValid()) {
-            dtde.acceptDrop(DnDConstants.ACTION_MOVE);
+            int action = dtde.getDropAction();
             
             ProjectHandler project = ProjectHandler.getInstance();
-            project.removeNodeFromParent(incomingNode);
+            if (action == DnDConstants.ACTION_MOVE) {
+                project.removeNodeFromParent(incomingNode);
+            } else if (action == DnDConstants.ACTION_COPY) {
+                incomingNode = incomingNode.copy();
+            }
+            
             project.insertNodeInto(incomingNode, targetNode, 0);
-
             expandPath(path);
+            selectionModel.setSelectionPath(path.pathByAddingChild(incomingNode));
+
+            dtde.acceptDrop(action);
         } else {
             dtde.rejectDrop();
         }
@@ -259,10 +278,32 @@ public class DraggableTree extends JTree implements DragSourceListener, DropTarg
     public void dragEnter(DragSourceDragEvent dsde) {}
 
     @Override
-    public void dragExit(DragSourceEvent dse) {}
+    public void dragExit(DragSourceEvent dsde) {
+        DragSourceContext context = dsde.getDragSourceContext();
+        context.setCursor(DragSource.DefaultMoveNoDrop);
+    }
 
     @Override
-    public void dragOver(DragSourceDragEvent dsde) {}
+    public void dragOver(DragSourceDragEvent dsde) {
+        DragSourceContext context = dsde.getDragSourceContext();
+        
+        if (!checkDropValid()) {
+            context.setCursor(DragSource.DefaultMoveNoDrop);
+            return;
+        }
+        
+        switch (dsde.getDropAction()) {
+            case DnDConstants.ACTION_MOVE:
+                context.setCursor(DragSource.DefaultMoveDrop);
+                break;
+            case DnDConstants.ACTION_COPY:
+                context.setCursor(DragSource.DefaultCopyDrop);
+                break;
+            default:
+                context.setCursor(DragSource.DefaultMoveNoDrop);
+                break;
+        }
+    }
 
     @Override
     public void dropActionChanged(DragSourceDragEvent dsde) {}
