@@ -175,7 +175,7 @@ public class SurfaceRenderer extends VolumeRenderer implements MouseMotionListen
                 thresholdHiDirty = true;
                 repaint();
             } else if (SwingUtilities.isMiddleMouseButton(e)) {
-                float deltaY = (e.getY() - lastY) / 10000f;
+                float deltaY = (e.getY() - lastY) / -10000f;
                 lastY = e.getY();
                 float diff = thresholdHi - thresholdLo;
                 

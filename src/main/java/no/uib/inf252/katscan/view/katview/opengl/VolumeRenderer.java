@@ -76,8 +76,6 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
     private Timer threadLOD;
     private boolean highLOD;
 
-    private float[] tempMatrix;
-
     VolumeRenderer(Displayable displayable, String shaderName) throws GLException {
         super(new GLCapabilities(GLProfile.get(GLProfile.GL2)));
         addGLEventListener(this);
@@ -103,8 +101,6 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
             }
         });
         threadLOD.setRepeats(false);
-
-        tempMatrix = new float[16];
     }
 
     abstract protected void preDraw(GLAutoDrawable drawable);
@@ -371,17 +367,11 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
     private void checkAndLoadMainUpdates(GL2 gl2) {
         int uniformLocation;
         int dirtyValues = trackBall.getDirtyValues();
-        if ((dirtyValues & (TrackBall.PROJECTION_DIRTY | TrackBall.VIEW_DIRTY | TrackBall.MODEL_DIRTY | TrackBall.ORTHO_DIRTY | TrackBall.SLICE_DIRTY)) != 0) {
+        if ((dirtyValues & (TrackBall.PROJECTION_DIRTY | TrackBall.VIEW_DIRTY | TrackBall.MODEL_DIRTY | TrackBall.ORTHO_DIRTY | TrackBall.SLICE_DIRTY | TrackBall.LIGHT_DIRTY)) != 0) {
 
             if ((dirtyValues & (TrackBall.VIEW_DIRTY | TrackBall.MODEL_DIRTY)) > 0) {
                 uniformLocation = gl2.glGetUniformLocation(mainProgram, "normalMatrix");
-                if (uniformLocation >= 0) {
-                    float[] normalMatrix = MatrixUtil.multiply(trackBall.getViewMatrix(), trackBall.getModelMatrix());
-                    MatrixUtil.getInverse(normalMatrix);
-                    normalMatrix = FloatUtil.transposeMatrix(normalMatrix, tempMatrix);
-                    normalMatrix = MatrixUtil.getMatrix3(normalMatrix);
-                    gl2.glUniformMatrix3fv(uniformLocation, 1, false, normalMatrix, 0);
-                }
+                gl2.glUniformMatrix3fv(uniformLocation, 1, false, trackBall.getNormalMatrix(), 0);
             }
 
             if ((dirtyValues & TrackBall.PROJECTION_DIRTY) > 0) {
@@ -420,6 +410,15 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
                 float slice = trackBall.getSlice();
                 gl2.glUniform1f(uniformLocation, slice < 0f ? 0f : slice);
                 trackBall.clearDirtyValues(TrackBall.SLICE_DIRTY);
+            }
+            
+            if ((dirtyValues & TrackBall.LIGHT_DIRTY) > 0) {
+                uniformLocation = gl2.glGetUniformLocation(mainProgram, "lightPos");
+                float[] lightPos = trackBall.getLightPosition();
+                gl2.glUniform3fv(uniformLocation, 1, lightPos, 0);
+                uniformLocation = gl2.glGetUniformLocation(mainProgram, "lightPosFront");
+                gl2.glUniform3f(uniformLocation, -lightPos[0], -lightPos[1], -lightPos[2]);
+                trackBall.clearDirtyValues(TrackBall.LIGHT_DIRTY);
             }
             
             checkError(gl2, "Update main dirty values");
