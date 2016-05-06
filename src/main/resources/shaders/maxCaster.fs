@@ -7,7 +7,7 @@ uniform sampler3D volumeTexture;
 uniform sampler2D raycastTexture;
 
 uniform int numSamples;
-uniform int lodMultiplier;
+uniform float lodMultiplier;
 uniform ivec2 screenSize;
 uniform float slice;
 
@@ -19,10 +19,9 @@ uniform vec3 ratio;
 uniform vec3 minValues;
 uniform vec3 maxValues;
 
-int actualSamples = (numSamples * lodMultiplier) >> 4;
-float stepSize = 1f / actualSamples;
+float stepSize = 16.0 * lodMultiplier / numSamples;
 
-const vec3 zero = vec3(0.0);
+const vec3 ZERO = vec3(0.0);
 
 out vec4 fragColor;
 
@@ -41,7 +40,7 @@ void main() {
     vec3 stepValue = rayDirection * stepSize / ratio;
 
     vec3 pos = texture(raycastTexture, vec2(gl_FragCoord.x / screenSize.x, gl_FragCoord.y / screenSize.y)).rgb;
-    if (pos == zero) {
+    if (pos == ZERO) {
         pos = effectiveEyePos;
         pos += slice * rayDirection;
         pos = (pos / ratio) + 0.5;

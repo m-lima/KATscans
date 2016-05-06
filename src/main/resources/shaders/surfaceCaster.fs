@@ -25,14 +25,13 @@ uniform vec3 maxValues;
 uniform vec3 lightPos;
 uniform vec3 lightPosFront;
 
-int actualSamples = numSamples;
-float stepSize = 1f / actualSamples;
+float stepSize = 1.0 / numSamples;
 
 float stepDist;
 vec3 rayDirection;
 vec3 effectiveEyePos;
 
-const vec3 zero = vec3(0.0);
+const vec3 ZERO = vec3(0.0);
 
 out vec4 fragColor;
 
@@ -69,7 +68,7 @@ void main() {
     slicePos = (slicePos / ratio) + 0.5;
 
     vec3 pos = texture(raycastTexture, vec2(gl_FragCoord.x / screenSize.x, gl_FragCoord.y / screenSize.y)).rgb;
-    if (pos == zero) {
+    if (pos == ZERO) {
         pos = slicePos;
     } else {
         float dist = distance((pos - 0.5) * ratio, effectiveEyePos);
