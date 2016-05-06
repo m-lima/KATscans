@@ -77,6 +77,8 @@ void main() {
         if (density <= 0.0) continue;
         transferColor = texture(transferFunction, density);
 
+        transferColor.a *= transferColor.a;
+
         transferColor.a /= lodMultiplier;
         if (transferColor.a <= 0.0) continue;
 
