@@ -53,7 +53,7 @@ public class SurfaceRenderer extends VolumeRenderer implements MouseMotionListen
     }
 
     @Override
-    public boolean acceptsStructure() {
+    public boolean isIlluminated() {
         return true;
     }
 

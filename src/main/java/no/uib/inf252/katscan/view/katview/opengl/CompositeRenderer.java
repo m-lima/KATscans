@@ -28,7 +28,7 @@ public class CompositeRenderer extends VolumeRenderer implements TransferFunctio
     }
 
     @Override
-    public boolean acceptsStructure() {
+    public boolean isIlluminated() {
         return true;
     }
 

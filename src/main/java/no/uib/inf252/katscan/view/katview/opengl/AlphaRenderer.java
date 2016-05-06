@@ -28,8 +28,8 @@ public class AlphaRenderer extends VolumeRenderer implements TransferFunctionLis
     }
 
     @Override
-    public boolean acceptsStructure() {
-        return true;
+    public boolean isIlluminated() {
+        return false;
     }
 
     @Override

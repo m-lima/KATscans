@@ -110,7 +110,7 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
 
     protected abstract void preDraw(GLAutoDrawable drawable);
     
-    public abstract boolean acceptsStructure();
+    public abstract boolean isIlluminated();
     public void createStructure(int x, int y, float threshold) {}
 
     @Override
@@ -405,7 +405,8 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
                             TrackBall.SLICE_DIRTY |
                             TrackBall.LIGHT_DIRTY |
                             TrackBall.MIN_DIRTY |
-                            TrackBall.MAX_DIRTY)) != 0) {
+                            TrackBall.MAX_DIRTY |
+                            TrackBall.STEP_DIRTY)) != 0) {
 
             if ((dirtyValues & (TrackBall.VIEW_DIRTY | TrackBall.MODEL_DIRTY)) > 0) {
                 uniformLocation = gl2.glGetUniformLocation(mainProgram, "normalMatrix");
@@ -469,6 +470,12 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
                 uniformLocation = gl2.glGetUniformLocation(mainProgram, "maxValues");
                 gl2.glUniform3fv(uniformLocation, 1, trackBall.getMaxValues(), 0);
                 trackBall.clearDirtyValues(TrackBall.MAX_DIRTY);
+            }
+            
+            if ((dirtyValues & TrackBall.STEP_DIRTY) > 0) {
+                uniformLocation = gl2.glGetUniformLocation(mainProgram, "stepFactor");
+                gl2.glUniform1f(uniformLocation, trackBall.getStepFactor());
+                System.out.println(trackBall.getStepFactor());
             }
             
             checkError(gl2, "Update main dirty values");

@@ -15,7 +15,7 @@ public class MaximumRenderer extends VolumeRenderer {
     }
 
     @Override
-    public boolean acceptsStructure() {
+    public boolean isIlluminated() {
         return false;
     }
 

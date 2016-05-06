@@ -8,7 +8,7 @@ uniform sampler2D raycastTexture;
 uniform sampler1D transferFunction;
 
 uniform int numSamples;
-uniform float stepFactor = 1.0;
+uniform float stepFactor;
 uniform ivec2 screenSize;
 uniform float slice;
 
@@ -97,7 +97,7 @@ void main() {
     pos += rand(gl_FragCoord.xy) * stepValue;
 
     stepDist = length(stepValue);
-    float fixedStep = stepDist / stepFactor;
+    float fixedStep = stepDist;
     stepX = vec3(fixedStep, 0.0, 0.0);
     stepY = vec3(0.0, fixedStep, 0.0);
     stepZ = vec3(0.0, 0.0, fixedStep);
@@ -120,7 +120,6 @@ void main() {
 
         transferColor = texture(transferFunction, density);
         transferColor.a *= transferColor.a;
-        transferColor.a *= stepFactor;
         if (transferColor.a <= MIN_ALPHA) continue;
 
         if (lightPos == ZERO || pos == slicePos) {

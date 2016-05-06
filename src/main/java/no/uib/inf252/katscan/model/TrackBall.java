@@ -28,16 +28,17 @@ import no.uib.inf252.katscan.view.katview.opengl.VolumeRenderer;
  */
 public class TrackBall implements KatModel, MouseListener, MouseMotionListener, MouseWheelListener, KeyListener, FocusListener {
 
-    public static final int MODEL_DIRTY = 0b1;
-    public static final int VIEW_DIRTY = 0b10;
-    public static final int PROJECTION_DIRTY = 0b100;
-    public static final int ZOOM_DIRTY = 0b1000;
-    public static final int ORTHO_DIRTY = 0b10000;
-    public static final int FOV_DIRTY = 0b100000;
-    public static final int SLICE_DIRTY = 0b1000000;
-    public static final int LIGHT_DIRTY = 0b10000000;
-    public static final int MIN_DIRTY = 0b100000000;
-    public static final int MAX_DIRTY = 0b1000000000;
+    public static final int MODEL_DIRTY = 1 << 0;
+    public static final int VIEW_DIRTY = 1 << 1;
+    public static final int PROJECTION_DIRTY = 1 << 2;
+    public static final int ZOOM_DIRTY = 1 << 3;
+    public static final int ORTHO_DIRTY = 1 << 4;
+    public static final int FOV_DIRTY = 1 << 5;
+    public static final int SLICE_DIRTY = 1 << 6;
+    public static final int LIGHT_DIRTY = 1 << 7;
+    public static final int MIN_DIRTY = 1 << 8;
+    public static final int MAX_DIRTY = 1 << 9;
+    public static final int STEP_DIRTY = 1 << 10;
     
     private static final float CUT_RATIO = -0.001f;
 
@@ -86,6 +87,8 @@ public class TrackBall implements KatModel, MouseListener, MouseMotionListener, 
 
     private final float[] minValues;
     private final float[] maxValues;
+    
+    private float stepFactor;
 
     transient private JPopupMenu popupMenu;
     transient private JMenuItem menuOrtho;
@@ -114,6 +117,7 @@ public class TrackBall implements KatModel, MouseListener, MouseMotionListener, 
         fov = FloatUtil.QUARTER_PI;
         slice = 0f;
         this.initialZoom = initialZoom;
+        stepFactor = 1f;
 
         reuseModel = false;
         reuseView = false;
@@ -143,6 +147,7 @@ public class TrackBall implements KatModel, MouseListener, MouseMotionListener, 
         this.fov = trackBall.fov;
         this.initialZoom = trackBall.initialZoom;
         this.slice = trackBall.slice;
+        this.stepFactor = trackBall.stepFactor;
 
         this.reuseModel = trackBall.reuseModel;
         this.reuseView = trackBall.reuseView;
@@ -174,6 +179,7 @@ public class TrackBall implements KatModel, MouseListener, MouseMotionListener, 
         this.fov = trackBall.fov;
         this.initialZoom = trackBall.initialZoom;
         this.slice = trackBall.slice;
+        this.stepFactor = trackBall.stepFactor;
 
         this.reuseModel = trackBall.reuseModel;
         this.reuseView = trackBall.reuseView;
@@ -272,6 +278,10 @@ public class TrackBall implements KatModel, MouseListener, MouseMotionListener, 
         return maxValues;
     }
 
+    public float getStepFactor() {
+        return stepFactor;
+    }
+
     private int getAllDirtyFlags() {
         return MODEL_DIRTY
                 | VIEW_DIRTY
@@ -282,7 +292,8 @@ public class TrackBall implements KatModel, MouseListener, MouseMotionListener, 
                 | SLICE_DIRTY
                 | LIGHT_DIRTY
                 | MIN_DIRTY
-                | MAX_DIRTY;
+                | MAX_DIRTY
+                | STEP_DIRTY;
     }
 
     public void markAllDirty() {
@@ -361,7 +372,7 @@ public class TrackBall implements KatModel, MouseListener, MouseMotionListener, 
         } else {
             menuOrtho = new JMenuItem("Orthographic", new ImageIcon(getClass().getResource("/icons/ortho.png")));
         }
-        final JMenuItem structure = owner.acceptsStructure() ? new JMenuItem("Create structure", new ImageIcon(getClass().getResource("/icons/tree/structure.png"))) : null;
+        final JMenuItem structure = new JMenuItem("Create structure", new ImageIcon(getClass().getResource("/icons/tree/structure.png")));
 
         ActionListener listener = new ActionListener() {
             @Override
@@ -440,11 +451,8 @@ public class TrackBall implements KatModel, MouseListener, MouseMotionListener, 
         popupMenu.add(reset);
         popupMenu.addSeparator();
         popupMenu.add(menuOrtho);
-
-        if (structure != null) {
-            popupMenu.addSeparator();
-            popupMenu.add(structure);
-        }
+        popupMenu.addSeparator();
+        popupMenu.add(structure);
     }
     
     private void setValue(float[] vector, float delta, int index, float min, float max) {
@@ -487,6 +495,7 @@ public class TrackBall implements KatModel, MouseListener, MouseMotionListener, 
         final int modifiers = e.getModifiersEx();
 
         if ((modifiers & ~(MouseEvent.SHIFT_DOWN_MASK
+                | MouseEvent.ALT_DOWN_MASK
                 | MouseEvent.BUTTON1_DOWN_MASK
                 | MouseEvent.BUTTON2_DOWN_MASK
                 | MouseEvent.BUTTON3_DOWN_MASK)) > 0) {
@@ -532,52 +541,73 @@ public class TrackBall implements KatModel, MouseListener, MouseMotionListener, 
                 | MouseEvent.BUTTON3_DOWN_MASK)) > 0) {
             return;
         }
+        
+        if (e.isShiftDown() && (modifiers & MouseEvent.ALT_DOWN_MASK) > 0) {
+            return;
+        }
+        
+        VolumeRenderer renderer = (VolumeRenderer) e.getComponent();
+        if (!renderer.isIlluminated() && e.isShiftDown()) {
+            return;
+        }
 
-        Component component = e.getComponent();
         if (SwingUtilities.isLeftMouseButton(e)) {
             if (e.isAltDown()) {
-                return;
-            }
-
-            getSurfaceVector(e.getX(), e.getY(), component.getWidth(), component.getHeight(), currentPosition);
-
-            float angle = FloatUtil.acos(VectorUtil.dotVec3(initialPosition, currentPosition));
-            VectorUtil.crossVec3(axis, initialPosition, currentPosition);
-            VectorUtil.normalizeVec3(axis);
-
-            if (e.isShiftDown()) {
-                System.arraycopy(initialLightPosition, 0, lightPosition, 0, lightPosition.length);
-                initialRotation.setIdentity().rotateByAngleNormalAxis(angle, axis[0], axis[1], axis[2]);
-                initialRotation.rotateVector(lightPosition, 0, lightPosition, 0);
-
-                dirtyValues |= LIGHT_DIRTY;
-            } else if (xDown || yDown || zDown) {
-                float deltaY = (e.getY() - yPos) * CUT_RATIO;
-                if (xDown) {
-                    setValue(minValues, deltaY, 0, 0f, maxValues[0]);
-                }
-
-                if (yDown) {
-                    setValue(minValues, deltaY, 1, 0f, maxValues[1]);
-                }
-
-                if (zDown) {
-                    setValue(minValues, deltaY, 2, 0f, maxValues[2]);
+                float deltaY = (e.getY() - yPos) * 0.025f;
+                
+                if (deltaY < 1f && stepFactor == 1f) {
+                    return;
                 }
                 
-                dirtyValues |= MIN_DIRTY;
+                stepFactor += deltaY;
+                
+                if (stepFactor < 1f) {
+                    stepFactor = 1f;
+                }
+                
                 yPos = e.getY();
+                dirtyValues |= STEP_DIRTY;                
             } else {
-                initialRotation.toMatrix(tempMatrix, 0);
-                initialRotation.conjugate().rotateVector(axis, 0, axis, 0);
-                initialRotation.setFromMatrix(tempMatrix, 0);
+                getSurfaceVector(e.getX(), e.getY(), renderer.getWidth(), renderer.getHeight(), currentPosition);
 
-                currentRotation.set(initialRotation);
-                currentRotation.rotateByAngleNormalAxis(angle, axis[0], axis[1], axis[2]);
+                float angle = FloatUtil.acos(VectorUtil.dotVec3(initialPosition, currentPosition));
+                VectorUtil.crossVec3(axis, initialPosition, currentPosition);
+                VectorUtil.normalizeVec3(axis);
 
-                dirtyValues |= MODEL_DIRTY;
-                reuseModel = false;
-                updateMatrices();
+                if (e.isShiftDown()) {
+                    System.arraycopy(initialLightPosition, 0, lightPosition, 0, lightPosition.length);
+                    initialRotation.setIdentity().rotateByAngleNormalAxis(angle, axis[0], axis[1], axis[2]);
+                    initialRotation.rotateVector(lightPosition, 0, lightPosition, 0);
+
+                    dirtyValues |= LIGHT_DIRTY;
+                } else if (xDown || yDown || zDown) {
+                    float deltaY = (e.getY() - yPos) * CUT_RATIO;
+                    if (xDown) {
+                        setValue(minValues, deltaY, 0, 0f, maxValues[0]);
+                    }
+
+                    if (yDown) {
+                        setValue(minValues, deltaY, 1, 0f, maxValues[1]);
+                    }
+
+                    if (zDown) {
+                        setValue(minValues, deltaY, 2, 0f, maxValues[2]);
+                    }
+
+                    dirtyValues |= MIN_DIRTY;
+                    yPos = e.getY();
+                } else {
+                    initialRotation.toMatrix(tempMatrix, 0);
+                    initialRotation.conjugate().rotateVector(axis, 0, axis, 0);
+                    initialRotation.setFromMatrix(tempMatrix, 0);
+
+                    currentRotation.set(initialRotation);
+                    currentRotation.rotateByAngleNormalAxis(angle, axis[0], axis[1], axis[2]);
+
+                    dirtyValues |= MODEL_DIRTY;
+                    reuseModel = false;
+                    updateMatrices();
+                }
             }
         } else if (SwingUtilities.isMiddleMouseButton(e)) {
             float deltaY = e.getY() - yPos;
@@ -591,7 +621,7 @@ public class TrackBall implements KatModel, MouseListener, MouseMotionListener, 
                     fov = 0.5f;
                 }
 
-                updateProjection(component.getWidth(), component.getHeight());
+                updateProjection(renderer.getWidth(), renderer.getHeight());
             } else if (e.isShiftDown()) {
                 slice -= deltaY * 0.0025f;
                 if (slice <= 0f) {
@@ -639,7 +669,7 @@ public class TrackBall implements KatModel, MouseListener, MouseMotionListener, 
             } else {
                 eyePosition[2] += deltaY / (4f * 16f);
                 if (orthographic) {
-                    updateProjection(component.getWidth(), component.getHeight());
+                    updateProjection(renderer.getWidth(), renderer.getHeight());
                 }
 
                 slice += deltaY / (4f * 16f);
@@ -673,10 +703,10 @@ public class TrackBall implements KatModel, MouseListener, MouseMotionListener, 
                 yPos = e.getY();
             } else {
 
-                eyePosition[0] = xPosOld + (xPos - e.getX()) / (float) component.getWidth();
+                eyePosition[0] = xPosOld + (xPos - e.getX()) / (float) renderer.getWidth();
                 targetPosition[0] = eyePosition[0];
 
-                eyePosition[1] = yPosOld - (yPos - e.getY()) / (float) component.getHeight();
+                eyePosition[1] = yPosOld - (yPos - e.getY()) / (float) renderer.getHeight();
                 targetPosition[1] = eyePosition[1];
 
                 dirtyValues |= VIEW_DIRTY;
@@ -684,7 +714,7 @@ public class TrackBall implements KatModel, MouseListener, MouseMotionListener, 
                 updateMatrices();
             }
         }
-        component.repaint();
+        renderer.repaint();
     }
 
     @Override

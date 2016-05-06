@@ -7,7 +7,7 @@ uniform sampler3D volumeTexture;
 uniform sampler2D raycastTexture;
 
 uniform int numSamples;
-uniform float stepFactor = 1.0;
+uniform float stepFactor;
 uniform ivec2 screenSize;
 uniform float slice;
 

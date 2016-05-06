@@ -10,7 +10,7 @@ uniform float thresholdLo;
 uniform float thresholdHi;
 
 uniform int numSamples;
-uniform float stepFactor = 1.0;
+uniform float stepFactor;
 uniform ivec2 screenSize;
 uniform float slice;
 

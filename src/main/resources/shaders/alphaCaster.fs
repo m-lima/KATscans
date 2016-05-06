@@ -8,7 +8,7 @@ uniform sampler2D raycastTexture;
 uniform sampler1D transferFunction;
 
 uniform int numSamples;
-uniform float stepFactor = 1.0;
+uniform float stepFactor;
 uniform ivec2 screenSize;
 uniform float slice;
 
@@ -26,6 +26,10 @@ const vec3 ZERO = vec3(0.0);
 const float MIN_ALPHA = 1.0 / 255.0;
 
 out vec4 fragColor;
+
+float rand(vec2 co){
+    return fract(sin(dot(co.xy, vec2(12.9898,78.233))) * 43758.5453);
+}
 
 void main() {       
     vec3 effectiveEyePos = eyePos;
@@ -55,6 +59,8 @@ void main() {
         }
     }
 
+    pos += rand(gl_FragCoord.xy) * stepValue;
+
     float dist = distance((vertexOut / ratio) + 0.5, pos);
     float stepDist = length(stepValue);
     float density;
@@ -72,7 +78,6 @@ void main() {
 
         transferColor = texture(transferFunction, density);
         transferColor.a *= transferColor.a;
-        transferColor.a *= stepFactor;
         if (transferColor.a <= MIN_ALPHA) continue;
 
         fragColor.rgb = mix(fragColor.rgb, transferColor.rgb, transferColor.a);
