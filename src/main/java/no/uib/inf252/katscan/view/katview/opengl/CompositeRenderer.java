@@ -23,7 +23,7 @@ public class CompositeRenderer extends VolumeRenderer implements TransferFunctio
     private boolean transferFunctionDirty;
     
     public CompositeRenderer(Displayable displayable) throws GLException {
-        super(displayable, "compoCaster");
+        super(displayable, "compoCaster", 0.5f);
         displayable.getTransferFunction().addTransferFunctionListener(this);
     }
 

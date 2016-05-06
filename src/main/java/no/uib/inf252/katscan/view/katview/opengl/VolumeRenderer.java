@@ -33,8 +33,6 @@ import no.uib.inf252.katscan.view.katview.KatView;
  * @author Marcelo Lima
  */
 public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEventListener {
-
-    private static final float LOD_FACTOR = 16f;
     
     private static final String PROPERTY_TRACKBALL = "TrackBall";
     
@@ -54,9 +52,11 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
 
     private static final int TEXTURE_VOLUME = 0;
     private static final int TEXTURE_FRAME_BUFFER = 1;
-    protected static final int TEXTURE_COUNT_PARENT = 2;
+    private static final int TEXTURE_RESO_BUFFER = 2;
+    protected static final int TEXTURE_COUNT_PARENT = 3;
 
     private static final int FRAME_BUFFER_FRONT = 0;
+    private static final int FRAME_BUFFER_RESO = 1;
 
     private final int[] shaderLocation;
     private final int[] bufferLocation;
@@ -76,16 +76,20 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
 
     private Timer threadLOD;
     private boolean highLOD;
+    private final float lodFactor;
+    private int lodWidth;
+    private int lodHeight;
     
-    VolumeRenderer(Displayable displayable, String shaderName) throws GLException {
+    VolumeRenderer(Displayable displayable, String shaderName, float lodFactor) throws GLException {
         super(new GLCapabilities(GLProfile.get(GLProfile.GL2)));
         addGLEventListener(this);
 
         shaderLocation = new int[4];
         bufferLocation = new int[3];
-        textureLocation = new int[2];
-        frameBuffer = new int[1];
+        textureLocation = new int[3];
+        frameBuffer = new int[2];
 
+        this.lodFactor = lodFactor;
         this.shaderName = shaderName;
         this.displayable = displayable;
 
@@ -122,7 +126,7 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
         GL2 gl2 = drawable.getGL().getGL2();
         loadVertices(gl2);
         loadTexture(gl2, voxelMatrix);
-        loadFrameBuffer(gl2);
+        loadFrameBuffers(gl2);
         loadPrograms(gl2);
         loadRaycastingInitialUniforms(gl2, voxelMatrix);
         loadMainInitialUniforms(gl2, voxelMatrix);
@@ -167,7 +171,10 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
         checkError(gl2, "Create Texture");
     }
 
-    private void loadFrameBuffer(GL2 gl2) {
+    private void loadFrameBuffers(GL2 gl2) {
+        lodWidth = (int) (getWidth() * lodFactor);
+        lodHeight = (int) (getHeight() * lodFactor);
+
         gl2.glGenTextures(1, textureLocation, TEXTURE_FRAME_BUFFER);
         gl2.glActiveTexture(GL2.GL_TEXTURE0 + TEXTURE_FRAME_BUFFER);
         gl2.glBindTexture(GL2.GL_TEXTURE_2D, textureLocation[TEXTURE_FRAME_BUFFER]);
@@ -176,18 +183,38 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
         gl2.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_LINEAR);
         gl2.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_S, GL2.GL_CLAMP_TO_BORDER);
         gl2.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_T, GL2.GL_CLAMP_TO_BORDER);
-
-        gl2.glTexImage2D(GL2.GL_TEXTURE_2D, 0, GL2.GL_RGB, getWidth(), getHeight(), 0, GL2.GL_RGB, GL2.GL_UNSIGNED_BYTE, null);
+        gl2.glTexImage2D(GL2.GL_TEXTURE_2D, 0, GL2.GL_RGB, lodWidth, lodHeight, 0, GL2.GL_RGB, GL2.GL_UNSIGNED_BYTE, null);
 
         gl2.glGenFramebuffers(1, frameBuffer, FRAME_BUFFER_FRONT);
         gl2.glBindFramebuffer(GL2.GL_FRAMEBUFFER, frameBuffer[FRAME_BUFFER_FRONT]);
         gl2.glFramebufferTexture2D(GL2.GL_FRAMEBUFFER, GL2.GL_COLOR_ATTACHMENT0, GL2.GL_TEXTURE_2D, textureLocation[TEXTURE_FRAME_BUFFER], 0);
 
         if (gl2.glCheckFramebufferStatus(GL2.GL_FRAMEBUFFER) != GL2.GL_FRAMEBUFFER_COMPLETE) {
-            throw new GLException("Failed to load frame buffer");
+            throw new GLException("Failed to load front frame buffer");
         }
 
-        checkError(gl2, "Load FrameBuffer");
+        checkError(gl2, "Load front frame buffer");
+        
+        gl2.glGenTextures(1, textureLocation, TEXTURE_RESO_BUFFER);
+        gl2.glActiveTexture(GL2.GL_TEXTURE0 + TEXTURE_RESO_BUFFER);
+        gl2.glBindTexture(GL2.GL_TEXTURE_2D, textureLocation[TEXTURE_RESO_BUFFER]);
+
+        gl2.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);
+        gl2.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_LINEAR);
+        gl2.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_S, GL2.GL_CLAMP_TO_BORDER);
+        gl2.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_T, GL2.GL_CLAMP_TO_BORDER);
+
+        gl2.glTexImage2D(GL2.GL_TEXTURE_2D, 0, GL2.GL_RGB, lodWidth, lodHeight, 0, GL2.GL_RGB, GL2.GL_UNSIGNED_BYTE, null);
+
+        gl2.glGenFramebuffers(1, frameBuffer, FRAME_BUFFER_RESO);
+        gl2.glBindFramebuffer(GL2.GL_FRAMEBUFFER, frameBuffer[FRAME_BUFFER_RESO]);
+        gl2.glFramebufferTexture2D(GL2.GL_FRAMEBUFFER, GL2.GL_COLOR_ATTACHMENT0, GL2.GL_TEXTURE_2D, textureLocation[TEXTURE_RESO_BUFFER], 0);
+
+        if (gl2.glCheckFramebufferStatus(GL2.GL_FRAMEBUFFER) != GL2.GL_FRAMEBUFFER_COMPLETE) {
+            throw new GLException("Failed to load resolution frame buffer");
+        }
+
+        checkError(gl2, "Load resolution frame buffer");
     }
 
     private void loadPrograms(GL2 gl2) throws GLException {
@@ -289,39 +316,39 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
 
     @Override
     public void display(GLAutoDrawable drawable) {
-        int uniformLocation;
         GL2 gl2 = drawable.getGL().getGL2();
+        
+        if (highLOD) {
+            updateFrameBuffersSize(gl2, getWidth(), getHeight());
+        }
 
         gl2.glBindFramebuffer(GL2.GL_FRAMEBUFFER, frameBuffer[FRAME_BUFFER_FRONT]);
-        gl2.glViewport(0, 0, getWidth(), getHeight());
+        gl2.glViewport(0, 0, lodWidth, lodHeight);
         initializeRender(gl2);
         gl2.glUseProgram(raycastingProgram);
         
         checkAndLoadRaycastingUpdates(gl2);
         draw(gl2, false);
-        gl2.glFlush();
         gl2.glFinish();
 
-        gl2.glBindFramebuffer(GL2.GL_FRAMEBUFFER, 0);
-        gl2.glViewport(0, 0, getWidth(), getHeight());
+        gl2.glBindFramebuffer(GL2.GL_FRAMEBUFFER, frameBuffer[FRAME_BUFFER_RESO]);
+        gl2.glViewport(0, 0, lodWidth, lodHeight);
         initializeRender(gl2);
         gl2.glUseProgram(mainProgram);
-
-        if (highLOD) {
-            uniformLocation = gl2.glGetUniformLocation(mainProgram, "lodMultiplier");
-            gl2.glUniform1f(uniformLocation, 1f/LOD_FACTOR);
-        }
 
         checkAndLoadMainUpdates(gl2);
         preDraw(drawable);
         checkError(gl2, "Pre draw");
         draw(gl2, true);
-        gl2.glFlush();
         gl2.glFinish();
+        
+        gl2.glBindFramebuffer(GL2.GL_DRAW_FRAMEBUFFER, 0);
+        gl2.glViewport(0, 0, getWidth(), getHeight());
+        initializeRender(gl2);
+        gl2.glBlitFramebuffer(0, 0, lodWidth, lodHeight, 0, 0, getWidth(), getHeight(), GL2.GL_COLOR_BUFFER_BIT, GL2.GL_NEAREST);
 
         if (highLOD) {
-            uniformLocation = gl2.glGetUniformLocation(mainProgram, "lodMultiplier");
-            gl2.glUniform1f(uniformLocation, 1f);
+            updateFrameBuffersSize(gl2, (int) (getWidth() * lodFactor), (int) (getHeight() * lodFactor));
             highLOD = false;
         } else {
             threadLOD.restart();
@@ -464,13 +491,7 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
         trackBall.updateProjection(width, height);
 
         GL2 gl2 = drawable.getGL().getGL2();
-        gl2.glActiveTexture(GL2.GL_TEXTURE0 + TEXTURE_FRAME_BUFFER);
-        gl2.glBindTexture(GL2.GL_TEXTURE_2D, textureLocation[TEXTURE_FRAME_BUFFER]);
-        gl2.glTexImage2D(GL2.GL_TEXTURE_2D, 0, GL2.GL_RGB, width, height, 0, GL2.GL_RGB, GL2.GL_UNSIGNED_BYTE, null);
-        
-        gl2.glUseProgram(mainProgram);
-        int location = gl2.glGetUniformLocation(mainProgram, "screenSize");
-        gl2.glUniform2i(location, width, height);
+        updateFrameBuffersSize(gl2, (int) (width * lodFactor), (int) (height * lodFactor));
     }
 
     @Override
@@ -516,6 +537,25 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
             System.out.println(getClass().getSimpleName() + " :: OpenGL Error(" + errorString + "): " + location);
             throw new Error();
         }
+    }
+    
+    private void updateFrameBuffersSize(GL2 gl2, int width, int height) {
+        lodWidth = width;
+        lodHeight = height;
+        
+        gl2.glActiveTexture(GL2.GL_TEXTURE0 + TEXTURE_FRAME_BUFFER);
+        gl2.glBindTexture(GL2.GL_TEXTURE_2D, textureLocation[TEXTURE_FRAME_BUFFER]);
+        gl2.glTexImage2D(GL2.GL_TEXTURE_2D, 0, GL2.GL_RGB, lodWidth, lodHeight, 0, GL2.GL_RGB, GL2.GL_UNSIGNED_BYTE, null);
+        
+        gl2.glActiveTexture(GL2.GL_TEXTURE0 + TEXTURE_RESO_BUFFER);
+        gl2.glBindTexture(GL2.GL_TEXTURE_2D, textureLocation[TEXTURE_RESO_BUFFER]);
+        gl2.glTexImage2D(GL2.GL_TEXTURE_2D, 0, GL2.GL_RGB, lodWidth, lodHeight, 0, GL2.GL_RGB, GL2.GL_UNSIGNED_BYTE, null);
+        
+        gl2.glUseProgram(mainProgram);
+        int location = gl2.glGetUniformLocation(mainProgram, "screenSize");
+        gl2.glUniform2i(location, width, height);     
+
+        checkError(gl2, "Update frame buffer textures");   
     }
 
     protected boolean checkCompile(GL2 gl2, int shader, String shaderName) {

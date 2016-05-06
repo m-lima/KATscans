@@ -8,7 +8,7 @@ uniform sampler2D raycastTexture;
 uniform sampler1D transferFunction;
 
 uniform int numSamples;
-uniform float lodMultiplier;
+uniform float stepFactor = 1.0;
 uniform ivec2 screenSize;
 uniform float slice;
 
@@ -20,7 +20,7 @@ uniform vec3 ratio;
 uniform vec3 minValues;
 uniform vec3 maxValues;
 
-float stepSize = lodMultiplier / numSamples;
+float stepSize = stepFactor / numSamples;
 
 const vec3 ZERO = vec3(0.0);
 const float MIN_ALPHA = 1.0 / 255.0;
@@ -72,7 +72,7 @@ void main() {
 
         transferColor = texture(transferFunction, density);
         transferColor.a *= transferColor.a;
-        transferColor.a *= lodMultiplier;
+        transferColor.a *= stepFactor;
         if (transferColor.a <= MIN_ALPHA) continue;
 
         fragColor.rgb = mix(fragColor.rgb, transferColor.rgb, transferColor.a);

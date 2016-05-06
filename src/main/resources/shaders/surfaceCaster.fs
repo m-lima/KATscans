@@ -10,6 +10,7 @@ uniform float thresholdLo;
 uniform float thresholdHi;
 
 uniform int numSamples;
+uniform float stepFactor = 1.0;
 uniform ivec2 screenSize;
 uniform float slice;
 
@@ -25,11 +26,7 @@ uniform vec3 maxValues;
 uniform vec3 lightPos;
 uniform vec3 lightPosFront;
 
-float stepSize = 1.0 / numSamples;
-
-float stepDist;
-vec3 rayDirection;
-vec3 effectiveEyePos;
+float stepSize = stepFactor / numSamples;
 
 const vec3 ZERO = vec3(0.0);
 
@@ -39,10 +36,10 @@ float rand(vec2 co){
     return fract(sin(dot(co.xy, vec2(12.9898,78.233))) * 43758.5453);
 }
 
-vec3 getGradient(vec3 pos) {
-    vec3 stepX = vec3(stepDist, 0.0, 0.0);
-    vec3 stepY = vec3(0.0, stepDist, 0.0);
-    vec3 stepZ = vec3(0.0, 0.0, stepDist);
+vec3 getGradient(vec3 pos, float gradientStep) {
+    vec3 stepX = vec3(gradientStep, 0.0, 0.0);
+    vec3 stepY = vec3(0.0, gradientStep, 0.0);
+    vec3 stepZ = vec3(0.0, 0.0, gradientStep);
 
     float x1 = texture(volumeTexture, pos + stepX).x;
     float x2 = texture(volumeTexture, pos - stepX).x;
@@ -54,13 +51,13 @@ vec3 getGradient(vec3 pos) {
 }
 
 void main() {       
-    effectiveEyePos = eyePos;
+    vec3 effectiveEyePos = eyePos;
     if (orthographic) {
         effectiveEyePos.xy = vertexOutModel.xy;
     } 
 
     effectiveEyePos = invModel * effectiveEyePos;
-    rayDirection = normalize(vertexOut - effectiveEyePos);
+    vec3 rayDirection = normalize(vertexOut - effectiveEyePos);
     vec3 stepValue = rayDirection * stepSize / ratio;
 
     vec3 slicePos = effectiveEyePos;
@@ -83,7 +80,7 @@ void main() {
     }
 
     float dist = distance((vertexOut / ratio) + 0.5, pos);
-    stepDist = length(stepValue);
+    float stepDist = length(stepValue);
     float density;
     vec3 normal;
     vec3 color;
@@ -119,7 +116,7 @@ void main() {
         if (noGradient) {
             lightReflection = 1.0;
         } else {
-            normal = normalize(normalMatrix * getGradient(pos));
+            normal = normalize(normalMatrix * getGradient(pos, stepDist * stepFactor));
             if (invert) {
                 lightReflection = dot(normal, lightPosFront);
             } else {

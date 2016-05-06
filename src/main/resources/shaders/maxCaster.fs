@@ -7,7 +7,7 @@ uniform sampler3D volumeTexture;
 uniform sampler2D raycastTexture;
 
 uniform int numSamples;
-uniform float lodMultiplier;
+uniform float stepFactor = 1.0;
 uniform ivec2 screenSize;
 uniform float slice;
 
@@ -19,7 +19,7 @@ uniform vec3 ratio;
 uniform vec3 minValues;
 uniform vec3 maxValues;
 
-float stepSize = 16.0 * lodMultiplier / numSamples;
+float stepSize = 8.0 * stepFactor / numSamples;
 
 const vec3 ZERO = vec3(0.0);
 
