@@ -4,7 +4,7 @@ import java.io.Serializable;
 import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
 import no.uib.inf252.katscan.data.VoxelMatrix;
-import no.uib.inf252.katscan.util.TransferFunction;
+import no.uib.inf252.katscan.model.TransferFunction;
 
 /**
  *

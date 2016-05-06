@@ -14,7 +14,7 @@ import javax.swing.SwingUtilities;
 import no.uib.inf252.katscan.event.TransferFunctionListener;
 import no.uib.inf252.katscan.project.displayable.Displayable;
 import no.uib.inf252.katscan.project.displayable.StructureNode;
-import no.uib.inf252.katscan.util.TransferFunction;
+import no.uib.inf252.katscan.model.TransferFunction;
 
 /**
  *

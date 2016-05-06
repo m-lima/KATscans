@@ -5,8 +5,8 @@ import java.awt.event.ActionListener;
 import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
 import no.uib.inf252.katscan.data.VoxelMatrix;
-import no.uib.inf252.katscan.util.TransferFunction;
-import no.uib.inf252.katscan.util.TransferFunction.Type;
+import no.uib.inf252.katscan.model.TransferFunction;
+import no.uib.inf252.katscan.model.TransferFunction.Type;
 
 /**
  *
@@ -28,7 +28,7 @@ public class TransferFunctionNode extends SubGroup implements ActionListener {
 
     @Override
     protected TransferFunctionNode internalCopy() {
-        return new TransferFunctionNode(new TransferFunction(transferFunction));
+        return new TransferFunctionNode(transferFunction.copy());
     }
 
     @Override

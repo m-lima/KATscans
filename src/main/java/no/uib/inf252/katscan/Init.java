@@ -23,6 +23,7 @@ import no.uib.inf252.katscan.view.SplashScreen;
 //TODO [ ] Split trackball functions
 //TODO [ ] Subgroup should be "Overrider"
 //TODO [ ] The verb should be override instead of add (i.e. Override Cut)
+//TODO [ ] Make Human/Basic for histogram in every Displayable
 //DONE [X] Loading glass pane when building view
 //DONE [X] FIND AWESOME DEFAULT TRANSFER FUNCTION!!!!!!!!!!!!
 //DONE [X] Load Hand from the top and see the oversampling.. Fix with frame buffer

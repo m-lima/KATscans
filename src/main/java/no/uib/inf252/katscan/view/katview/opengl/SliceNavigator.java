@@ -21,7 +21,7 @@ import java.util.Map;
 import no.uib.inf252.katscan.data.VoxelMatrix;
 import no.uib.inf252.katscan.event.TransferFunctionListener;
 import no.uib.inf252.katscan.project.displayable.Displayable;
-import no.uib.inf252.katscan.util.TransferFunction;
+import no.uib.inf252.katscan.model.TransferFunction;
 import no.uib.inf252.katscan.view.katview.KatView;
 
 /**

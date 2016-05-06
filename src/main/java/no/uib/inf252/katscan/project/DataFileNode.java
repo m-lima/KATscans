@@ -7,7 +7,7 @@ import javax.swing.JMenuItem;
 import javax.swing.tree.MutableTreeNode;
 import no.uib.inf252.katscan.data.VoxelMatrix;
 import no.uib.inf252.katscan.project.displayable.Displayable;
-import no.uib.inf252.katscan.util.TransferFunction;
+import no.uib.inf252.katscan.model.TransferFunction;
 
 /**
  *
@@ -23,7 +23,7 @@ public class DataFileNode extends Displayable implements Serializable {
         super(name);
         this.file = file;
         this.matrix = matrix;
-        transferFunction = new TransferFunction(TransferFunction.Type.BASIC);
+        transferFunction = new TransferFunction(TransferFunction.Type.SLOPE);
     }
 
     @Override

@@ -16,7 +16,6 @@ import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -26,7 +25,7 @@ import no.uib.inf252.katscan.data.VoxelMatrix;
 import no.uib.inf252.katscan.project.displayable.Displayable;
 import no.uib.inf252.katscan.util.DisplayObject;
 import no.uib.inf252.katscan.util.MatrixUtil;
-import no.uib.inf252.katscan.util.TrackBall;
+import no.uib.inf252.katscan.model.TrackBall;
 import no.uib.inf252.katscan.view.katview.KatView;
 
 /**
@@ -35,6 +34,8 @@ import no.uib.inf252.katscan.view.katview.KatView;
  */
 public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEventListener {
 
+    private static final float LOD_FACTOR = 16f;
+    
     private static final String PROPERTY_TRACKBALL = "TrackBall";
     
     private static final String SHADERS_ROOT = "/shaders/";
@@ -308,7 +309,7 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
 
         if (highLOD) {
             uniformLocation = gl2.glGetUniformLocation(mainProgram, "lodMultiplier");
-            gl2.glUniform1i(uniformLocation, 16);
+            gl2.glUniform1f(uniformLocation, 1f/LOD_FACTOR);
         }
 
         checkAndLoadMainUpdates(gl2);
@@ -320,7 +321,7 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
 
         if (highLOD) {
             uniformLocation = gl2.glGetUniformLocation(mainProgram, "lodMultiplier");
-            gl2.glUniform1i(uniformLocation, 1);
+            gl2.glUniform1f(uniformLocation, 1f);
             highLOD = false;
         } else {
             threadLOD.restart();

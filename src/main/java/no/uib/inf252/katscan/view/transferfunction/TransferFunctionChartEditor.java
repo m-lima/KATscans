@@ -16,8 +16,8 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import no.uib.inf252.katscan.Init;
 import no.uib.inf252.katscan.event.TransferFunctionListener;
-import no.uib.inf252.katscan.util.TransferFunction;
-import no.uib.inf252.katscan.util.TransferFunction.TransferFunctionPoint;
+import no.uib.inf252.katscan.model.TransferFunction;
+import no.uib.inf252.katscan.model.TransferFunction.TransferFunctionPoint;
 
 /**
  *

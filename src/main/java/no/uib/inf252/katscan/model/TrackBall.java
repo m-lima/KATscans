@@ -187,6 +187,7 @@ public class TrackBall implements KatModel, MouseListener, MouseMotionListener, 
         markAllDirty();
     }
     
+    @Override
     public TrackBall copy() {
         return new TrackBall(this);
     }

@@ -11,7 +11,7 @@ import no.uib.inf252.katscan.data.VoxelMatrix;
 import no.uib.inf252.katscan.project.KatNode;
 import no.uib.inf252.katscan.project.KatViewNode;
 import no.uib.inf252.katscan.project.ProjectHandler;
-import no.uib.inf252.katscan.util.TransferFunction;
+import no.uib.inf252.katscan.model.TransferFunction;
 import no.uib.inf252.katscan.view.katview.KatView.Type;
 
 /**
