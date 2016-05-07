@@ -7,12 +7,12 @@ import java.util.Enumeration;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.tree.MutableTreeNode;
-import no.uib.inf252.katscan.model.TrackBall;
 import no.uib.inf252.katscan.model.VoxelMatrix;
 import no.uib.inf252.katscan.project.KatNode;
 import no.uib.inf252.katscan.project.KatViewNode;
 import no.uib.inf252.katscan.project.ProjectHandler;
 import no.uib.inf252.katscan.model.TransferFunction;
+import no.uib.inf252.katscan.view.RenameDiag;
 import no.uib.inf252.katscan.view.katview.KatView.Type;
 
 /**
@@ -25,6 +25,7 @@ public abstract class Displayable extends KatNode {
     private static final String CUT = "Add Cut";
     private static final String STRUCTURE = "Add Structure";
     private static final String REMOVE = "Remove";
+    private static final String RENAME = "Rename";
 
     public abstract VoxelMatrix getMatrix();
     public abstract TransferFunction getTransferFunction();
@@ -69,6 +70,7 @@ public abstract class Displayable extends KatNode {
         JMenuItem cutMenu = new JMenuItem(CUT, 'U');
         JMenuItem structureMenu = new JMenuItem(STRUCTURE, 'R');
         JMenuItem removeMenu = new JMenuItem(REMOVE, 'E');
+        JMenuItem renameMenu = new JMenuItem(RENAME, 'N');
         
         MenuListener listener = new MenuListener();
         
@@ -83,12 +85,14 @@ public abstract class Displayable extends KatNode {
         cutMenu.addActionListener(listener);
         structureMenu.addActionListener(listener);
         removeMenu.addActionListener(listener);
+        renameMenu.addActionListener(listener);
         
         menu.add(transferMenu);
         menu.add(cutMenu);
         menu.add(structureMenu);
         menu.addSeparator();
         menu.add(removeMenu);
+        menu.add(renameMenu);
         
         return menu;
     }
@@ -133,6 +137,9 @@ public abstract class Displayable extends KatNode {
             switch(text) {
                 case REMOVE:
                     remove();
+                    break;
+                case RENAME:
+                    RenameDiag.promptRename(Displayable.this);
                     break;
                 case CUT:
                     ProjectHandler.getInstance().insertNodeInto(new CutNode(), Displayable.this, getChildCount());

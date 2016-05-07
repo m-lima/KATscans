@@ -10,6 +10,7 @@ import javax.swing.JMenuItem;
 import javax.swing.tree.MutableTreeNode;
 import no.uib.inf252.katscan.data.io.LoadSaveFormat;
 import no.uib.inf252.katscan.view.LoadDiag;
+import no.uib.inf252.katscan.view.RenameDiag;
 
 /**
  *
@@ -40,6 +41,14 @@ public class ProjectNode extends KatNode {
         menu.addSeparator();
         JMenuItem item = new JMenuItem(RENAME, 'R');
         item.setIcon(new ImageIcon(ProjectNode.class.getResource("/icons/edit.png")));
+        
+        item.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                RenameDiag.promptRename(ProjectNode.this);
+            }
+        });
+        
         menu.add(item);
         return menu;
     }

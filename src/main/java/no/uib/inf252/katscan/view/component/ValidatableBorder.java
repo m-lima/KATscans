@@ -21,9 +21,10 @@ import javax.swing.text.JTextComponent;
  * @author Marcelo Lima
  */
 public class ValidatableBorder implements Border {
-
+    
+    public static final Color INVALID_COLOR = new Color(130, 50, 50);
     private static final DoubleColor INVALID_DOUBLE_COLOR = new DoubleColor(new Color(212, 121, 35), new Color(255, 175, 96));
-    private static final Color INVALID_COLOR = new Color(212, 121, 35);
+//    private static final Color INVALID_COLOR = new Color(212, 121, 35);
 
     private boolean valid = true;
 

@@ -5,14 +5,19 @@ package no.uib.inf252.katscan.project.io;
  * @author Marcelo Lima
  */
 public class PersistenceHandler {
+    
+    private static final String LAST_LOAD = "lastProjLoad.kat";
 
-    //TODO Persist project
-    private PersistenceHandler() {
+    private PersistenceHandler() {}
+    
+    public void autoSave(){
     }
     
-    public void autoSave(){};
-    public void save(){};
-    public void load(){};
+    public void save(){
+    }
+    
+    public void load(){
+    }
 
     public static PersistenceHandler getInstance() {
         return PersistenceHandlerHolder.INSTANCE;

@@ -32,8 +32,6 @@ import no.uib.inf252.katscan.view.component.ValidatableBorder;
  */
 public class LoadDiag extends javax.swing.JDialog {
 
-    private static final Color INVALID_COLOR = new Color(130, 50, 50);
-
     private final ValidatableBorder txtFileBorder;
     private final LoadSaveHandler loadHandler;
     private File file;
@@ -213,7 +211,7 @@ public class LoadDiag extends javax.swing.JDialog {
             spnRatioY.setEnabled(false);
             spnRatioZ.setEnabled(false);
             
-            txtFile.setBackground(INVALID_COLOR);
+            txtFile.setBackground(ValidatableBorder.INVALID_COLOR);
             
             header = null;
             file = null;

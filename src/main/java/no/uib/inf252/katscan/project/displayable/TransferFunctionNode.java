@@ -17,18 +17,18 @@ public class TransferFunctionNode extends SubGroup implements ActionListener {
     private transient final TransferFunction transferFunction;
 
     public TransferFunctionNode(Type type) {
-        super("Transfer Function");
+        super("Transfer Function - " + type.getText());
         transferFunction = new TransferFunction(type);
     }
 
-    private TransferFunctionNode(TransferFunction transferFunction) {
-        super("Transfer Function");
-        this.transferFunction = transferFunction;
+    private TransferFunctionNode(TransferFunctionNode node) {
+        super(node.getName());
+        this.transferFunction = node.transferFunction.copy();
     }
 
     @Override
     protected TransferFunctionNode internalCopy() {
-        return new TransferFunctionNode(transferFunction.copy());
+        return new TransferFunctionNode(this);
     }
 
     @Override
