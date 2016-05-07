@@ -7,7 +7,8 @@ import java.util.Enumeration;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.tree.MutableTreeNode;
-import no.uib.inf252.katscan.data.VoxelMatrix;
+import no.uib.inf252.katscan.model.TrackBall;
+import no.uib.inf252.katscan.model.VoxelMatrix;
 import no.uib.inf252.katscan.project.KatNode;
 import no.uib.inf252.katscan.project.KatViewNode;
 import no.uib.inf252.katscan.project.ProjectHandler;
@@ -27,6 +28,8 @@ public abstract class Displayable extends KatNode {
 
     public abstract VoxelMatrix getMatrix();
     public abstract TransferFunction getTransferFunction();
+//    public abstract TrackBall getTrackBall();
+//    public abstract TrackBall getCut();
 
     public Displayable(String name) {
         super(name);

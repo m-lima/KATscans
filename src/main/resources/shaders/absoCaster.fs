@@ -20,6 +20,8 @@ uniform vec3 ratio;
 uniform vec3 minValues;
 uniform vec3 maxValues;
 
+uniform vec3 lightPos;
+
 float stepSize = stepFactor / numSamples;
 
 const vec3 ZERO = vec3(0.0);
@@ -59,6 +61,8 @@ void main() {
     float stepDist = length(stepValue);
     float density;
     vec4 transferColor;
+    vec3 lightStrider;
+    vec3 lightDirection;
     fragColor = vec4(0.0);
     for (;dist > 0.0; dist -= stepDist, pos += stepValue) {
         if (pos.x < minValues.x || pos.x >= maxValues.x ||
@@ -69,6 +73,9 @@ void main() {
 
         density = texture(volumeTexture, pos).x;
         if (density <= 0.0) continue;
+        
+        lightDirection = normalize(lightPos - pos);
+        lightStrider = pos + lightDirection;
 
         transferColor = texture(transferFunction, density);
         transferColor.a *= transferColor.a;

@@ -1,12 +1,11 @@
-package no.uib.inf252.katscan.data;
+package no.uib.inf252.katscan.model;
 
-import java.io.Serializable;
 import no.uib.inf252.katscan.data.io.LoadSaveOptions;
 
 /**
  * @author Marcelo Lima
  */
-public class VoxelMatrix implements Serializable {
+public class VoxelMatrix implements KatModel {
 
     private final int sizeX, sizeY, sizeZ;
     private final short[] grid;
@@ -19,7 +18,7 @@ public class VoxelMatrix implements Serializable {
     
     private boolean initialized;
 
-    public VoxelMatrix(VoxelMatrix matrix) {
+    private VoxelMatrix(VoxelMatrix matrix) {
         if (!matrix.initialized) {
             throw new RuntimeException(VoxelMatrix.class.getName() + " has not been initialized yet.");            
         }
@@ -44,49 +43,49 @@ public class VoxelMatrix implements Serializable {
         initialized = true;
     }
     
-    public VoxelMatrix(VoxelMatrix matrix, int minX, int maxX,
-                                           int minY, int maxY,
-                                           int minZ, int maxZ) {
-        
-        sizeX = maxX - minX;
-        sizeY = maxY - minY;
-        sizeZ = maxZ - minZ;
-        
-        if (sizeX <= 0 || sizeY <= 0 || sizeZ <= 0) {
-            throw new IllegalArgumentException("Trying to create a sub VoxelMatrix with negative size.");
-        }
-        
-        if (sizeX > matrix.sizeX || sizeY > matrix.sizeY || sizeZ > matrix.sizeZ) {
-            throw new IllegalArgumentException("Trying to create a sub VoxelMatrix larger than the original.");
-        }
-        
-        minValue = matrix.minValue;
-        maxValue = matrix.maxValue;
-        maxFormatValue = matrix.maxFormatValue;
-        normalized = matrix.normalized;
-        
-        grid = new short[sizeX * sizeY * sizeZ];
-        histogram = new int[matrix.histogram.length];
-        ratio = new float[matrix.ratio.length];        
-        
-        System.arraycopy(matrix.ratio, 0, ratio, 0, ratio.length);
-        
-        int i = 0;
-        double normRatio = (maxValue - minValue) / 65535d;
-        for (int z = minZ; z < maxZ; z++) {
-            for (int y = minY; y < maxY; y++) {
-                for (int x = minX; x < maxX; x++) {
-                    int value = matrix.grid[z * matrix.sizeY * matrix.sizeX + y * matrix.sizeX + x] & 0xFFFF;
-                    grid[i] = (short) value;
-                    value *= normRatio;
-                    histogram[value]++;
-                    i++;
-                }
-            }            
-        }
-        
-        initialized = true;
-    }
+//    public VoxelMatrix(VoxelMatrix matrix, int minX, int maxX,
+//                                           int minY, int maxY,
+//                                           int minZ, int maxZ) {
+//        
+//        sizeX = maxX - minX;
+//        sizeY = maxY - minY;
+//        sizeZ = maxZ - minZ;
+//        
+//        if (sizeX <= 0 || sizeY <= 0 || sizeZ <= 0) {
+//            throw new IllegalArgumentException("Trying to create a sub VoxelMatrix with negative size.");
+//        }
+//        
+//        if (sizeX > matrix.sizeX || sizeY > matrix.sizeY || sizeZ > matrix.sizeZ) {
+//            throw new IllegalArgumentException("Trying to create a sub VoxelMatrix larger than the original.");
+//        }
+//        
+//        minValue = matrix.minValue;
+//        maxValue = matrix.maxValue;
+//        maxFormatValue = matrix.maxFormatValue;
+//        normalized = matrix.normalized;
+//        
+//        grid = new short[sizeX * sizeY * sizeZ];
+//        histogram = new int[matrix.histogram.length];
+//        ratio = new float[matrix.ratio.length];        
+//        
+//        System.arraycopy(matrix.ratio, 0, ratio, 0, ratio.length);
+//        
+//        int i = 0;
+//        double normRatio = (maxValue - minValue) / 65535d;
+//        for (int z = minZ; z < maxZ; z++) {
+//            for (int y = minY; y < maxY; y++) {
+//                for (int x = minX; x < maxX; x++) {
+//                    int value = matrix.grid[z * matrix.sizeY * matrix.sizeX + y * matrix.sizeX + x] & 0xFFFF;
+//                    grid[i] = (short) value;
+//                    value *= normRatio;
+//                    histogram[value]++;
+//                    i++;
+//                }
+//            }            
+//        }
+//        
+//        initialized = true;
+//    }
     
     public VoxelMatrix(LoadSaveOptions options) {
         sizeX = options.getSizeX();
@@ -156,6 +155,11 @@ public class VoxelMatrix implements Serializable {
         }
         
         initialized = true;
+    }
+
+    @Override
+    public VoxelMatrix copy() {
+        return new VoxelMatrix(this);
     }
 
     public int getSizeX() {

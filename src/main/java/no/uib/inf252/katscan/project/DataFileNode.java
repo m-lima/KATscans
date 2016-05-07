@@ -5,7 +5,7 @@ import java.io.Serializable;
 import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
 import javax.swing.tree.MutableTreeNode;
-import no.uib.inf252.katscan.data.VoxelMatrix;
+import no.uib.inf252.katscan.model.VoxelMatrix;
 import no.uib.inf252.katscan.project.displayable.Displayable;
 import no.uib.inf252.katscan.model.TransferFunction;
 
@@ -28,7 +28,7 @@ public class DataFileNode extends Displayable implements Serializable {
 
     @Override
     protected DataFileNode internalCopy() {
-        return new DataFileNode(getName(), new File(file.getAbsolutePath()), new VoxelMatrix(matrix));
+        return new DataFileNode(getName(), new File(file.getAbsolutePath()), matrix.copy());
     }
 
     @Override

@@ -61,25 +61,6 @@
             </MenuItem>
           </SubComponents>
         </Menu>
-        <Menu class="javax.swing.JMenu" name="mnuWindow">
-          <Properties>
-            <Property name="mnemonic" type="int" value="87"/>
-            <Property name="text" type="java.lang.String" value="Window"/>
-          </Properties>
-          <SubComponents>
-            <MenuItem class="javax.swing.JPopupMenu$Separator" name="sepCloseWindow">
-            </MenuItem>
-            <MenuItem class="javax.swing.JMenuItem" name="mitCloseWindow">
-              <Properties>
-                <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                  <Image iconType="3" name="/icons/closeWindows.png"/>
-                </Property>
-                <Property name="mnemonic" type="int" value="88"/>
-                <Property name="text" type="java.lang.String" value="Close All"/>
-              </Properties>
-            </MenuItem>
-          </SubComponents>
-        </Menu>
       </SubComponents>
     </Menu>
   </NonVisualComponents>

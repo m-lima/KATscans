@@ -8,7 +8,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import no.uib.inf252.katscan.data.VoxelMatrix;
+import no.uib.inf252.katscan.model.VoxelMatrix;
 import no.uib.inf252.katscan.util.FileAwareInputStream;
 
 /**

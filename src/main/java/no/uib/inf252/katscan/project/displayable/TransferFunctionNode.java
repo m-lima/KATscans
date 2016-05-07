@@ -4,7 +4,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
-import no.uib.inf252.katscan.data.VoxelMatrix;
+import no.uib.inf252.katscan.model.VoxelMatrix;
 import no.uib.inf252.katscan.model.TransferFunction;
 import no.uib.inf252.katscan.model.TransferFunction.Type;
 

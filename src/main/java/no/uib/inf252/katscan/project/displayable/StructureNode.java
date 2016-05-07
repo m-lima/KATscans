@@ -3,7 +3,7 @@ package no.uib.inf252.katscan.project.displayable;
 import java.io.Serializable;
 import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
-import no.uib.inf252.katscan.data.VoxelMatrix;
+import no.uib.inf252.katscan.model.VoxelMatrix;
 import no.uib.inf252.katscan.model.TransferFunction;
 
 /**

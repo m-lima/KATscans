@@ -41,7 +41,7 @@ public class SurfaceRenderer extends VolumeRenderer implements MouseMotionListen
     private boolean colorsDirty;
     
     public SurfaceRenderer(Displayable displayable) throws GLException {
-        super(displayable, "surfaceCaster", 1f);
+        super(displayable, "surfCaster", 1f);
         
         updateColors();
         

@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.Timer;
-import no.uib.inf252.katscan.data.VoxelMatrix;
+import no.uib.inf252.katscan.model.VoxelMatrix;
 import no.uib.inf252.katscan.project.displayable.Displayable;
 import no.uib.inf252.katscan.util.DisplayObject;
 import no.uib.inf252.katscan.util.MatrixUtil;
@@ -475,7 +475,7 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
             if ((dirtyValues & TrackBall.STEP_DIRTY) > 0) {
                 uniformLocation = gl2.glGetUniformLocation(mainProgram, "stepFactor");
                 gl2.glUniform1f(uniformLocation, trackBall.getStepFactor());
-                System.out.println(trackBall.getStepFactor());
+                trackBall.clearDirtyValues(TrackBall.STEP_DIRTY);
             }
             
             checkError(gl2, "Update main dirty values");

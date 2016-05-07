@@ -400,6 +400,10 @@ public class TrackBall implements KatModel, MouseListener, MouseMotionListener, 
                     lightPosition[1] = 0.34815532f;
                     lightPosition[2] = 0.87038827f;
                     
+                    translation[0] = 0f;
+                    translation[1] = 0f;
+                    translation[2] = 0f;
+                    
                     minValues[0] = 0f;
                     minValues[1] = 0f;
                     minValues[2] = 0f;
@@ -547,9 +551,6 @@ public class TrackBall implements KatModel, MouseListener, MouseMotionListener, 
         }
         
         VolumeRenderer renderer = (VolumeRenderer) e.getComponent();
-        if (!renderer.isIlluminated() && e.isShiftDown()) {
-            return;
-        }
 
         if (SwingUtilities.isLeftMouseButton(e)) {
             if (e.isAltDown()) {
@@ -575,6 +576,10 @@ public class TrackBall implements KatModel, MouseListener, MouseMotionListener, 
                 VectorUtil.normalizeVec3(axis);
 
                 if (e.isShiftDown()) {
+                    if (!renderer.isIlluminated()) {
+                        return;
+                    }
+                    
                     System.arraycopy(initialLightPosition, 0, lightPosition, 0, lightPosition.length);
                     initialRotation.setIdentity().rotateByAngleNormalAxis(angle, axis[0], axis[1], axis[2]);
                     initialRotation.rotateVector(lightPosition, 0, lightPosition, 0);

@@ -61,8 +61,8 @@ vec3 getGradient(vec3 pos) {
     return vec3(x2 - x1, y2 - y1, z2 - z1);
 }
 
-float rand(vec2 co){
-    return fract(sin(dot(co.xy, vec2(12.9898,78.233))) * 43758.5453);
+float rand(){
+    return fract(sin(dot(gl_FragCoord.xy, vec2(12.9898,78.233))) * 43758.5453);
 }
 
 void main() {       
@@ -87,14 +87,11 @@ void main() {
         if (dist < slice) {
             pos = slicePos;
         } else {
-            pos = effectiveEyePos;
-            pos += dist * rayDirection;
-            pos = (pos / ratio) + 0.5;
-            pos += rand(gl_FragCoord.xy) * stepValue;
+            pos = ((effectiveEyePos + (dist * rayDirection)) / ratio) + 0.5 + (rand() * stepValue);
         }
     }
 
-    pos += rand(gl_FragCoord.xy) * stepValue;
+    pos += rand() * stepValue;
 
     stepDist = length(stepValue);
     float fixedStep = stepDist;
@@ -107,11 +104,13 @@ void main() {
     vec4 transferColor;
     float lightReflection;
     vec3 normal;
+    bool noGradient = (pos == slicePos);
     fragColor = vec4(0.0);
     for (;dist > 0.0; dist -= stepDist, pos += stepValue) {
         if (pos.x < minValues.x || pos.x >= maxValues.x ||
             pos.y < minValues.y || pos.y >= maxValues.y ||
             pos.z < minValues.z || pos.z >= maxValues.z) {
+            noGradient = true;
             continue;
         }
 
@@ -122,7 +121,7 @@ void main() {
         transferColor.a *= transferColor.a;
         if (transferColor.a <= MIN_ALPHA) continue;
 
-        if (lightPos == ZERO || pos == slicePos) {
+        if (noGradient) {
             lightReflection = 1.0;
         } else {
             normal = normalize(normalMatrix * getGradient(pos));

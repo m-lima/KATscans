@@ -17,6 +17,8 @@ import no.uib.inf252.katscan.view.SplashScreen;
 
 //TODO [ ] Exceptions
 //TODO [ ] Alpha compositing
+//TODO [ ] Save project
+//TODO [ ] Window management
 //TODO [ ] Icons for all items
 //TODO [ ] Remove reference to model from KatNodes
 //TODO [ ] Make trackball a node

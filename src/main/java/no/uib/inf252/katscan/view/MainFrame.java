@@ -5,15 +5,20 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.GraphicsConfiguration;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
+import javax.swing.ImageIcon;
 import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 import javax.swing.JRootPane;
 import javax.swing.KeyStroke;
 import javax.swing.event.TreeModelEvent;
@@ -22,7 +27,6 @@ import net.infonode.docking.DockingWindow;
 import net.infonode.docking.RootWindow;
 import net.infonode.docking.TabWindow;
 import net.infonode.docking.View;
-import net.infonode.docking.WindowBar;
 import net.infonode.docking.properties.DockingWindowProperties;
 import net.infonode.docking.properties.RootWindowProperties;
 import net.infonode.docking.theme.DockingWindowsTheme;
@@ -42,9 +46,10 @@ import no.uib.inf252.katscan.view.project.ProjectBrowser;
  *
  * @author Marcelo Lima
  */
-public class MainFrame extends javax.swing.JFrame implements TreeModelListener {
+public class MainFrame extends javax.swing.JFrame implements TreeModelListener, ActionListener {
     
     private static final int DATASET_MENU_POSITION = 1;
+    private static final int WINDOW_MENU_POSITION = 2;
     public static final Color THEME_COLOR = new Color(51, 51, 51);
     public static final Color THEME_COLOR_BRIGHTER = new Color(60, 61, 63);
     public static final Color SOFT_GRAY = new Color(187, 187, 187);
@@ -57,6 +62,10 @@ public class MainFrame extends javax.swing.JFrame implements TreeModelListener {
     private final ProjectBrowser datasetBrowser;
     
     private boolean pojectBrowserMinized;
+    
+    private final ArrayList<View> views;
+    private final JMenuItem mitCloseAll;
+    private boolean updatingMenu;
     
     /**
      * Creates new form MainFrame
@@ -74,6 +83,11 @@ public class MainFrame extends javax.swing.JFrame implements TreeModelListener {
         } catch (IOException ex) {
             Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
+
+        views = new ArrayList<>();
+        mitCloseAll = new JMenuItem("Close all", 'C');
+        mitCloseAll.setIcon(new ImageIcon(getClass().getResource("/icons/closeWindows.png")));
+        mitCloseAll.addActionListener(this);
 
         initComponents();
 
@@ -98,7 +112,7 @@ public class MainFrame extends javax.swing.JFrame implements TreeModelListener {
         contentPane.setLayout(new BorderLayout());
         contentPane.add(rootWindow, BorderLayout.CENTER);
         
-        setupMenu();
+        setupMenus();
     }
 
     private void setupRootView(BufferedImage image) {
@@ -134,13 +148,20 @@ public class MainFrame extends javax.swing.JFrame implements TreeModelListener {
         pojectBrowserMinized = true;
     }
 
-    private void setupMenu() {
-        JMenu menu = ProjectHandler.getInstance().getRoot().getMenu(true);
-        if (mbrMain.getComponentCount() > 2) {
-            mbrMain.remove(DATASET_MENU_POSITION);
+    private void setupMenus() {
+        if (updatingMenu) {
+            return;
         }
-        mbrMain.add(menu, DATASET_MENU_POSITION);
+        
+        updatingMenu = true;
+        while (mbrMain.getComponentCount() > 1) {
+            mbrMain.remove(1);
+        }
+        
+        mbrMain.add(ProjectHandler.getInstance().getRoot().getMenu(true), DATASET_MENU_POSITION);
+        mbrMain.add(buildWindowMenu(), WINDOW_MENU_POSITION);
         mbrMain.validate();
+        updatingMenu = false;
     }
 
     private void setupGlobalKeys() {
@@ -161,15 +182,58 @@ public class MainFrame extends javax.swing.JFrame implements TreeModelListener {
         });
     }
     
+    private JMenu buildWindowMenu() {
+        JMenu menu = new JMenu("Windows");
+        menu.setMnemonic('W');
+        
+        views.clear();
+        populateViewList(ProjectHandler.getInstance().getRoot());
+
+        JMenuItem item;
+        char mnemonic;
+        String title;
+        for (int i = 0; i < views.size(); i++) {
+            title = views.get(i).getTitle();
+            title = title.substring(0, title.indexOf(" - "));
+            if (i < 10) {
+                mnemonic = (char) (i + '1');
+                item = new JMenuItem("[" + mnemonic + "] " + title);
+                item.setMnemonic(mnemonic);
+            } else {
+                item = new JMenuItem(title);
+            }
+            item.addActionListener(this);
+            menu.add(item);
+        }
+        
+        if (!views.isEmpty()) {
+            menu.addSeparator();
+        }
+        
+        menu.add(mitCloseAll);
+        
+        return menu;
+    }
+    
+    private void populateViewList(KatNode node) {
+        if (node instanceof KatViewNode) {
+            views.add(((KatViewNode) node).getView());
+        } else {
+            Enumeration<KatNode> children = node.children();
+            while (children.hasMoreElements()) {
+                populateViewList(children.nextElement());
+            }                
+        }
+    }
     
     @Override
     public void treeNodesChanged(TreeModelEvent e) {
-        setupMenu();
+        setupMenus();
     }
 
     @Override
     public void treeNodesInserted(TreeModelEvent e) {
-        setupMenu();
+        setupMenus();
         KatNode node = (KatNode) e.getTreePath().getLastPathComponent();
         traverseAndFindViews(node);
     }
@@ -190,12 +254,31 @@ public class MainFrame extends javax.swing.JFrame implements TreeModelListener {
 
     @Override
     public void treeNodesRemoved(TreeModelEvent e) {
-        setupMenu();
+        setupMenus();
     }
 
     @Override
     public void treeStructureChanged(TreeModelEvent e) {
-        setupMenu();
+        setupMenus();
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        JMenuItem item = (JMenuItem) e.getSource();
+        if (item == mitCloseAll) {
+            updatingMenu = true;
+            for (View view : views) {
+                view.close();
+            }
+            updatingMenu = false;
+        } else {
+            Container parent = item.getParent();
+            for (int i = 0; i < parent.getComponentCount(); i++) {
+                if (parent.getComponent(i) == item) {
+                    views.get(i).makeVisible();
+                }
+            }
+        }
     }
     
     private void addView(KatViewNode view) {
@@ -235,9 +318,6 @@ public class MainFrame extends javax.swing.JFrame implements TreeModelListener {
         mitSave = new javax.swing.JMenuItem();
         sepSaveLoad = new javax.swing.JPopupMenu.Separator();
         mitExit = new javax.swing.JMenuItem();
-        mnuWindow = new javax.swing.JMenu();
-        sepCloseWindow = new javax.swing.JPopupMenu.Separator();
-        mitCloseWindow = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -283,17 +363,6 @@ public class MainFrame extends javax.swing.JFrame implements TreeModelListener {
 
         mbrMain.add(mnuFile);
 
-        mnuWindow.setMnemonic('W');
-        mnuWindow.setText("Window");
-        mnuWindow.add(sepCloseWindow);
-
-        mitCloseWindow.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/closeWindows.png"))); // NOI18N
-        mitCloseWindow.setMnemonic('X');
-        mitCloseWindow.setText("Close All");
-        mnuWindow.add(mitCloseWindow);
-
-        mbrMain.add(mnuWindow);
-
         setJMenuBar(mbrMain);
 
         pack();
@@ -314,14 +383,11 @@ public class MainFrame extends javax.swing.JFrame implements TreeModelListener {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuBar mbrMain;
-    private javax.swing.JMenuItem mitCloseWindow;
     private javax.swing.JMenuItem mitExit;
     private javax.swing.JMenuItem mitLoad;
     private javax.swing.JMenuItem mitNew;
     private javax.swing.JMenuItem mitSave;
     private javax.swing.JMenu mnuFile;
-    private javax.swing.JMenu mnuWindow;
-    private javax.swing.JPopupMenu.Separator sepCloseWindow;
     private javax.swing.JPopupMenu.Separator sepNew;
     private javax.swing.JPopupMenu.Separator sepSaveLoad;
     // End of variables declaration//GEN-END:variables

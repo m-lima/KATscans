@@ -3,7 +3,7 @@ package no.uib.inf252.katscan.project.displayable;
 import java.io.Serializable;
 import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
-import no.uib.inf252.katscan.data.VoxelMatrix;
+import no.uib.inf252.katscan.model.VoxelMatrix;
 import no.uib.inf252.katscan.event.CutListener;
 import no.uib.inf252.katscan.project.KatNode;
 import no.uib.inf252.katscan.model.TransferFunction;
@@ -34,14 +34,15 @@ public class CutNode extends SubGroup implements Serializable, CutListener {
     
     @Override
     public VoxelMatrix getMatrix() {
-        if (cutMatrix == null) {
-            VoxelMatrix matrix = getParent().getMatrix();
-            cutMatrix = new VoxelMatrix(matrix, (int) (matrix.getSizeX() * 0.25), (int) (matrix.getSizeX() * 0.75),
-                                                (int) (matrix.getSizeY() * 0.25), (int) (matrix.getSizeY() * 0.75),
-                                                (int) (matrix.getSizeZ() * 0.25), (int) (matrix.getSizeZ() * 0.75));
-                                        
-        }
-        return cutMatrix;
+        return getParent().getMatrix();
+//        if (cutMatrix == null) {
+//            VoxelMatrix matrix = getParent().getMatrix();
+//            cutMatrix = new VoxelMatrix(matrix, (int) (matrix.getSizeX() * 0.25), (int) (matrix.getSizeX() * 0.75),
+//                                                (int) (matrix.getSizeY() * 0.25), (int) (matrix.getSizeY() * 0.75),
+//                                                (int) (matrix.getSizeZ() * 0.25), (int) (matrix.getSizeZ() * 0.75));
+//                                        
+//        }
+//        return cutMatrix;
     }
 
     @Override

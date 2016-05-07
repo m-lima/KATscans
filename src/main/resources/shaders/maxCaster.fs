@@ -22,11 +22,12 @@ uniform vec3 maxValues;
 float stepSize = 8.0 * stepFactor / numSamples;
 
 const vec3 ZERO = vec3(0.0);
+const float MIN_ALPHA = 1.0 / 255.0;
 
 out vec4 fragColor;
 
-float rand(vec2 co){
-    return fract(sin(dot(co.xy, vec2(12.9898,78.233))) * 43758.5453);
+float rand(){
+    return fract(sin(dot(gl_FragCoord.xy, vec2(12.9898,78.233))) * 43758.5453);
 }
 
 void main() {       
@@ -41,23 +42,17 @@ void main() {
 
     vec3 pos = texture(raycastTexture, vec2(gl_FragCoord.x / screenSize.x, gl_FragCoord.y / screenSize.y)).rgb;
     if (pos == ZERO) {
-        pos = effectiveEyePos;
-        pos += slice * rayDirection;
-        pos = (pos / ratio) + 0.5;
+        pos = ((effectiveEyePos + (slice * rayDirection)) / ratio) + 0.5;
     } else {
         float dist = distance((pos - 0.5) * ratio, effectiveEyePos);
         if (dist < slice) {
-            pos = effectiveEyePos;
-            pos += slice * rayDirection;
-            pos = (pos / ratio) + 0.5;
+            pos = ((effectiveEyePos + (slice * rayDirection)) / ratio) + 0.5;
         } else {
-            pos = effectiveEyePos;
-            pos += dist * rayDirection;
-            pos = (pos / ratio) + 0.5;
+            pos = ((effectiveEyePos + (dist * rayDirection)) / ratio) + 0.5;
         }
     }
 
-    pos += rand(gl_FragCoord.xy) * stepValue;
+    pos += rand() * stepValue;
 
     float dist = distance((vertexOut / ratio) + 0.5, pos);
     float stepDist = length(stepValue);
@@ -71,7 +66,7 @@ void main() {
         }
 
         density = texture(volumeTexture, pos).x;
-        if (density <= 0.0) continue;
+        if (density <= MIN_ALPHA) continue;
         color = max(density, color);
         if (color >= 1.0) {
             color = 1.0;
@@ -79,7 +74,5 @@ void main() {
         }
     }
 
-    fragColor.rgb = vec3(color);
-    if (color < 0.1) color = 0.0;
-    fragColor.a = color;
+    fragColor = vec4(color);
 }
