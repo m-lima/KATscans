@@ -1,5 +1,6 @@
 package no.uib.inf252.katscan.project;
 
+import no.uib.inf252.katscan.project.displayable.DataFileNode;
 import javax.swing.tree.DefaultTreeModel;
 
 /**

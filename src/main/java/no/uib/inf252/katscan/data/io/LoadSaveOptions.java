@@ -1,10 +1,12 @@
 package no.uib.inf252.katscan.data.io;
 
+import java.io.Serializable;
+
 /**
  *
  * @author Marcelo Lima
  */
-public class LoadSaveOptions {
+public class LoadSaveOptions implements Serializable {
 
     private final int sizeX;
     private final int sizeY;

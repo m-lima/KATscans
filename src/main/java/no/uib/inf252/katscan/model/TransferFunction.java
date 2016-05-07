@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.LinearGradientPaint;
 import java.awt.MultipleGradientPaint;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -48,13 +50,13 @@ public class TransferFunction implements KatModel {
     public static final int TEXTURE_SIZE = 2048;
     public static final float MIN_STEP = 1f / TEXTURE_SIZE;
 
-    private final ArrayList<TransferFunctionPoint> points;
-    private final EventListenerList listenerList;
+    private ArrayList<TransferFunctionPoint> points;
+    private transient EventListenerList listenerList;
 
-    transient private boolean dirtyPaint;
-    private Color[] colorsLinear;
-    private Color[] colorsQuadratic;
-    private float[] colorPoints;
+    private transient boolean dirtyPaint;
+    private transient Color[] colorsLinear;
+    private transient Color[] colorsQuadratic;
+    private transient float[] colorPoints;
     
     public TransferFunction(Type type) {
         points = new ArrayList<>();
@@ -72,8 +74,15 @@ public class TransferFunction implements KatModel {
         dirtyPaint = true;
     }
     
+    @Override
     public TransferFunction copy() {
         return new TransferFunction(this);
+    }
+    
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        points = (ArrayList<TransferFunctionPoint>) in.readObject();
+        listenerList = new EventListenerList();
+        dirtyPaint = true;
     }
     
     public final void setType(Type type) {
@@ -115,7 +124,6 @@ public class TransferFunction implements KatModel {
         dirtyPaint = true;
         firePointCountChanged();
     }
-
     public int getPointCount() {
         return points.size();
     }

@@ -14,7 +14,7 @@ import no.uib.inf252.katscan.model.TransferFunction.Type;
  */
 public class TransferFunctionNode extends SubGroup implements ActionListener {
     
-    private transient final TransferFunction transferFunction;
+    private final TransferFunction transferFunction;
 
     public TransferFunctionNode(Type type) {
         super("Transfer Function - " + type.getText());

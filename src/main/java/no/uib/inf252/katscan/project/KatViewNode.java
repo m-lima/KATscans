@@ -1,6 +1,8 @@
 package no.uib.inf252.katscan.project;
 
 import java.awt.Component;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import java.util.logging.Level;
@@ -8,9 +10,6 @@ import java.util.logging.Logger;
 import javax.swing.ImageIcon;
 import javax.swing.JMenu;
 import javax.swing.tree.MutableTreeNode;
-import net.infonode.docking.DockingWindow;
-import net.infonode.docking.DockingWindowListener;
-import net.infonode.docking.OperationAbortedException;
 import net.infonode.docking.View;
 import no.uib.inf252.katscan.event.TransferFunctionListener;
 import no.uib.inf252.katscan.project.displayable.Displayable;
@@ -22,11 +21,11 @@ import no.uib.inf252.katscan.view.katview.KatView.Type;
  *
  * @author Marcelo Lima
  */
-public class KatViewNode extends KatNode implements DockingWindowListener {
+public class KatViewNode extends KatNode {
     
-    private final Type type;
-    private final View view;
-    private boolean newView;
+    private Type type;
+    private transient View view;
+    private transient boolean newView;
 
     public static KatViewNode buildKatView(Type type) {
         if (type == null) {
@@ -45,8 +44,13 @@ public class KatViewNode extends KatNode implements DockingWindowListener {
         super(type.getText());
         newView = true;
         this.view = new View(type.getText() + " - Loading", null, new LoadingPanel(false));
-        view.addListener(this);
         this.type = type;
+    }
+    
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        type = (Type) in.readObject();
+        this.view = new View(type.getText() + " - Loading", null, new LoadingPanel(false));
+        newView = true;
     }
     
     public View getView() {
@@ -136,62 +140,4 @@ public class KatViewNode extends KatNode implements DockingWindowListener {
     public ImageIcon getIcon() {
         return new ImageIcon(getClass().getResource("/icons/tree/view.png"));
     }
-
-    @Override
-    public void windowAdded(DockingWindow addedToWindow, DockingWindow addedWindow) {}
-
-    @Override
-    public void windowRemoved(DockingWindow removedFromWindow, DockingWindow removedWindow) {}
-
-    @Override
-    public void windowShown(DockingWindow window) {}
-
-    @Override
-    public void windowHidden(DockingWindow window) {}
-
-    @Override
-    public void viewFocusChanged(View previouslyFocusedView, View focusedView) {}
-
-    @Override
-    public void windowClosing(DockingWindow window) throws OperationAbortedException {}
-
-    @Override
-    public void windowClosed(DockingWindow window) {
-        ProjectHandler.getInstance().removeNodeFromParent(this);
-        
-        if (getView().getComponent() instanceof TransferFunctionListener) {
-            getParent().getTransferFunction().removeTransferFunctionListener((TransferFunctionListener) getView().getComponent());
-        }
-    }
-
-    @Override
-    public void windowUndocking(DockingWindow window) throws OperationAbortedException {}
-
-    @Override
-    public void windowUndocked(DockingWindow window) {}
-
-    @Override
-    public void windowDocking(DockingWindow window) throws OperationAbortedException {}
-
-    @Override
-    public void windowDocked(DockingWindow window) {}
-
-    @Override
-    public void windowMinimizing(DockingWindow window) throws OperationAbortedException {}
-
-    @Override
-    public void windowMinimized(DockingWindow window) {}
-
-    @Override
-    public void windowMaximizing(DockingWindow window) throws OperationAbortedException {}
-
-    @Override
-    public void windowMaximized(DockingWindow window) {}
-
-    @Override
-    public void windowRestoring(DockingWindow window) throws OperationAbortedException {}
-
-    @Override
-    public void windowRestored(DockingWindow window) {}
-    
 }

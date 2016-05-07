@@ -18,7 +18,7 @@ import javax.swing.JToggleButton;
 import no.uib.inf252.katscan.Init;
 import no.uib.inf252.katscan.model.VoxelMatrix;
 import no.uib.inf252.katscan.data.io.LoadSaveFormat.Format;
-import no.uib.inf252.katscan.project.DataFileNode;
+import no.uib.inf252.katscan.project.displayable.DataFileNode;
 import no.uib.inf252.katscan.project.ProjectHandler;
 import no.uib.inf252.katscan.util.FileAwareInputStream;
 
@@ -28,7 +28,7 @@ import no.uib.inf252.katscan.util.FileAwareInputStream;
  */
 public class LoadSaveHandler {
     
-    private static final String LAST_LOAD = "lastLoad.kat";
+    private static final String LAST_LOAD = "lastLoad.lsl";
     
     private final Format format;
     
@@ -40,7 +40,7 @@ public class LoadSaveHandler {
         try (FileAwareInputStream input = new FileAwareInputStream(file)) {
             VoxelMatrix voxelMatrix = format.getFormat().loadData(input, options);
             ProjectHandler projectHandler = ProjectHandler.getInstance();
-            if (projectHandler.insertDataFile(new DataFileNode(name, file, voxelMatrix))) {
+            if (projectHandler.insertDataFile(new DataFileNode(name, file, format, options, voxelMatrix))) {
                 saveLastLoad(file);
                 return true;
             }

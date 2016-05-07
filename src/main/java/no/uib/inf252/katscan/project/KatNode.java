@@ -43,6 +43,20 @@ public abstract class KatNode implements MutableTreeNode, Serializable, Transfer
     protected abstract JMenu getMainMenu();
     protected abstract KatNode internalCopy();
     
+    public final void treeRecentlyLoaded() {
+        if (children == null) {
+            return;
+        }
+        
+        for (KatNode katNode : children) {
+            if (katNode instanceof KatViewNode) {
+                katNode.setParent(this);
+            } else {
+                katNode.treeRecentlyLoaded();
+            }
+        }
+    }
+    
     public final KatNode copy() {
         KatNode copy = internalCopy();
         
@@ -191,6 +205,10 @@ public abstract class KatNode implements MutableTreeNode, Serializable, Transfer
         if (child == null) {
             throw new NullPointerException("Cannot add null child to " + getClass().getSimpleName());
         }
+        if (index < 0) {
+            throw new ArrayIndexOutOfBoundsException(index);
+        }
+        
         if (children == null) {
             children = new ArrayList<>();
         }
@@ -200,11 +218,13 @@ public abstract class KatNode implements MutableTreeNode, Serializable, Transfer
 
     @Override
     public void remove(int index) {
-        if (children != null) {
-            children.remove(index);
-            if (children.isEmpty()) {
-                children = null;
-            }
+        if (children == null || index < 0) {
+            return;
+        }
+        
+        children.remove(index);
+        if (children.isEmpty()) {
+            children = null;
         }
     }
 

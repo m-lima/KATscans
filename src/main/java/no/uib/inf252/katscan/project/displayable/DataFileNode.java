@@ -1,13 +1,22 @@
-package no.uib.inf252.katscan.project;
+package no.uib.inf252.katscan.project.displayable;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.tree.MutableTreeNode;
+import no.uib.inf252.katscan.Init;
+import no.uib.inf252.katscan.data.io.LoadSaveFormat;
+import no.uib.inf252.katscan.data.io.LoadSaveOptions;
 import no.uib.inf252.katscan.model.VoxelMatrix;
-import no.uib.inf252.katscan.project.displayable.Displayable;
 import no.uib.inf252.katscan.model.TransferFunction;
+import no.uib.inf252.katscan.project.ProjectNode;
 
 /**
  *
@@ -16,23 +25,36 @@ import no.uib.inf252.katscan.model.TransferFunction;
 public class DataFileNode extends Displayable implements Serializable {
     
     private final File file;
-    private final transient VoxelMatrix matrix;
-    private final transient TransferFunction transferFunction;
+    private final LoadSaveFormat.Format format;
+    private final LoadSaveOptions options;
+    private final TransferFunction transferFunction;
+    private transient VoxelMatrix matrix;
     
-    public DataFileNode(String name, File file, VoxelMatrix matrix) {
+    public DataFileNode(String name, File file, LoadSaveFormat.Format format, LoadSaveOptions options, VoxelMatrix matrix) {
         super(name);
         this.file = file;
         this.matrix = matrix;
+        this.format = format;
+        this.options = options;
         transferFunction = new TransferFunction(TransferFunction.Type.SLOPE);
     }
 
     @Override
     protected DataFileNode internalCopy() {
-        return new DataFileNode(getName(), new File(file.getAbsolutePath()), matrix.copy());
+        return new DataFileNode(getName(), new File(file.getAbsolutePath()), format, options, matrix.copy());
     }
 
     @Override
     public VoxelMatrix getMatrix() {
+        if (matrix == null) {
+            try {
+                matrix = format.getFormat().loadData(new FileInputStream(file), options);
+            } catch (IOException ex) {
+                Logger.getLogger(DataFileNode.class.getName()).log(Level.SEVERE, null, ex);
+                JOptionPane.showMessageDialog(Init.getFrameReference(), "Could not load data", "Load", JOptionPane.ERROR_MESSAGE);
+                remove();
+            }
+        }
         return matrix;
     }
 

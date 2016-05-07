@@ -28,7 +28,7 @@ import java.util.logging.Logger;
 import javax.swing.JTree;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
-import no.uib.inf252.katscan.project.DataFileNode;
+import no.uib.inf252.katscan.project.displayable.DataFileNode;
 import no.uib.inf252.katscan.project.KatNode;
 import no.uib.inf252.katscan.project.ProjectHandler;
 import no.uib.inf252.katscan.project.ProjectNode;

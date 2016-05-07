@@ -2,6 +2,7 @@ package no.uib.inf252.katscan.view;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.GraphicsConfiguration;
 import java.awt.event.ActionEvent;
@@ -11,7 +12,6 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
@@ -21,9 +21,11 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JRootPane;
 import javax.swing.KeyStroke;
+import javax.swing.Timer;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
 import net.infonode.docking.DockingWindow;
+import net.infonode.docking.DockingWindowAdapter;
 import net.infonode.docking.RootWindow;
 import net.infonode.docking.TabWindow;
 import net.infonode.docking.View;
@@ -36,10 +38,13 @@ import net.infonode.docking.util.ViewMap;
 import net.infonode.gui.colorprovider.FixedColorProvider;
 import net.infonode.gui.componentpainter.SolidColorComponentPainter;
 import net.infonode.util.Direction;
+import no.uib.inf252.katscan.event.TransferFunctionListener;
 import no.uib.inf252.katscan.project.KatNode;
 import no.uib.inf252.katscan.project.KatViewNode;
 import no.uib.inf252.katscan.project.ProjectHandler;
+import no.uib.inf252.katscan.project.io.DockingInterpreter;
 import no.uib.inf252.katscan.project.io.PersistenceHandler;
+import no.uib.inf252.katscan.view.katview.KatView;
 import no.uib.inf252.katscan.view.project.ProjectBrowser;
 
 /**
@@ -63,9 +68,11 @@ public class MainFrame extends javax.swing.JFrame implements TreeModelListener, 
     
     private boolean pojectBrowserMinized;
     
-    private final ArrayList<View> views;
+    private final ArrayList<KatViewNode> views;
     private final JMenuItem mitCloseAll;
     private boolean updatingMenu;
+    
+    private final Timer autoSaveTimer;
     
     /**
      * Creates new form MainFrame
@@ -113,6 +120,15 @@ public class MainFrame extends javax.swing.JFrame implements TreeModelListener, 
         contentPane.add(rootWindow, BorderLayout.CENTER);
         
         setupMenus();
+        
+        autoSaveTimer = new Timer(5 * 60 * 1000, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                PersistenceHandler.getInstance().autoSave();
+            }
+        });
+        autoSaveTimer.setRepeats(true);
+        autoSaveTimer.setInitialDelay(0);
     }
 
     private void setupRootView(BufferedImage image) {
@@ -123,6 +139,33 @@ public class MainFrame extends javax.swing.JFrame implements TreeModelListener, 
         rootWindow.getWindowBar(Direction.RIGHT).setEnabled(true);
         rootWindow.getWindowBar(Direction.LEFT).setEnabled(true);
         rootWindow.getWindowBar(Direction.LEFT).setContentPanelSize(300);
+        rootWindow.addListener(new DockingWindowAdapter() {
+            @Override
+            public void windowClosed(DockingWindow window) {
+                checkAndRemove(window);
+            }
+        });
+    }
+    
+    private void checkAndRemove(DockingWindow view) {
+        if (view instanceof View) {
+            for (KatViewNode katView : views) {
+                if (katView.getView().equals(view)) {
+                    ProjectHandler.getInstance().removeNodeFromParent(katView);
+
+                    Component component = ((View)view).getComponent();
+                    if (component instanceof TransferFunctionListener) {
+                        katView.getParent().getTransferFunction().removeTransferFunctionListener((TransferFunctionListener) component);
+                    }
+
+                    return;
+                }
+            }
+        } else {
+            for (int i = 0; i < view.getChildWindowCount(); i++) {
+                checkAndRemove(view.getChildWindow(i));
+            }
+        }
     }
 
     private void setupRootProperties() {
@@ -193,8 +236,7 @@ public class MainFrame extends javax.swing.JFrame implements TreeModelListener, 
         char mnemonic;
         String title;
         for (int i = 0; i < views.size(); i++) {
-            title = views.get(i).getTitle();
-            title = title.substring(0, title.indexOf(" - "));
+            title = views.get(i).getName();
             if (i < 10) {
                 mnemonic = (char) (i + '1');
                 item = new JMenuItem("[" + mnemonic + "] " + title);
@@ -217,7 +259,7 @@ public class MainFrame extends javax.swing.JFrame implements TreeModelListener, 
     
     private void populateViewList(KatNode node) {
         if (node instanceof KatViewNode) {
-            views.add(((KatViewNode) node).getView());
+            views.add((KatViewNode) node);
         } else {
             Enumeration<KatNode> children = node.children();
             while (children.hasMoreElements()) {
@@ -228,14 +270,48 @@ public class MainFrame extends javax.swing.JFrame implements TreeModelListener, 
     
     @Override
     public void treeNodesChanged(TreeModelEvent e) {
-        setupMenus();
+        treeChanged((KatNode) e.getTreePath().getLastPathComponent());
     }
 
     @Override
     public void treeNodesInserted(TreeModelEvent e) {
+        treeChanged((KatNode) e.getTreePath().getLastPathComponent());
+    }
+
+    @Override
+    public void treeNodesRemoved(TreeModelEvent e) {
+        treeChanged((KatNode) e.getTreePath().getLastPathComponent());
+    }
+
+    @Override
+    public void treeStructureChanged(TreeModelEvent e) {
+        treeChanged((KatNode) e.getTreePath().getLastPathComponent());
+    }
+    
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        JMenuItem item = (JMenuItem) e.getSource();
+        if (item == mitCloseAll) {
+            updatingMenu = true;
+            for (KatViewNode view : views) {
+                view.removeWindow();
+            }
+            updatingMenu = false;
+            setupMenus();
+        } else {
+            Container parent = item.getParent();
+            for (int i = 0; i < parent.getComponentCount(); i++) {
+                if (parent.getComponent(i) == item) {
+                    views.get(i).getView().makeVisible();
+                }
+            }
+        }
+    }
+    
+    private void treeChanged(KatNode node) {
         setupMenus();
-        KatNode node = (KatNode) e.getTreePath().getLastPathComponent();
         traverseAndFindViews(node);
+        autoSaveTimer.restart();
     }
     
     private void traverseAndFindViews(KatNode node) {
@@ -248,35 +324,6 @@ public class MainFrame extends javax.swing.JFrame implements TreeModelListener, 
                 }
             } else {
                 traverseAndFindViews(child);
-            }
-        }
-    }
-
-    @Override
-    public void treeNodesRemoved(TreeModelEvent e) {
-        setupMenus();
-    }
-
-    @Override
-    public void treeStructureChanged(TreeModelEvent e) {
-        setupMenus();
-    }
-
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        JMenuItem item = (JMenuItem) e.getSource();
-        if (item == mitCloseAll) {
-            updatingMenu = true;
-            for (View view : views) {
-                view.close();
-            }
-            updatingMenu = false;
-        } else {
-            Container parent = item.getParent();
-            for (int i = 0; i < parent.getComponentCount(); i++) {
-                if (parent.getComponent(i) == item) {
-                    views.get(i).makeVisible();
-                }
             }
         }
     }
@@ -316,6 +363,7 @@ public class MainFrame extends javax.swing.JFrame implements TreeModelListener, 
         sepNew = new javax.swing.JPopupMenu.Separator();
         mitLoad = new javax.swing.JMenuItem();
         mitSave = new javax.swing.JMenuItem();
+        mitSaveAs = new javax.swing.JMenuItem();
         sepSaveLoad = new javax.swing.JPopupMenu.Separator();
         mitExit = new javax.swing.JMenuItem();
 
@@ -349,6 +397,16 @@ public class MainFrame extends javax.swing.JFrame implements TreeModelListener, 
             }
         });
         mnuFile.add(mitSave);
+
+        mitSaveAs.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/save.png"))); // NOI18N
+        mitSaveAs.setMnemonic('A');
+        mitSaveAs.setText("Save As");
+        mitSaveAs.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                mitSaveAsActionPerformed(evt);
+            }
+        });
+        mnuFile.add(mitSaveAs);
         mnuFile.add(sepSaveLoad);
 
         mitExit.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/exit.png"))); // NOI18N
@@ -369,11 +427,18 @@ public class MainFrame extends javax.swing.JFrame implements TreeModelListener, 
     }// </editor-fold>//GEN-END:initComponents
 
     private void mitLoadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mitLoadActionPerformed
-        PersistenceHandler.getInstance().load();
+        View[] oldViews = views.toArray(new View[views.size()]);
+        if (PersistenceHandler.getInstance().load()) {
+            updatingMenu = true;
+            for (View view : oldViews) {
+                view.close();
+            }
+            updatingMenu = false;
+        }
     }//GEN-LAST:event_mitLoadActionPerformed
 
     private void mitExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mitExitActionPerformed
-        PersistenceHandler.getInstance().save();
+        PersistenceHandler.getInstance().autoSave();
         System.exit(0);
     }//GEN-LAST:event_mitExitActionPerformed
 
@@ -381,12 +446,17 @@ public class MainFrame extends javax.swing.JFrame implements TreeModelListener, 
         PersistenceHandler.getInstance().save();
     }//GEN-LAST:event_mitSaveActionPerformed
 
+    private void mitSaveAsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mitSaveAsActionPerformed
+        PersistenceHandler.getInstance().saveAs();
+    }//GEN-LAST:event_mitSaveAsActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuBar mbrMain;
     private javax.swing.JMenuItem mitExit;
     private javax.swing.JMenuItem mitLoad;
     private javax.swing.JMenuItem mitNew;
     private javax.swing.JMenuItem mitSave;
+    private javax.swing.JMenuItem mitSaveAs;
     private javax.swing.JMenu mnuFile;
     private javax.swing.JPopupMenu.Separator sepNew;
     private javax.swing.JPopupMenu.Separator sepSaveLoad;
