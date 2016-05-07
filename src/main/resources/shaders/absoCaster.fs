@@ -22,7 +22,7 @@ uniform vec3 maxValues;
 
 uniform vec3 lightPos;
 
-float stepSize = stepFactor / numSamples;
+float stepSize = 4.0 * stepFactor / numSamples;
 
 const vec3 ZERO = vec3(0.0);
 const float MIN_ALPHA = 1.0 / 255.0;
@@ -41,7 +41,8 @@ void main() {
 
     effectiveEyePos = invModel * effectiveEyePos;
     vec3 rayDirection = normalize(vertexOut - effectiveEyePos);
-    vec3 stepValue = rayDirection * stepSize / ratio;
+    vec3 stepRatio = stepSize / ratio;
+    vec3 stepValue = rayDirection * stepRatio;
 
     vec3 pos = texture(raycastTexture, vec2(gl_FragCoord.x / screenSize.x, gl_FragCoord.y / screenSize.y)).rgb;
     if (pos == ZERO) {
@@ -61,10 +62,12 @@ void main() {
     float stepDist = length(stepValue);
     float density;
     vec4 transferColor;
+    vec4 lightTransferColor;
     vec3 lightStrider;
+    vec3 lightStride;
     vec3 lightDirection;
     fragColor = vec4(0.0);
-    for (;dist > 0.0; dist -= stepDist, pos += stepValue) {
+    for (int i = 0; dist > 0.0; dist -= stepDist, pos += stepValue, i++) {
         if (pos.x < minValues.x || pos.x >= maxValues.x ||
             pos.y < minValues.y || pos.y >= maxValues.y ||
             pos.z < minValues.z || pos.z >= maxValues.z) {
@@ -79,11 +82,24 @@ void main() {
         if (transferColor.a <= MIN_ALPHA) continue;
         
         lightDirection = normalize(lightPos - pos);
+        lightStride = lightDirection * stepRatio;
         lightStrider = pos + lightDirection;
 
-        //for (int j = 0; j < 32; j++) {
-            
-        //}
+        for (int j = 0; j < i; j++, lightStrider += lightStride) {
+            density = texture(volumeTexture, lightStrider).x;
+            if (density <= 0.0) continue;
+
+            lightTransferColor = texture(transferFunction, density);
+            lightTransferColor.a *= lightTransferColor.a;
+            if (lightTransferColor.a <= MIN_ALPHA) continue;
+
+            transferColor.rgb -= lightTransferColor.a;
+            transferColor.rgb = mix(transferColor.rgb, lightTransferColor.rgb, lightTransferColor.a);
+
+            if (transferColor.rgb == ZERO) {
+                break;
+            }
+        }
 
         fragColor.rgb = mix(fragColor.rgb, transferColor.rgb, transferColor.a);
         fragColor.a += transferColor.a;

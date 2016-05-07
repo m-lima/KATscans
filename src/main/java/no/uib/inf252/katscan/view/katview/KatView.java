@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import no.uib.inf252.katscan.project.displayable.Displayable;
+import no.uib.inf252.katscan.view.katview.opengl.AbsorptionRenderer;
 import no.uib.inf252.katscan.view.katview.opengl.AlphaRenderer;
 import no.uib.inf252.katscan.view.katview.opengl.CompositeRenderer;
 import no.uib.inf252.katscan.view.katview.opengl.MaximumRenderer;
@@ -21,9 +22,10 @@ public interface KatView {
     //TODO Centralize all enums
     //TODO Also remove popup creation from KatNode
     public enum Type {
+        SURF("Surface Renderer", 'F', SurfaceRenderer.class),
         COMPOSITE("Composite Renderer", 'C', CompositeRenderer.class),
         ALPHA("Alpha Renderer", 'A', AlphaRenderer.class),
-        SURF("Surface Renderer", 'F', SurfaceRenderer.class),
+        ABSORPTION("Absorption Renderer", 'B', AbsorptionRenderer.class),
         MAXIMUM("Maximum Renderer", 'M', MaximumRenderer.class),
         SLICE("Slice Navigator", 'S', SliceNavigator.class),
         HISTOGRAM("Histogram", 'H', TransferFunctionEditor.class);
