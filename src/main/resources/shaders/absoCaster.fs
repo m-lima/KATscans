@@ -73,13 +73,17 @@ void main() {
 
         density = texture(volumeTexture, pos).x;
         if (density <= 0.0) continue;
-        
-        lightDirection = normalize(lightPos - pos);
-        lightStrider = pos + lightDirection;
 
         transferColor = texture(transferFunction, density);
         transferColor.a *= transferColor.a;
         if (transferColor.a <= MIN_ALPHA) continue;
+        
+        lightDirection = normalize(lightPos - pos);
+        lightStrider = pos + lightDirection;
+
+        //for (int j = 0; j < 32; j++) {
+            
+        //}
 
         fragColor.rgb = mix(fragColor.rgb, transferColor.rgb, transferColor.a);
         fragColor.a += transferColor.a;
