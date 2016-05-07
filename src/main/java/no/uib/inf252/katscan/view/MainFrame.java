@@ -42,9 +42,7 @@ import no.uib.inf252.katscan.event.TransferFunctionListener;
 import no.uib.inf252.katscan.project.KatNode;
 import no.uib.inf252.katscan.project.KatViewNode;
 import no.uib.inf252.katscan.project.ProjectHandler;
-import no.uib.inf252.katscan.project.io.DockingInterpreter;
 import no.uib.inf252.katscan.project.io.PersistenceHandler;
-import no.uib.inf252.katscan.view.katview.KatView;
 import no.uib.inf252.katscan.view.project.ProjectBrowser;
 
 /**

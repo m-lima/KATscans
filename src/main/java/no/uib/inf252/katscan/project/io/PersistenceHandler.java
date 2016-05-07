@@ -21,7 +21,6 @@ import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import net.infonode.docking.ViewSerializer;
 import no.uib.inf252.katscan.Init;
 import no.uib.inf252.katscan.data.io.LoadSaveHandler;
 import no.uib.inf252.katscan.project.ProjectHandler;
@@ -95,7 +94,10 @@ public class PersistenceHandler {
             ProjectNode project = (ProjectNode) in.readObject();
             project.treeRecentlyLoaded();
             ProjectHandler.getInstance().setRoot(project);
-            lastFile = newFile;
+            
+            if (!newFile.getAbsolutePath().equals(AUTO_SAVE.getAbsolutePath())) {
+                lastFile = newFile;
+            }
             return true;            
         } catch (IOException | ClassNotFoundException | ClassCastException ex) {
             Logger.getLogger(PersistenceHandler.class.getName()).log(Level.SEVERE, null, ex);

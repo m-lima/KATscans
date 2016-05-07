@@ -1,6 +1,5 @@
 package no.uib.inf252.katscan.view;
 
-import java.awt.Color;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
