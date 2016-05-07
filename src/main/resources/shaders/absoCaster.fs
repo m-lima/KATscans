@@ -41,8 +41,7 @@ void main() {
 
     effectiveEyePos = invModel * effectiveEyePos;
     vec3 rayDirection = normalize(vertexOut - effectiveEyePos);
-    vec3 stepRatio = stepSize / ratio;
-    vec3 stepValue = rayDirection * stepRatio;
+    vec3 stepValue = rayDirection * stepSize / ratio;
 
     vec3 pos = texture(raycastTexture, vec2(gl_FragCoord.x / screenSize.x, gl_FragCoord.y / screenSize.y)).rgb;
     if (pos == ZERO) {
@@ -64,8 +63,6 @@ void main() {
     vec4 transferColor;
     vec4 lightTransferColor;
     vec3 lightStrider;
-    vec3 lightStride;
-    vec3 lightDirection;
     fragColor = vec4(0.0);
     for (int i = 0; dist > 0.0; dist -= stepDist, pos += stepValue, i++) {
         if (pos.x < minValues.x || pos.x >= maxValues.x ||
@@ -81,11 +78,9 @@ void main() {
         transferColor.a *= transferColor.a;
         if (transferColor.a <= MIN_ALPHA) continue;
         
-        lightDirection = normalize(lightPos - pos);
-        lightStride = lightDirection * stepRatio;
-        lightStrider = pos + lightDirection;
+        lightStrider = pos - rayDirection;
 
-        for (int j = 0; j < i; j++, lightStrider += lightStride) {
+        for (int j = 0; j < i; j++, lightStrider -= stepValue) {
             density = texture(volumeTexture, lightStrider).x;
             if (density <= 0.0) continue;
 

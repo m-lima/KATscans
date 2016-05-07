@@ -114,9 +114,9 @@ public class TransferFunction implements KatModel {
                 break;
             case BRAIN:
                 points.add(new TransferFunctionPoint(new Color(255, 255, 255, 0), 0f, this, false));
-                points.add(new TransferFunctionPoint(new Color(255, 255, 255, 200), 1018f / 4096f, this));
-                points.add(new TransferFunctionPoint(new Color(0, 150, 100), 1022f / 4096f, this));
-                points.add(new TransferFunctionPoint(new Color(0, 150, 100), 1068f / 4096f, this));
+                points.add(new TransferFunctionPoint(new Color(255, 255, 255, 64), 1018f / 4096f, this));
+                points.add(new TransferFunctionPoint(new Color(255, 50, 100, 85), 1022f / 4096f, this));
+                points.add(new TransferFunctionPoint(new Color(0, 150, 100 , 85), 1068f / 4096f, this));
                 points.add(new TransferFunctionPoint(new Color(0, 150, 100, 0), 1072f / 4096f, this));
                 points.add(new TransferFunctionPoint(new Color(255, 255, 255, 0), 1f, this, false));
                 break;

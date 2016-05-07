@@ -23,13 +23,13 @@ public class AbsorptionRenderer extends VolumeRenderer implements TransferFuncti
     private boolean transferFunctionDirty;
     
     public AbsorptionRenderer(Displayable displayable) throws GLException {
-        super(displayable, "absoCaster", 0.25f);
+        super(displayable, "absoCaster", 0.5f);
         displayable.getTransferFunction().addTransferFunctionListener(this);
     }
 
     @Override
     public boolean isIlluminated() {
-        return true;
+        return false;
     }
 
     @Override
