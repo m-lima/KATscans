@@ -14,7 +14,7 @@ public class LightNode extends SubGroup implements Serializable {
     private final Light light;
 
     public LightNode() {
-        super("Camera");
+        super("Light");
         light = new Light();
     }
     

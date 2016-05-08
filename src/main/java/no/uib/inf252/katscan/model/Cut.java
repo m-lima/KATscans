@@ -3,6 +3,7 @@ package no.uib.inf252.katscan.model;
 import java.awt.EventQueue;
 import java.io.Serializable;
 import no.uib.inf252.katscan.event.CutListener;
+import no.uib.inf252.katscan.event.KatModelListener;
 
 /**
  *
@@ -162,39 +163,39 @@ public class Cut extends KatModel<Cut> implements Serializable {
     }
     
     private void fireMinValueChanged() {
-        CutListener[] listeners = listenerList.getListeners(CutListener.class);
+        KatModelListener[] listeners = listenerList.getListeners(KatModelListener.class);
 
-        for (final CutListener listener : listeners) {
+        for (final KatModelListener listener : listeners) {
             EventQueue.invokeLater(new Runnable() {
                 @Override
                 public void run() {
-                    listener.minValueChanged();
+                    ((CutListener)listener).minValueChanged();
                 }
             });
         }
     }
     
     private void fireMaxValueChanged() {
-        CutListener[] listeners = listenerList.getListeners(CutListener.class);
+        KatModelListener[] listeners = listenerList.getListeners(KatModelListener.class);
 
-        for (final CutListener listener : listeners) {
+        for (final KatModelListener listener : listeners) {
             EventQueue.invokeLater(new Runnable() {
                 @Override
                 public void run() {
-                    listener.maxValueChanged();
+                    ((CutListener)listener).maxValueChanged();
                 }
             });
         }
     }
 
     private void fireSliceValueChanged() {
-        CutListener[] listeners = listenerList.getListeners(CutListener.class);
+        KatModelListener[] listeners = listenerList.getListeners(KatModelListener.class);
 
-        for (final CutListener listener : listeners) {
+        for (final KatModelListener listener : listeners) {
             EventQueue.invokeLater(new Runnable() {
                 @Override
                 public void run() {
-                    listener.sliceValueChanged();
+                    ((CutListener)listener).sliceValueChanged();
                 }
             });
         }

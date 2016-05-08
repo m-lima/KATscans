@@ -4,6 +4,7 @@ import com.jogamp.opengl.math.FloatUtil;
 import java.awt.EventQueue;
 import java.io.Serializable;
 import no.uib.inf252.katscan.event.CameraListener;
+import no.uib.inf252.katscan.event.KatModelListener;
 
 /**
  *
@@ -23,19 +24,23 @@ public class Camera extends KatModel<Camera> implements Serializable {
     private float initialZoom;
 
     public Camera() {
-        eyePosition = new float[] {0f, 0f, 5f};
+        this(5f);
+    }
+    
+    public Camera(float initialZoom) {
+        eyePosition = new float[] {0f, 0f, initialZoom};
         targetPosition = new float[] {0f, 0f, -50f};
         
         viewMatrix = new float[16];
         tempMatrix = new float[16];
         reuseView = false;
         
-        this.initialZoom = 5f;
+        this.initialZoom = initialZoom;
     }
 
     @Override
     protected Camera newInstance() {
-        return new Camera();
+        return new Camera(initialZoom);
     }
 
     @Override
@@ -108,13 +113,13 @@ public class Camera extends KatModel<Camera> implements Serializable {
     
     private void fireViewValueChanged() {
         reuseView = false;
-        CameraListener[] listeners = listenerList.getListeners(CameraListener.class);
+        KatModelListener[] listeners = listenerList.getListeners(KatModelListener.class);
 
-        for (final CameraListener listener : listeners) {
+        for (final KatModelListener listener : listeners) {
             EventQueue.invokeLater(new Runnable() {
                 @Override
                 public void run() {
-                    listener.viewValueChanged();
+                    ((CameraListener)listener).viewValueChanged();
                 }
             });
         }
@@ -122,13 +127,13 @@ public class Camera extends KatModel<Camera> implements Serializable {
     
     private void fireZoomValueChanged() {
         reuseView = false;
-        CameraListener[] listeners = listenerList.getListeners(CameraListener.class);
+        KatModelListener[] listeners = listenerList.getListeners(KatModelListener.class);
 
-        for (final CameraListener listener : listeners) {
+        for (final KatModelListener listener : listeners) {
             EventQueue.invokeLater(new Runnable() {
                 @Override
                 public void run() {
-                    listener.zoomValueChanged();
+                    ((CameraListener)listener).zoomValueChanged();
                 }
             });
         }

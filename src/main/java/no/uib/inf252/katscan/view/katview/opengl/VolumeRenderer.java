@@ -128,7 +128,9 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
         this.cut = displayable.getCut();
         this.camera = displayable.getCamera();
         this.rotation = displayable.getRotation();
-        this.screen = new Screen();
+        
+        screen = new Screen();
+        screen.addKatModelListener(this);
 
         new KatViewHandler(this, displayable, screen);
 
@@ -622,11 +624,13 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
     @Override
     public void rotationValueChanged() {
         dirtyValues |= MODEL_DIRTY;
+        repaint();
     }
 
     @Override
     public void viewValueChanged() {
         dirtyValues |= VIEW_DIRTY;
+        repaint();
     }
 
     @Override
@@ -634,37 +638,44 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
         if (screen.isOrthographic()) {
             screen.updateProjection(camera, getWidth(), getHeight());
         }
+        repaint();
     }
 
     @Override
     public void orthographicValueChanged() {
         dirtyValues |= ORTHO_DIRTY;
         screen.updateProjection(camera, getWidth(), getHeight());
+        repaint();
     }
 
     @Override
     public void minValueChanged() {
         dirtyValues |= MIN_DIRTY;
+        repaint();
     }
 
     @Override
     public void maxValueChanged() {
         dirtyValues |= MAX_DIRTY;
+        repaint();
     }
 
     @Override
     public void sliceValueChanged() {
         dirtyValues |= SLICE_DIRTY;
+        repaint();
     }
 
     @Override
     public void projectionValueChanged() {
         dirtyValues |= PROJECTION_DIRTY;
+        repaint();
     }
 
     @Override
     public void stepValueChanged() {
         dirtyValues |= STEP_DIRTY;
+        repaint();
     }
 
     @Override

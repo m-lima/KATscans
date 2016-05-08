@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import javax.swing.event.EventListenerList;
+import no.uib.inf252.katscan.event.KatModelListener;
 import no.uib.inf252.katscan.event.TransferFunctionListener;
 
 /**
@@ -165,7 +166,7 @@ public class TransferFunction extends KatModel<TransferFunction> implements Seri
     }
     
     public LinearGradientPaint getPaint(float startX, float endX, boolean quadratic) {
-        if (dirtyPaint) {
+        if (dirtyPaint || colorPoints == null || colorsQuadratic == null || colorsLinear == null) {
             rebuildPaint();
         }
 
@@ -206,26 +207,26 @@ public class TransferFunction extends KatModel<TransferFunction> implements Seri
     }
 
     private void firePointCountChanged() {
-        TransferFunctionListener[] listeners = listenerList.getListeners(TransferFunctionListener.class);
+        KatModelListener[] listeners = listenerList.getListeners(KatModelListener.class);
 
-        for (final TransferFunctionListener listener : listeners) {
+        for (final KatModelListener listener : listeners) {
             EventQueue.invokeLater(new Runnable() {
                 @Override
                 public void run() {
-                    listener.pointCountChanged();
+                    ((TransferFunctionListener)listener).pointCountChanged();
                 }
             });
         }
     }
 
     private void firePointValueChanged() {
-        TransferFunctionListener[] listeners = listenerList.getListeners(TransferFunctionListener.class);
+        KatModelListener[] listeners = listenerList.getListeners(KatModelListener.class);
 
-        for (final TransferFunctionListener listener : listeners) {
+        for (final KatModelListener listener : listeners) {
             EventQueue.invokeLater(new Runnable() {
                 @Override
                 public void run() {
-                    listener.pointValueChanged();
+                    ((TransferFunctionListener)listener).pointValueChanged();
                 }
             });
         }

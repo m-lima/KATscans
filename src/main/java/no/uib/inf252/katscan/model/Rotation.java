@@ -4,6 +4,7 @@ import com.jogamp.opengl.math.FloatUtil;
 import com.jogamp.opengl.math.Quaternion;
 import java.awt.EventQueue;
 import java.io.Serializable;
+import no.uib.inf252.katscan.event.KatModelListener;
 import no.uib.inf252.katscan.event.RotationListener;
 
 /**
@@ -13,6 +14,8 @@ import no.uib.inf252.katscan.event.RotationListener;
 public class Rotation extends KatModel<Rotation> implements Serializable {
     
     private final float[] modelMatrix;    
+    
+    //TODO persist
     private transient Quaternion currentRotation;
 
     private boolean reuseModel;
@@ -132,13 +135,13 @@ public class Rotation extends KatModel<Rotation> implements Serializable {
     
     private void fireRotationChanged() {
         reuseModel = false;
-        RotationListener[] listeners = listenerList.getListeners(RotationListener.class);
+        KatModelListener[] listeners = listenerList.getListeners(KatModelListener.class);
 
-        for (final RotationListener listener : listeners) {
+        for (final KatModelListener listener : listeners) {
             EventQueue.invokeLater(new Runnable() {
                 @Override
                 public void run() {
-                    listener.rotationValueChanged();
+                    ((RotationListener)listener).rotationValueChanged();
                 }
             });
         }

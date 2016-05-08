@@ -15,9 +15,13 @@ public class CameraNode extends SubGroup implements Serializable {
     private final Camera camera;
 
     public CameraNode() {
+        this(5f);
+    }
+    
+    public CameraNode(float initialZoom) {
         super("Camera");
         
-        camera = new Camera();
+        camera = new Camera(initialZoom);
     }
     
     @Override

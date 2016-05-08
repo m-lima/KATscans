@@ -160,23 +160,23 @@ public class MainFrame extends javax.swing.JFrame implements TreeModelListener, 
                     Displayable parent = katView.getParent();
                     if (parent != null) {
                         if (component instanceof CameraListener) {
-                            parent.getCamera().removeKatModelListener((CameraListener) component);
+//                            parent.getCamera().removeKatModelListener((CameraListener) component);
                         }
 
                         if (component instanceof CutListener) {
-                            parent.getCut().removeKatModelListener((CutListener) component);
+//                            parent.getCut().removeKatModelListener((CutListener) component);
                         }
                         
                         if (component instanceof LightListener) {
-                            parent.getLight().removeKatModelListener((LightListener) component);
+//                            parent.getLight().removeKatModelListener((LightListener) component);
                         }
                         
                         if (component instanceof RotationListener) {
-                            parent.getRotation().removeKatModelListener((RotationListener) component);
+//                            parent.getRotation().removeKatModelListener((RotationListener) component);
                         }
                         
                         if (component instanceof TransferFunctionListener) {
-                            parent.getTransferFunction().removeKatModelListener((TransferFunctionListener) component);
+//                            parent.getTransferFunction().removeKatModelListener((TransferFunctionListener) component);
                         }
                     }
 

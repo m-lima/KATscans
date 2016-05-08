@@ -21,12 +21,12 @@ public class CompositeRenderer extends VolumeRenderer implements TransferFunctio
     
     private static final int LIGHT_DIRTY = 1 << 0;
     private static final int NORMAL_DIRTY = 1 << 1;
+    private static final int TRANSFER_FUNCTION_DIRTY = 1 << 2;
     
     private static final int TEXTURE_TRANSFER_LOCAL = 0;
     private static final int TEXTURE_TRANSFER = TEXTURE_COUNT_PARENT + TEXTURE_TRANSFER_LOCAL;
     
     private final int[] textureLocation = new int[1];
-    private boolean transferFunctionDirty;
     
     private int dirtyValues;
     private final Normal normal;
@@ -45,38 +45,13 @@ public class CompositeRenderer extends VolumeRenderer implements TransferFunctio
 
     @Override
     protected void preDraw(GLAutoDrawable drawable) {
-        if (transferFunctionDirty) {
-            updateTransferFunction(drawable.getGL().getGL2());
-            transferFunctionDirty = false;
-        }
-    }
-
-    @Override
-    public void init(GLAutoDrawable drawable) {
-        super.init(drawable); 
-        
         GL2 gl2 = drawable.getGL().getGL2();
-        dirtyValues = LIGHT_DIRTY | NORMAL_DIRTY;
         
-        gl2.glGenTextures(1, textureLocation, TEXTURE_TRANSFER_LOCAL);
-        gl2.glActiveTexture(GL2.GL_TEXTURE0 + TEXTURE_TRANSFER);
-        gl2.glBindTexture(GL2.GL_TEXTURE_1D, textureLocation[TEXTURE_TRANSFER_LOCAL]);
-        gl2.glTexParameteri(GL2.GL_TEXTURE_1D, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_LINEAR);
-        gl2.glTexParameteri(GL2.GL_TEXTURE_1D, GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);
-        gl2.glTexParameteri(GL2.GL_TEXTURE_1D, GL2.GL_TEXTURE_WRAP_R, GL2.GL_CLAMP_TO_BORDER);
-        transferFunctionDirty = true;
-        
-        int location = gl2.glGetUniformLocation(mainProgram, "transferFunction");
-        gl2.glUniform1i(location, TEXTURE_TRANSFER);
-        
-        checkError(gl2, "Create transfer function");
-    }
-
-    @Override
-    protected void checkAndLoadMainUpdates(GL2 gl2) {
-        super.checkAndLoadMainUpdates(gl2);
-        if ((dirtyValues & (LIGHT_DIRTY | NORMAL_DIRTY)) != 0) {
+        if ((dirtyValues & (LIGHT_DIRTY | NORMAL_DIRTY | TRANSFER_FUNCTION_DIRTY)) != 0) {
             int uniformLocation;
+            if ((dirtyValues & TRANSFER_FUNCTION_DIRTY) > 0) {
+                updateTransferFunction(gl2);
+            }
 
             if ((dirtyValues & NORMAL_DIRTY) > 0) {
                 uniformLocation = gl2.glGetUniformLocation(mainProgram, "normalMatrix");
@@ -93,6 +68,27 @@ public class CompositeRenderer extends VolumeRenderer implements TransferFunctio
             
             dirtyValues = 0;
         }
+    }
+
+    @Override
+    public void init(GLAutoDrawable drawable) {
+        super.init(drawable); 
+        
+        GL2 gl2 = drawable.getGL().getGL2();
+        dirtyValues = LIGHT_DIRTY | NORMAL_DIRTY | TRANSFER_FUNCTION_DIRTY;
+        normal.updateMatrices(camera, rotation, tempMatrix);
+        
+        gl2.glGenTextures(1, textureLocation, TEXTURE_TRANSFER_LOCAL);
+        gl2.glActiveTexture(GL2.GL_TEXTURE0 + TEXTURE_TRANSFER);
+        gl2.glBindTexture(GL2.GL_TEXTURE_1D, textureLocation[TEXTURE_TRANSFER_LOCAL]);
+        gl2.glTexParameteri(GL2.GL_TEXTURE_1D, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_LINEAR);
+        gl2.glTexParameteri(GL2.GL_TEXTURE_1D, GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);
+        gl2.glTexParameteri(GL2.GL_TEXTURE_1D, GL2.GL_TEXTURE_WRAP_R, GL2.GL_CLAMP_TO_BORDER);
+        
+        int location = gl2.glGetUniformLocation(mainProgram, "transferFunction");
+        gl2.glUniform1i(location, TEXTURE_TRANSFER);
+        
+        checkError(gl2, "Create transfer function");
     }
 
     @Override
@@ -115,24 +111,26 @@ public class CompositeRenderer extends VolumeRenderer implements TransferFunctio
         gl2.glActiveTexture(GL2.GL_TEXTURE0 + TEXTURE_TRANSFER);
         gl2.glBindTexture(GL2.GL_TEXTURE_1D, textureLocation[0]);
         gl2.glTexImage1D(GL2.GL_TEXTURE_1D, 0, GL2.GL_RGBA, TransferFunction.TEXTURE_SIZE, 0, GL2.GL_RGBA, GL2.GL_UNSIGNED_INT_8_8_8_8_REV, ByteBuffer.wrap(dataElements));
+        
         checkError(gl2, "Update transfer function");
     }
 
     @Override
     public void pointCountChanged() {
-        transferFunctionDirty = true;
+        dirtyValues |= TRANSFER_FUNCTION_DIRTY;
         repaint();
     }
 
     @Override
     public void pointValueChanged() {
-        transferFunctionDirty = true;
+        dirtyValues |= TRANSFER_FUNCTION_DIRTY;
         repaint();
     }
 
     @Override
     public void lightValueChanged() {
         dirtyValues |= LIGHT_DIRTY;
+        repaint();
     }
 
     @Override

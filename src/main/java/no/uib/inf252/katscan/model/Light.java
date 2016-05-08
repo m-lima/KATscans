@@ -3,6 +3,7 @@ package no.uib.inf252.katscan.model;
 import com.jogamp.opengl.math.VectorUtil;
 import java.awt.EventQueue;
 import java.io.Serializable;
+import no.uib.inf252.katscan.event.KatModelListener;
 import no.uib.inf252.katscan.event.LightListener;
 
 /**
@@ -40,13 +41,13 @@ public class Light extends KatModel<Light> implements Serializable {
     }
     
     private void fireLightValueChanged() {
-        LightListener[] listeners = listenerList.getListeners(LightListener.class);
+        KatModelListener[] listeners = listenerList.getListeners(KatModelListener.class);
 
-        for (final LightListener listener : listeners) {
+        for (final KatModelListener listener : listeners) {
             EventQueue.invokeLater(new Runnable() {
                 @Override
                 public void run() {
-                    listener.lightValueChanged();
+                    ((LightListener)listener).lightValueChanged();
                 }
             });
         }

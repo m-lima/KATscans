@@ -100,7 +100,8 @@ public class KatViewNode extends KatNode {
         }
         
         final Displayable displayable = (Displayable) newParent;
-        final Component component = view.getComponent();
+        final Component oldComponent = view.getComponent();
+        final Displayable oldParent = getParent();
         
         view.setComponent(new LoadingPanel(false));
         view.getViewProperties().setTitle(type.getText() + " - Loading");
@@ -111,59 +112,58 @@ public class KatViewNode extends KatNode {
             @Override
             public void run() {
                 try {
-                    Displayable parent = getParent();
-                    if (parent != null) {
-                        if (component instanceof CameraListener) {
-                            parent.getCamera().removeKatModelListener((CameraListener) component);
+                    if (oldParent != null) {
+                        if (oldComponent instanceof CameraListener) {
+                            oldParent.getCamera().removeKatModelListener((CameraListener) oldComponent);
                         }
 
-                        if (component instanceof CutListener) {
-                            parent.getCut().removeKatModelListener((CutListener) component);
+                        if (oldComponent instanceof CutListener) {
+                            oldParent.getCut().removeKatModelListener((CutListener) oldComponent);
                         }
                         
-                        if (component instanceof LightListener) {
-                            parent.getLight().removeKatModelListener((LightListener) component);
+                        if (oldComponent instanceof LightListener) {
+                            oldParent.getLight().removeKatModelListener((LightListener) oldComponent);
                         }
                         
-                        if (component instanceof RotationListener) {
-                            parent.getRotation().removeKatModelListener((RotationListener) component);
+                        if (oldComponent instanceof RotationListener) {
+                            oldParent.getRotation().removeKatModelListener((RotationListener) oldComponent);
                         }
                         
-                        if (component instanceof TransferFunctionListener) {
-                            parent.getTransferFunction().removeKatModelListener((TransferFunctionListener) component);
+                        if (oldComponent instanceof TransferFunctionListener) {
+                            oldParent.getTransferFunction().removeKatModelListener((TransferFunctionListener) oldComponent);
                         }
                     }
         
                     Map<String, Object> properties = null;
-                    if (component instanceof KatView) {
-                        properties = ((KatView) component).packProperties();
-                        
-                        if (displayable != null) {
-                            if (component instanceof CameraListener) {
-                                displayable.getCamera().addKatModelListener((CameraListener) component);
-                            }
-
-                            if (component instanceof CutListener) {
-                                displayable.getCut().addKatModelListener((CutListener) component);
-                            }
-
-                            if (component instanceof LightListener) {
-                                displayable.getLight().addKatModelListener((LightListener) component);
-                            }
-
-                            if (component instanceof RotationListener) {
-                                displayable.getRotation().addKatModelListener((RotationListener) component);
-                            }
-
-                            if (component instanceof TransferFunctionListener) {
-                                displayable.getTransferFunction().addKatModelListener((TransferFunctionListener) component);
-                            }
-                        }
+                    if (oldComponent instanceof KatView) {
+                        properties = ((KatView) oldComponent).packProperties();
                     }
 
                     Component katView = type.getConstructor().newInstance(displayable);
-                    ((KatView)katView).loadProperties(properties);
+                    
+                    if (displayable != null) {
+                        if (katView instanceof CameraListener) {
+                            displayable.getCamera().addKatModelListener((CameraListener) katView);
+                        }
 
+                        if (katView instanceof CutListener) {
+                            displayable.getCut().addKatModelListener((CutListener) katView);
+                        }
+
+                        if (katView instanceof LightListener) {
+                            displayable.getLight().addKatModelListener((LightListener) katView);
+                        }
+
+                        if (katView instanceof RotationListener) {
+                            displayable.getRotation().addKatModelListener((RotationListener) katView);
+                        }
+
+                        if (katView instanceof TransferFunctionListener) {
+                            displayable.getTransferFunction().addKatModelListener((TransferFunctionListener) katView);
+                        }
+                    }
+                    
+                    ((KatView)katView).loadProperties(properties);
                     view.getViewProperties().setTitle(type.getText() + " - " + displayable.getName());
                     view.setComponent(katView);
                 } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {

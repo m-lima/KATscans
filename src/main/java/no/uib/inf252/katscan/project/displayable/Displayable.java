@@ -29,6 +29,7 @@ public abstract class Displayable extends KatNode {
     private static final String CUT = "Override Cut";
     private static final String LIGHT = "Override Light";
     private static final String ROTATION = "Override Rotation";
+    private static final String CAMERA = "Override Camera";
     private static final String REMOVE = "Remove";
     private static final String RENAME = "Rename";
 
@@ -94,6 +95,7 @@ public abstract class Displayable extends KatNode {
         JMenuItem cutMenu = new JMenuItem(CUT, 'U');
         JMenuItem rotationMenu = new JMenuItem(ROTATION, 'R');
         JMenuItem lightMenu = new JMenuItem(LIGHT, 'L');
+        JMenuItem cameraMenu = new JMenuItem(CAMERA, 'C');
         JMenuItem removeMenu = new JMenuItem(REMOVE, 'E');
         JMenuItem renameMenu = new JMenuItem(RENAME, 'N');
         
@@ -110,6 +112,7 @@ public abstract class Displayable extends KatNode {
         cutMenu.addActionListener(listener);
         rotationMenu.addActionListener(listener);
         lightMenu.addActionListener(listener);
+        cameraMenu.addActionListener(listener);
         removeMenu.addActionListener(listener);
         renameMenu.addActionListener(listener);
         
@@ -117,6 +120,7 @@ public abstract class Displayable extends KatNode {
         menu.add(cutMenu);
         menu.add(rotationMenu);
         menu.add(lightMenu);
+        menu.add(cameraMenu);
         menu.addSeparator();
         menu.add(removeMenu);
         menu.add(renameMenu);
@@ -176,6 +180,9 @@ public abstract class Displayable extends KatNode {
                     break;
                 case ROTATION:
                     ProjectHandler.getInstance().insertNodeInto(new RotationNode(), Displayable.this, getChildCount());
+                    break;
+                case CAMERA:
+                    ProjectHandler.getInstance().insertNodeInto(new CameraNode(2 * getMatrix().getRatio()[2]), Displayable.this, getChildCount());
                     break;
                 default:
                     TransferFunction.Type[] types = TransferFunction.Type.values();

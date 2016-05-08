@@ -31,7 +31,10 @@ public class SurfaceRenderer extends VolumeRenderer implements MouseMotionListen
     private static final int THRESHOLD_LO_DIRTY = 1 << 4;
     private static final int TRACKED_FLAGS =
             LIGHT_DIRTY |
-            NORMAL_DIRTY;
+            NORMAL_DIRTY |
+            COLOR_DIRTY |
+            THRESHOLD_HI_DIRTY |
+            THRESHOLD_LO_DIRTY;
 
     private static final String PROPERTY_THRESHOLD_LO = "Threshold Low";
     private static final String PROPERTY_THRESHOLD_HI = "Threshold High";
@@ -44,9 +47,9 @@ public class SurfaceRenderer extends VolumeRenderer implements MouseMotionListen
     
     private float thresholdLo;
     private float thresholdHi;
-    private boolean thresholdLoDirty;
-    private boolean thresholdHiDirty;
-    private boolean colorsDirty;
+//    private boolean thresholdLoDirty;
+//    private boolean thresholdHiDirty;
+//    private boolean colorsDirty;
     
     private int lastY;
     
@@ -81,34 +84,47 @@ public class SurfaceRenderer extends VolumeRenderer implements MouseMotionListen
     @Override
     protected void preDraw(GLAutoDrawable drawable) {
         GL2 gl2 = drawable.getGL().getGL2();
-        if (thresholdLoDirty) {
-            int location = gl2.glGetUniformLocation(mainProgram, "thresholdLo");
-            gl2.glUniform1f(location, thresholdLo);
-            
-            thresholdLoDirty = false;
-            checkError(gl2, "Inject low threshold");
-        }
         
-        if (thresholdHiDirty) {
-            int location = gl2.glGetUniformLocation(mainProgram, "thresholdHi");
-            gl2.glUniform1f(location, thresholdHi);
+        if ((dirtyValues & (TRACKED_FLAGS)) > 0) {
+            int uniformLocation;
+            if ((dirtyValues & THRESHOLD_LO_DIRTY) > 0) {
+                int location = gl2.glGetUniformLocation(mainProgram, "thresholdLo");
+                gl2.glUniform1f(location, thresholdLo);
+            }
+
+            if ((dirtyValues & THRESHOLD_HI_DIRTY) > 0) {
+                int location = gl2.glGetUniformLocation(mainProgram, "thresholdHi");
+                gl2.glUniform1f(location, thresholdHi);
+            }
+
+            if ((dirtyValues & COLOR_DIRTY) > 0) {
+                gl2.glActiveTexture(GL2.GL_TEXTURE0 + TEXTURE_COLOR);
+                gl2.glBindTexture(GL2.GL_TEXTURE_1D, colorLocation[0]);
+                gl2.glTexImage1D(GL2.GL_TEXTURE_1D, 0, GL2.GL_RGBA, TransferFunction.TEXTURE_SIZE, 0, GL2.GL_RGBA, GL2.GL_UNSIGNED_INT_8_8_8_8_REV, ByteBuffer.wrap(colors));
+            }
+
+            if ((dirtyValues & NORMAL_DIRTY) > 0) {
+                uniformLocation = gl2.glGetUniformLocation(mainProgram, "normalMatrix");
+                gl2.glUniformMatrix3fv(uniformLocation, 1, false, normal.getNormalMatrix(), 0);
+            }
             
-            thresholdHiDirty = false;
-            checkError(gl2, "Inject high threshold");
-        }
-        
-        if (colorsDirty) {
-            gl2.glActiveTexture(GL2.GL_TEXTURE0 + TEXTURE_COLOR);
-            gl2.glBindTexture(GL2.GL_TEXTURE_1D, colorLocation[0]);
-            gl2.glTexImage1D(GL2.GL_TEXTURE_1D, 0, GL2.GL_RGBA, TransferFunction.TEXTURE_SIZE, 0, GL2.GL_RGBA, GL2.GL_UNSIGNED_INT_8_8_8_8_REV, ByteBuffer.wrap(colors));
+            if ((dirtyValues & LIGHT_DIRTY) > 0) {
+                uniformLocation = gl2.glGetUniformLocation(mainProgram, "lightPos");
+                float[] lightPos = light.getLightPosition();
+                gl2.glUniform3fv(uniformLocation, 1, lightPos, 0);
+                uniformLocation = gl2.glGetUniformLocation(mainProgram, "lightPosFront");
+                gl2.glUniform3f(uniformLocation, -lightPos[0], -lightPos[1], -lightPos[2]);
+            }
+            
+            dirtyValues = 0;
         }
     }
 
     @Override
     public void init(GLAutoDrawable drawable) {
         super.init(drawable); 
-        thresholdLoDirty = true;
-        thresholdHiDirty = true;
+        dirtyValues = TRACKED_FLAGS;
+        normal.updateMatrices(camera, rotation, tempMatrix);
         
         GL2 gl2 = drawable.getGL().getGL2();
         
@@ -145,7 +161,7 @@ public class SurfaceRenderer extends VolumeRenderer implements MouseMotionListen
         g2d.drawLine(0, 0, 2048, 0);
         g2d.dispose();
         colors = (byte[]) colorImage.getRaster().getDataElements(0, 0, 2048, 1, null);
-        colorsDirty = true;
+        dirtyValues |= COLOR_DIRTY;
     }
 
     @Override
@@ -178,7 +194,7 @@ public class SurfaceRenderer extends VolumeRenderer implements MouseMotionListen
                     thresholdLo = thresholdHi;
                 }
                 
-                thresholdLoDirty = true;
+                dirtyValues |= THRESHOLD_LO_DIRTY;
                 repaint();
             } else if (SwingUtilities.isRightMouseButton(e)) {
                 float deltaY = (e.getY() - lastY) / -10000f;
@@ -199,7 +215,7 @@ public class SurfaceRenderer extends VolumeRenderer implements MouseMotionListen
                     thresholdHi = 1f;
                 }
                 
-                thresholdHiDirty = true;
+                dirtyValues |= THRESHOLD_HI_DIRTY;
                 repaint();
             } else if (SwingUtilities.isMiddleMouseButton(e)) {
                 float deltaY = (e.getY() - lastY) / -10000f;
@@ -228,8 +244,7 @@ public class SurfaceRenderer extends VolumeRenderer implements MouseMotionListen
                     thresholdLo = thresholdHi - diff;
                 }
                 
-                thresholdLoDirty = true;
-                thresholdHiDirty = true;
+                dirtyValues |= THRESHOLD_LO_DIRTY | THRESHOLD_HI_DIRTY;
                 repaint();
             }
         }
@@ -285,13 +300,13 @@ public class SurfaceRenderer extends VolumeRenderer implements MouseMotionListen
         Float newThreshold = (Float) properties.get(PROPERTY_THRESHOLD_LO);
         if (newThreshold != null) {
             this.thresholdLo = newThreshold;
-            thresholdLoDirty = true;
+            dirtyValues |= THRESHOLD_LO_DIRTY;
         }
         
         newThreshold = (Float) properties.get(PROPERTY_THRESHOLD_HI);
         if (newThreshold != null) {
             this.thresholdHi = newThreshold;
-            thresholdHiDirty = true;
+            dirtyValues |= THRESHOLD_HI_DIRTY;
         }
         
         repaint();
@@ -300,6 +315,7 @@ public class SurfaceRenderer extends VolumeRenderer implements MouseMotionListen
     @Override
     public void lightValueChanged() {
         dirtyValues |= LIGHT_DIRTY;
+        repaint();
     }
 
     @Override

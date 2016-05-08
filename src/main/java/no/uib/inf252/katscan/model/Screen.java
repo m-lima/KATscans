@@ -2,6 +2,7 @@ package no.uib.inf252.katscan.model;
 
 import com.jogamp.opengl.math.FloatUtil;
 import java.awt.EventQueue;
+import no.uib.inf252.katscan.event.KatModelListener;
 import no.uib.inf252.katscan.event.ScreenListener;
 
 /**
@@ -116,39 +117,39 @@ public class Screen extends KatModel<Screen> {
     }
     
     private void fireOrthographicValueChanged() {
-        ScreenListener[] listeners = listenerList.getListeners(ScreenListener.class);
+        KatModelListener[] listeners = listenerList.getListeners(KatModelListener.class);
 
-        for (final ScreenListener listener : listeners) {
+        for (final KatModelListener listener : listeners) {
             EventQueue.invokeLater(new Runnable() {
                 @Override
                 public void run() {
-                    listener.orthographicValueChanged();
+                    ((ScreenListener)listener).orthographicValueChanged();
                 }
             });
         }
     }
     
     private void fireProjectionValueChanged() {
-        ScreenListener[] listeners = listenerList.getListeners(ScreenListener.class);
+        KatModelListener[] listeners = listenerList.getListeners(KatModelListener.class);
 
-        for (final ScreenListener listener : listeners) {
+        for (final KatModelListener listener : listeners) {
             EventQueue.invokeLater(new Runnable() {
                 @Override
                 public void run() {
-                    listener.projectionValueChanged();
+                    ((ScreenListener)listener).projectionValueChanged();
                 }
             });
         }
     }
     
     private void fireStepValueChanged() {
-        ScreenListener[] listeners = listenerList.getListeners(ScreenListener.class);
+        KatModelListener[] listeners = listenerList.getListeners(KatModelListener.class);
 
-        for (final ScreenListener listener : listeners) {
+        for (final KatModelListener listener : listeners) {
             EventQueue.invokeLater(new Runnable() {
                 @Override
                 public void run() {
-                    listener.stepValueChanged();
+                    ((ScreenListener)listener).stepValueChanged();
                 }
             });
         }

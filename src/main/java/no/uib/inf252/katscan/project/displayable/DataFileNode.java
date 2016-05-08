@@ -14,6 +14,7 @@ import no.uib.inf252.katscan.data.io.LoadSaveFormat;
 import no.uib.inf252.katscan.data.io.LoadSaveHandler;
 import no.uib.inf252.katscan.data.io.LoadSaveOptions;
 import no.uib.inf252.katscan.data.VoxelMatrix;
+import no.uib.inf252.katscan.model.Camera;
 import no.uib.inf252.katscan.model.Rotation;
 import no.uib.inf252.katscan.model.Cut;
 import no.uib.inf252.katscan.model.Light;
@@ -35,6 +36,7 @@ public class DataFileNode extends Displayable implements Serializable {
     private final Cut cut;
     private final Rotation rotation;
     private final Light light;
+    private final Camera camera;
     
     public DataFileNode(String name, File file, LoadSaveFormat.Format format, LoadSaveOptions options, VoxelMatrix matrix) {
         super(name);
@@ -47,6 +49,7 @@ public class DataFileNode extends Displayable implements Serializable {
         cut = new Cut();
         rotation = new Rotation();
         light = new Light();
+        camera = new Camera(2 * matrix.getRatio()[2]);
     }
 
     @Override
@@ -100,6 +103,11 @@ public class DataFileNode extends Displayable implements Serializable {
     @Override
     public Light getLight() {
         return light;
+    }
+
+    @Override
+    public Camera getCamera() {
+        return camera;
     }
 
     @Override

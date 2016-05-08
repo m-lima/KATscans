@@ -45,7 +45,6 @@ public class TransferFunctionBarEditor extends JPanel implements TransferFunctio
     public TransferFunctionBarEditor(TransferFunction transferFunction) {
         super(new BorderLayout());
         this.transferFunction = transferFunction;
-        this.transferFunction.addKatModelListener(this);
         
         minRange = 0d;
         maxRange = 1d;
