@@ -48,7 +48,6 @@ public class Camera extends KatModel<Camera> implements Serializable {
         
         fireZoomValueChanged();
         fireViewValueChanged();
-        fireRepaint();
     }
 
     @Override
@@ -63,7 +62,6 @@ public class Camera extends KatModel<Camera> implements Serializable {
         reuseView = false;
         
         fireViewValueChanged();
-        fireRepaint();
     }
 
     public void setInitialZoom(float initialZoom) {
@@ -96,7 +94,6 @@ public class Camera extends KatModel<Camera> implements Serializable {
         
         fireZoomValueChanged();
         fireViewValueChanged();
-        fireRepaint();
     }
     
     public void setEyePosition(float x, float y) {
@@ -107,7 +104,6 @@ public class Camera extends KatModel<Camera> implements Serializable {
         targetPosition[1] = y;
         
         fireViewValueChanged();
-        fireRepaint();
     }
     
     private void fireViewValueChanged() {

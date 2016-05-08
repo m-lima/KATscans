@@ -74,7 +74,6 @@ public class TransferFunction extends KatModel<TransferFunction> implements Seri
             points.add(new TransferFunctionPoint(point, this));
         }
         firePointCountChanged();
-        fireRepaint();
     }
     
     public final void setType(Type type) {
@@ -115,7 +114,6 @@ public class TransferFunction extends KatModel<TransferFunction> implements Seri
         }
         dirtyPaint = true;
         firePointCountChanged();
-        fireRepaint();
     }
     
     public int getPointCount() {
@@ -128,7 +126,6 @@ public class TransferFunction extends KatModel<TransferFunction> implements Seri
         dirtyPaint = true;
 
         firePointCountChanged();
-        fireRepaint();
         return returnValue;
     }
 
@@ -141,7 +138,6 @@ public class TransferFunction extends KatModel<TransferFunction> implements Seri
         if (removed) {
             dirtyPaint = true;
             firePointCountChanged();
-            fireRepaint();
         }
         return removed;
     }
@@ -151,7 +147,6 @@ public class TransferFunction extends KatModel<TransferFunction> implements Seri
         if (point != null) {
             dirtyPaint = true;
             firePointCountChanged();
-            fireRepaint();
         }
         return point;
     }
@@ -159,7 +154,6 @@ public class TransferFunction extends KatModel<TransferFunction> implements Seri
     private void valueChanged() {
         dirtyPaint = true;
         firePointValueChanged();
-        fireRepaint();
     }
     
     public LinearGradientPaint getPaint() {

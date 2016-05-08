@@ -33,19 +33,6 @@ public abstract class KatModel<T extends KatModel> implements Serializable {
         return katModel;
     }
 
-    protected void fireRepaint() {
-        KatModelListener[] listeners = listenerList.getListeners(KatModelListener.class);
-
-        for (final KatModelListener listener : listeners) {
-            EventQueue.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-//                    listener.repaint();
-                }
-            });
-        }
-    }
-
     public synchronized void addKatModelListener(KatModelListener listener) {
         if (listener == null) {
             return;

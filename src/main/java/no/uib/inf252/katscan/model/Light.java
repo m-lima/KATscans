@@ -26,7 +26,6 @@ public class Light extends KatModel<Light> implements Serializable {
         lightPosition[1] = light[1];
         lightPosition[2] = light[2];
         fireLightValueChanged();
-        fireRepaint();
     }
 
     @Override
@@ -38,7 +37,6 @@ public class Light extends KatModel<Light> implements Serializable {
     public void assimilate(Light katModel) {
         System.arraycopy(katModel.lightPosition, 0, this.lightPosition, 0, lightPosition.length);
         fireLightValueChanged();
-        fireRepaint();
     }
     
     private void fireLightValueChanged() {

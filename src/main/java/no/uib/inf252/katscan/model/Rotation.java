@@ -40,7 +40,6 @@ public class Rotation extends KatModel<Rotation> implements Serializable {
         this.reuseModel = katModel.reuseModel;
 
         fireRotationChanged();
-        fireRepaint();
     }
 
     public synchronized float[] getModelMatrix() {
@@ -62,7 +61,6 @@ public class Rotation extends KatModel<Rotation> implements Serializable {
         currentRotation.set(reference);
         currentRotation.rotateByAngleNormalAxis(angle, axis[0], axis[1], axis[2]);
         fireRotationChanged();
-        fireRepaint();
     }
 
     public Quaternion getCurrentRotation() {
@@ -80,7 +78,6 @@ public class Rotation extends KatModel<Rotation> implements Serializable {
         }
         currentRotation.rotateByAngleX(FloatUtil.HALF_PI);
         fireRotationChanged();
-        fireRepaint();
     }
     
     public void bottom() {
@@ -91,7 +88,6 @@ public class Rotation extends KatModel<Rotation> implements Serializable {
         }
         currentRotation.rotateByAngleX(-FloatUtil.HALF_PI);
         fireRotationChanged();
-        fireRepaint();
     }
     
     public void front() {
@@ -101,7 +97,6 @@ public class Rotation extends KatModel<Rotation> implements Serializable {
             currentRotation.setIdentity();
         }
         fireRotationChanged();
-        fireRepaint();
     }
     
     public void back() {
@@ -113,7 +108,6 @@ public class Rotation extends KatModel<Rotation> implements Serializable {
         currentRotation.rotateByAngleX(FloatUtil.PI);
         currentRotation.rotateByAngleZ(FloatUtil.PI);
         fireRotationChanged();
-        fireRepaint();
     }
     
     public void right() {
@@ -124,7 +118,6 @@ public class Rotation extends KatModel<Rotation> implements Serializable {
         }
         currentRotation.rotateByAngleY(-FloatUtil.HALF_PI);
         fireRotationChanged();
-        fireRepaint();
     }
     
     public void left() {
@@ -135,7 +128,6 @@ public class Rotation extends KatModel<Rotation> implements Serializable {
         }
         currentRotation.rotateByAngleY(+FloatUtil.HALF_PI);
         fireRotationChanged();
-        fireRepaint();
     }
     
     private void fireRotationChanged() {

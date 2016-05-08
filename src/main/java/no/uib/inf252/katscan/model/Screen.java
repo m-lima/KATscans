@@ -36,7 +36,6 @@ public class Screen extends KatModel<Screen> {
         stepFactor = katModel.stepFactor;
         
         fireOrthographicValueChanged();
-        fireRepaint();
     }
     
     @Override
@@ -47,7 +46,6 @@ public class Screen extends KatModel<Screen> {
         
         fireOrthographicValueChanged();
         fireStepValueChanged();
-        fireRepaint();
     }
 
     public boolean isOrthographic() {
@@ -74,13 +72,11 @@ public class Screen extends KatModel<Screen> {
         }
         
         fireStepValueChanged();
-        fireRepaint();
     }
     
     public void toggleOrthographic() {
         orthographic = !orthographic;
         fireOrthographicValueChanged();
-        fireRepaint();
     }
 
     public void changeFOV(float delta, Camera camera, float width, float height) {
@@ -117,7 +113,6 @@ public class Screen extends KatModel<Screen> {
         }
         
         fireProjectionValueChanged();
-        fireRepaint();
     }
     
     private void fireOrthographicValueChanged() {

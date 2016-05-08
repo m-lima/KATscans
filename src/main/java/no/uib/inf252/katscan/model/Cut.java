@@ -36,7 +36,6 @@ public class Cut extends KatModel<Cut> implements Serializable {
         fireMinValueChanged();
         fireMaxValueChanged();
         fireSliceValueChanged();
-        fireRepaint();
     }
 
     public float[] getMinValues() {
@@ -62,82 +61,75 @@ public class Cut extends KatModel<Cut> implements Serializable {
         }
         
         fireSliceValueChanged();
-        fireRepaint();
     }
 
     public void changeMinX(float delta, boolean paired) {
         if (paired) {
             float diff = maxValues[0] - minValues[0];
-            setValue(false, delta, 0, 0f, maxValues[0], paired);
+            setValue(false, delta, 0, 0f, maxValues[0]);
             maxValues[0] = minValues[0] + diff;
             fireMaxValueChanged();
-            fireRepaint();
         } else {
-            setValue(false, delta, 0, 0f, maxValues[0], paired);
+            setValue(false, delta, 0, 0f, maxValues[0]);
         }
     }
 
     public void changeMinY(float delta, boolean paired) {
         if (paired) {
             float diff = maxValues[1] - minValues[1];
-            setValue(false, delta, 1, 0f, maxValues[1], paired);
+            setValue(false, delta, 1, 0f, maxValues[1]);
             maxValues[1] = minValues[1] + diff;
             fireMaxValueChanged();
-            fireRepaint();
         } else {
-            setValue(false, delta, 1, 0f, maxValues[1], paired);
+            setValue(false, delta, 1, 0f, maxValues[1]);
         }
     }
 
     public void changeMinZ(float delta, boolean paired) {
         if (paired) {
             float diff = maxValues[2] - minValues[2];
-            setValue(false, delta, 2, 0f, maxValues[2], paired);
+            setValue(false, delta, 2, 0f, maxValues[2]);
             maxValues[2] = minValues[2] + diff;
             fireMaxValueChanged();
-            fireRepaint();
         } else {
-            setValue(false, delta, 2, 0f, maxValues[2], paired);
+            setValue(false, delta, 2, 0f, maxValues[2]);
         }
     }
 
     public void changeMaxX(float delta, boolean paired) {
         if (paired) {
             float diff = maxValues[0] - minValues[0];
-            setValue(true, delta, 0, minValues[0], 1f, paired);
+            setValue(true, delta, 0, minValues[0], 1f);
             minValues[0] = maxValues[0] - diff;
             fireMinValueChanged();
-            fireRepaint();
         } else {
-            setValue(true, delta, 0, minValues[0], 1f, paired);
+            setValue(true, delta, 0, minValues[0], 1f);
         }
     }
 
     public void changeMaxY(float delta, boolean paired) {
         if (paired) {
             float diff = maxValues[1] - minValues[1];
-            setValue(true, delta, 1, minValues[1], 1f, paired);
+            setValue(true, delta, 1, minValues[1], 1f);
             minValues[1] = maxValues[1] - diff;
             fireMinValueChanged();
-            fireRepaint();
         } else {
-            setValue(true, delta, 1, minValues[1], 1f, paired);
+            setValue(true, delta, 1, minValues[1], 1f);
         }
     }
 
     public void changeMaxZ(float delta, boolean paired) {
         if (paired) {
             float diff = maxValues[2] - minValues[2];
-            setValue(true, delta, 2, minValues[2], 1f, paired);
+            setValue(true, delta, 2, minValues[2], 1f);
             minValues[2] = maxValues[2] - diff;
             fireMinValueChanged();
-            fireRepaint();
         } else {
-            setValue(true, delta, 2, minValues[2], 1f, paired);
+            setValue(true, delta, 2, minValues[2], 1f);
         }
     }
 
-    private void setValue(boolean changeMax, float delta, int index, float min, float max, boolean paired) {
+    private void setValue(boolean changeMax, float delta, int index, float min, float max) {
         float[] vector = changeMax ? maxValues : minValues;
         float value = vector[index];
         if (delta > 0) {
@@ -166,10 +158,6 @@ public class Cut extends KatModel<Cut> implements Serializable {
             fireMaxValueChanged();
         } else {
             fireMinValueChanged();
-        }
-        
-        if (!paired) {
-            fireRepaint();
         }
     }
     
