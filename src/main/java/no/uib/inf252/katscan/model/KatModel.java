@@ -1,6 +1,5 @@
 package no.uib.inf252.katscan.model;
 
-import java.awt.EventQueue;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;

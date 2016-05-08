@@ -15,7 +15,6 @@ import no.uib.inf252.katscan.event.LightListener;
 import no.uib.inf252.katscan.event.TransferFunctionListener;
 import no.uib.inf252.katscan.model.Light;
 import no.uib.inf252.katscan.project.displayable.Displayable;
-import no.uib.inf252.katscan.project.displayable.StructureNode;
 import no.uib.inf252.katscan.model.TransferFunction;
 import no.uib.inf252.katscan.util.Normal;
 

@@ -1,7 +1,5 @@
 package no.uib.inf252.katscan.event;
 
-import no.uib.inf252.katscan.model.TransferFunction;
-
 /**
  *
  * @author Marcelo Lima
