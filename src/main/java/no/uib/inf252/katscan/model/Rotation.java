@@ -13,7 +13,7 @@ import no.uib.inf252.katscan.event.RotationListener;
 public class Rotation extends KatModel<Rotation> implements Serializable {
     
     private final float[] modelMatrix;    
-    private final Quaternion currentRotation;
+    private transient Quaternion currentRotation;
 
     private boolean reuseModel;
 
@@ -33,6 +33,9 @@ public class Rotation extends KatModel<Rotation> implements Serializable {
     public void assimilate(Rotation katModel) {
         System.arraycopy(katModel.modelMatrix, 0, this.modelMatrix, 0, modelMatrix.length);
 
+        if (this.currentRotation == null) {
+            currentRotation = new Quaternion();
+        }
         this.currentRotation.set(katModel.currentRotation);
         this.reuseModel = katModel.reuseModel;
 
@@ -45,11 +48,17 @@ public class Rotation extends KatModel<Rotation> implements Serializable {
             return modelMatrix;
         } else {
             reuseModel = true;
+            if (currentRotation == null) {
+                currentRotation = new Quaternion();
+            }
             return currentRotation.toMatrix(modelMatrix, 0);
         }
     }
     
     public void rotate(Quaternion reference, float angle, float[] axis) {
+        if (currentRotation == null) {
+            currentRotation = new Quaternion();
+        }
         currentRotation.set(reference);
         currentRotation.rotateByAngleNormalAxis(angle, axis[0], axis[1], axis[2]);
         fireRotationChanged();
@@ -57,31 +66,50 @@ public class Rotation extends KatModel<Rotation> implements Serializable {
     }
 
     public Quaternion getCurrentRotation() {
+        if (currentRotation == null) {
+            currentRotation = new Quaternion();
+        }
         return currentRotation;
     }
     
     public void top() {
-        currentRotation.setIdentity();
+        if (currentRotation == null) {
+            currentRotation = new Quaternion();
+        } else {
+            currentRotation.setIdentity();
+        }
         currentRotation.rotateByAngleX(FloatUtil.HALF_PI);
         fireRotationChanged();
         fireRepaint();
     }
     
     public void bottom() {
-        currentRotation.setIdentity();
+        if (currentRotation == null) {
+            currentRotation = new Quaternion();
+        } else {
+            currentRotation.setIdentity();
+        }
         currentRotation.rotateByAngleX(-FloatUtil.HALF_PI);
         fireRotationChanged();
         fireRepaint();
     }
     
     public void front() {
-        currentRotation.setIdentity();
+        if (currentRotation == null) {
+            currentRotation = new Quaternion();
+        } else {
+            currentRotation.setIdentity();
+        }
         fireRotationChanged();
         fireRepaint();
     }
     
     public void back() {
-        currentRotation.setIdentity();
+        if (currentRotation == null) {
+            currentRotation = new Quaternion();
+        } else {
+            currentRotation.setIdentity();
+        }
         currentRotation.rotateByAngleX(FloatUtil.PI);
         currentRotation.rotateByAngleZ(FloatUtil.PI);
         fireRotationChanged();
@@ -89,14 +117,22 @@ public class Rotation extends KatModel<Rotation> implements Serializable {
     }
     
     public void right() {
-        currentRotation.setIdentity();
+        if (currentRotation == null) {
+            currentRotation = new Quaternion();
+        } else {
+            currentRotation.setIdentity();
+        }
         currentRotation.rotateByAngleY(-FloatUtil.HALF_PI);
         fireRotationChanged();
         fireRepaint();
     }
     
     public void left() {
-        currentRotation.setIdentity();
+        if (currentRotation == null) {
+            currentRotation = new Quaternion();
+        } else {
+            currentRotation.setIdentity();
+        }
         currentRotation.rotateByAngleY(+FloatUtil.HALF_PI);
         fireRotationChanged();
         fireRepaint();

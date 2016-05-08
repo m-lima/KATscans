@@ -1,21 +1,36 @@
 package no.uib.inf252.katscan.model;
 
+import com.jogamp.opengl.math.FloatUtil;
 import java.awt.EventQueue;
 import java.io.Serializable;
-import no.uib.inf252.katscan.event.CutListener;
+import no.uib.inf252.katscan.event.CameraListener;
 
 /**
  *
  * @author Marcelo Lima
  */
 public class Camera extends KatModel<Camera> implements Serializable {
+
+    private static final float[] UP_VECTOR = new float[]{0f, 1f, 0f};
+
+    private final float[] eyePosition;
+    private final float[] targetPosition;
     
-    private final float[] minValues;
-    private final float[] maxValues;
+    private final float[] viewMatrix;
+    private final float[] tempMatrix;
+    private boolean reuseView;
+    
+    private float initialZoom;
 
     public Camera() {
-        minValues = new float[]{0f, 0f, 0f};
-        maxValues = new float[]{1f, 1f, 1f};
+        eyePosition = new float[] {0f, 0f, 5f};
+        targetPosition = new float[] {0f, 0f, -50f};
+        
+        viewMatrix = new float[16];
+        tempMatrix = new float[16];
+        reuseView = false;
+        
+        this.initialZoom = 5f;
     }
 
     @Override
@@ -24,152 +39,100 @@ public class Camera extends KatModel<Camera> implements Serializable {
     }
 
     @Override
-    public void assimilate(Camera katModel) {
-        System.arraycopy(katModel.minValues, 0, this.minValues, 0, minValues.length);
-        System.arraycopy(katModel.maxValues, 0, this.maxValues, 0, maxValues.length);
+    public void assimilate(Camera camera) {
+        System.arraycopy(camera.eyePosition, 0, this.eyePosition, 0, eyePosition.length);
+        System.arraycopy(camera.targetPosition, 0, this.targetPosition, 0, targetPosition.length);
         
-        fireMinValueChanged();
-        fireMaxValueChanged();
+        System.arraycopy(camera.viewMatrix, 0, this.viewMatrix, 0, viewMatrix.length);
+        this.reuseView = camera.reuseView;
+        
+        fireZoomValueChanged();
+        fireViewValueChanged();
         fireRepaint();
     }
 
-    public float[] getMinValues() {
-        return minValues;
-    }
-
-    public float[] getMaxValues() {
-        return maxValues;
-    }
-
-    public void changeMinX(float delta, boolean paired) {
-        if (paired) {
-            float diff = maxValues[0] - minValues[0];
-            setValue(false, delta, 0, 0f, maxValues[0], paired);
-            maxValues[0] = minValues[0] + diff;
-            fireMaxValueChanged();
-            fireRepaint();
-        } else {
-            setValue(false, delta, 0, 0f, maxValues[0], paired);
-        }
-    }
-
-    public void changeMinY(float delta, boolean paired) {
-        if (paired) {
-            float diff = maxValues[1] - minValues[1];
-            setValue(false, delta, 1, 0f, maxValues[1], paired);
-            maxValues[1] = minValues[1] + diff;
-            fireMaxValueChanged();
-            fireRepaint();
-        } else {
-            setValue(false, delta, 1, 0f, maxValues[1], paired);
-        }
-    }
-
-    public void changeMinZ(float delta, boolean paired) {
-        if (paired) {
-            float diff = maxValues[2] - minValues[2];
-            setValue(false, delta, 2, 0f, maxValues[2], paired);
-            maxValues[2] = minValues[2] + diff;
-            fireMaxValueChanged();
-            fireRepaint();
-        } else {
-            setValue(false, delta, 2, 0f, maxValues[2], paired);
-        }
-    }
-
-    public void changeMaxX(float delta, boolean paired) {
-        if (paired) {
-            float diff = maxValues[0] - minValues[0];
-            setValue(true, delta, 0, minValues[0], 1f, paired);
-            minValues[0] = maxValues[0] - diff;
-            fireMinValueChanged();
-            fireRepaint();
-        } else {
-            setValue(true, delta, 0, minValues[0], 1f, paired);
-        }
-    }
-
-    public void changeMaxY(float delta, boolean paired) {
-        if (paired) {
-            float diff = maxValues[1] - minValues[1];
-            setValue(true, delta, 1, minValues[1], 1f, paired);
-            minValues[1] = maxValues[1] - diff;
-            fireMinValueChanged();
-            fireRepaint();
-        } else {
-            setValue(true, delta, 1, minValues[1], 1f, paired);
-        }
-    }
-
-    public void changeMaxZ(float delta, boolean paired) {
-        if (paired) {
-            float diff = maxValues[2] - minValues[2];
-            setValue(true, delta, 2, minValues[2], 1f, paired);
-            minValues[2] = maxValues[2] - diff;
-            fireMinValueChanged();
-            fireRepaint();
-        } else {
-            setValue(true, delta, 2, minValues[2], 1f, paired);
-        }
-    }
-
-    private void setValue(boolean changeMax, float delta, int index, float min, float max, boolean paired) {
-        float[] vector = changeMax ? maxValues : minValues;
-        float value = vector[index];
-        if (delta > 0) {
-            if (value == max) {
-                return;
-            }
-            
-            value += delta;
-            if (value > max) {
-                value = max;
-            }
-        } else {
-            if (value == min) {
-                return;
-            }
-            
-            value += delta;
-            if (value < min) {
-                value = min;
-            }
-        }
+    @Override
+    public void reset() {
+        eyePosition[0] = 0f;
+        eyePosition[1] = 0f;
+        eyePosition[2] = initialZoom;
+        targetPosition[0] = 0f;
+        targetPosition[1] = 0f;
+        targetPosition[2] = -50f;
         
-        vector[index] = value;
+        reuseView = false;
         
-        if (changeMax) {
-            fireMaxValueChanged();
+        fireViewValueChanged();
+        fireRepaint();
+    }
+
+    public void setInitialZoom(float initialZoom) {
+        this.initialZoom = initialZoom;
+    }
+
+    public float[] getViewMatrix() {
+        if (reuseView) {
+            return viewMatrix;
         } else {
-            fireMinValueChanged();
+            reuseView = true;
+            return FloatUtil.makeLookAt(viewMatrix, 0, eyePosition, 0, targetPosition, 0, UP_VECTOR, 0, tempMatrix);
         }
-        
-        if (!paired) {
-            fireRepaint();
-        }
+    }
+
+    public float[] getEyePosition() {
+        return eyePosition;
+    }
+
+    public float getZoom() {
+        return eyePosition[2];
+    }
+
+    public float getInitialZoom() {
+        return initialZoom;
     }
     
-    private void fireMinValueChanged() {
-        CutListener[] listeners = listenerList.getListeners(CutListener.class);
+    public void changeZoom(float delta) {
+        eyePosition[2] += delta;
+        
+        fireZoomValueChanged();
+        fireViewValueChanged();
+        fireRepaint();
+    }
+    
+    public void setEyePosition(float x, float y) {
+        eyePosition[0] = x;
+        targetPosition[0] = x;
+        
+        eyePosition[1] = y;
+        targetPosition[1] = y;
+        
+        fireViewValueChanged();
+        fireRepaint();
+    }
+    
+    private void fireViewValueChanged() {
+        reuseView = false;
+        CameraListener[] listeners = listenerList.getListeners(CameraListener.class);
 
-        for (final CutListener listener : listeners) {
+        for (final CameraListener listener : listeners) {
             EventQueue.invokeLater(new Runnable() {
                 @Override
                 public void run() {
-                    listener.minValueChanged();
+                    listener.viewValueChanged();
                 }
             });
         }
     }
     
-    private void fireMaxValueChanged() {
-        CutListener[] listeners = listenerList.getListeners(CutListener.class);
+    private void fireZoomValueChanged() {
+        reuseView = false;
+        CameraListener[] listeners = listenerList.getListeners(CameraListener.class);
 
-        for (final CutListener listener : listeners) {
+        for (final CameraListener listener : listeners) {
             EventQueue.invokeLater(new Runnable() {
                 @Override
                 public void run() {
-                    listener.maxValueChanged();
+                    listener.zoomValueChanged();
                 }
             });
         }

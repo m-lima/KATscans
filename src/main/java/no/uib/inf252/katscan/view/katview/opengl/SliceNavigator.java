@@ -66,8 +66,6 @@ public class SliceNavigator extends GLJPanel implements KatView, GLEventListener
         this.displayable = displayable;
         
         addMouseWheelListener(this);
-        
-        displayable.getTransferFunction().addTransferFunctionListener(this);
     }
 
     @Override

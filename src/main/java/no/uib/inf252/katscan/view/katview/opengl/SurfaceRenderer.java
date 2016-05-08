@@ -11,16 +11,28 @@ import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
 import java.util.Map;
 import javax.swing.SwingUtilities;
+import no.uib.inf252.katscan.event.LightListener;
 import no.uib.inf252.katscan.event.TransferFunctionListener;
+import no.uib.inf252.katscan.model.Light;
 import no.uib.inf252.katscan.project.displayable.Displayable;
 import no.uib.inf252.katscan.project.displayable.StructureNode;
 import no.uib.inf252.katscan.model.TransferFunction;
+import no.uib.inf252.katscan.util.Normal;
 
 /**
  *
  * @author Marcelo Lima
  */
-public class SurfaceRenderer extends VolumeRenderer implements MouseMotionListener, MouseListener, TransferFunctionListener {
+public class SurfaceRenderer extends VolumeRenderer implements MouseMotionListener, MouseListener, TransferFunctionListener, LightListener {
+    
+    private static final int LIGHT_DIRTY = 1 << 0;
+    private static final int NORMAL_DIRTY = 1 << 1;
+    private static final int COLOR_DIRTY = 1 << 2;
+    private static final int THRESHOLD_HI_DIRTY = 1 << 3;
+    private static final int THRESHOLD_LO_DIRTY = 1 << 4;
+    private static final int TRACKED_FLAGS =
+            LIGHT_DIRTY |
+            NORMAL_DIRTY;
 
     private static final String PROPERTY_THRESHOLD_LO = "Threshold Low";
     private static final String PROPERTY_THRESHOLD_HI = "Threshold High";
@@ -35,10 +47,13 @@ public class SurfaceRenderer extends VolumeRenderer implements MouseMotionListen
     private float thresholdHi;
     private boolean thresholdLoDirty;
     private boolean thresholdHiDirty;
+    private boolean colorsDirty;
     
     private int lastY;
     
-    private boolean colorsDirty;
+    private int dirtyValues;
+    private final Normal normal;
+    private final Light light;
     
     public SurfaceRenderer(Displayable displayable) throws GLException {
         super(displayable, "surfCaster", 1f);
@@ -47,9 +62,11 @@ public class SurfaceRenderer extends VolumeRenderer implements MouseMotionListen
         
         addMouseListener(this);
         addMouseMotionListener(this);
-        displayable.getTransferFunction().addTransferFunctionListener(this);
         thresholdLo = 0.2f;
         thresholdHi = 0.5f;
+        
+        light = displayable.getLight();
+        normal = new Normal();
     }
 
     @Override
@@ -59,8 +76,6 @@ public class SurfaceRenderer extends VolumeRenderer implements MouseMotionListen
 
     @Override
     public void createStructure(int x, int y, float threshold) {
-        super.createStructure(x, y, threshold); //To change body of generated methods, choose Tools | Templates.
-        StructureNode structure = new StructureNode();
         
     }
 
@@ -281,6 +296,25 @@ public class SurfaceRenderer extends VolumeRenderer implements MouseMotionListen
         }
         
         repaint();
+    }
+
+    @Override
+    public void lightValueChanged() {
+        dirtyValues |= LIGHT_DIRTY;
+    }
+
+    @Override
+    public void rotationValueChanged() {
+        super.rotationValueChanged();
+        dirtyValues |= NORMAL_DIRTY;
+        normal.updateMatrices(camera, rotation, tempMatrix);
+    }
+
+    @Override
+    public void viewValueChanged() {
+        super.viewValueChanged();
+        dirtyValues |= NORMAL_DIRTY;
+        normal.updateMatrices(camera, rotation, tempMatrix);
     }
 
 }

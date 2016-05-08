@@ -40,13 +40,13 @@ public abstract class KatModel<T extends KatModel> implements Serializable {
             EventQueue.invokeLater(new Runnable() {
                 @Override
                 public void run() {
-                    listener.repaint();
+//                    listener.repaint();
                 }
             });
         }
     }
 
-    public synchronized void addTransferFunctionListener(KatModelListener listener) {
+    public synchronized void addKatModelListener(KatModelListener listener) {
         if (listener == null) {
             return;
         }
@@ -54,7 +54,7 @@ public abstract class KatModel<T extends KatModel> implements Serializable {
         listenerList.add(KatModelListener.class, listener);
     }
 
-    public synchronized void removeTransferFunctionListener(KatModelListener listener) {
+    public synchronized void removeKatModelListener(KatModelListener listener) {
         if (listener == null) {
             return;
         }

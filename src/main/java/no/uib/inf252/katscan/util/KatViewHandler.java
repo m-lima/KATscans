@@ -1,5 +1,6 @@
 package no.uib.inf252.katscan.util;
 
+import no.uib.inf252.katscan.model.Screen;
 import com.jogamp.opengl.math.FloatUtil;
 import com.jogamp.opengl.math.Quaternion;
 import com.jogamp.opengl.math.VectorUtil;
@@ -19,6 +20,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
+import no.uib.inf252.katscan.model.Camera;
 import no.uib.inf252.katscan.model.Cut;
 import no.uib.inf252.katscan.model.Light;
 import no.uib.inf252.katscan.model.Rotation;
@@ -29,26 +31,10 @@ import no.uib.inf252.katscan.view.katview.opengl.VolumeRenderer;
  *
  * @author Marcelo Lima
  */
-public class TrackBallNew implements MouseListener, MouseMotionListener, MouseWheelListener, KeyListener, FocusListener {
+public class KatViewHandler implements MouseListener, MouseMotionListener, MouseWheelListener, KeyListener, FocusListener {
 
-//    public static final int MODEL_DIRTY = 1 << 0;
-//    public static final int VIEW_DIRTY = 1 << 1;
-//    public static final int PROJECTION_DIRTY = 1 << 2;
-//    public static final int ZOOM_DIRTY = 1 << 3;
-//    public static final int ORTHO_DIRTY = 1 << 4;
-//    public static final int FOV_DIRTY = 1 << 5;
-//    public static final int SLICE_DIRTY = 1 << 6;
-//    public static final int LIGHT_DIRTY = 1 << 7;
-//    public static final int MIN_DIRTY = 1 << 8;
-//    public static final int MAX_DIRTY = 1 << 9;
-//    public static final int STEP_DIRTY = 1 << 10;
-    
     private static final float CUT_RATIO = -0.001f;
 
-    private static final float[] UP_VECTOR = new float[]{0f, 1f, 0f};
-
-    private final float[] eyePosition;
-    private final float[] targetPosition;
     transient private final float[] initialLightPosition;
 
     transient private final float[] initialPosition;
@@ -62,212 +48,38 @@ public class TrackBallNew implements MouseListener, MouseMotionListener, MouseWh
     transient private float yPosOld;
     transient private float xPosOld;
 
-    transient private final float[] tempMatrix;
-
-    private final float[] viewMatrix;
-    private final float[] projectionMatrix;
-    private final float[] normalMatrix;
-
-    private boolean reuseView;
-    private boolean reuseNormal;
-
-    private boolean orthographic;
-    private float fov;
-    private float initialZoom;
-    private float slice;
-
-//    private int dirtyValues;
-
     transient private boolean xDown;
     transient private boolean yDown;
     transient private boolean zDown;
 
-    private float stepFactor;
-
     transient private JPopupMenu popupMenu;
     transient private JMenuItem menuOrtho;
     
-    transient private Displayable displayable;
-    transient private Cut cut;
-    transient private Light light;
-    transient private Rotation rotation;
+    transient private final Cut cut;
+    transient private final Light light;
+    transient private final Rotation rotation;
+    transient private final Camera camera;
+    transient private final Screen screen;
 
-    public TrackBallNew(float initialZoom) {
-        eyePosition = new float[]{0f, 0f, initialZoom};
-        targetPosition = new float[]{0f, 0f, -50f};
+    public KatViewHandler(VolumeRenderer renderer, Displayable displayable, Screen screen) {
         initialLightPosition = VectorUtil.normalizeVec3(new float[]{-2f, 2f, 5f});
         
         initialPosition = new float[3];
         currentPosition = new float[3];
         axis = new float[3];
         initialRotation = new Quaternion();
-
-        tempMatrix = new float[16];
-
-        viewMatrix = new float[16];
-        projectionMatrix = new float[16];
-        normalMatrix = new float[16];
-
-        orthographic = false;
-        fov = FloatUtil.QUARTER_PI;
-        slice = 0f;
-        this.initialZoom = initialZoom;
-        stepFactor = 1f;
-
-        reuseView = false;
-        reuseNormal = false;
         
-        markAllDirty();
-    }
-    
-    private TrackBallNew(TrackBallNew trackBall) {
-        this(trackBall.initialZoom);
-        System.arraycopy(trackBall.eyePosition, 0, this.eyePosition, 0, eyePosition.length);
-        System.arraycopy(trackBall.targetPosition, 0, this.targetPosition, 0, targetPosition.length);
-
-        System.arraycopy(trackBall.viewMatrix, 0, this.viewMatrix, 0, viewMatrix.length);
-        System.arraycopy(trackBall.projectionMatrix, 0, this.projectionMatrix, 0, projectionMatrix.length);
-        System.arraycopy(trackBall.normalMatrix, 0, this.normalMatrix, 0, normalMatrix.length);
-
-        this.orthographic = trackBall.orthographic;
-        this.fov = trackBall.fov;
-        this.initialZoom = trackBall.initialZoom;
-        this.slice = trackBall.slice;
-        this.stepFactor = trackBall.stepFactor;
-
-        this.reuseView = trackBall.reuseView;
-        if (!trackBall.reuseNormal) {
-            updateMatrices();
-        }
-
-        markAllDirty();
-    }
-    
-    //TODO Remove "assimilate"
-    public void assimilate(TrackBallNew trackBall) {
-        System.arraycopy(trackBall.eyePosition, 0, this.eyePosition, 0, eyePosition.length);
-        System.arraycopy(trackBall.targetPosition, 0, this.targetPosition, 0, targetPosition.length);
-
-        System.arraycopy(trackBall.viewMatrix, 0, this.viewMatrix, 0, viewMatrix.length);
-        System.arraycopy(trackBall.projectionMatrix, 0, this.projectionMatrix, 0, projectionMatrix.length);
-        System.arraycopy(trackBall.normalMatrix, 0, this.normalMatrix, 0, normalMatrix.length);
-
-        this.orthographic = trackBall.orthographic;
-        this.fov = trackBall.fov;
-        this.initialZoom = trackBall.initialZoom;
-        this.slice = trackBall.slice;
-        this.stepFactor = trackBall.stepFactor;
-
-        this.reuseView = trackBall.reuseView;
-        if (!trackBall.reuseNormal) {
-            updateMatrices();
-        }
-
-        markAllDirty();
-    }
-    
-    public TrackBallNew copy() {
-        return new TrackBallNew(this);
-    }
-
-    public void installTrackBall(Component component) {
-        component.addMouseListener(this);
-        component.addMouseMotionListener(this);
-        component.addMouseWheelListener(this);
-        component.addKeyListener(this);
-        component.addFocusListener(this);
-    }
-
-    public float[] getViewMatrix() {
-        if (reuseView) {
-            return viewMatrix;
-        } else {
-            reuseView = true;
-            return FloatUtil.makeLookAt(viewMatrix, 0, eyePosition, 0, targetPosition, 0, UP_VECTOR, 0, tempMatrix);
-        }
-    }
-
-    public float[] getProjectionMatrix() {
-        return projectionMatrix;
-    }
-
-    public float[] getNormalMatrix() {
-        if (reuseNormal) {
-            return normalMatrix;
-        } else {
-            reuseNormal = true;
-            FloatUtil.multMatrix(getViewMatrix(), rotation.getModelMatrix(), normalMatrix);
-            FloatUtil.invertMatrix(normalMatrix, normalMatrix);
-            FloatUtil.transposeMatrix(normalMatrix, tempMatrix);
-            MatrixUtil.getMatrix3(tempMatrix, normalMatrix);
-            return normalMatrix;
-        }
-    }
-
-    public float[] getEyePosition() {
-        return eyePosition;
-    }
-
-    public float getZoom() {
-        return eyePosition[2];
-    }
-
-    public boolean isOrthographic() {
-        return orthographic;
-    }
-
-    public int getDirtyValues() {
-        return dirtyValues;
-    }
-
-    public float getFOV() {
-        return fov;
-    }
-
-    public float getSlice() {
-        return slice;
-    }
-
-    public float getStepFactor() {
-        return stepFactor;
-    }
-
-    public void markAllDirty() {
-        dirtyValues = getAllDirtyFlags();
-        reuseView = false;
-    }
-
-    public void clearDirtyValues() {
-        clearDirtyValues(getAllDirtyFlags());
-    }
-
-    public void clearDirtyValues(int values) {
-        if (values < 0 || values > getAllDirtyFlags()) {
-            throw new IllegalArgumentException("Invalid flags: " + Integer.toBinaryString(values) + "(" + values + ")");
-        }
-
-        dirtyValues &= ~values;
-    }
-
-    public void updateProjection(int width, int height) {
-        float aspect = width;
-        aspect /= height;
-        if (orthographic) {
-            float top = FloatUtil.tan(fov / 2f) * eyePosition[2];
-            float bottom = -1.0f * top;
-            float left = aspect * bottom;
-            float right = aspect * top;
-            FloatUtil.makeOrtho(projectionMatrix, 0, true, left, right, bottom, top, 0.1f, 50f);
-        } else {
-            FloatUtil.makePerspective(projectionMatrix, 0, true, fov, aspect, 0.1f, 50f);
-        }
-
-        dirtyValues |= PROJECTION_DIRTY;
-    }
-
-    private void updateMatrices() {
-        reuseNormal = false;
-        getNormalMatrix();
+        cut = displayable.getCut();
+        light = displayable.getLight();
+        rotation = displayable.getRotation();
+        camera = displayable.getCamera();
+        this.screen = screen;
+        
+        renderer.addMouseListener(this);
+        renderer.addMouseMotionListener(this);
+        renderer.addMouseWheelListener(this);
+        renderer.addKeyListener(this);
+        renderer.addFocusListener(this);
     }
 
     private void getSurfaceVector(int x, int y, double width, double height, float[] point) {
@@ -302,7 +114,7 @@ public class TrackBallNew implements MouseListener, MouseMotionListener, MouseWh
         final JMenuItem right = new JMenuItem("Right", new ImageIcon(getClass().getResource("/icons/right.png")));
         final JMenuItem left = new JMenuItem("Left", new ImageIcon(getClass().getResource("/icons/left.png")));
         final JMenuItem reset = new JMenuItem("Reset", new ImageIcon(getClass().getResource("/icons/reset.png")));
-        if (orthographic) {
+        if (screen.isOrthographic()) {
             menuOrtho = new JMenuItem("Perspective", new ImageIcon(getClass().getResource("/icons/perspective.png")));
         } else {
             menuOrtho = new JMenuItem("Orthographic", new ImageIcon(getClass().getResource("/icons/ortho.png")));
@@ -324,34 +136,15 @@ public class TrackBallNew implements MouseListener, MouseMotionListener, MouseWh
                     rotation.left();
                 } else if (e.getSource() == reset) {
                     rotation.reset();
-
-                    eyePosition[0] = 0f;
-                    eyePosition[1] = 0f;
-                    eyePosition[2] = initialZoom;
-
+                    camera.reset();
                     light.reset();
-                    
                     cut.reset();
-
-                    targetPosition[0] = 0f;
-                    targetPosition[1] = 0f;
-                    targetPosition[2] = -50f;
-
-                    fov = FloatUtil.QUARTER_PI;
-                    slice = 0f;
-                    updateProjection(owner.getWidth(), owner.getHeight());
-
-                    markAllDirty();
-                    reuseView = false;
-                    updateMatrices();
+                    screen.reset();
                 } else if (e.getSource() == menuOrtho) {
-                    toggleOrthographic(owner);
-                    return;
+                    toggleOrthographic();
                 } else if (e.getSource() == structure) {
                     owner.createStructure(popupMenu.getX(), popupMenu.getY(), 1f);
                 }
-                updateMatrices();
-                owner.repaint();
             }
         };
 
@@ -428,6 +221,7 @@ public class TrackBallNew implements MouseListener, MouseMotionListener, MouseWh
         xPos = e.getX();
         yPos = e.getY();
         if (SwingUtilities.isRightMouseButton(e)) {
+            float[] eyePosition = camera.getEyePosition();
             xPosOld = eyePosition[0];
             yPosOld = eyePosition[1];
         } else if (SwingUtilities.isMiddleMouseButton(e)) {
@@ -473,20 +267,8 @@ public class TrackBallNew implements MouseListener, MouseMotionListener, MouseWh
 
         if (SwingUtilities.isLeftMouseButton(e)) {
             if (e.isAltDown()) {
-                float deltaY = (e.getY() - yPos) * 0.025f;
-                
-                if (deltaY < 1f && stepFactor == 1f) {
-                    return;
-                }
-                
-                stepFactor += deltaY;
-                
-                if (stepFactor < 1f) {
-                    stepFactor = 1f;
-                }
-                
+                screen.changeStepValue((e.getY() - yPos) * 0.025f);
                 yPos = e.getY();
-                dirtyValues |= STEP_DIRTY;                
             } else {
                 getSurfaceVector(e.getX(), e.getY(), renderer.getWidth(), renderer.getHeight(), currentPosition);
 
@@ -498,6 +280,8 @@ public class TrackBallNew implements MouseListener, MouseMotionListener, MouseWh
                     if (!renderer.isIlluminated()) {
                         return;
                     }
+                    
+                    float[] tempMatrix = renderer.getTempMatrix();
                     
                     System.arraycopy(initialLightPosition, 0, tempMatrix, 0, initialLightPosition.length);
                     initialRotation.setIdentity().rotateByAngleNormalAxis(angle, axis[0], axis[1], axis[2]);
@@ -519,35 +303,22 @@ public class TrackBallNew implements MouseListener, MouseMotionListener, MouseWh
 
                     yPos = e.getY();
                 } else {
+                    float[] tempMatrix = renderer.getTempMatrix();
+                    
                     initialRotation.toMatrix(tempMatrix, 0);
                     initialRotation.conjugate().rotateVector(axis, 0, axis, 0);
                     initialRotation.setFromMatrix(tempMatrix, 0);
 
                     rotation.rotate(initialRotation, angle, axis);
-
-                    updateMatrices();
                 }
             }
         } else if (SwingUtilities.isMiddleMouseButton(e)) {
             float deltaY = e.getY() - yPos;
 
             if ((modifiers & MouseEvent.ALT_DOWN_MASK) > 0) {
-                fov += deltaY * FloatUtil.PI / (180f * 16f);
-
-                if (fov > FloatUtil.PI) {
-                    fov = FloatUtil.PI;
-                } else if (fov < 0.5f) {
-                    fov = 0.5f;
-                }
-
-                updateProjection(renderer.getWidth(), renderer.getHeight());
+                screen.changeFOV(deltaY * FloatUtil.PI / (180f * 16f), camera, renderer.getWidth(), renderer.getHeight());
             } else if (e.isShiftDown()) {
-                slice -= deltaY * 0.0025f;
-                if (slice <= 0f) {
-                    slice = 0f;
-                }
-
-                dirtyValues |= SLICE_DIRTY;
+                cut.changeSlice(deltaY * -0.0025f);
             } else if (xDown || yDown || zDown) {
                 deltaY = (e.getY() - yPos) * CUT_RATIO;
                 if (xDown) {
@@ -575,16 +346,7 @@ public class TrackBallNew implements MouseListener, MouseMotionListener, MouseWh
                 }
                 
             } else {
-                eyePosition[2] += deltaY / (4f * 16f);
-                if (orthographic) {
-                    updateProjection(renderer.getWidth(), renderer.getHeight());
-                }
-
-                slice += deltaY / (4f * 16f);
-
-                dirtyValues |= ZOOM_DIRTY | VIEW_DIRTY | SLICE_DIRTY;
-                reuseView = false;
-                updateMatrices();
+                camera.changeZoom(deltaY / (4f * 16f));
             }
             yPos = e.getY();
 
@@ -609,19 +371,9 @@ public class TrackBallNew implements MouseListener, MouseMotionListener, MouseWh
                 
                 yPos = e.getY();
             } else {
-
-                eyePosition[0] = xPosOld + (xPos - e.getX()) / (float) renderer.getWidth();
-                targetPosition[0] = eyePosition[0];
-
-                eyePosition[1] = yPosOld - (yPos - e.getY()) / (float) renderer.getHeight();
-                targetPosition[1] = eyePosition[1];
-
-                dirtyValues |= VIEW_DIRTY;
-                reuseView = false;
-                updateMatrices();
+                camera.setEyePosition(xPosOld + (xPos - e.getX()) / (float) renderer.getWidth(),  yPosOld - (yPos - e.getY()) / (float) renderer.getHeight());
             }
         }
-        renderer.repaint();
     }
 
     @Override
@@ -636,38 +388,13 @@ public class TrackBallNew implements MouseListener, MouseMotionListener, MouseWh
         }
 
         Component component = e.getComponent();
-        component.requestFocus();
         if (e.isAltDown()) {
-            fov += e.getWheelRotation() * FloatUtil.PI / 180f;
-
-            if (fov > FloatUtil.PI) {
-                fov = FloatUtil.PI;
-            } else if (fov < 0.5f) {
-                fov = 0.5f;
-            }
-
-            updateProjection(component.getWidth(), component.getHeight());
+            screen.changeFOV(e.getWheelRotation() * FloatUtil.PI / 180f, camera, component.getWidth(), component.getHeight());
         } else if (e.isShiftDown()) {
-            slice -= e.getWheelRotation() * 0.05f;
-            if (slice <= 0f) {
-                slice = 0f;
-            }
-
-            dirtyValues |= SLICE_DIRTY;
+            cut.changeSlice(e.getWheelRotation() * -0.05f);
         } else {
-            eyePosition[2] += e.getWheelRotation() / 4f;
-            if (orthographic) {
-                updateProjection(component.getWidth(), component.getHeight());
-            }
-
-            slice += e.getWheelRotation() / 4f;
-
-            dirtyValues |= ZOOM_DIRTY | VIEW_DIRTY | SLICE_DIRTY;
-            reuseView = false;
-            updateMatrices();
+            camera.changeZoom(e.getWheelRotation() / 4f);
         }
-
-        component.repaint();
     }
 
     @Override
@@ -692,7 +419,7 @@ public class TrackBallNew implements MouseListener, MouseMotionListener, MouseWh
     @Override
     public void keyReleased(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-            toggleOrthographic(e.getComponent());
+            toggleOrthographic();
         }
 
         if (e.getKeyCode() == KeyEvent.VK_X) {
@@ -708,10 +435,10 @@ public class TrackBallNew implements MouseListener, MouseMotionListener, MouseWh
         }
     }
 
-    private void toggleOrthographic(Component component) {
-        orthographic = !orthographic;
+    private void toggleOrthographic() {
+        screen.toggleOrthographic();
         if (menuOrtho != null) {
-            if (orthographic) {
+            if (screen.isOrthographic()) {
                 menuOrtho.setText("Perspective");
                 menuOrtho.setIcon(new ImageIcon(getClass().getResource("/icons/perspective.png")));
             } else {
@@ -719,9 +446,6 @@ public class TrackBallNew implements MouseListener, MouseMotionListener, MouseWh
                 menuOrtho.setIcon(new ImageIcon(getClass().getResource("/icons/ortho.png")));
             }
         }
-        updateProjection(component.getWidth(), component.getHeight());
-        dirtyValues |= ORTHO_DIRTY;
-        component.repaint();
     }
 
     @Override

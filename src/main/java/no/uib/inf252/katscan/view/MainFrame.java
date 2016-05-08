@@ -38,10 +38,15 @@ import net.infonode.docking.util.ViewMap;
 import net.infonode.gui.colorprovider.FixedColorProvider;
 import net.infonode.gui.componentpainter.SolidColorComponentPainter;
 import net.infonode.util.Direction;
+import no.uib.inf252.katscan.event.CameraListener;
+import no.uib.inf252.katscan.event.CutListener;
+import no.uib.inf252.katscan.event.LightListener;
+import no.uib.inf252.katscan.event.RotationListener;
 import no.uib.inf252.katscan.event.TransferFunctionListener;
 import no.uib.inf252.katscan.project.KatNode;
 import no.uib.inf252.katscan.project.KatViewNode;
 import no.uib.inf252.katscan.project.ProjectHandler;
+import no.uib.inf252.katscan.project.displayable.Displayable;
 import no.uib.inf252.katscan.project.io.PersistenceHandler;
 import no.uib.inf252.katscan.view.project.ProjectBrowser;
 
@@ -152,8 +157,27 @@ public class MainFrame extends javax.swing.JFrame implements TreeModelListener, 
                     ProjectHandler.getInstance().removeNodeFromParent(katView);
 
                     Component component = ((View)view).getComponent();
-                    if (component instanceof TransferFunctionListener) {
-                        katView.getParent().getTransferFunction().removeTransferFunctionListener((TransferFunctionListener) component);
+                    Displayable parent = katView.getParent();
+                    if (parent != null) {
+                        if (component instanceof CameraListener) {
+                            parent.getCamera().removeKatModelListener((CameraListener) component);
+                        }
+
+                        if (component instanceof CutListener) {
+                            parent.getCut().removeKatModelListener((CutListener) component);
+                        }
+                        
+                        if (component instanceof LightListener) {
+                            parent.getLight().removeKatModelListener((LightListener) component);
+                        }
+                        
+                        if (component instanceof RotationListener) {
+                            parent.getRotation().removeKatModelListener((RotationListener) component);
+                        }
+                        
+                        if (component instanceof TransferFunctionListener) {
+                            parent.getTransferFunction().removeKatModelListener((TransferFunctionListener) component);
+                        }
                     }
 
                     return;

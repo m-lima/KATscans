@@ -4,7 +4,6 @@ import java.io.Serializable;
 import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
 import no.uib.inf252.katscan.model.Rotation;
-import no.uib.inf252.katscan.project.KatNode;
 
 /**
  *
@@ -20,7 +19,7 @@ public class RotationNode extends SubGroup implements Serializable {
     }
     
     @Override
-    protected KatNode internalCopy() {
+    protected RotationNode internalCopy() {
         RotationNode newNode = new RotationNode();
         newNode.rotation.assimilate(rotation);
         return newNode;

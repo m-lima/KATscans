@@ -8,5 +8,6 @@ public interface CutListener extends KatModelListener {
     
     public void minValueChanged();
     public void maxValueChanged();
+    public void sliceValueChanged();
 
 }

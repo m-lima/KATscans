@@ -12,10 +12,13 @@ public class Cut extends KatModel<Cut> implements Serializable {
     
     private final float[] minValues;
     private final float[] maxValues;
+    private float slice;
 
     public Cut() {
         minValues = new float[]{0f, 0f, 0f};
         maxValues = new float[]{1f, 1f, 1f};
+        
+        slice = 0f;
     }
 
     @Override
@@ -28,8 +31,11 @@ public class Cut extends KatModel<Cut> implements Serializable {
         System.arraycopy(katModel.minValues, 0, this.minValues, 0, minValues.length);
         System.arraycopy(katModel.maxValues, 0, this.maxValues, 0, maxValues.length);
         
+        this.slice = slice;
+        
         fireMinValueChanged();
         fireMaxValueChanged();
+        fireSliceValueChanged();
         fireRepaint();
     }
 
@@ -39,6 +45,24 @@ public class Cut extends KatModel<Cut> implements Serializable {
 
     public float[] getMaxValues() {
         return maxValues;
+    }
+
+    public float getSlice() {
+        return slice;
+    }
+    
+    public void changeSlice(float delta) {
+        if (delta < 0 && slice == 0f) {
+            return;
+        }
+        
+        slice += delta;
+        if (slice < 0f) {
+            slice = 0f;
+        }
+        
+        fireSliceValueChanged();
+        fireRepaint();
     }
 
     public void changeMinX(float delta, boolean paired) {
@@ -170,6 +194,19 @@ public class Cut extends KatModel<Cut> implements Serializable {
                 @Override
                 public void run() {
                     listener.maxValueChanged();
+                }
+            });
+        }
+    }
+
+    private void fireSliceValueChanged() {
+        CutListener[] listeners = listenerList.getListeners(CutListener.class);
+
+        for (final CutListener listener : listeners) {
+            EventQueue.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    listener.sliceValueChanged();
                 }
             });
         }

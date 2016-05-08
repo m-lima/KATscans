@@ -11,6 +11,10 @@ import javax.swing.ImageIcon;
 import javax.swing.JMenu;
 import javax.swing.tree.MutableTreeNode;
 import net.infonode.docking.View;
+import no.uib.inf252.katscan.event.CameraListener;
+import no.uib.inf252.katscan.event.CutListener;
+import no.uib.inf252.katscan.event.LightListener;
+import no.uib.inf252.katscan.event.RotationListener;
 import no.uib.inf252.katscan.event.TransferFunctionListener;
 import no.uib.inf252.katscan.project.displayable.Displayable;
 import no.uib.inf252.katscan.view.component.image.LoadingPanel;
@@ -107,16 +111,54 @@ public class KatViewNode extends KatNode {
             @Override
             public void run() {
                 try {
-                    if (component instanceof TransferFunctionListener) {
-                        Displayable parent = getParent();
-                        if (parent != null) {
-                            parent.getTransferFunction().removeTransferFunctionListener((TransferFunctionListener) component);
+                    Displayable parent = getParent();
+                    if (parent != null) {
+                        if (component instanceof CameraListener) {
+                            parent.getCamera().removeKatModelListener((CameraListener) component);
+                        }
+
+                        if (component instanceof CutListener) {
+                            parent.getCut().removeKatModelListener((CutListener) component);
+                        }
+                        
+                        if (component instanceof LightListener) {
+                            parent.getLight().removeKatModelListener((LightListener) component);
+                        }
+                        
+                        if (component instanceof RotationListener) {
+                            parent.getRotation().removeKatModelListener((RotationListener) component);
+                        }
+                        
+                        if (component instanceof TransferFunctionListener) {
+                            parent.getTransferFunction().removeKatModelListener((TransferFunctionListener) component);
                         }
                     }
         
                     Map<String, Object> properties = null;
                     if (component instanceof KatView) {
                         properties = ((KatView) component).packProperties();
+                        
+                        if (displayable != null) {
+                            if (component instanceof CameraListener) {
+                                displayable.getCamera().addKatModelListener((CameraListener) component);
+                            }
+
+                            if (component instanceof CutListener) {
+                                displayable.getCut().addKatModelListener((CutListener) component);
+                            }
+
+                            if (component instanceof LightListener) {
+                                displayable.getLight().addKatModelListener((LightListener) component);
+                            }
+
+                            if (component instanceof RotationListener) {
+                                displayable.getRotation().addKatModelListener((RotationListener) component);
+                            }
+
+                            if (component instanceof TransferFunctionListener) {
+                                displayable.getTransferFunction().addKatModelListener((TransferFunctionListener) component);
+                            }
+                        }
                     }
 
                     Component katView = type.getConstructor().newInstance(displayable);

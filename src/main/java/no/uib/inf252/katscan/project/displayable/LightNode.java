@@ -4,7 +4,6 @@ import java.io.Serializable;
 import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
 import no.uib.inf252.katscan.model.Light;
-import no.uib.inf252.katscan.project.KatNode;
 
 /**
  *
@@ -20,7 +19,7 @@ public class LightNode extends SubGroup implements Serializable {
     }
     
     @Override
-    protected KatNode internalCopy() {
+    protected LightNode internalCopy() {
         LightNode newNode = new LightNode();
         newNode.light.assimilate(light);
         return newNode;

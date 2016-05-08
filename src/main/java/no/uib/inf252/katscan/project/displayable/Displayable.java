@@ -8,6 +8,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.tree.MutableTreeNode;
 import no.uib.inf252.katscan.data.VoxelMatrix;
+import no.uib.inf252.katscan.model.Camera;
 import no.uib.inf252.katscan.model.Rotation;
 import no.uib.inf252.katscan.model.Cut;
 import no.uib.inf252.katscan.model.Light;
@@ -49,6 +50,10 @@ public abstract class Displayable extends KatNode {
     
     public Light getLight() {
         return ((Displayable)getParent()).getLight();
+    }
+    
+    public Camera getCamera() {
+        return ((Displayable)getParent()).getCamera();
     }
 
     public Displayable(String name) {

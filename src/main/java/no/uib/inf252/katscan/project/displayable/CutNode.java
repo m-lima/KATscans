@@ -4,7 +4,6 @@ import java.io.Serializable;
 import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
 import no.uib.inf252.katscan.model.Cut;
-import no.uib.inf252.katscan.project.KatNode;
 
 /**
  *
@@ -20,7 +19,7 @@ public class CutNode extends SubGroup implements Serializable {
     }
     
     @Override
-    protected KatNode internalCopy() {
+    protected CutNode internalCopy() {
         CutNode newNode = new CutNode();
         newNode.cut.assimilate(cut);
         return newNode;

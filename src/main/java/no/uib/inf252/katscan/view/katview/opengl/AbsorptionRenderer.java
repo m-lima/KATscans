@@ -24,7 +24,6 @@ public class AbsorptionRenderer extends VolumeRenderer implements TransferFuncti
     
     public AbsorptionRenderer(Displayable displayable) throws GLException {
         super(displayable, "absoCaster", 0.5f);
-        displayable.getTransferFunction().addTransferFunctionListener(this);
     }
 
     @Override
