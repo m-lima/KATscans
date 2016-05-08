@@ -35,7 +35,7 @@ public class PersistenceHandler {
     private static final String KAT_EXTENSION = "kat";
     private static final String LAST_LOAD = "lastProjLoad.lsl";
     private static final File AUTO_SAVE = new File("autosave." + KAT_EXTENSION);
-    private static final FileFilter FILE_FILTER = new FileNameExtensionFilter("KAT project file", "KAT_EXTENSION");
+    private static final FileFilter FILE_FILTER = new FileNameExtensionFilter("KAT project file", KAT_EXTENSION);
 
     private File lastFile;
     

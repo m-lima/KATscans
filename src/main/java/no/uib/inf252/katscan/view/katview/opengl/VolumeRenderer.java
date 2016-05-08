@@ -12,6 +12,7 @@ import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -297,7 +298,7 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
         String[] shaderCode = new String[1];
         StringBuilder codeBuilder = new StringBuilder();
         codeFile += type == GL2.GL_VERTEX_SHADER ? ".vp" : ".fp";
-        try (BufferedReader reader = new BufferedReader(new FileReader(getClass().getResource(SHADERS_ROOT + codeFile).getFile()))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(SHADERS_ROOT + codeFile)))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 codeBuilder.append(line);
