@@ -4,8 +4,6 @@ import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.LinearGradientPaint;
 import java.awt.MultipleGradientPaint;
-import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,7 +15,7 @@ import no.uib.inf252.katscan.event.TransferFunctionListener;
  *
  * @author Marcelo Lima
  */
-public class TransferFunction implements KatModel {
+public class TransferFunction extends KatModel<TransferFunction> implements Serializable {
     
     public enum Type {
         SLOPE("Slope", "Make Slope", 'S'),
@@ -51,7 +49,6 @@ public class TransferFunction implements KatModel {
     public static final float MIN_STEP = 1f / TEXTURE_SIZE;
 
     private ArrayList<TransferFunctionPoint> points;
-    private transient EventListenerList listenerList;
 
     private transient boolean dirtyPaint;
     private transient Color[] colorsLinear;
@@ -63,26 +60,21 @@ public class TransferFunction implements KatModel {
         listenerList = new EventListenerList();
         setType(type);
     }
-    
-    private TransferFunction(TransferFunction transferFunction) {
+
+    @Override
+    protected TransferFunction newInstance() {
+        return new TransferFunction(Type.SLOPE);
+    }
+
+    @Override
+    public void assimilate(TransferFunction katModel) {
         points = new ArrayList<>();
-        listenerList = new EventListenerList();
         
-        for (TransferFunctionPoint point : transferFunction.points) {
+        for (TransferFunctionPoint point : katModel.points) {
             points.add(new TransferFunctionPoint(point, this));
         }
-        dirtyPaint = true;
-    }
-    
-    @Override
-    public TransferFunction copy() {
-        return new TransferFunction(this);
-    }
-    
-    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-        points = (ArrayList<TransferFunctionPoint>) in.readObject();
-        listenerList = new EventListenerList();
-        dirtyPaint = true;
+        firePointCountChanged();
+        fireRepaint();
     }
     
     public final void setType(Type type) {
@@ -123,7 +115,9 @@ public class TransferFunction implements KatModel {
         }
         dirtyPaint = true;
         firePointCountChanged();
+        fireRepaint();
     }
+    
     public int getPointCount() {
         return points.size();
     }
@@ -134,6 +128,7 @@ public class TransferFunction implements KatModel {
         dirtyPaint = true;
 
         firePointCountChanged();
+        fireRepaint();
         return returnValue;
     }
 
@@ -146,6 +141,7 @@ public class TransferFunction implements KatModel {
         if (removed) {
             dirtyPaint = true;
             firePointCountChanged();
+            fireRepaint();
         }
         return removed;
     }
@@ -155,6 +151,7 @@ public class TransferFunction implements KatModel {
         if (point != null) {
             dirtyPaint = true;
             firePointCountChanged();
+            fireRepaint();
         }
         return point;
     }
@@ -162,6 +159,7 @@ public class TransferFunction implements KatModel {
     private void valueChanged() {
         dirtyPaint = true;
         firePointValueChanged();
+        fireRepaint();
     }
     
     public LinearGradientPaint getPaint() {
@@ -238,23 +236,7 @@ public class TransferFunction implements KatModel {
             });
         }
     }
-
-    public synchronized void addTransferFunctionListener(TransferFunctionListener listener) {
-        if (listener == null) {
-            return;
-        }
-
-        listenerList.add(TransferFunctionListener.class, listener);
-    }
-
-    public synchronized void removeTransferFunctionListener(TransferFunctionListener listener) {
-        if (listener == null) {
-            return;
-        }
-
-        listenerList.remove(TransferFunctionListener.class, listener);
-    }
-
+    
     public class TransferFunctionPoint implements Comparable<TransferFunctionPoint>, Serializable {
 
         private Color color;
@@ -365,4 +347,5 @@ public class TransferFunction implements KatModel {
         }
 
     }
+
 }

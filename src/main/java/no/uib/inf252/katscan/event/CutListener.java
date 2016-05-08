@@ -4,10 +4,9 @@ package no.uib.inf252.katscan.event;
  *
  * @author Marcelo Lima
  */
-public interface CutListener {
+public interface CutListener extends KatModelListener {
     
-    public void cutUpdated(int minX, int maxX,
-                           int minY, int maxY,
-                           int minZ, int maxZ);
+    public void minValueChanged();
+    public void maxValueChanged();
 
 }

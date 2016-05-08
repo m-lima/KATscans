@@ -3,37 +3,37 @@ package no.uib.inf252.katscan.project.displayable;
 import java.io.Serializable;
 import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
-import no.uib.inf252.katscan.model.Cut;
+import no.uib.inf252.katscan.model.Rotation;
 import no.uib.inf252.katscan.project.KatNode;
 
 /**
  *
  * @author Marcelo Lima
  */
-public class CutNode extends SubGroup implements Serializable {
+public class RotationNode extends SubGroup implements Serializable {
     
-    private final Cut cut;
+    private final Rotation rotation;
 
-    public CutNode() {
-        super("Cut");
-        cut = new Cut();
+    public RotationNode() {
+        super("Rotation");
+        rotation = new Rotation();
     }
     
     @Override
     protected KatNode internalCopy() {
-        CutNode newNode = new CutNode();
-        newNode.cut.assimilate(cut);
+        RotationNode newNode = new RotationNode();
+        newNode.rotation.assimilate(rotation);
         return newNode;
     }
 
     @Override
-    public Cut getCut() {
-        return cut;
+    public Rotation getRotation() {
+        return rotation;
     }
     
     @Override
     public ImageIcon getIcon() {
-        return new ImageIcon(getClass().getResource("/icons/tree/cut.png"));
+        return new ImageIcon(getClass().getResource("/icons/tree/rotation.png"));
     }
 
     @Override

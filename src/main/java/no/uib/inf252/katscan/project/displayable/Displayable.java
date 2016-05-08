@@ -7,7 +7,10 @@ import java.util.Enumeration;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.tree.MutableTreeNode;
-import no.uib.inf252.katscan.model.VoxelMatrix;
+import no.uib.inf252.katscan.data.VoxelMatrix;
+import no.uib.inf252.katscan.model.Rotation;
+import no.uib.inf252.katscan.model.Cut;
+import no.uib.inf252.katscan.model.Light;
 import no.uib.inf252.katscan.project.KatNode;
 import no.uib.inf252.katscan.project.KatViewNode;
 import no.uib.inf252.katscan.project.ProjectHandler;
@@ -21,16 +24,32 @@ import no.uib.inf252.katscan.view.katview.KatView.Type;
  */
 public abstract class Displayable extends KatNode {
     
-    private static final String TRANSFER = "Add Tranfer Function";
-    private static final String CUT = "Add Cut";
-    private static final String STRUCTURE = "Add Structure";
+    private static final String TRANSFER = "Override Tranfer Function";
+    private static final String CUT = "Override Cut";
+    private static final String LIGHT = "Override Light";
+    private static final String ROTATION = "Override Rotation";
     private static final String REMOVE = "Remove";
     private static final String RENAME = "Rename";
 
-    public abstract VoxelMatrix getMatrix();
-    public abstract TransferFunction getTransferFunction();
-//    public abstract TrackBall getTrackBall();
-//    public abstract TrackBall getCut();
+    public VoxelMatrix getMatrix() {
+        return ((Displayable)getParent()).getMatrix();
+    }
+    
+    public TransferFunction getTransferFunction() {
+        return ((Displayable)getParent()).getTransferFunction();
+    }
+    
+    public Cut getCut() {
+        return ((Displayable)getParent()).getCut();
+    }
+    
+    public Rotation getRotation() {
+        return ((Displayable)getParent()).getRotation();
+    }
+    
+    public Light getLight() {
+        return ((Displayable)getParent()).getLight();
+    }
 
     public Displayable(String name) {
         super(name);
@@ -68,7 +87,8 @@ public abstract class Displayable extends KatNode {
         transferMenu.setMnemonic('T');
         
         JMenuItem cutMenu = new JMenuItem(CUT, 'U');
-        JMenuItem structureMenu = new JMenuItem(STRUCTURE, 'R');
+        JMenuItem rotationMenu = new JMenuItem(ROTATION, 'R');
+        JMenuItem lightMenu = new JMenuItem(LIGHT, 'L');
         JMenuItem removeMenu = new JMenuItem(REMOVE, 'E');
         JMenuItem renameMenu = new JMenuItem(RENAME, 'N');
         
@@ -83,13 +103,15 @@ public abstract class Displayable extends KatNode {
         
         transferMenu.addActionListener(listener);
         cutMenu.addActionListener(listener);
-        structureMenu.addActionListener(listener);
+        rotationMenu.addActionListener(listener);
+        lightMenu.addActionListener(listener);
         removeMenu.addActionListener(listener);
         renameMenu.addActionListener(listener);
         
         menu.add(transferMenu);
         menu.add(cutMenu);
-        menu.add(structureMenu);
+        menu.add(rotationMenu);
+        menu.add(lightMenu);
         menu.addSeparator();
         menu.add(removeMenu);
         menu.add(renameMenu);
@@ -144,8 +166,11 @@ public abstract class Displayable extends KatNode {
                 case CUT:
                     ProjectHandler.getInstance().insertNodeInto(new CutNode(), Displayable.this, getChildCount());
                     break;
-                case STRUCTURE:
-                    ProjectHandler.getInstance().insertNodeInto(new StructureNode(), Displayable.this, getChildCount());
+                case LIGHT:
+                    ProjectHandler.getInstance().insertNodeInto(new LightNode(), Displayable.this, getChildCount());
+                    break;
+                case ROTATION:
+                    ProjectHandler.getInstance().insertNodeInto(new RotationNode(), Displayable.this, getChildCount());
                     break;
                 default:
                     TransferFunction.Type[] types = TransferFunction.Type.values();

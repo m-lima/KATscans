@@ -21,18 +21,30 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.Timer;
-import no.uib.inf252.katscan.model.VoxelMatrix;
+import no.uib.inf252.katscan.data.VoxelMatrix;
+import no.uib.inf252.katscan.event.CutListener;
+import no.uib.inf252.katscan.event.RotationListener;
 import no.uib.inf252.katscan.project.displayable.Displayable;
 import no.uib.inf252.katscan.util.DisplayObject;
 import no.uib.inf252.katscan.util.MatrixUtil;
-import no.uib.inf252.katscan.model.TrackBall;
+import no.uib.inf252.katscan.util.TrackBallNew;
 import no.uib.inf252.katscan.view.katview.KatView;
 
 /**
  *
  * @author Marcelo Lima
  */
-public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEventListener {
+public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEventListener, RotationListener, CutListener {
+    
+    private static final int MODEL_DIRTY = 1 << 0;
+    private static final int VIEW_DIRTY = 1 << 1;
+    private static final int PROJECTION_DIRTY = 1 << 2;
+    private static final int ORTHO_DIRTY = 1 << 3;
+    private static final int SLICE_DIRTY = 1 << 4;
+    private static final int LIGHT_DIRTY = 1 << 5;
+    private static final int MIN_DIRTY = 1 << 6;
+    private static final int MAX_DIRTY = 1 << 7;
+    private static final int STEP_DIRTY = 1 << 8;
     
     private static final String PROPERTY_TRACKBALL = "TrackBall";
     
@@ -67,7 +79,7 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
 
     protected final Displayable displayable;
 
-    private final TrackBall trackBall;
+    private final TrackBallNew trackBall;
 
     private int raycastingProgram;
     protected int mainProgram;
@@ -93,7 +105,7 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
         this.shaderName = shaderName;
         this.displayable = displayable;
 
-        trackBall = new TrackBall(2 * displayable.getMatrix().getRatio()[2]);
+        trackBall = new TrackBallNew(2 * displayable.getMatrix().getRatio()[2]);
         trackBall.installTrackBall(this);
 
         numSample = 256;
@@ -112,6 +124,10 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
     
     public abstract boolean isIlluminated();
     public void createStructure(int x, int y, float threshold) {}
+
+    public Displayable getDisplayable() {
+        return displayable;
+    }
 
     @Override
     public void init(GLAutoDrawable drawable) {
@@ -374,19 +390,19 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
     private void checkAndLoadRaycastingUpdates(GL2 gl2) {
         int uniformLocation;
         int dirtyValues = trackBall.getDirtyValues();
-        if ((dirtyValues & (TrackBall.PROJECTION_DIRTY | TrackBall.VIEW_DIRTY | TrackBall.MODEL_DIRTY)) != 0) {
+        if ((dirtyValues & (PROJECTION_DIRTY | VIEW_DIRTY | MODEL_DIRTY)) != 0) {
 
-            if ((dirtyValues & TrackBall.PROJECTION_DIRTY) > 0) {
+            if ((dirtyValues & PROJECTION_DIRTY) > 0) {
                 uniformLocation = gl2.glGetUniformLocation(raycastingProgram, "projection");
                 gl2.glUniformMatrix4fv(uniformLocation, 1, false, trackBall.getProjectionMatrix(), 0);
             }
 
-            if ((dirtyValues & TrackBall.VIEW_DIRTY) > 0) {
+            if ((dirtyValues & VIEW_DIRTY) > 0) {
                 uniformLocation = gl2.glGetUniformLocation(raycastingProgram, "view");
                 gl2.glUniformMatrix4fv(uniformLocation, 1, false, trackBall.getViewMatrix(), 0);
             }
 
-            if ((dirtyValues & TrackBall.MODEL_DIRTY) > 0) {
+            if ((dirtyValues & MODEL_DIRTY) > 0) {
                 uniformLocation = gl2.glGetUniformLocation(raycastingProgram, "model");
                 gl2.glUniformMatrix4fv(uniformLocation, 1, false, trackBall.getModelMatrix(), 0);
             }
@@ -398,84 +414,82 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
     private void checkAndLoadMainUpdates(GL2 gl2) {
         int uniformLocation;
         int dirtyValues = trackBall.getDirtyValues();
-        if ((dirtyValues & (TrackBall.PROJECTION_DIRTY |
-                            TrackBall.VIEW_DIRTY |
-                            TrackBall.MODEL_DIRTY |
-                            TrackBall.ORTHO_DIRTY |
-                            TrackBall.SLICE_DIRTY |
-                            TrackBall.LIGHT_DIRTY |
-                            TrackBall.MIN_DIRTY |
-                            TrackBall.MAX_DIRTY |
-                            TrackBall.STEP_DIRTY)) != 0) {
+        if ((dirtyValues & (PROJECTION_DIRTY |
+                            VIEW_DIRTY |
+                            MODEL_DIRTY |
+                            ORTHO_DIRTY |
+                            SLICE_DIRTY |
+                            LIGHT_DIRTY |
+                            MIN_DIRTY |
+                            MAX_DIRTY |
+                            STEP_DIRTY)) != 0) {
 
-            if ((dirtyValues & (TrackBall.VIEW_DIRTY | TrackBall.MODEL_DIRTY)) > 0) {
+            if ((dirtyValues & (VIEW_DIRTY | MODEL_DIRTY)) > 0) {
                 uniformLocation = gl2.glGetUniformLocation(mainProgram, "normalMatrix");
                 gl2.glUniformMatrix3fv(uniformLocation, 1, false, trackBall.getNormalMatrix(), 0);
             }
 
-            if ((dirtyValues & TrackBall.PROJECTION_DIRTY) > 0) {
+            if ((dirtyValues & PROJECTION_DIRTY) > 0) {
                 uniformLocation = gl2.glGetUniformLocation(mainProgram, "projection");
                 gl2.glUniformMatrix4fv(uniformLocation, 1, false, trackBall.getProjectionMatrix(), 0);
                 trackBall.clearDirtyValues(TrackBall.PROJECTION_DIRTY);
             }
 
-            if ((dirtyValues & TrackBall.VIEW_DIRTY) > 0) {
+            if ((dirtyValues & VIEW_DIRTY) > 0) {
                 uniformLocation = gl2.glGetUniformLocation(mainProgram, "view");
                 gl2.glUniformMatrix4fv(uniformLocation, 1, false, trackBall.getViewMatrix(), 0);
                 uniformLocation = gl2.glGetUniformLocation(mainProgram, "eyePos");
                 gl2.glUniform3fv(uniformLocation, 1, trackBall.getEyePosition(), 0);
 
-                trackBall.clearDirtyValues(TrackBall.VIEW_DIRTY);
-                trackBall.clearDirtyValues(TrackBall.ZOOM_DIRTY);
-                trackBall.clearDirtyValues(TrackBall.FOV_DIRTY);
+                trackBall.clearDirtyValues(VIEW_DIRTY);
             }
 
-            if ((dirtyValues & TrackBall.MODEL_DIRTY) > 0) {
+            if ((dirtyValues & MODEL_DIRTY) > 0) {
                 uniformLocation = gl2.glGetUniformLocation(mainProgram, "model");
                 gl2.glUniformMatrix4fv(uniformLocation, 1, false, trackBall.getModelMatrix(), 0);
                 uniformLocation = gl2.glGetUniformLocation(mainProgram, "invModel");
                 gl2.glUniformMatrix3fv(uniformLocation, 1, false, MatrixUtil.getMatrix3(MatrixUtil.getInverse(trackBall.getModelMatrix())), 0);
-                trackBall.clearDirtyValues(TrackBall.MODEL_DIRTY);
+                trackBall.clearDirtyValues(MODEL_DIRTY);
             }
 
-            if ((dirtyValues & TrackBall.ORTHO_DIRTY) > 0) {
+            if ((dirtyValues & ORTHO_DIRTY) > 0) {
                 uniformLocation = gl2.glGetUniformLocation(mainProgram, "orthographic");
                 gl2.glUniform1i(uniformLocation, trackBall.isOrthographic() ? 1 : 0);
-                trackBall.clearDirtyValues(TrackBall.ORTHO_DIRTY);
+                trackBall.clearDirtyValues(ORTHO_DIRTY);
             }
             
-            if ((dirtyValues & TrackBall.SLICE_DIRTY) > 0) {
+            if ((dirtyValues & SLICE_DIRTY) > 0) {
                 uniformLocation = gl2.glGetUniformLocation(mainProgram, "slice");
                 float slice = trackBall.getSlice();
                 gl2.glUniform1f(uniformLocation, slice < 0f ? 0f : slice);
-                trackBall.clearDirtyValues(TrackBall.SLICE_DIRTY);
+                trackBall.clearDirtyValues(SLICE_DIRTY);
             }
             
-            if ((dirtyValues & TrackBall.LIGHT_DIRTY) > 0) {
+            if ((dirtyValues & LIGHT_DIRTY) > 0) {
                 uniformLocation = gl2.glGetUniformLocation(mainProgram, "lightPos");
                 float[] lightPos = trackBall.getLightPosition();
                 gl2.glUniform3fv(uniformLocation, 1, lightPos, 0);
                 uniformLocation = gl2.glGetUniformLocation(mainProgram, "lightPosFront");
                 gl2.glUniform3f(uniformLocation, -lightPos[0], -lightPos[1], -lightPos[2]);
-                trackBall.clearDirtyValues(TrackBall.LIGHT_DIRTY);
+                trackBall.clearDirtyValues(LIGHT_DIRTY);
             }
             
-            if ((dirtyValues & TrackBall.MIN_DIRTY) > 0) {
+            if ((dirtyValues & MIN_DIRTY) > 0) {
                 uniformLocation = gl2.glGetUniformLocation(mainProgram, "minValues");
                 gl2.glUniform3fv(uniformLocation, 1, trackBall.getMinValues(), 0);
-                trackBall.clearDirtyValues(TrackBall.MIN_DIRTY);
+                trackBall.clearDirtyValues(MIN_DIRTY);
             }
             
-            if ((dirtyValues & TrackBall.MAX_DIRTY) > 0) {
+            if ((dirtyValues & MAX_DIRTY) > 0) {
                 uniformLocation = gl2.glGetUniformLocation(mainProgram, "maxValues");
                 gl2.glUniform3fv(uniformLocation, 1, trackBall.getMaxValues(), 0);
-                trackBall.clearDirtyValues(TrackBall.MAX_DIRTY);
+                trackBall.clearDirtyValues(MAX_DIRTY);
             }
             
-            if ((dirtyValues & TrackBall.STEP_DIRTY) > 0) {
+            if ((dirtyValues & STEP_DIRTY) > 0) {
                 uniformLocation = gl2.glGetUniformLocation(mainProgram, "stepFactor");
                 gl2.glUniform1f(uniformLocation, trackBall.getStepFactor());
-                trackBall.clearDirtyValues(TrackBall.STEP_DIRTY);
+                trackBall.clearDirtyValues(STEP_DIRTY);
             }
             
             checkError(gl2, "Update main dirty values");
@@ -625,7 +639,7 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
             return;
         }
         
-        TrackBall newTrackBall = (TrackBall) properties.get(PROPERTY_TRACKBALL);
+        TrackBallNew newTrackBall = (TrackBallNew) properties.get(PROPERTY_TRACKBALL);
         if (newTrackBall == null) {
             return;
         }

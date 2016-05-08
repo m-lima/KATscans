@@ -6,7 +6,7 @@ import java.nio.ByteOrder;
 import java.nio.ShortBuffer;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import no.uib.inf252.katscan.model.VoxelMatrix;
+import no.uib.inf252.katscan.data.VoxelMatrix;
 
 /**
  * @author Marcelo Lima

@@ -4,7 +4,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
-import no.uib.inf252.katscan.model.VoxelMatrix;
 import no.uib.inf252.katscan.model.TransferFunction;
 import no.uib.inf252.katscan.model.TransferFunction.Type;
 
@@ -21,19 +20,11 @@ public class TransferFunctionNode extends SubGroup implements ActionListener {
         transferFunction = new TransferFunction(type);
     }
 
-    private TransferFunctionNode(TransferFunctionNode node) {
-        super(node.getName());
-        this.transferFunction = node.transferFunction.copy();
-    }
-
     @Override
     protected TransferFunctionNode internalCopy() {
-        return new TransferFunctionNode(this);
-    }
-
-    @Override
-    public VoxelMatrix getMatrix() {
-        return getParent().getMatrix();
+        TransferFunctionNode newNode = new TransferFunctionNode(Type.SLOPE);
+        newNode.transferFunction.assimilate(transferFunction);
+        return newNode;
     }
 
     @Override
@@ -74,8 +65,5 @@ public class TransferFunctionNode extends SubGroup implements ActionListener {
     public ImageIcon getIcon() {
         return new ImageIcon(getClass().getResource("/icons/tree/transfer.png"));
     }
-
-    @Override
-    protected void updateData() {}
 
 }

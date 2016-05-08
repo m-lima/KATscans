@@ -2,7 +2,6 @@ package no.uib.inf252.katscan.project.displayable;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -14,10 +13,12 @@ import no.uib.inf252.katscan.Init;
 import no.uib.inf252.katscan.data.io.LoadSaveFormat;
 import no.uib.inf252.katscan.data.io.LoadSaveHandler;
 import no.uib.inf252.katscan.data.io.LoadSaveOptions;
-import no.uib.inf252.katscan.model.VoxelMatrix;
+import no.uib.inf252.katscan.data.VoxelMatrix;
+import no.uib.inf252.katscan.model.Rotation;
+import no.uib.inf252.katscan.model.Cut;
+import no.uib.inf252.katscan.model.Light;
 import no.uib.inf252.katscan.model.TransferFunction;
 import no.uib.inf252.katscan.project.ProjectNode;
-import no.uib.inf252.katscan.project.io.PersistenceHandler;
 
 /**
  *
@@ -28,8 +29,12 @@ public class DataFileNode extends Displayable implements Serializable {
     private File file;
     private final LoadSaveFormat.Format format;
     private final LoadSaveOptions options;
-    private final TransferFunction transferFunction;
     private transient VoxelMatrix matrix;
+    
+    private final TransferFunction transferFunction;
+    private final Cut cut;
+    private final Rotation rotation;
+    private final Light light;
     
     public DataFileNode(String name, File file, LoadSaveFormat.Format format, LoadSaveOptions options, VoxelMatrix matrix) {
         super(name);
@@ -37,12 +42,22 @@ public class DataFileNode extends Displayable implements Serializable {
         this.matrix = matrix;
         this.format = format;
         this.options = options;
+        
         transferFunction = new TransferFunction(TransferFunction.Type.SLOPE);
+        cut = new Cut();
+        rotation = new Rotation();
+        light = new Light();
     }
 
     @Override
     protected DataFileNode internalCopy() {
-        return new DataFileNode(getName(), new File(file.getAbsolutePath()), format, options, matrix.copy());
+        DataFileNode newNode = new DataFileNode(getName(), new File(file.getAbsolutePath()), format, options, matrix.copy());
+        newNode.transferFunction.assimilate(transferFunction);
+        newNode.cut.assimilate(cut);
+        newNode.rotation.assimilate(rotation);
+        newNode.light.assimilate(light);
+        
+        return newNode;
     }
 
     @Override
@@ -70,6 +85,21 @@ public class DataFileNode extends Displayable implements Serializable {
     @Override
     public TransferFunction getTransferFunction() {
         return transferFunction;
+    }
+
+    @Override
+    public Cut getCut() {
+        return cut;
+    }
+
+    @Override
+    public Rotation getRotation() {
+        return rotation;
+    }
+
+    @Override
+    public Light getLight() {
+        return light;
     }
 
     @Override

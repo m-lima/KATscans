@@ -3,37 +3,37 @@ package no.uib.inf252.katscan.project.displayable;
 import java.io.Serializable;
 import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
-import no.uib.inf252.katscan.model.Cut;
+import no.uib.inf252.katscan.model.Light;
 import no.uib.inf252.katscan.project.KatNode;
 
 /**
  *
  * @author Marcelo Lima
  */
-public class CutNode extends SubGroup implements Serializable {
+public class LightNode extends SubGroup implements Serializable {
     
-    private final Cut cut;
+    private final Light light;
 
-    public CutNode() {
-        super("Cut");
-        cut = new Cut();
+    public LightNode() {
+        super("Camera");
+        light = new Light();
     }
     
     @Override
     protected KatNode internalCopy() {
-        CutNode newNode = new CutNode();
-        newNode.cut.assimilate(cut);
+        LightNode newNode = new LightNode();
+        newNode.light.assimilate(light);
         return newNode;
     }
 
     @Override
-    public Cut getCut() {
-        return cut;
+    public Light getLight() {
+        return light;
     }
     
     @Override
     public ImageIcon getIcon() {
-        return new ImageIcon(getClass().getResource("/icons/tree/cut.png"));
+        return new ImageIcon(getClass().getResource("/icons/tree/light.png"));
     }
 
     @Override
