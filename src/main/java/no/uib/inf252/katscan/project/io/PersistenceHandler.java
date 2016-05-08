@@ -32,9 +32,10 @@ import no.uib.inf252.katscan.project.ProjectNode;
  */
 public class PersistenceHandler {
     
+    private static final String KAT_EXTENSION = "kat";
     private static final String LAST_LOAD = "lastProjLoad.lsl";
-    private static final File AUTO_SAVE = new File("autosave.kat");
-    private static final FileFilter FILE_FILTER = new FileNameExtensionFilter("KAT project file", "kat");
+    private static final File AUTO_SAVE = new File("autosave." + KAT_EXTENSION);
+    private static final FileFilter FILE_FILTER = new FileNameExtensionFilter("KAT project file", "KAT_EXTENSION");
 
     private File lastFile;
     
@@ -64,6 +65,11 @@ public class PersistenceHandler {
     }
     
     private void doSave(File file, boolean userRequest) {
+        String path = file.getAbsolutePath();
+        if (!path.endsWith("." + KAT_EXTENSION)) {
+            file = new File(path + "." + KAT_EXTENSION);
+        }
+        
         try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(file))) {
             out.writeObject(ProjectHandler.getInstance().getRoot());
             if (userRequest) {

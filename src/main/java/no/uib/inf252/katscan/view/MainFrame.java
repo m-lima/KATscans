@@ -425,11 +425,15 @@ public class MainFrame extends javax.swing.JFrame implements TreeModelListener, 
     }// </editor-fold>//GEN-END:initComponents
 
     private void mitLoadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mitLoadActionPerformed
-        View[] oldViews = views.toArray(new View[views.size()]);
+        KatViewNode[] oldViews = new KatViewNode[views.size()];
+        if (views != null && oldViews.length > 0) {
+            oldViews = views.toArray(oldViews);
+        }
+        
         if (PersistenceHandler.getInstance().load()) {
             updatingMenu = true;
-            for (View view : oldViews) {
-                view.close();
+            for (KatViewNode view : oldViews) {
+                view.getView().close();
             }
             updatingMenu = false;
         }

@@ -12,10 +12,12 @@ import javax.swing.JOptionPane;
 import javax.swing.tree.MutableTreeNode;
 import no.uib.inf252.katscan.Init;
 import no.uib.inf252.katscan.data.io.LoadSaveFormat;
+import no.uib.inf252.katscan.data.io.LoadSaveHandler;
 import no.uib.inf252.katscan.data.io.LoadSaveOptions;
 import no.uib.inf252.katscan.model.VoxelMatrix;
 import no.uib.inf252.katscan.model.TransferFunction;
 import no.uib.inf252.katscan.project.ProjectNode;
+import no.uib.inf252.katscan.project.io.PersistenceHandler;
 
 /**
  *
@@ -23,7 +25,7 @@ import no.uib.inf252.katscan.project.ProjectNode;
  */
 public class DataFileNode extends Displayable implements Serializable {
     
-    private final File file;
+    private File file;
     private final LoadSaveFormat.Format format;
     private final LoadSaveOptions options;
     private final TransferFunction transferFunction;
@@ -46,11 +48,19 @@ public class DataFileNode extends Displayable implements Serializable {
     @Override
     public VoxelMatrix getMatrix() {
         if (matrix == null) {
+            while (file == null || !file.exists() || !file.canRead()) {
+                JOptionPane.showMessageDialog(Init.getFrameReference(), "Could not load data from " + file.getPath(), "Load", JOptionPane.ERROR_MESSAGE);
+                file = new LoadSaveHandler(format).showLoadDialog(file);
+                if (file == null) {
+                    remove();
+                }
+            }
+            
             try {
                 matrix = format.getFormat().loadData(new FileInputStream(file), options);
-            } catch (IOException ex) {
+            } catch (Exception ex) {
                 Logger.getLogger(DataFileNode.class.getName()).log(Level.SEVERE, null, ex);
-                JOptionPane.showMessageDialog(Init.getFrameReference(), "Could not load data", "Load", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(Init.getFrameReference(), "Could not load data from " + file.getPath(), "Load", JOptionPane.ERROR_MESSAGE);
                 remove();
             }
         }
