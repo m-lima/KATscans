@@ -76,10 +76,20 @@ public class SurfaceRenderer extends VolumeRenderer implements MouseMotionListen
         return true;
     }
 
-    @Override
-    public void createStructure(int x, int y, float threshold) {
-        
-    }
+//    @Override
+//    public void createStructure(int x, int y, float threshold) {
+//        float[] origin = new float[] {
+//            (x * 2f) / getWidth() - 1f,
+//            (y * 2f) / -getHeight() - 1f,
+//            camera.getZoom()
+//        };
+//        
+//        float[] clickTemp = new float[3];
+//        VectorUtil.mulRowMat4Vec3(clickTemp, rotation.getModelMatrix(), origin);
+//        System.out.println(Arrays.toString(clickTemp));
+//        VectorUtil.mulRowMat4Vec3(origin, camera.getViewMatrix(), clickTemp);
+//        System.out.println(Arrays.toString(origin));
+//    }
 
     @Override
     protected void preDraw(GLAutoDrawable drawable) {

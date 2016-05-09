@@ -5,6 +5,7 @@ import com.jogamp.opengl.math.FloatUtil;
 import com.jogamp.opengl.math.Quaternion;
 import com.jogamp.opengl.math.VectorUtil;
 import java.awt.Component;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -143,7 +144,7 @@ public class KatViewHandler implements MouseListener, MouseMotionListener, Mouse
                 } else if (e.getSource() == menuOrtho) {
                     toggleOrthographic();
                 } else if (e.getSource() == structure) {
-                    owner.createStructure(popupMenu.getX(), popupMenu.getY(), 1f);
+                    owner.createStructure(xPos, yPos, 1f);
                 }
             }
         };
@@ -156,6 +157,7 @@ public class KatViewHandler implements MouseListener, MouseMotionListener, Mouse
         left.addActionListener(listener);
         reset.addActionListener(listener);
         menuOrtho.addActionListener(listener);
+        structure.addActionListener(listener);
 
         popupMenu.add(top);
         popupMenu.add(bottom);
@@ -202,7 +204,9 @@ public class KatViewHandler implements MouseListener, MouseMotionListener, Mouse
             if (popupMenu == null) {
                 buildPopup((VolumeRenderer) e.getComponent());
             }
-            popupMenu.show(e.getComponent(), e.getX(), e.getY());
+            xPos = e.getX();
+            yPos = e.getY();
+            popupMenu.show(e.getComponent(), xPos, yPos);
         }
     }
 

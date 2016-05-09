@@ -636,6 +636,7 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
 
     @Override
     public void zoomValueChanged() {
+        dirtyValues |= SLICE_DIRTY;
         if (screen.isOrthographic()) {
             screen.updateProjection(camera, getWidth(), getHeight());
         }
