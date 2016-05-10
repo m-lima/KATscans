@@ -65,7 +65,7 @@ public class VoxelMatrix {
         maxFormatValue = options.getMaxFormatValue();
         normalized = options.isNormalizeValues();
         
-        histogram = new int[maxValue - minValue];
+        histogram = new int[maxValue];
 
         int maxSize = Math.max(sizeX, Math.max(sizeY, sizeZ));
         ratio = new float[]{sizeX * options.getRatioX() / maxSize,
