@@ -1,0 +1,6 @@
+{
+  "name": "KATscans",
+  "tagline": "A Java OpenGL volume renderer",
+  "body": "![alt KATscans](http://mflima.com:8558/katscans/logo.png)\r\n#### A Java OpenGL volume renderer\r\n\r\nKAT scans handles and load DAT, DCM, and RAW formats for volume rendering.\r\n\r\n![alt KATscans](http://mflima.com:8558/katscans/screen.png)\r\n###### It includes several volume raycasting/raymarching renderers. A few examples:\r\n![alt sull](http://mflima.com:8558/katscans/hand.png)\r\n![alt sull](http://mflima.com:8558/katscans/skull.png)\r\n![alt sull](http://mflima.com:8558/katscans/alpha.png)\r\n![alt sull](http://mflima.com:8558/katscans/maximum.png)\r\n###### With easy to use interface. Like the transfer function editor:\r\n![alt sull](http://mflima.com:8558/katscans/histogram.png)\r\n\r\n##### Interested in helping out? Request a pull!",
+  "note": "Don't delete this file! It's used internally to help with page regeneration."
+}
