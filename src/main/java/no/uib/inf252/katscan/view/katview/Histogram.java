@@ -9,7 +9,7 @@ import java.util.Map;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
-import no.uib.inf252.katscan.model.VoxelMatrix;
+import no.uib.inf252.katscan.data.VoxelMatrix;
 import no.uib.inf252.katscan.project.displayable.Displayable;
 import no.uib.inf252.katscan.view.MainFrame;
 import org.jfree.chart.ChartPanel;

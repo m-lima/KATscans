@@ -24,7 +24,6 @@ public class AlphaRenderer extends VolumeRenderer implements TransferFunctionLis
     
     public AlphaRenderer(Displayable displayable) throws GLException {
         super(displayable, "alphaCaster", 0.75f);
-        displayable.getTransferFunction().addTransferFunctionListener(this);
     }
 
     @Override

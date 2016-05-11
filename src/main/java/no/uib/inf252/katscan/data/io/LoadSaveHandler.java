@@ -16,7 +16,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import no.uib.inf252.katscan.Init;
-import no.uib.inf252.katscan.model.VoxelMatrix;
+import no.uib.inf252.katscan.data.VoxelMatrix;
 import no.uib.inf252.katscan.data.io.LoadSaveFormat.Format;
 import no.uib.inf252.katscan.project.displayable.DataFileNode;
 import no.uib.inf252.katscan.project.ProjectHandler;

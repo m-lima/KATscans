@@ -38,7 +38,6 @@ public class TransferFunctionChartEditor extends JPanel implements TransferFunct
     public TransferFunctionChartEditor(TransferFunction transferFunction) {
         super(null);
         this.transferFunction = transferFunction;
-        this.transferFunction.addTransferFunctionListener(this);
 
         setOpaque(false);
 

@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.geom.Rectangle2D;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
+import no.uib.inf252.katscan.event.TransferFunctionListener;
 import no.uib.inf252.katscan.project.displayable.Displayable;
 import no.uib.inf252.katscan.view.component.FullLayout;
 import no.uib.inf252.katscan.view.transferfunction.TransferFunctionBarEditor;
@@ -15,7 +16,7 @@ import org.jfree.chart.event.ChartProgressListener;
  *
  * @author Marcelo Lima
  */
-public class TransferFunctionEditor extends Histogram implements ChartProgressListener {
+public class TransferFunctionEditor extends Histogram implements ChartProgressListener, TransferFunctionListener {
 
     private final JPanel pnlMain;
     
@@ -109,6 +110,18 @@ public class TransferFunctionEditor extends Histogram implements ChartProgressLi
         if (event.getPercent() == 100) {
             resizeTransferFunctionEditors();
         }
+    }
+
+    @Override
+    public void pointCountChanged() {
+        barEditor.pointCountChanged();
+        chartEditor.pointCountChanged();
+    }
+
+    @Override
+    public void pointValueChanged() {
+        barEditor.pointValueChanged();
+        chartEditor.pointValueChanged();
     }
 
 }
