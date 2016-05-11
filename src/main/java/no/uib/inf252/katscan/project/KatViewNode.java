@@ -92,6 +92,30 @@ public class KatViewNode extends KatNode {
     public void setNewView(boolean newView) {
         this.newView = newView;
     }
+    
+    public void stopListening(Displayable displayable, Component katView) {
+        if (displayable != null && katView != null) {
+            if (katView instanceof CameraListener) {
+                displayable.getCamera().removeKatModelListener((CameraListener) katView);
+            }
+
+            if (katView instanceof CutListener) {
+                displayable.getCut().removeKatModelListener((CutListener) katView);
+            }
+
+            if (katView instanceof LightListener) {
+                displayable.getLight().removeKatModelListener((LightListener) katView);
+            }
+
+            if (katView instanceof RotationListener) {
+                displayable.getRotation().removeKatModelListener((RotationListener) katView);
+            }
+
+            if (katView instanceof TransferFunctionListener) {
+                displayable.getTransferFunction().removeKatModelListener((TransferFunctionListener) katView);
+            }
+        }
+    }
 
     @Override
     public void setParent(MutableTreeNode newParent) {
@@ -112,27 +136,7 @@ public class KatViewNode extends KatNode {
             @Override
             public void run() {
                 try {
-                    if (oldParent != null) {
-                        if (oldComponent instanceof CameraListener) {
-                            oldParent.getCamera().removeKatModelListener((CameraListener) oldComponent);
-                        }
-
-                        if (oldComponent instanceof CutListener) {
-                            oldParent.getCut().removeKatModelListener((CutListener) oldComponent);
-                        }
-                        
-                        if (oldComponent instanceof LightListener) {
-                            oldParent.getLight().removeKatModelListener((LightListener) oldComponent);
-                        }
-                        
-                        if (oldComponent instanceof RotationListener) {
-                            oldParent.getRotation().removeKatModelListener((RotationListener) oldComponent);
-                        }
-                        
-                        if (oldComponent instanceof TransferFunctionListener) {
-                            oldParent.getTransferFunction().removeKatModelListener((TransferFunctionListener) oldComponent);
-                        }
-                    }
+                    stopListening(oldParent, oldComponent);
         
                     Map<String, Object> properties = null;
                     if (oldComponent instanceof KatView) {
