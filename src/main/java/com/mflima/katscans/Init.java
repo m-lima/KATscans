@@ -15,6 +15,12 @@ import javax.swing.plaf.metal.MetalLookAndFeel;
 import com.mflima.katscans.view.MainFrame;
 import com.mflima.katscans.view.SplashScreen;
 
+//TODO [ ] Contour (Normal · View) [|Δƒ| · (1 - N · V)^e]
+//TODO [ ] 2D TF
+//TODO [ ] Precalculate jitter in texture
+//TODO [ ] Precalculate TF in texture
+//TODO [ ] Precalculate Δƒ in texture
+//TODO [ ] Test NO INTERPOLATION
 //TODO [ ] Exceptions
 //TODO [ ] Alpha compositing
 //TODO [ ] Save project

@@ -12,16 +12,28 @@ public class FormatHeader {
     private final double ratioX;
     private final double ratioY;
     private final double ratioZ;
+    private final int min;
+    private final int max;
 
-    public FormatHeader(int sizeX, int sizeY, int sizeZ, double ratioX, double ratioY, double ratioZ) {
+    public FormatHeader(int sizeX, int sizeY, int sizeZ, int max) {
+        this(sizeX, sizeY, sizeZ, 1d, 1d, 1d, 0, max);
+    }
+    
+    public FormatHeader(int sizeX, int sizeY, int sizeZ, double ratioX, double ratioY, double ratioZ, int max) {
+        this(sizeX, sizeY, sizeZ, ratioX, ratioY, ratioZ, 0, max);
+    }
+    
+    public FormatHeader(int sizeX, int sizeY, int sizeZ, double ratioX, double ratioY, double ratioZ, int min, int max) {
         this.sizeX = sizeX;
         this.sizeY = sizeY;
         this.sizeZ = sizeZ;
         this.ratioX = ratioX;
         this.ratioY = ratioY;
         this.ratioZ = ratioZ;
+        this.min = min;
+        this.max = max;
     }
-
+    
     public int getSizeX() {
         return sizeX;
     }
@@ -44,6 +56,14 @@ public class FormatHeader {
 
     public double getRatioZ() {
         return ratioZ;
+    }
+
+    public int getMin() {
+        return min;
+    }
+
+    public int getMax() {
+        return max;
     }
 
 }

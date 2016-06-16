@@ -14,7 +14,8 @@ public interface LoadSaveFormat {
     public static enum Format {
         DAT(new DatFormat()),
         DCM(new DcmFormat()),
-        RAW(new RawFormat());
+        RAW(new RawFormat()),
+        GRID(new GridFormat());
         
         private final LoadSaveFormat format;
 

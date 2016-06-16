@@ -51,7 +51,7 @@ class DcmFormat implements LoadSaveFormat {
             throw new StreamCorruptedException("Could not read dat header from the stream");
         }
         
-        return new FormatHeader(sizeX, sizeY, sizeZ, 1d, 1d, 1d);
+        return new FormatHeader(sizeX, sizeY, sizeZ, FORMAT_MAX_VALUE);
     }
     
     @Override

@@ -171,8 +171,8 @@ public class LoadDiag extends javax.swing.JDialog {
         spnSizeY.setValue(header.getSizeY());
         spnSizeZ.setValue(header.getSizeZ());
         
-        spnMin.setValue(0);
-        spnMax.setValue(((SpinnerNumberModel)spnMax.getModel()).getMaximum());
+        spnMin.setValue(header.getMin());
+        spnMax.setValue(header.getMax());
         
         oldRatioX = (float) header.getRatioX();
         oldRatioY = (float) header.getRatioY();

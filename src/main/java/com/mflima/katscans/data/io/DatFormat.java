@@ -95,7 +95,7 @@ class DatFormat implements LoadSaveFormat {
             Logger.getLogger(DatFormat.class.getName()).log(Level.WARNING, "Could not find ini given stream.");
         }
         
-        return new FormatHeader(sizeX, sizeY, sizeZ, ratioX, ratioY, ratioZ);
+        return new FormatHeader(sizeX, sizeY, sizeZ, ratioX, ratioY, ratioZ, FORMAT_MAX_VALUE);
     }
 
     @Override
