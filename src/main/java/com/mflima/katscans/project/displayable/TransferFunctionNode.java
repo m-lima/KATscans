@@ -8,62 +8,61 @@ import com.mflima.katscans.model.TransferFunction;
 import com.mflima.katscans.model.TransferFunction.Type;
 
 /**
- *
  * @author Marcelo Lima
  */
 public class TransferFunctionNode extends SubGroup implements ActionListener {
-    
-    private final TransferFunction transferFunction;
 
-    public TransferFunctionNode(Type type) {
-        super("Transfer Function - " + type.getText());
-        transferFunction = new TransferFunction(type);
+  private final TransferFunction transferFunction;
+
+  public TransferFunctionNode(Type type) {
+    super("Transfer Function - " + type.getText());
+    transferFunction = new TransferFunction(type);
+  }
+
+  @Override
+  protected TransferFunctionNode internalCopy() {
+    TransferFunctionNode newNode = new TransferFunctionNode(Type.SLOPE);
+    newNode.transferFunction.assimilate(transferFunction);
+    return newNode;
+  }
+
+  @Override
+  public TransferFunction getTransferFunction() {
+    return transferFunction;
+  }
+
+  @Override
+  protected JMenuItem[] getExtraMenus() {
+    Type[] types = TransferFunction.Type.values();
+    JMenuItem[] extraMenus = new JMenuItem[types.length];
+
+    for (int i = 0; i < types.length; i++) {
+      Type type = types[i];
+      JMenuItem item = new JMenuItem(type.getMakeText(), type.getMnemonic());
+      item.addActionListener(this);
+      extraMenus[i] = item;
     }
 
-    @Override
-    protected TransferFunctionNode internalCopy() {
-        TransferFunctionNode newNode = new TransferFunctionNode(Type.SLOPE);
-        newNode.transferFunction.assimilate(transferFunction);
-        return newNode;
-    }
+    return extraMenus;
+  }
 
-    @Override
-    public TransferFunction getTransferFunction() {
-        return transferFunction;
-    }
+  @Override
+  public void actionPerformed(ActionEvent e) {
+    JMenuItem item = (JMenuItem) e.getSource();
+    String text = item.getText();
 
-    @Override
-    protected JMenuItem[] getExtraMenus() {
-        Type[] types = TransferFunction.Type.values();
-        JMenuItem[] extraMenus = new JMenuItem[types.length];
-        
-        for (int i = 0; i < types.length; i++) {
-            Type type = types[i];
-            JMenuItem item = new JMenuItem(type.getMakeText(), type.getMnemonic());
-            item.addActionListener(this);
-            extraMenus[i] = item;
-        }
-        
-        return extraMenus;
+    TransferFunction.Type[] types = TransferFunction.Type.values();
+    for (TransferFunction.Type type : types) {
+      if (type.getMakeText().equals(text)) {
+        transferFunction.setType(type);
+        return;
+      }
     }
+  }
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        JMenuItem item  = (JMenuItem) e.getSource();
-        String text = item.getText();
-        
-        TransferFunction.Type[] types = TransferFunction.Type.values();
-        for (TransferFunction.Type type : types) {
-            if (type.getMakeText().equals(text)) {
-                transferFunction.setType(type);
-                return;
-            }
-        }
-    }
-
-    @Override
-    public ImageIcon getIcon() {
-        return new ImageIcon(getClass().getResource("/icons/tree/transfer.png"));
-    }
+  @Override
+  public ImageIcon getIcon() {
+    return new ImageIcon(getClass().getResource("/icons/tree/transfer.png"));
+  }
 
 }

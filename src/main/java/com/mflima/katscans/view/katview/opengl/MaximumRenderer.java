@@ -5,21 +5,21 @@ import com.jogamp.opengl.GLException;
 import com.mflima.katscans.project.displayable.Displayable;
 
 /**
- *
  * @author Marcelo Lima
  */
 public class MaximumRenderer extends VolumeRenderer {
-    
-    public MaximumRenderer(Displayable displayable) throws GLException {
-        super(displayable, "maxCaster", 0.5f);
-    }
 
-    @Override
-    public boolean isIlluminated() {
-        return false;
-    }
+  public MaximumRenderer(Displayable displayable) throws GLException {
+    super(displayable, "maxCaster", 0.5f);
+  }
 
-    @Override
-    protected void preDraw(GLAutoDrawable drawable) {}
-    
+  @Override
+  public boolean isIlluminated() {
+    return false;
+  }
+
+  @Override
+  protected void preDraw(GLAutoDrawable drawable) {
+  }
+
 }

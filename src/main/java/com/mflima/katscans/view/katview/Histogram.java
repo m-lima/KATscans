@@ -25,122 +25,124 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
 /**
- *
  * @author Marcelo Lima
  */
 public class Histogram extends JPanel implements KatView {
 
-    protected final XYPlot plot;
-    protected final LogAxis logAxis;
-    protected final NumberAxis linAxis;
-    protected final NumberAxis domainAxis;
-    protected final Displayable displayable;
-    protected final JFreeChart chart;
-    protected final ChartPanel chartPanel;
-    protected final XYBarRenderer barRenderer;
-    protected final JMenuItem menuLog;
-    
-    private boolean log;
+  protected final XYPlot plot;
+  protected final LogAxis logAxis;
+  protected final NumberAxis linAxis;
+  protected final NumberAxis domainAxis;
+  protected final Displayable displayable;
+  protected final JFreeChart chart;
+  protected final ChartPanel chartPanel;
+  protected final XYBarRenderer barRenderer;
+  protected final JMenuItem menuLog;
 
-    public Histogram(Displayable displayable) {
-        super(new BorderLayout());
-        
-        if (displayable == null) {
-            throw new NullPointerException();
+  private boolean log;
+
+  public Histogram(Displayable displayable) {
+    super(new BorderLayout());
+
+    if (displayable == null) {
+      throw new NullPointerException();
+    }
+    this.displayable = displayable;
+
+    setBackground(MainFrame.THEME_COLOR);
+
+    logAxis = new LogAxis();
+    linAxis = new NumberAxis();
+    domainAxis = new NumberAxis();
+    barRenderer = new XYBarRenderer();
+    plot = new XYPlot();
+    chart = new JFreeChart(plot);
+    chartPanel = new ChartPanel(chart) {
+      @Override
+      public void restoreAutoBounds() {
+        super.restoreAutoBounds();
+        domainAxis.setRange(new Range(Histogram.this.displayable.getMatrix().getMinValue(),
+            Histogram.this.displayable.getMatrix().getMaxValue()));
+      }
+    };
+
+    menuLog = new JMenuItem("Linear");
+    log = true;
+
+    configureChart();
+
+    add(chartPanel, BorderLayout.CENTER);
+
+    initPlot();
+  }
+
+  protected void configureChart() {
+    logAxis.setTickLabelPaint(UIManager.getDefaults().getColor("Label.foreground"));
+    linAxis.setTickLabelPaint(UIManager.getDefaults().getColor("Label.foreground"));
+
+    domainAxis.setTickLabelPaint(UIManager.getDefaults().getColor("Label.foreground"));
+    domainAxis.setRange(
+        new Range(displayable.getMatrix().getMinValue(), displayable.getMatrix().getMaxValue()));
+    domainAxis.setRangeType(RangeType.POSITIVE);
+
+    barRenderer.setShadowVisible(false);
+    barRenderer.setMargin(0);
+    barRenderer.setBarPainter(new StandardXYBarPainter());
+    barRenderer.setSeriesPaint(0, new Color(200, 80, 80));
+
+    plot.setDomainAxis(domainAxis);
+    plot.setBackgroundPaint(null);
+
+    chart.setSubtitles(new ArrayList());
+    chartPanel.setOpaque(false);
+
+    chartPanel.getPopupMenu().addSeparator();
+    chartPanel.getPopupMenu().add(menuLog);
+
+    menuLog.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        if (log) {
+          menuLog.setText("Logarithmic");
+          plot.setRangeAxis(0, linAxis);
+        } else {
+          menuLog.setText("Linear");
+          plot.setRangeAxis(0, logAxis);
         }
-        this.displayable = displayable;
-        
-        setBackground(MainFrame.THEME_COLOR);
+        log = !log;
+      }
+    });
+  }
 
-        logAxis = new LogAxis();
-        linAxis = new NumberAxis();
-        domainAxis = new NumberAxis();
-        barRenderer = new XYBarRenderer();
-        plot = new XYPlot();        
-        chart = new JFreeChart(plot);
-        chartPanel = new ChartPanel(chart) {
-            @Override
-            public void restoreAutoBounds() {
-                super.restoreAutoBounds();
-                domainAxis.setRange(new Range(Histogram.this.displayable.getMatrix().getMinValue(), Histogram.this.displayable.getMatrix().getMaxValue()));
-            }
-        };
-        
-        menuLog = new JMenuItem("Linear");
-        log = true;
+  private void initPlot() {
+    VoxelMatrix dataset = displayable.getMatrix();
+    int[] histogram = dataset.getHistogram();
 
-        configureChart();
-        
-        add(chartPanel, BorderLayout.CENTER);
-        
-        initPlot();
-    }
-    
-    protected void configureChart() {
-        logAxis.setTickLabelPaint(UIManager.getDefaults().getColor("Label.foreground"));
-        linAxis.setTickLabelPaint(UIManager.getDefaults().getColor("Label.foreground"));
-        
-        domainAxis.setTickLabelPaint(UIManager.getDefaults().getColor("Label.foreground"));
-        domainAxis.setRange(new Range(displayable.getMatrix().getMinValue(), displayable.getMatrix().getMaxValue()));
-        domainAxis.setRangeType(RangeType.POSITIVE);
-        
-        barRenderer.setShadowVisible(false);
-        barRenderer.setMargin(0);
-        barRenderer.setBarPainter(new StandardXYBarPainter());
-        barRenderer.setSeriesPaint(0, new Color(200, 80, 80));
-        
-        plot.setDomainAxis(domainAxis);
-        plot.setBackgroundPaint(null);
-                
-        chart.setSubtitles(new ArrayList());
-        chartPanel.setOpaque(false);
-        
-        chartPanel.getPopupMenu().addSeparator();
-        chartPanel.getPopupMenu().add(menuLog);
-        
-        menuLog.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (log) {
-                    menuLog.setText("Logarithmic");
-                    plot.setRangeAxis(0, linAxis);                    
-                } else {
-                    menuLog.setText("Linear");
-                    plot.setRangeAxis(0, logAxis);                    
-                }
-                log = !log;
-            }
-        });
-    }
-    
-    private void initPlot() {
-        VoxelMatrix dataset = displayable.getMatrix();
-        int[] histogram = dataset.getHistogram();
-        
-        XYSeries series = new XYSeries(displayable.getName());
-        XYSeriesCollection collection = new XYSeriesCollection(series);
-        
-        plot.setDataset(0, collection);
+    XYSeries series = new XYSeries(displayable.getName());
+    XYSeriesCollection collection = new XYSeriesCollection(series);
 
-        int value;
-        for (int i = 0; i < histogram.length; i++) {
-            value = histogram[i];
-            if (value > 0) {
-                series.add(i, value);
-            }
-        }
-        
-        plot.setRangeAxis(0, logAxis);
-        plot.setRenderer(0, barRenderer);
-        plot.mapDatasetToRangeAxis(0, 0);
+    plot.setDataset(0, collection);
+
+    int value;
+    for (int i = 0; i < histogram.length; i++) {
+      value = histogram[i];
+      if (value > 0) {
+        series.add(i, value);
+      }
     }
 
-    @Override
-    public Map<String, Object> packProperties() {
-        return null;
-    }
+    plot.setRangeAxis(0, logAxis);
+    plot.setRenderer(0, barRenderer);
+    plot.mapDatasetToRangeAxis(0, 0);
+  }
 
-    @Override
-    public void loadProperties(Map<String, Object> properties) {}
-    
+  @Override
+  public Map<String, Object> packProperties() {
+    return null;
+  }
+
+  @Override
+  public void loadProperties(Map<String, Object> properties) {
+  }
+
 }

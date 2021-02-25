@@ -14,36 +14,35 @@ import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
 /**
- *
  * @author Marcelo Lima
  */
 public class BackgroundPanel extends JPanel {
 
-    private static final String IMAGE_NAME = "/img/background.png";
-    private static final BufferedImage IMAGE;
-    private final AffineTransform transform;
-    
-    static {
-        BufferedImage image = null;
-        try {
-            image = ImageIO.read(BackgroundPanel.class.getResource(IMAGE_NAME));
-        } catch (IOException ex) {
-            Logger.getLogger(BackgroundPanel.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        IMAGE = image;
+  private static final String IMAGE_NAME = "/img/background.png";
+  private static final BufferedImage IMAGE;
+  private final AffineTransform transform;
+
+  static {
+    BufferedImage image = null;
+    try {
+      image = ImageIO.read(BackgroundPanel.class.getResource(IMAGE_NAME));
+    } catch (IOException ex) {
+      Logger.getLogger(BackgroundPanel.class.getName()).log(Level.SEVERE, null, ex);
+    }
+    IMAGE = image;
+  }
+
+  public BackgroundPanel() {
+    setOpaque(true);
+    setBackground(Color.WHITE);
+
+    if (IMAGE != null) {
+      setPreferredSize(new Dimension(IMAGE.getWidth(), IMAGE.getHeight()));
     }
 
-    public BackgroundPanel() {
-        setOpaque(true);
-        setBackground(Color.WHITE);
-
-        if (IMAGE != null) {
-            setPreferredSize(new Dimension(IMAGE.getWidth(), IMAGE.getHeight()));
-        }
-        
-        transform = new AffineTransform();
-        transform.setToIdentity();
-    }
+    transform = new AffineTransform();
+    transform.setToIdentity();
+  }
 
 //    @Override
 //    public void setBounds(int x, int y, int width, int height) {
@@ -59,18 +58,19 @@ public class BackgroundPanel extends JPanel {
 ////        System.out.println("Scale: " + scale);
 //    }
 
-    @Override
-    protected void paintComponent(Graphics g) {
-        if (IMAGE != null) {
-            g.setColor(Color.WHITE);
-            Insets insets = getInsets();
-            Rectangle bounds = getBounds();
-            g.fillRect(0, 0, bounds.width, bounds.height);
-            g.drawImage(IMAGE, bounds.width - (insets.right + IMAGE.getWidth()), bounds.height - (insets.bottom + IMAGE.getHeight()), this);
+  @Override
+  protected void paintComponent(Graphics g) {
+    if (IMAGE != null) {
+      g.setColor(Color.WHITE);
+      Insets insets = getInsets();
+      Rectangle bounds = getBounds();
+      g.fillRect(0, 0, bounds.width, bounds.height);
+      g.drawImage(IMAGE, bounds.width - (insets.right + IMAGE.getWidth()),
+          bounds.height - (insets.bottom + IMAGE.getHeight()), this);
 //            Graphics2D g2d = (Graphics2D) g;
 //            g2d.drawImage(IMAGE, transform, this);
-        } else {
-            super.paintComponent(g);
-        }
+    } else {
+      super.paintComponent(g);
     }
+  }
 }

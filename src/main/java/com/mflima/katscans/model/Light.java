@@ -7,51 +7,50 @@ import com.mflima.katscans.event.KatModelListener;
 import com.mflima.katscans.event.LightListener;
 
 /**
- *
  * @author Marcelo Lima
  */
 public class Light extends KatModel<Light> implements Serializable {
-    
-    private final float[] lightPosition;
 
-    public Light() {
-        lightPosition = VectorUtil.normalizeVec3(new float[]{-2f, 2f, 5f});
-    }
+  private final float[] lightPosition;
 
-    public float[] getLightPosition() {
-        return lightPosition;
-    }
-    
-    public void setLightPostion(float[] light) {
-        lightPosition[0] = light[0];
-        lightPosition[1] = light[1];
-        lightPosition[2] = light[2];
-        fireLightValueChanged();
-    }
+  public Light() {
+    lightPosition = VectorUtil.normalizeVec3(new float[]{-2f, 2f, 5f});
+  }
 
-    @Override
-    protected Light newInstance() {
-        return new Light();
-    }
+  public float[] getLightPosition() {
+    return lightPosition;
+  }
 
-    @Override
-    public void assimilate(Light katModel) {
-        System.arraycopy(katModel.lightPosition, 0, this.lightPosition, 0, lightPosition.length);
-        fireLightValueChanged();
-    }
-    
-    private void fireLightValueChanged() {
-        KatModelListener[] listeners = listenerList.getListeners(KatModelListener.class);
+  public void setLightPostion(float[] light) {
+    lightPosition[0] = light[0];
+    lightPosition[1] = light[1];
+    lightPosition[2] = light[2];
+    fireLightValueChanged();
+  }
 
-        for (final KatModelListener listener : listeners) {
-            EventQueue.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    ((LightListener)listener).lightValueChanged();
-                }
-            });
+  @Override
+  protected Light newInstance() {
+    return new Light();
+  }
+
+  @Override
+  public void assimilate(Light katModel) {
+    System.arraycopy(katModel.lightPosition, 0, this.lightPosition, 0, lightPosition.length);
+    fireLightValueChanged();
+  }
+
+  private void fireLightValueChanged() {
+    KatModelListener[] listeners = listenerList.getListeners(KatModelListener.class);
+
+    for (final KatModelListener listener : listeners) {
+      EventQueue.invokeLater(new Runnable() {
+        @Override
+        public void run() {
+          ((LightListener) listener).lightValueChanged();
         }
+      });
     }
+  }
 
 
 }

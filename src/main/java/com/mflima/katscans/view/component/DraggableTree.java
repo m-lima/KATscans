@@ -35,277 +35,283 @@ import com.mflima.katscans.project.ProjectNode;
 import com.mflima.katscans.project.displayable.Displayable;
 
 /**
- *
  * @author Marcelo
  */
-public class DraggableTree extends JTree implements DragSourceListener, DropTargetListener, DragGestureListener {
+public class DraggableTree extends JTree implements DragSourceListener, DropTargetListener,
+    DragGestureListener {
 
-    public static final DataFlavor LOCAL_OBJECT_FLAVOR;
-    public static final DataFlavor[] SUPPORTED_FLAVORS;
+  public static final DataFlavor LOCAL_OBJECT_FLAVOR;
+  public static final DataFlavor[] SUPPORTED_FLAVORS;
 
-    static {
-        DataFlavor initialFlavor = null;
-        try {
-            initialFlavor = new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType);
-        } catch (ClassNotFoundException cnfe) {
-            Logger.getLogger(DraggableTree.class.getName()).log(Level.SEVERE, null, cnfe);
-        }
-        LOCAL_OBJECT_FLAVOR = initialFlavor;
-        SUPPORTED_FLAVORS = new DataFlavor[]{LOCAL_OBJECT_FLAVOR, DraggableTree.LOCAL_OBJECT_FLAVOR};
+  static {
+    DataFlavor initialFlavor = null;
+    try {
+      initialFlavor = new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType);
+    } catch (ClassNotFoundException cnfe) {
+      Logger.getLogger(DraggableTree.class.getName()).log(Level.SEVERE, null, cnfe);
     }
-    
-    private static final Color INVALID_COLOR = new Color(150, 0, 0);
+    LOCAL_OBJECT_FLAVOR = initialFlavor;
+    SUPPORTED_FLAVORS = new DataFlavor[]{LOCAL_OBJECT_FLAVOR, DraggableTree.LOCAL_OBJECT_FLAVOR};
+  }
 
-    private final DragSource dragSource;
+  private static final Color INVALID_COLOR = new Color(150, 0, 0);
 
-    private TreePath path;
-    private KatNode incomingNode = null;
-    private KatNode targetNode = null;
+  private final DragSource dragSource;
 
-    private Rectangle dropLine;
-    private Rectangle oldDropLine;
-    private Rectangle targetBounds;
+  private TreePath path;
+  private KatNode incomingNode = null;
+  private KatNode targetNode = null;
 
-    public DraggableTree() {
-        getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+  private Rectangle dropLine;
+  private Rectangle oldDropLine;
+  private Rectangle targetBounds;
 
-        dragSource = new DragSource();
-        dragSource.createDefaultDragGestureRecognizer(this, DnDConstants.ACTION_COPY_OR_MOVE, this);
-        new DropTarget(this, DnDConstants.ACTION_COPY_OR_MOVE, this);
+  public DraggableTree() {
+    getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+
+    dragSource = new DragSource();
+    dragSource.createDefaultDragGestureRecognizer(this, DnDConstants.ACTION_COPY_OR_MOVE, this);
+    new DropTarget(this, DnDConstants.ACTION_COPY_OR_MOVE, this);
+  }
+
+  public void finishDnD() {
+    incomingNode = null;
+    targetNode = null;
+
+    dropLine = null;
+    oldDropLine = null;
+    targetBounds = null;
+
+    repaint();
+  }
+
+  private boolean checkDropValid() {
+    if (targetNode == null) {
+      return false;
     }
 
-    public void finishDnD() {
-        incomingNode = null;
-        targetNode = null;
-
-        dropLine = null;
-        oldDropLine = null;
-        targetBounds = null;
-
-        repaint();
+    if (incomingNode == null) {
+      return false;
     }
-    
-    private boolean checkDropValid() {
-        if (targetNode == null) {
-            return false;
-        }
-        
+
+    if (targetNode == incomingNode) {
+      return false;
+    }
+
+    if (!(targetNode instanceof Displayable)) {
+      return false;
+    }
+
+    if (incomingNode.getParent().equals(targetNode)) {
+      return false;
+    }
+
+    KatNode parent = targetNode;
+    while ((parent = parent.getParent()) != null) {
+      if (parent.equals(incomingNode)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  @Override
+  public void dragGestureRecognized(DragGestureEvent dge) {
+    TreePath selectedPath = getSelectionPath();
+    if (selectedPath == null) {
+      finishDnD();
+      return;
+    }
+
+    KatNode node = (KatNode) selectedPath.getLastPathComponent();
+    if (node == null || node instanceof ProjectNode || node instanceof DataFileNode) {
+      finishDnD();
+      return;
+    }
+
+    Point clickPoint = dge.getDragOrigin();
+    Rectangle pathBounds = getPathBounds(selectedPath);
+    Point clickOffset = new Point(clickPoint.x - pathBounds.x, clickPoint.y - pathBounds.y);
+
+    BufferedImage image = new BufferedImage(pathBounds.width, pathBounds.height,
+        BufferedImage.TYPE_4BYTE_ABGR);
+    Graphics2D g2d = image.createGraphics();
+
+    Component renderer = getCellRenderer()
+        .getTreeCellRendererComponent(this, node, true, false, node.isLeaf(),
+            getRowForPath(selectedPath), false);
+    renderer.setSize(pathBounds.width, pathBounds.height);
+    renderer.paint(g2d);
+    g2d.dispose();
+
+    dragSource.startDrag(dge, DragSource.DefaultMoveDrop, image, clickOffset, node, this);
+  }
+
+  @Override
+  public void dragEnter(DropTargetDragEvent dtde) {
+    if (dtde.isDataFlavorSupported(LOCAL_OBJECT_FLAVOR)) {
+
+      try {
+        Transferable transferable = dtde.getTransferable();
+        incomingNode = (KatNode) transferable.getTransferData(LOCAL_OBJECT_FLAVOR);
+
         if (incomingNode == null) {
-            return false;
-        }
-        
-        if (targetNode == incomingNode) {
-            return false;
-        }
-        
-        if (!(targetNode instanceof Displayable)) {
-            return false;
-        }
-        
-        if (incomingNode.getParent().equals(targetNode)) {
-            return false;
-        }
-        
-        KatNode parent = targetNode;
-        while((parent = parent.getParent()) != null) {
-            if (parent.equals(incomingNode)) {
-                return false;
-            }
-        }
-        
-        return true;
-    }
-    
-    @Override
-    public void dragGestureRecognized(DragGestureEvent dge) {
-        TreePath selectedPath = getSelectionPath();
-        if (selectedPath == null) {
-            finishDnD();
-            return;
-        }
-
-        KatNode node = (KatNode) selectedPath.getLastPathComponent();
-        if (node == null || node instanceof ProjectNode || node instanceof DataFileNode) {
-            finishDnD();
-            return;
-        }
-        
-        Point clickPoint = dge.getDragOrigin();
-        Rectangle pathBounds = getPathBounds(selectedPath);
-        Point clickOffset = new Point(clickPoint.x - pathBounds.x, clickPoint.y - pathBounds.y);
-        
-        BufferedImage image = new BufferedImage(pathBounds.width, pathBounds.height, BufferedImage.TYPE_4BYTE_ABGR);
-        Graphics2D g2d = image.createGraphics();
-        
-        Component renderer = getCellRenderer().getTreeCellRendererComponent(this, node, true, false, node.isLeaf(), getRowForPath(selectedPath), false);
-        renderer.setSize(pathBounds.width, pathBounds.height);
-        renderer.paint(g2d);
-        g2d.dispose();
-
-        dragSource.startDrag(dge, DragSource.DefaultMoveDrop, image, clickOffset, node, this);
-    }
-
-    @Override
-    public void dragEnter(DropTargetDragEvent dtde) {
-        if (dtde.isDataFlavorSupported(LOCAL_OBJECT_FLAVOR)) {
-
-            try {
-                Transferable transferable = dtde.getTransferable();
-                incomingNode = (KatNode) transferable.getTransferData(LOCAL_OBJECT_FLAVOR);
-
-                if (incomingNode == null) {
-                    dtde.rejectDrag();
-                    finishDnD();
-                } else {
-                    dtde.acceptDrag(dtde.getDropAction());
-                }
-            } catch (Exception ex) {
-                Logger.getLogger(DraggableTree.class.getName()).log(Level.SEVERE, null, ex);
-                dtde.rejectDrag();
-                finishDnD();
-            }
+          dtde.rejectDrag();
+          finishDnD();
         } else {
-            dtde.rejectDrag();
+          dtde.acceptDrag(dtde.getDropAction());
         }
-    }
-
-    @Override
-    public void dragOver(DropTargetDragEvent dtde) {
-        Point dragPoint = dtde.getLocation();
-        TreePath newPath = getClosestPathForLocation(dragPoint.x, dragPoint.y);
-        
-        if (newPath == null && path == null) {
-            return;
-        }
-        
-        if (newPath.equals(path)) {
-            return;
-        }
-        
-        path = newPath;
-
-        scrollRowToVisible(getRowForPath(path) + 1);
-        scrollRowToVisible(getRowForPath(path) - 1);
-
-        if (path == null || incomingNode == null) {
-            targetNode = null;
-        } else {
-            expandPath(path);
-            targetNode = (KatNode) path.getLastPathComponent();
-        }
-
-        if (targetNode == null) {
-            dropLine = null;
-
-            if (oldDropLine != null) {
-                repaint(oldDropLine);
-            }
-            oldDropLine = null;
-
-        } else {
-            targetBounds = getPathBounds(path);
-
-            if (targetBounds == null) {
-                targetBounds = new Rectangle();
-            }
-
-            if (dropLine == null) {
-                dropLine = new Rectangle();
-            }
-
-            if (oldDropLine == null) {
-                oldDropLine = new Rectangle();
-            }
-
-            oldDropLine.setRect(dropLine);
-            dropLine.setRect(0, targetBounds.y + (int) targetBounds.getHeight(), getWidth(), 2);
-
-            repaint(oldDropLine);
-            repaint(dropLine);
-        }
-    }
-
-    @Override
-    public void drop(DropTargetDropEvent dtde) {
-        if (checkDropValid()) {
-            int action = dtde.getDropAction();
-            
-            ProjectHandler project = ProjectHandler.getInstance();
-            if (action == DnDConstants.ACTION_MOVE) {
-                project.removeNodeFromParent(incomingNode);
-            } else if (action == DnDConstants.ACTION_COPY) {
-                incomingNode = incomingNode.copy();
-            }
-            
-            project.insertNodeInto(incomingNode, targetNode, 0);
-            expandPath(path);
-            selectionModel.setSelectionPath(path.pathByAddingChild(incomingNode));
-
-            dtde.acceptDrop(action);
-        } else {
-            dtde.rejectDrop();
-        }
-        
+      } catch (Exception ex) {
+        Logger.getLogger(DraggableTree.class.getName()).log(Level.SEVERE, null, ex);
+        dtde.rejectDrag();
         finishDnD();
+      }
+    } else {
+      dtde.rejectDrag();
+    }
+  }
+
+  @Override
+  public void dragOver(DropTargetDragEvent dtde) {
+    Point dragPoint = dtde.getLocation();
+    TreePath newPath = getClosestPathForLocation(dragPoint.x, dragPoint.y);
+
+    if (newPath == null && path == null) {
+      return;
     }
 
-    @Override
-    public void dragDropEnd(DragSourceDropEvent dsde) {
-        finishDnD();
+    if (newPath.equals(path)) {
+      return;
     }
 
-    @Override
-    public void paint(Graphics g) {
-        super.paint(g);
+    path = newPath;
 
-        Graphics2D g2d = (Graphics2D) g;
-        if (dropLine != null) {
-            g2d.setColor(checkDropValid() ? Color.GRAY : INVALID_COLOR);
-            g2d.fill(dropLine);
-        }
+    scrollRowToVisible(getRowForPath(path) + 1);
+    scrollRowToVisible(getRowForPath(path) - 1);
+
+    if (path == null || incomingNode == null) {
+      targetNode = null;
+    } else {
+      expandPath(path);
+      targetNode = (KatNode) path.getLastPathComponent();
     }
 
-    @Override
-    public void dragExit(DropTargetEvent dte) {
-        dropLine = null;
-        repaint();
+    if (targetNode == null) {
+      dropLine = null;
+
+      if (oldDropLine != null) {
+        repaint(oldDropLine);
+      }
+      oldDropLine = null;
+
+    } else {
+      targetBounds = getPathBounds(path);
+
+      if (targetBounds == null) {
+        targetBounds = new Rectangle();
+      }
+
+      if (dropLine == null) {
+        dropLine = new Rectangle();
+      }
+
+      if (oldDropLine == null) {
+        oldDropLine = new Rectangle();
+      }
+
+      oldDropLine.setRect(dropLine);
+      dropLine.setRect(0, targetBounds.y + (int) targetBounds.getHeight(), getWidth(), 2);
+
+      repaint(oldDropLine);
+      repaint(dropLine);
+    }
+  }
+
+  @Override
+  public void drop(DropTargetDropEvent dtde) {
+    if (checkDropValid()) {
+      int action = dtde.getDropAction();
+
+      ProjectHandler project = ProjectHandler.getInstance();
+      if (action == DnDConstants.ACTION_MOVE) {
+        project.removeNodeFromParent(incomingNode);
+      } else if (action == DnDConstants.ACTION_COPY) {
+        incomingNode = incomingNode.copy();
+      }
+
+      project.insertNodeInto(incomingNode, targetNode, 0);
+      expandPath(path);
+      selectionModel.setSelectionPath(path.pathByAddingChild(incomingNode));
+
+      dtde.acceptDrop(action);
+    } else {
+      dtde.rejectDrop();
     }
 
-    @Override
-    public void dropActionChanged(DropTargetDragEvent dtde) {}
+    finishDnD();
+  }
 
-    @Override
-    public void dragEnter(DragSourceDragEvent dsde) {}
+  @Override
+  public void dragDropEnd(DragSourceDropEvent dsde) {
+    finishDnD();
+  }
 
-    @Override
-    public void dragExit(DragSourceEvent dsde) {
-        DragSourceContext context = dsde.getDragSourceContext();
+  @Override
+  public void paint(Graphics g) {
+    super.paint(g);
+
+    Graphics2D g2d = (Graphics2D) g;
+    if (dropLine != null) {
+      g2d.setColor(checkDropValid() ? Color.GRAY : INVALID_COLOR);
+      g2d.fill(dropLine);
+    }
+  }
+
+  @Override
+  public void dragExit(DropTargetEvent dte) {
+    dropLine = null;
+    repaint();
+  }
+
+  @Override
+  public void dropActionChanged(DropTargetDragEvent dtde) {
+  }
+
+  @Override
+  public void dragEnter(DragSourceDragEvent dsde) {
+  }
+
+  @Override
+  public void dragExit(DragSourceEvent dsde) {
+    DragSourceContext context = dsde.getDragSourceContext();
+    context.setCursor(DragSource.DefaultMoveNoDrop);
+  }
+
+  @Override
+  public void dragOver(DragSourceDragEvent dsde) {
+    DragSourceContext context = dsde.getDragSourceContext();
+
+    if (!checkDropValid()) {
+      context.setCursor(DragSource.DefaultMoveNoDrop);
+      return;
+    }
+
+    switch (dsde.getDropAction()) {
+      case DnDConstants.ACTION_MOVE:
+        context.setCursor(DragSource.DefaultMoveDrop);
+        break;
+      case DnDConstants.ACTION_COPY:
+        context.setCursor(DragSource.DefaultCopyDrop);
+        break;
+      default:
         context.setCursor(DragSource.DefaultMoveNoDrop);
+        break;
     }
+  }
 
-    @Override
-    public void dragOver(DragSourceDragEvent dsde) {
-        DragSourceContext context = dsde.getDragSourceContext();
-        
-        if (!checkDropValid()) {
-            context.setCursor(DragSource.DefaultMoveNoDrop);
-            return;
-        }
-        
-        switch (dsde.getDropAction()) {
-            case DnDConstants.ACTION_MOVE:
-                context.setCursor(DragSource.DefaultMoveDrop);
-                break;
-            case DnDConstants.ACTION_COPY:
-                context.setCursor(DragSource.DefaultCopyDrop);
-                break;
-            default:
-                context.setCursor(DragSource.DefaultMoveNoDrop);
-                break;
-        }
-    }
-
-    @Override
-    public void dropActionChanged(DragSourceDragEvent dsde) {}
+  @Override
+  public void dropActionChanged(DragSourceDragEvent dsde) {
+  }
 
 }
