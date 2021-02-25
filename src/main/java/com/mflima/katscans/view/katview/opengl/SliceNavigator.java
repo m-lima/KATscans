@@ -1,6 +1,6 @@
 package com.mflima.katscans.view.katview.opengl;
 
-import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL4;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.GLEventListener;
@@ -55,7 +55,7 @@ public class SliceNavigator extends GLJPanel implements KatView, GLEventListener
   private int slice;
 
   public SliceNavigator(Displayable displayable) throws GLException {
-    super(new GLCapabilities(GLProfile.get(GLProfile.GL2)));
+    super(new GLCapabilities(GLProfile.get(GLProfile.GL4)));
     addGLEventListener(this);
 
     bufferLocation = new int[2];
@@ -70,19 +70,19 @@ public class SliceNavigator extends GLJPanel implements KatView, GLEventListener
 
   @Override
   public void init(GLAutoDrawable drawable) {
-    GL2 gl2 = drawable.getGL().getGL2();
+    GL4 gl = drawable.getGL().getGL4();
 
-    gl2.glGenBuffers(bufferLocation.length, bufferLocation, 0);
+    gl.glGenBuffers(bufferLocation.length, bufferLocation, 0);
 
-    gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, bufferLocation[VERTICES]);
-    gl2.glBufferData(GL2.GL_ARRAY_BUFFER, vertices.length * Float.BYTES, FloatBuffer.wrap(vertices),
-        GL2.GL_STATIC_DRAW);
+    gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, bufferLocation[VERTICES]);
+    gl.glBufferData(GL4.GL_ARRAY_BUFFER, vertices.length * Float.BYTES, FloatBuffer.wrap(vertices),
+        GL4.GL_STATIC_DRAW);
 
-    gl2.glBindBuffer(GL2.GL_ELEMENT_ARRAY_BUFFER, bufferLocation[INDICES]);
-    gl2.glBufferData(GL2.GL_ELEMENT_ARRAY_BUFFER, indices.length * Short.BYTES,
-        ShortBuffer.wrap(indices), GL2.GL_STATIC_DRAW);
+    gl.glBindBuffer(GL4.GL_ELEMENT_ARRAY_BUFFER, bufferLocation[INDICES]);
+    gl.glBufferData(GL4.GL_ELEMENT_ARRAY_BUFFER, indices.length * Short.BYTES,
+        ShortBuffer.wrap(indices), GL4.GL_STATIC_DRAW);
 
-    checkError(gl2, "Create Buffers");
+    checkError(gl, "Create Buffers");
 
     VoxelMatrix voxelMatrix = displayable.getMatrix();
     textureLoaded = voxelMatrix != null;
@@ -94,89 +94,89 @@ public class SliceNavigator extends GLJPanel implements KatView, GLEventListener
 
       short[] texture = voxelMatrix.getData();
 
-      gl2.glGenTextures(2, textureLocation, 0);
-      gl2.glActiveTexture(GL2.GL_TEXTURE0 + VOLUME);
-      gl2.glBindTexture(GL2.GL_TEXTURE_3D, textureLocation[VOLUME]);
-      gl2.glTexParameteri(GL2.GL_TEXTURE_3D, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_LINEAR);
-      gl2.glTexParameteri(GL2.GL_TEXTURE_3D, GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);
-      gl2.glTexParameteri(GL2.GL_TEXTURE_3D, GL2.GL_TEXTURE_WRAP_R, GL2.GL_CLAMP_TO_EDGE);
-      gl2.glTexParameteri(GL2.GL_TEXTURE_3D, GL2.GL_TEXTURE_WRAP_S, GL2.GL_CLAMP_TO_EDGE);
-      gl2.glTexParameteri(GL2.GL_TEXTURE_3D, GL2.GL_TEXTURE_WRAP_T, GL2.GL_CLAMP_TO_EDGE);
+      gl.glGenTextures(2, textureLocation, 0);
+      gl.glActiveTexture(GL4.GL_TEXTURE0 + VOLUME);
+      gl.glBindTexture(GL4.GL_TEXTURE_3D, textureLocation[VOLUME]);
+      gl.glTexParameteri(GL4.GL_TEXTURE_3D, GL4.GL_TEXTURE_MIN_FILTER, GL4.GL_LINEAR);
+      gl.glTexParameteri(GL4.GL_TEXTURE_3D, GL4.GL_TEXTURE_MAG_FILTER, GL4.GL_LINEAR);
+      gl.glTexParameteri(GL4.GL_TEXTURE_3D, GL4.GL_TEXTURE_WRAP_R, GL4.GL_CLAMP_TO_EDGE);
+      gl.glTexParameteri(GL4.GL_TEXTURE_3D, GL4.GL_TEXTURE_WRAP_S, GL4.GL_CLAMP_TO_EDGE);
+      gl.glTexParameteri(GL4.GL_TEXTURE_3D, GL4.GL_TEXTURE_WRAP_T, GL4.GL_CLAMP_TO_EDGE);
 
-      gl2.glTexImage3D(GL2.GL_TEXTURE_3D, 0, GL2.GL_RED, voxelMatrix.getSizeX(),
-          voxelMatrix.getSizeY(), voxelMatrix.getSizeZ(), 0, GL2.GL_RED, GL2.GL_UNSIGNED_SHORT,
+      gl.glTexImage3D(GL4.GL_TEXTURE_3D, 0, GL4.GL_RED, voxelMatrix.getSizeX(),
+          voxelMatrix.getSizeY(), voxelMatrix.getSizeZ(), 0, GL4.GL_RED, GL4.GL_UNSIGNED_SHORT,
           ShortBuffer.wrap(texture));
 
-      checkError(gl2, "Create Texture");
+      checkError(gl, "Create Texture");
 
-      gl2.glActiveTexture(GL2.GL_TEXTURE0 + TRANSFER);
-      gl2.glBindTexture(GL2.GL_TEXTURE_1D, textureLocation[TRANSFER]);
-      gl2.glTexParameteri(GL2.GL_TEXTURE_1D, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_LINEAR);
-      gl2.glTexParameteri(GL2.GL_TEXTURE_1D, GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);
-      gl2.glTexParameteri(GL2.GL_TEXTURE_1D, GL2.GL_TEXTURE_WRAP_R, GL2.GL_CLAMP_TO_BORDER);
+      gl.glActiveTexture(GL4.GL_TEXTURE0 + TRANSFER);
+      gl.glBindTexture(GL4.GL_TEXTURE_1D, textureLocation[TRANSFER]);
+      gl.glTexParameteri(GL4.GL_TEXTURE_1D, GL4.GL_TEXTURE_MIN_FILTER, GL4.GL_LINEAR);
+      gl.glTexParameteri(GL4.GL_TEXTURE_1D, GL4.GL_TEXTURE_MAG_FILTER, GL4.GL_LINEAR);
+      gl.glTexParameteri(GL4.GL_TEXTURE_1D, GL4.GL_TEXTURE_WRAP_R, GL4.GL_CLAMP_TO_BORDER);
 
-      checkError(gl2, "Create Transfer Function");
+      checkError(gl, "Create Transfer Function");
       transferFunctionDirty = true;
     }
 
     ShaderCode vertShader = ShaderCode
-        .create(gl2, GL2.GL_VERTEX_SHADER, this.getClass(), SHADERS_ROOT,
+        .create(gl, GL4.GL_VERTEX_SHADER, this.getClass(), SHADERS_ROOT,
             null, SHADERS_NAME, true);
     ShaderCode fragShader = ShaderCode
-        .create(gl2, GL2.GL_FRAGMENT_SHADER, this.getClass(), SHADERS_ROOT,
+        .create(gl, GL4.GL_FRAGMENT_SHADER, this.getClass(), SHADERS_ROOT,
             null, SHADERS_NAME, true);
 
     ShaderProgram shaderProgram = new ShaderProgram();
     shaderProgram.add(vertShader);
     shaderProgram.add(fragShader);
-    shaderProgram.init(gl2);
+    shaderProgram.init(gl);
 
     programName = shaderProgram.program();
-    shaderProgram.link(gl2, System.out);
+    shaderProgram.link(gl, System.out);
 
-    gl2.glUseProgram(programName);
+    gl.glUseProgram(programName);
 
-    gl2.glBindFragDataLocation(programName, 0, "fragColor");
-    gl2.glBindAttribLocation(programName, 0, "position");
+    gl.glBindFragDataLocation(programName, 0, "fragColor");
+    gl.glBindAttribLocation(programName, 0, "position");
 
-    int location = gl2.glGetUniformLocation(programName, "slice");
-    gl2.glUniform1f(location, slice / sliceMax);
+    int location = gl.glGetUniformLocation(programName, "slice");
+    gl.glUniform1f(location, slice / sliceMax);
 
     if (textureLoaded) {
-      location = gl2.glGetUniformLocation(programName, "volumeTexture");
-      gl2.glUniform1i(location, VOLUME);
+      location = gl.glGetUniformLocation(programName, "volumeTexture");
+      gl.glUniform1i(location, VOLUME);
 
-      location = gl2.glGetUniformLocation(programName, "transferFunction");
-      gl2.glUniform1i(location, TRANSFER);
+      location = gl.glGetUniformLocation(programName, "transferFunction");
+      gl.glUniform1i(location, TRANSFER);
     }
 
-    checkError(gl2, "Create Shaders");
+    checkError(gl, "Create Shaders");
   }
 
   @Override
   public void dispose(GLAutoDrawable drawable) {
-    GL2 gl2 = drawable.getGL().getGL2();
+    GL4 gl = drawable.getGL().getGL4();
 
-    gl2.glDeleteProgram(programName);
-    gl2.glDeleteBuffers(bufferLocation.length, bufferLocation, 0);
+    gl.glDeleteProgram(programName);
+    gl.glDeleteBuffers(bufferLocation.length, bufferLocation, 0);
 
     if (textureLoaded) {
-      gl2.glDeleteTextures(textureLocation.length, textureLocation, 0);
+      gl.glDeleteTextures(textureLocation.length, textureLocation, 0);
     }
   }
 
   @Override
   public void display(GLAutoDrawable drawable) {
-    GL2 gl2 = drawable.getGL().getGL2();
-    gl2.glUseProgram(programName);
+    GL4 gl = drawable.getGL().getGL4();
+    gl.glUseProgram(programName);
 
-    int location = gl2.glGetUniformLocation(programName, "slice");
-    gl2.glUniform1f(location, slice / sliceMax);
+    int location = gl.glGetUniformLocation(programName, "slice");
+    gl.glUniform1f(location, slice / sliceMax);
 
-    gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, bufferLocation[VERTICES]);
-    gl2.glBindBuffer(GL2.GL_ELEMENT_ARRAY_BUFFER, bufferLocation[INDICES]);
-    gl2.glEnableVertexAttribArray(0);
-    gl2.glVertexAttribPointer(0, 3, GL2.GL_FLOAT, false, 0, 0);
+    gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, bufferLocation[VERTICES]);
+    gl.glBindBuffer(GL4.GL_ELEMENT_ARRAY_BUFFER, bufferLocation[INDICES]);
+    gl.glEnableVertexAttribArray(0);
+    gl.glVertexAttribPointer(0, 3, GL4.GL_FLOAT, false, 0, 0);
 
     if (transferFunctionDirty) {
       BufferedImage transferImage = new BufferedImage(TransferFunction.TEXTURE_SIZE, 1,
@@ -188,44 +188,44 @@ public class SliceNavigator extends GLJPanel implements KatView, GLEventListener
 
       byte[] dataElements = (byte[]) transferImage.getRaster()
           .getDataElements(0, 0, TransferFunction.TEXTURE_SIZE, 1, null);
-      gl2.glActiveTexture(GL2.GL_TEXTURE0 + TRANSFER);
-      gl2.glBindTexture(GL2.GL_TEXTURE_1D, textureLocation[TRANSFER]);
-      gl2.glTexImage1D(GL2.GL_TEXTURE_1D, 0, GL2.GL_RGBA, TransferFunction.TEXTURE_SIZE, 0,
-          GL2.GL_RGBA, GL2.GL_UNSIGNED_INT_8_8_8_8_REV, ByteBuffer.wrap(dataElements));
+      gl.glActiveTexture(GL4.GL_TEXTURE0 + TRANSFER);
+      gl.glBindTexture(GL4.GL_TEXTURE_1D, textureLocation[TRANSFER]);
+      gl.glTexImage1D(GL4.GL_TEXTURE_1D, 0, GL4.GL_RGBA, TransferFunction.TEXTURE_SIZE, 0,
+          GL4.GL_RGBA, GL4.GL_UNSIGNED_INT_8_8_8_8_REV, ByteBuffer.wrap(dataElements));
       transferFunctionDirty = false;
     }
 
-    gl2.glDrawElements(GL2.GL_TRIANGLES, indices.length, GL2.GL_UNSIGNED_SHORT, 0);
+    gl.glDrawElements(GL4.GL_TRIANGLES, indices.length, GL4.GL_UNSIGNED_SHORT, 0);
   }
 
   @Override
   public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {
-    GL2 gl2 = drawable.getGL().getGL2();
+    GL4 gl = drawable.getGL().getGL4();
 
-    gl2.glUseProgram(programName);
-    int location = gl2.glGetUniformLocation(programName, "screenSize");
-    gl2.glUniform2i(location, width, height);
+    gl.glUseProgram(programName);
+    int location = gl.glGetUniformLocation(programName, "screenSize");
+    gl.glUniform2i(location, width, height);
   }
 
-  private void checkError(GL2 gl, String location) {
+  private void checkError(GL4 gl, String location) {
 
     int error = gl.glGetError();
-    if (error != GL2.GL_NO_ERROR) {
+    if (error != GL4.GL_NO_ERROR) {
       String errorString;
       switch (error) {
-        case GL2.GL_INVALID_ENUM:
+        case GL4.GL_INVALID_ENUM:
           errorString = "GL_INVALID_ENUM";
           break;
-        case GL2.GL_INVALID_VALUE:
+        case GL4.GL_INVALID_VALUE:
           errorString = "GL_INVALID_VALUE";
           break;
-        case GL2.GL_INVALID_OPERATION:
+        case GL4.GL_INVALID_OPERATION:
           errorString = "GL_INVALID_OPERATION";
           break;
-        case GL2.GL_INVALID_FRAMEBUFFER_OPERATION:
+        case GL4.GL_INVALID_FRAMEBUFFER_OPERATION:
           errorString = "GL_INVALID_FRAMEBUFFER_OPERATION";
           break;
-        case GL2.GL_OUT_OF_MEMORY:
+        case GL4.GL_OUT_OF_MEMORY:
           errorString = "GL_OUT_OF_MEMORY";
           break;
         default:

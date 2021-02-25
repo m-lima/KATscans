@@ -1,6 +1,6 @@
 package com.mflima.katscans.view.katview.opengl;
 
-import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL4;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLException;
 import java.awt.Graphics2D;
@@ -93,38 +93,38 @@ public class SurfaceRenderer extends VolumeRenderer implements MouseMotionListen
 
   @Override
   protected void preDraw(GLAutoDrawable drawable) {
-    GL2 gl2 = drawable.getGL().getGL2();
+    GL4 gl = drawable.getGL().getGL4();
 
     if ((dirtyValues & (TRACKED_FLAGS)) > 0) {
       int uniformLocation;
       if ((dirtyValues & THRESHOLD_LO_DIRTY) > 0) {
-        int location = gl2.glGetUniformLocation(mainProgram, "thresholdLo");
-        gl2.glUniform1f(location, thresholdLo);
+        int location = gl.glGetUniformLocation(mainProgram, "thresholdLo");
+        gl.glUniform1f(location, thresholdLo);
       }
 
       if ((dirtyValues & THRESHOLD_HI_DIRTY) > 0) {
-        int location = gl2.glGetUniformLocation(mainProgram, "thresholdHi");
-        gl2.glUniform1f(location, thresholdHi);
+        int location = gl.glGetUniformLocation(mainProgram, "thresholdHi");
+        gl.glUniform1f(location, thresholdHi);
       }
 
       if ((dirtyValues & COLOR_DIRTY) > 0) {
-        gl2.glActiveTexture(GL2.GL_TEXTURE0 + TEXTURE_COLOR);
-        gl2.glBindTexture(GL2.GL_TEXTURE_1D, colorLocation[0]);
-        gl2.glTexImage1D(GL2.GL_TEXTURE_1D, 0, GL2.GL_RGBA, TransferFunction.TEXTURE_SIZE, 0,
-            GL2.GL_RGBA, GL2.GL_UNSIGNED_INT_8_8_8_8_REV, ByteBuffer.wrap(colors));
+        gl.glActiveTexture(GL4.GL_TEXTURE0 + TEXTURE_COLOR);
+        gl.glBindTexture(GL4.GL_TEXTURE_1D, colorLocation[0]);
+        gl.glTexImage1D(GL4.GL_TEXTURE_1D, 0, GL4.GL_RGBA, TransferFunction.TEXTURE_SIZE, 0,
+            GL4.GL_RGBA, GL4.GL_UNSIGNED_INT_8_8_8_8_REV, ByteBuffer.wrap(colors));
       }
 
       if ((dirtyValues & NORMAL_DIRTY) > 0) {
-        uniformLocation = gl2.glGetUniformLocation(mainProgram, "normalMatrix");
-        gl2.glUniformMatrix3fv(uniformLocation, 1, false, normal.getNormalMatrix(), 0);
+        uniformLocation = gl.glGetUniformLocation(mainProgram, "normalMatrix");
+        gl.glUniformMatrix3fv(uniformLocation, 1, false, normal.getNormalMatrix(), 0);
       }
 
       if ((dirtyValues & LIGHT_DIRTY) > 0) {
-        uniformLocation = gl2.glGetUniformLocation(mainProgram, "lightPos");
+        uniformLocation = gl.glGetUniformLocation(mainProgram, "lightPos");
         float[] lightPos = light.getLightPosition();
-        gl2.glUniform3fv(uniformLocation, 1, lightPos, 0);
-        uniformLocation = gl2.glGetUniformLocation(mainProgram, "lightPosFront");
-        gl2.glUniform3f(uniformLocation, -lightPos[0], -lightPos[1], -lightPos[2]);
+        gl.glUniform3fv(uniformLocation, 1, lightPos, 0);
+        uniformLocation = gl.glGetUniformLocation(mainProgram, "lightPosFront");
+        gl.glUniform3f(uniformLocation, -lightPos[0], -lightPos[1], -lightPos[2]);
       }
 
       dirtyValues = 0;
@@ -137,31 +137,31 @@ public class SurfaceRenderer extends VolumeRenderer implements MouseMotionListen
     dirtyValues = TRACKED_FLAGS;
     normal.updateMatrices(camera, rotation, tempMatrix);
 
-    GL2 gl2 = drawable.getGL().getGL2();
+    GL4 gl = drawable.getGL().getGL4();
 
-    gl2.glGenTextures(1, colorLocation, TEXTURE_COLOR_LOCAL);
-    gl2.glActiveTexture(GL2.GL_TEXTURE0 + TEXTURE_COLOR);
-    gl2.glBindTexture(GL2.GL_TEXTURE_1D, colorLocation[0]);
-    gl2.glTexParameteri(GL2.GL_TEXTURE_1D, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_LINEAR);
-    gl2.glTexParameteri(GL2.GL_TEXTURE_1D, GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);
-    gl2.glTexParameteri(GL2.GL_TEXTURE_1D, GL2.GL_TEXTURE_WRAP_R, GL2.GL_CLAMP_TO_BORDER);
+    gl.glGenTextures(1, colorLocation, TEXTURE_COLOR_LOCAL);
+    gl.glActiveTexture(GL4.GL_TEXTURE0 + TEXTURE_COLOR);
+    gl.glBindTexture(GL4.GL_TEXTURE_1D, colorLocation[0]);
+    gl.glTexParameteri(GL4.GL_TEXTURE_1D, GL4.GL_TEXTURE_MIN_FILTER, GL4.GL_LINEAR);
+    gl.glTexParameteri(GL4.GL_TEXTURE_1D, GL4.GL_TEXTURE_MAG_FILTER, GL4.GL_LINEAR);
+    gl.glTexParameteri(GL4.GL_TEXTURE_1D, GL4.GL_TEXTURE_WRAP_R, GL4.GL_CLAMP_TO_BORDER);
 
-    gl2.glTexImage1D(GL2.GL_TEXTURE_1D, 0, GL2.GL_RGBA, TransferFunction.TEXTURE_SIZE, 0,
-        GL2.GL_RGBA, GL2.GL_UNSIGNED_INT_8_8_8_8_REV, ByteBuffer.wrap(colors));
+    gl.glTexImage1D(GL4.GL_TEXTURE_1D, 0, GL4.GL_RGBA, TransferFunction.TEXTURE_SIZE, 0,
+        GL4.GL_RGBA, GL4.GL_UNSIGNED_INT_8_8_8_8_REV, ByteBuffer.wrap(colors));
 
-    int location = gl2.glGetUniformLocation(mainProgram, "colors");
-    gl2.glUniform1i(location, TEXTURE_COLOR);
+    int location = gl.glGetUniformLocation(mainProgram, "colors");
+    gl.glUniform1i(location, TEXTURE_COLOR);
 
-    checkError(gl2, "Inject colors");
+    checkError(gl, "Inject colors");
   }
 
   @Override
   public void dispose(GLAutoDrawable drawable) {
     super.dispose(drawable);
-    GL2 gl2 = drawable.getGL().getGL2();
+    GL4 gl = drawable.getGL().getGL4();
 
-    gl2.glDeleteTextures(colorLocation.length, colorLocation, 0);
-    checkError(gl2, "Dispose Surface Renderer");
+    gl.glDeleteTextures(colorLocation.length, colorLocation, 0);
+    checkError(gl, "Dispose Surface Renderer");
   }
 
   private synchronized void updateColors() {
