@@ -18,7 +18,8 @@ public class VoxelMatrix {
 
   private VoxelMatrix(VoxelMatrix matrix) {
     if (!matrix.initialized) {
-      throw new RuntimeException(VoxelMatrix.class.getName() + " has not been initialized yet.");
+      throw new RuntimeException(
+          String.format("%s has not been initialized yet.", VoxelMatrix.class.getName()));
     }
 
     sizeX = matrix.sizeX;
@@ -47,13 +48,16 @@ public class VoxelMatrix {
     sizeZ = options.getSizeZ();
 
     if (sizeZ <= 0) {
-      throw new IllegalArgumentException("The size must be larger than zero, but Z was " + sizeZ);
+      throw new IllegalArgumentException(
+          String.format("The size must be larger than zero, but Z was %d", sizeZ));
     }
     if (sizeY <= 0) {
-      throw new IllegalArgumentException("The size must be larger than zero, but Y was " + sizeY);
+      throw new IllegalArgumentException(
+          String.format("The size must be larger than zero, but Y was %d", sizeY));
     }
     if (sizeX <= 0) {
-      throw new IllegalArgumentException("The size must be larger than zero, but X was " + sizeX);
+      throw new IllegalArgumentException(
+          String.format("The size must be larger than zero, but X was %d", sizeX));
     }
 
     grid = new short[sizeZ * sizeY * sizeX];
@@ -130,7 +134,8 @@ public class VoxelMatrix {
 
   public int[] getHistogram() {
     if (!initialized) {
-      throw new RuntimeException(VoxelMatrix.class.getName() + " has not been initialized yet.");
+      throw new RuntimeException(
+          String.format("%s has not been initialized yet.", VoxelMatrix.class.getName()));
     }
     return histogram;
   }
@@ -149,14 +154,16 @@ public class VoxelMatrix {
 
   public int getMinValue() {
     if (!initialized) {
-      throw new RuntimeException(VoxelMatrix.class.getName() + " has not been initialized yet.");
+      throw new RuntimeException(
+          String.format("%s has not been initialized yet.", VoxelMatrix.class.getName()));
     }
     return minValue;
   }
 
   public int getMaxValue() {
     if (!initialized) {
-      throw new RuntimeException(VoxelMatrix.class.getName() + " has not been initialized yet.");
+      throw new RuntimeException(
+          String.format("%s has not been initialized yet.", VoxelMatrix.class.getName()));
     }
     return maxValue;
   }

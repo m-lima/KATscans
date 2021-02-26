@@ -73,7 +73,7 @@ public class DataFileNode extends Displayable implements Serializable {
       while (file == null || !file.exists() || !file.canRead()) {
         JOptionPane.showMessageDialog(
             Init.getFrameReference(),
-            "Could not load data from " + file.getPath(),
+            "Could not load data from file",
             "Load",
             JOptionPane.ERROR_MESSAGE);
         file = new LoadSaveHandler(format).showLoadDialog(file);
@@ -88,7 +88,7 @@ public class DataFileNode extends Displayable implements Serializable {
         Logger.getLogger(DataFileNode.class.getName()).log(Level.SEVERE, null, ex);
         JOptionPane.showMessageDialog(
             Init.getFrameReference(),
-            "Could not load data from " + file.getPath(),
+            String.format("Could not load data from %s", file.getPath()),
             "Load",
             JOptionPane.ERROR_MESSAGE);
         remove();
@@ -138,11 +138,9 @@ public class DataFileNode extends Displayable implements Serializable {
       super.setParent(newParent);
     } else {
       throw new IllegalArgumentException(
-          "Can only have "
-              + ProjectNode.class.getSimpleName()
-              + " nodes as parents of "
-              + getClass().getSimpleName()
-              + " nodes.");
+          String.format(
+              "Can only have %s nodes as parent of %s nodes.",
+              ProjectNode.class.getSimpleName(), getClass().getSimpleName()));
     }
   }
 
@@ -150,13 +148,11 @@ public class DataFileNode extends Displayable implements Serializable {
   public void insert(MutableTreeNode child, int index) {
     if (child instanceof ProjectNode || child instanceof DataFileNode) {
       throw new IllegalArgumentException(
-          "Cannot add "
-              + getClass().getSimpleName()
-              + " nodes or "
-              + ProjectNode.class.getSimpleName()
-              + "nodes to "
-              + getClass().getSimpleName()
-              + " nodes.");
+          String.format(
+              "Cannot add %s nodes or %s nodes to %s nodes.",
+              getClass().getSimpleName(),
+              ProjectNode.class.getSimpleName(),
+              getClass().getSimpleName()));
     }
     super.insert(child, index);
   }

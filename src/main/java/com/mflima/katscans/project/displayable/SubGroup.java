@@ -21,11 +21,10 @@ public abstract class SubGroup extends Displayable {
       super.setParent(newParent);
     } else {
       throw new IllegalArgumentException(
-          "Can only have "
-              + Displayable.class.getSimpleName()
-              + " nodes as parents of "
-              + getClass().getSimpleName()
-              + " nodes.");
+          String.format(
+              "Can only have %s nodes as parent of %s nodes.",
+              Displayable.class.getSimpleName(),
+              getClass().getSimpleName()));
     }
   }
 
@@ -33,13 +32,11 @@ public abstract class SubGroup extends Displayable {
   public void insert(MutableTreeNode child, int index) {
     if (child instanceof ProjectNode || child instanceof DataFileNode) {
       throw new IllegalArgumentException(
-          "Cannot add "
-              + DataFileNode.class.getSimpleName()
-              + " nodes or "
-              + ProjectNode.class.getSimpleName()
-              + "nodes to "
-              + getClass().getSimpleName()
-              + " nodes.");
+          String.format(
+              "Cannot add %s nodes or %s nodes to %s nodes.",
+              DataFileNode.class.getSimpleName(),
+              ProjectNode.class.getSimpleName(),
+              getClass().getSimpleName()));
     }
     super.insert(child, index);
   }

@@ -13,7 +13,7 @@ public class TransferFunctionNode extends SubGroup implements ActionListener {
   private final TransferFunction transferFunction;
 
   public TransferFunctionNode(Type type) {
-    super("Transfer Function - " + type.getText());
+    super(String.format("Transfer Function - %s", type.getText()));
     transferFunction = new TransferFunction(type);
   }
 

@@ -257,7 +257,7 @@ public class SliceNavigator extends GLJPanel
           errorString = "UNKNOWN";
           break;
       }
-      System.out.println("OpenGL Error(" + errorString + "): " + location);
+      System.out.printf("OpenGL Error(%s): %s%n", errorString, location);
       throw new Error();
     }
   }

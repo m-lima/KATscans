@@ -628,8 +628,8 @@ public abstract class VolumeRenderer extends GLJPanel
           errorString = "UNKNOWN";
           break;
       }
-      System.out.println(
-          getClass().getSimpleName() + " :: OpenGL Error(" + errorString + "): " + location);
+      System.out.printf(
+          "%s :: OpenGL Error(%s): %n", getClass().getSimpleName(), errorString, location);
       throw new Error();
     }
   }
@@ -684,7 +684,7 @@ public abstract class VolumeRenderer extends GLJPanel
         gl.glGetShaderInfoLog(shader, returnValue[0], written, log);
         byte[] logArray = log.array();
 
-        System.err.println("Compilation error on " + shaderName);
+        System.err.printf("Compilation error on %s%n", shaderName);
         for (byte letter : logArray) {
           System.err.print((char) letter);
         }
@@ -707,8 +707,8 @@ public abstract class VolumeRenderer extends GLJPanel
         ByteBuffer log = ByteBuffer.allocate(returnValue[0]);
         gl.glGetProgramInfoLog(program, returnValue[0], written, log);
         byte[] logArray = log.array();
-        System.err.println(
-            "Link error on " + (program == raycastingProgram ? "raycasting" : "main") + " program");
+        System.err.printf(
+            "Link error on %s program%n", program == raycastingProgram ? "raycasting" : "main");
         for (byte letter : logArray) {
           System.err.print((char) letter);
         }

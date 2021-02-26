@@ -40,7 +40,10 @@ public class LoadDiag extends javax.swing.JDialog {
 
   /** Creates new form LoadDataFileDiag */
   public LoadDiag(Format format) {
-    super(Init.getFrameReference(), "Load " + format.getFormat().getName() + " file", true);
+    super(
+        Init.getFrameReference(),
+        String.format("Load %s file", format.getFormat().getName()),
+        true);
     loadHandler = new LoadSaveHandler(format);
 
     initComponents();

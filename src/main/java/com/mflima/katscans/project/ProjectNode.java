@@ -27,7 +27,8 @@ public class ProjectNode extends KatNode {
 
   @Override
   protected KatNode internalCopy() {
-    throw new UnsupportedOperationException(getClass().getSimpleName() + " nodes cannot be copied");
+    throw new UnsupportedOperationException(
+        String.format("%s nodes cannot be copied", getClass().getSimpleName()));
   }
 
   @Override
@@ -101,7 +102,8 @@ public class ProjectNode extends KatNode {
       super.insert(child, index);
     } else {
       throw new IllegalArgumentException(
-          "Can only add " + DataFileNode.class.getSimpleName() + " nodes to Project nodes.");
+          String.format(
+              "Can only add %s nodes to Project nodes.", DataFileNode.class.getSimpleName()));
     }
   }
 
@@ -132,7 +134,7 @@ public class ProjectNode extends KatNode {
       String formatName = menuItem.getText();
       LoadSaveFormat.Format[] formats = LoadSaveFormat.Format.values();
       for (LoadSaveFormat.Format format : formats) {
-        if (format.getFormat().getName() == formatName) {
+        if (format.getFormat().getName().equals(formatName)) {
           new LoadDiag(format).setVisible(true);
           return;
         }

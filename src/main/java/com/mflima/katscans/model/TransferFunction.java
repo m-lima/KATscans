@@ -247,11 +247,13 @@ public class TransferFunction extends KatModel<TransferFunction> implements Seri
     private TransferFunctionPoint(
         Color color, float point, TransferFunction owner, boolean movable) {
       if (owner == null) {
-        throw new NullPointerException("Cannot have a " + getClass().getName() + " without owner.");
+        throw new NullPointerException(
+            String.format("Cannot have a %s without owner.", getClass().getName()));
       }
 
       if (point < 0f || point > 1.0f) {
-        throw new IndexOutOfBoundsException("Cannot create a transfer function point at " + point);
+        throw new IndexOutOfBoundsException(
+            String.format("Cannot create a transfer function point at %f", point));
       }
       this.color = color;
       this.point = point;
@@ -293,7 +295,8 @@ public class TransferFunction extends KatModel<TransferFunction> implements Seri
       }
 
       if (point < 0f || point > 1.0f) {
-        throw new IndexOutOfBoundsException("Cannot create a transfer function point at " + point);
+        throw new IndexOutOfBoundsException(
+            String.format("Cannot create a transfer function point at %f", point));
       }
       this.point = point;
       owner.valueChanged();

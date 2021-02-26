@@ -65,7 +65,7 @@ class DatFormat implements LoadSaveFormat {
         path = path.substring(0, index) + ".ini";
       } else {
         Logger.getLogger(DatFormat.class.getName())
-            .log(Level.WARNING, "Could not find ini for " + path);
+            .log(Level.WARNING, String.format("Could not find ini for %s", path));
       }
 
       try (BufferedReader reader = new BufferedReader(new FileReader(path))) {

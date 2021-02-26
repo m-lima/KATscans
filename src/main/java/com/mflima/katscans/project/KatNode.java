@@ -33,7 +33,7 @@ public abstract class KatNode implements MutableTreeNode, Serializable, Transfer
   public void setName(String name) {
     if (name == null || name.trim().isEmpty()) {
       throw new IllegalArgumentException(
-          "The " + getClass().getSimpleName() + " name cannot be null or empty");
+          String.format("The %s name cannot be null or empty.", getClass().getSimpleName()));
     }
     this.name = name.trim();
   }
@@ -107,14 +107,9 @@ public abstract class KatNode implements MutableTreeNode, Serializable, Transfer
         JMenu childMenu = childrenMenu.get(i);
 
         if (i < 10) {
-          if (i == 9) {
-            childMenu.setText("[0] " + childMenu.getText());
-            childMenu.setMnemonic('0');
-          } else {
-            char mnemonic = (char) (i + '1');
-            childMenu.setText("[" + mnemonic + "] " + childMenu.getText());
-            childMenu.setMnemonic(mnemonic);
-          }
+          char mnemonic = i == 9 ? '0' : (char) (i + '1');
+          childMenu.setText(String.format("[%c] %s", mnemonic, childMenu.getText()));
+          childMenu.setMnemonic(mnemonic);
         }
 
         nodeMenu.add(childMenu, 0);
@@ -149,7 +144,7 @@ public abstract class KatNode implements MutableTreeNode, Serializable, Transfer
   public void setUserObject(Object object) {
     if (object == null) {
       throw new NullPointerException(
-          "The " + getClass().getSimpleName() + " object cannot be null.");
+          String.format("The %s object cannot be null.", getClass().getSimpleName()));
     }
     String newName = object.toString();
     setName(newName);
@@ -203,7 +198,8 @@ public abstract class KatNode implements MutableTreeNode, Serializable, Transfer
   @Override
   public void insert(MutableTreeNode child, int index) {
     if (child == null) {
-      throw new NullPointerException("Cannot add null child to " + getClass().getSimpleName());
+      throw new NullPointerException(
+          String.format("Cannot add null child to %s", getClass().getSimpleName()));
     }
     if (index < 0) {
       throw new ArrayIndexOutOfBoundsException(index);

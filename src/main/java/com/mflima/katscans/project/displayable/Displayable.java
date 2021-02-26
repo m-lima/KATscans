@@ -66,12 +66,9 @@ public abstract class Displayable extends KatNode {
     for (final Type type : types) {
       JMenuItem item = new JMenuItem(type.getText(), type.getMnemonic());
       item.addActionListener(
-          new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-              KatViewNode view = KatViewNode.buildKatView(type);
-              ProjectHandler.getInstance().insertNodeInto(view, Displayable.this, getChildCount());
-            }
+          e -> {
+            KatViewNode view = KatViewNode.buildKatView(type);
+            ProjectHandler.getInstance().insertNodeInto(view, Displayable.this, getChildCount());
           });
       menu.add(item);
     }

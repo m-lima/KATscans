@@ -44,13 +44,15 @@ public class KatViewNode extends KatNode {
   private KatViewNode(Type type) {
     super(type.getText());
     newView = true;
-    this.view = new View(type.getText() + " - Loading", null, new LoadingPanel(false));
+    this.view =
+        new View(String.format("%s - Loading", type.getText()), null, new LoadingPanel(false));
     this.type = type;
   }
 
   private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
     type = (Type) in.readObject();
-    this.view = new View(type.getText() + " - Loading", null, new LoadingPanel(false));
+    this.view =
+        new View(String.format("%s - Loading", type.getText()), null, new LoadingPanel(false));
     newView = true;
   }
 
@@ -120,11 +122,9 @@ public class KatViewNode extends KatNode {
   public void setParent(MutableTreeNode newParent) {
     if (!(newParent instanceof Displayable)) {
       throw new IllegalArgumentException(
-          "Can only have "
-              + Displayable.class.getSimpleName()
-              + " nodes as parents of "
-              + getClass().getSimpleName()
-              + " nodes.");
+          String.format(
+              "Can only have %s nodes as parents of %s nodes.",
+              Displayable.class.getSimpleName(), getClass().getSimpleName()));
     }
 
     final Displayable displayable = (Displayable) newParent;
@@ -132,7 +132,7 @@ public class KatViewNode extends KatNode {
     final Displayable oldParent = getParent();
 
     view.setComponent(new LoadingPanel(false));
-    view.getViewProperties().setTitle(type.getText() + " - Loading");
+    view.getViewProperties().setTitle(String.format("%s - Loading", type.getText()));
 
     super.setParent(displayable);
 
@@ -174,7 +174,8 @@ public class KatViewNode extends KatNode {
           }
 
           ((KatView) katView).loadProperties(properties);
-          view.getViewProperties().setTitle(type.getText() + " - " + displayable.getName());
+          view.getViewProperties()
+              .setTitle(String.format("%s - %s", type.getText(), displayable.getName()));
           view.setComponent(katView);
         } catch (InstantiationException
             | IllegalAccessException

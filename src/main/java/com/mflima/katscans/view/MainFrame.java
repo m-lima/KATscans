@@ -245,7 +245,7 @@ public class MainFrame extends javax.swing.JFrame implements TreeModelListener, 
       title = views.get(i).getName();
       if (i < 10) {
         mnemonic = (char) (i + '1');
-        item = new JMenuItem("[" + mnemonic + "] " + title);
+        item = new JMenuItem(String.format("[%c] %s", mnemonic, title));
         item.setMnemonic(mnemonic);
       } else {
         item = new JMenuItem(title);

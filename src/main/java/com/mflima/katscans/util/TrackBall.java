@@ -281,7 +281,7 @@ public class TrackBall
   public void clearDirtyValues(int values) {
     if (values < 0 || values > getAllDirtyFlags()) {
       throw new IllegalArgumentException(
-          "Invalid flags: " + Integer.toBinaryString(values) + "(" + values + ")");
+          String.format("Invalid flags: %s (%d)", Integer.toBinaryString(values), values));
     }
 
     dirtyValues &= ~values;
