@@ -1,5 +1,11 @@
 package com.mflima.katscans.data.io;
 
+import com.mflima.katscans.Init;
+import com.mflima.katscans.data.VoxelMatrix;
+import com.mflima.katscans.data.io.LoadSaveFormat.Format;
+import com.mflima.katscans.project.ProjectHandler;
+import com.mflima.katscans.project.displayable.DataFileNode;
+import com.mflima.katscans.util.FileAwareInputStream;
 import java.awt.Component;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -15,12 +21,6 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
-import com.mflima.katscans.Init;
-import com.mflima.katscans.data.VoxelMatrix;
-import com.mflima.katscans.data.io.LoadSaveFormat.Format;
-import com.mflima.katscans.project.displayable.DataFileNode;
-import com.mflima.katscans.project.ProjectHandler;
-import com.mflima.katscans.util.FileAwareInputStream;
 
 /** @author Marcelo Lima */
 public class LoadSaveHandler {

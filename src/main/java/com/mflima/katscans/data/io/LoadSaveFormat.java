@@ -1,10 +1,10 @@
 package com.mflima.katscans.data.io;
 
+import com.mflima.katscans.data.VoxelMatrix;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import javax.swing.filechooser.FileFilter;
-import com.mflima.katscans.data.VoxelMatrix;
 
 /** @author Marcelo Lima */
 public interface LoadSaveFormat {

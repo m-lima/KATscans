@@ -2,10 +2,10 @@ package com.mflima.katscans.model;
 
 import com.jogamp.opengl.math.FloatUtil;
 import com.jogamp.opengl.math.Quaternion;
-import java.awt.EventQueue;
-import java.io.Serializable;
 import com.mflima.katscans.event.KatModelListener;
 import com.mflima.katscans.event.RotationListener;
+import java.awt.EventQueue;
+import java.io.Serializable;
 
 /** @author Marcelo Lima */
 public class Rotation extends KatModel<Rotation> implements Serializable {

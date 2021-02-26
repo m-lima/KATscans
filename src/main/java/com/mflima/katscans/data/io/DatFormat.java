@@ -1,6 +1,14 @@
 package com.mflima.katscans.data.io;
 
-import java.io.*;
+import com.mflima.katscans.data.VoxelMatrix;
+import com.mflima.katscans.util.FileAwareInputStream;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.StreamCorruptedException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.ShortBuffer;
@@ -8,8 +16,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import com.mflima.katscans.data.VoxelMatrix;
-import com.mflima.katscans.util.FileAwareInputStream;
 
 /** @author Marcelo Lima */
 class DatFormat implements LoadSaveFormat {

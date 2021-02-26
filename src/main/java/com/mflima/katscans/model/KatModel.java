@@ -1,10 +1,10 @@
 package com.mflima.katscans.model;
 
+import com.mflima.katscans.event.KatModelListener;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 import javax.swing.event.EventListenerList;
-import com.mflima.katscans.event.KatModelListener;
 
 /** @author Marcelo Lima */
 abstract class KatModel<T> implements Serializable {

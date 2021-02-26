@@ -1,12 +1,15 @@
 package com.mflima.katscans.data.io;
 
-import java.io.*;
+import com.mflima.katscans.data.VoxelMatrix;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.StreamCorruptedException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.ShortBuffer;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import com.mflima.katscans.data.VoxelMatrix;
 
 /** @author Marcelo Lima */
 class RawFormat implements LoadSaveFormat {

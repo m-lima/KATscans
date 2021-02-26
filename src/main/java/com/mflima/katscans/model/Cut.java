@@ -1,9 +1,9 @@
 package com.mflima.katscans.model;
 
-import java.awt.EventQueue;
-import java.io.Serializable;
 import com.mflima.katscans.event.CutListener;
 import com.mflima.katscans.event.KatModelListener;
+import java.awt.EventQueue;
+import java.io.Serializable;
 
 /** @author Marcelo Lima */
 public class Cut extends KatModel<Cut> implements Serializable {

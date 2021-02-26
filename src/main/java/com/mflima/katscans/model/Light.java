@@ -1,10 +1,10 @@
 package com.mflima.katscans.model;
 
 import com.jogamp.opengl.math.VectorUtil;
-import java.awt.EventQueue;
-import java.io.Serializable;
 import com.mflima.katscans.event.KatModelListener;
 import com.mflima.katscans.event.LightListener;
+import java.awt.EventQueue;
+import java.io.Serializable;
 
 /** @author Marcelo Lima */
 public class Light extends KatModel<Light> implements Serializable {

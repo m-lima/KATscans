@@ -1,9 +1,9 @@
 package com.mflima.katscans.model;
 
 import com.jogamp.opengl.math.FloatUtil;
-import java.awt.EventQueue;
 import com.mflima.katscans.event.KatModelListener;
 import com.mflima.katscans.event.ScreenListener;
+import java.awt.EventQueue;
 
 /** @author Marcelo Lima */
 public class Screen extends KatModel<Screen> {
