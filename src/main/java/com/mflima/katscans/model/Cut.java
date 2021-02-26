@@ -163,8 +163,7 @@ public class Cut extends KatModel<Cut> implements Serializable {
     KatModelListener[] listeners = listenerList.getListeners(KatModelListener.class);
 
     for (final KatModelListener listener : listeners) {
-      EventQueue.invokeLater(
-          ((CutListener) listener)::minValueChanged);
+      EventQueue.invokeLater(((CutListener) listener)::minValueChanged);
     }
   }
 
@@ -172,8 +171,7 @@ public class Cut extends KatModel<Cut> implements Serializable {
     KatModelListener[] listeners = listenerList.getListeners(KatModelListener.class);
 
     for (final KatModelListener listener : listeners) {
-      EventQueue.invokeLater(
-          ((CutListener) listener)::maxValueChanged);
+      EventQueue.invokeLater(((CutListener) listener)::maxValueChanged);
     }
   }
 
@@ -181,8 +179,7 @@ public class Cut extends KatModel<Cut> implements Serializable {
     KatModelListener[] listeners = listenerList.getListeners(KatModelListener.class);
 
     for (final KatModelListener listener : listeners) {
-      EventQueue.invokeLater(
-          ((CutListener) listener)::sliceValueChanged);
+      EventQueue.invokeLater(((CutListener) listener)::sliceValueChanged);
     }
   }
 }

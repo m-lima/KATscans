@@ -1,5 +1,9 @@
 package com.mflima.katscans.project.io;
 
+import com.mflima.katscans.Init;
+import com.mflima.katscans.data.io.LoadSaveHandler;
+import com.mflima.katscans.project.ProjectHandler;
+import com.mflima.katscans.project.ProjectNode;
 import java.awt.Component;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -21,10 +25,6 @@ import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import com.mflima.katscans.Init;
-import com.mflima.katscans.data.io.LoadSaveHandler;
-import com.mflima.katscans.project.ProjectHandler;
-import com.mflima.katscans.project.ProjectNode;
 
 /** @author Marcelo Lima */
 public class PersistenceHandler {

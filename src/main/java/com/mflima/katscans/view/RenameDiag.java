@@ -1,5 +1,9 @@
 package com.mflima.katscans.view;
 
+import com.mflima.katscans.Init;
+import com.mflima.katscans.project.KatNode;
+import com.mflima.katscans.project.ProjectHandler;
+import com.mflima.katscans.view.component.ValidatableBorder;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import javax.swing.AbstractAction;
@@ -9,10 +13,6 @@ import javax.swing.UIManager;
 import javax.swing.border.LineBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import com.mflima.katscans.Init;
-import com.mflima.katscans.project.KatNode;
-import com.mflima.katscans.project.ProjectHandler;
-import com.mflima.katscans.view.component.ValidatableBorder;
 
 /** @author mflim_000 */
 public class RenameDiag extends javax.swing.JDialog {

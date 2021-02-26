@@ -23,8 +23,7 @@ public abstract class SubGroup extends Displayable {
       throw new IllegalArgumentException(
           String.format(
               "Can only have %s nodes as parent of %s nodes.",
-              Displayable.class.getSimpleName(),
-              getClass().getSimpleName()));
+              Displayable.class.getSimpleName(), getClass().getSimpleName()));
     }
   }
 

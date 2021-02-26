@@ -1,5 +1,11 @@
 package com.mflima.katscans.view;
 
+import com.mflima.katscans.project.KatNode;
+import com.mflima.katscans.project.KatViewNode;
+import com.mflima.katscans.project.ProjectHandler;
+import com.mflima.katscans.project.displayable.Displayable;
+import com.mflima.katscans.project.io.PersistenceHandler;
+import com.mflima.katscans.view.project.ProjectBrowser;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -38,12 +44,6 @@ import net.infonode.docking.util.ViewMap;
 import net.infonode.gui.colorprovider.FixedColorProvider;
 import net.infonode.gui.componentpainter.SolidColorComponentPainter;
 import net.infonode.util.Direction;
-import com.mflima.katscans.project.KatNode;
-import com.mflima.katscans.project.KatViewNode;
-import com.mflima.katscans.project.ProjectHandler;
-import com.mflima.katscans.project.displayable.Displayable;
-import com.mflima.katscans.project.io.PersistenceHandler;
-import com.mflima.katscans.view.project.ProjectBrowser;
 
 /** @author Marcelo Lima */
 public class MainFrame extends javax.swing.JFrame implements TreeModelListener, ActionListener {

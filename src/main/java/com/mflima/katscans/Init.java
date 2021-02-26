@@ -1,6 +1,8 @@
 package com.mflima.katscans;
 
 import com.bulenkov.darcula.DarculaLaf;
+import com.mflima.katscans.view.MainFrame;
+import com.mflima.katscans.view.SplashScreen;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
@@ -12,8 +14,6 @@ import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.plaf.metal.MetalLookAndFeel;
-import com.mflima.katscans.view.MainFrame;
-import com.mflima.katscans.view.SplashScreen;
 
 // TODO [ ] Contour (Normal · View) [|Δƒ| · (1 - N · V)^e]
 // TODO [ ] 2D TF

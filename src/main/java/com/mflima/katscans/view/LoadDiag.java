@@ -1,5 +1,12 @@
 package com.mflima.katscans.view;
 
+import com.mflima.katscans.Init;
+import com.mflima.katscans.data.io.FormatHeader;
+import com.mflima.katscans.data.io.LoadSaveFormat.Format;
+import com.mflima.katscans.data.io.LoadSaveHandler;
+import com.mflima.katscans.data.io.LoadSaveOptions;
+import com.mflima.katscans.view.component.ValidatableBorder;
+import com.mflima.katscans.view.component.image.LoadingPanel;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
@@ -17,13 +24,6 @@ import javax.swing.TransferHandler;
 import javax.swing.UIManager;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import com.mflima.katscans.Init;
-import com.mflima.katscans.data.io.FormatHeader;
-import com.mflima.katscans.data.io.LoadSaveFormat.Format;
-import com.mflima.katscans.data.io.LoadSaveHandler;
-import com.mflima.katscans.data.io.LoadSaveOptions;
-import com.mflima.katscans.view.component.image.LoadingPanel;
-import com.mflima.katscans.view.component.ValidatableBorder;
 
 /** @author Marcelo Lima */
 public class LoadDiag extends javax.swing.JDialog {
