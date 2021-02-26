@@ -22,7 +22,7 @@ import javax.swing.SwingUtilities;
 public class SurfaceRenderer extends VolumeRenderer
     implements MouseMotionListener, MouseListener, TransferFunctionListener, LightListener {
 
-  private static final int LIGHT_DIRTY = 0;
+  private static final int LIGHT_DIRTY = 1;
   private static final int NORMAL_DIRTY = 1 << 1;
   private static final int COLOR_DIRTY = 1 << 2;
   private static final int THRESHOLD_HI_DIRTY = 1 << 3;

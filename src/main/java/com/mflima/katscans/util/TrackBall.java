@@ -25,7 +25,7 @@ import javax.swing.SwingUtilities;
 public class TrackBall
     implements MouseListener, MouseMotionListener, MouseWheelListener, KeyListener, FocusListener {
 
-  public static final int MODEL_DIRTY = 0;
+  public static final int MODEL_DIRTY = 1;
   public static final int VIEW_DIRTY = 1 << 1;
   public static final int PROJECTION_DIRTY = 1 << 2;
   public static final int ZOOM_DIRTY = 1 << 3;

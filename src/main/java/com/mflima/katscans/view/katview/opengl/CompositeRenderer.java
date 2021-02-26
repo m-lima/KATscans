@@ -17,7 +17,7 @@ import java.nio.ByteBuffer;
 public class CompositeRenderer extends VolumeRenderer
     implements TransferFunctionListener, LightListener {
 
-  private static final int LIGHT_DIRTY = 0;
+  private static final int LIGHT_DIRTY = 1;
   private static final int NORMAL_DIRTY = 1 << 1;
   private static final int TRANSFER_FUNCTION_DIRTY = 1 << 2;
 

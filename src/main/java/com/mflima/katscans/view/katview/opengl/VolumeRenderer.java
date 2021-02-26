@@ -46,7 +46,7 @@ public abstract class VolumeRenderer extends GLJPanel
         CutListener,
         ScreenListener {
 
-  private static final int MODEL_DIRTY = 0;
+  private static final int MODEL_DIRTY = 1;
   private static final int VIEW_DIRTY = 1 << 1;
   private static final int PROJECTION_DIRTY = 1 << 2;
   private static final int ORTHO_DIRTY = 1 << 3;
