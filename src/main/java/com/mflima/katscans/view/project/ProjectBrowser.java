@@ -2,6 +2,7 @@ package com.mflima.katscans.view.project;
 
 import com.mflima.katscans.project.KatNode;
 import com.mflima.katscans.project.ProjectHandler;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -46,7 +47,13 @@ public class ProjectBrowser extends javax.swing.JPanel {
               }
 
               Rectangle pathBounds = treDatasets.getPathBounds(node);
-              showPopup(pathBounds.x + pathBounds.width / 2, pathBounds.y + pathBounds.height / 2);
+              Point point =
+                  pathBounds == null
+                      ? new Point()
+                      : new Point(
+                          pathBounds.x + pathBounds.width / 2,
+                          pathBounds.y + pathBounds.height / 2);
+              showPopup(point.x, point.y);
             }
           }
         });

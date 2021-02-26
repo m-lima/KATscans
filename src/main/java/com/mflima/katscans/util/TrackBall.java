@@ -201,16 +201,14 @@ public class TrackBall
   }
 
   public float[] getNormalMatrix() {
-    if (reuseNormal) {
-      return normalMatrix;
-    } else {
+    if (!reuseNormal) {
       reuseNormal = true;
       FloatUtil.multMatrix(getViewMatrix(), getModelMatrix(), normalMatrix);
       FloatUtil.invertMatrix(normalMatrix, normalMatrix);
       FloatUtil.transposeMatrix(normalMatrix, tempMatrix);
       MatrixUtil.getMatrix3(tempMatrix, normalMatrix);
-      return normalMatrix;
     }
+    return normalMatrix;
   }
 
   public float[] getEyePosition() {

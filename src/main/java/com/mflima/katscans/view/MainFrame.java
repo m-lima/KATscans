@@ -439,7 +439,7 @@ public class MainFrame extends javax.swing.JFrame implements TreeModelListener, 
   private void mitLoadActionPerformed(
       java.awt.event.ActionEvent evt) { // GEN-FIRST:event_mitLoadActionPerformed
     KatViewNode[] oldViews = new KatViewNode[views.size()];
-    if (views != null && oldViews.length > 0) {
+    if (oldViews.length > 0) {
       oldViews = views.toArray(oldViews);
     }
 

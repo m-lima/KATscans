@@ -7,7 +7,7 @@ public final class MatrixUtil {
 
   private static final float[] tempMatrix = new float[16];
 
-  private MatrixUtil() {};
+  private MatrixUtil() {}
 
   public static String toString(float[] matrix) {
     if (matrix.length == 9) {
@@ -37,10 +37,10 @@ public final class MatrixUtil {
           matrix[7],
           matrix[11],
           matrix[15]);
-      //                    matrix[0], matrix[1], matrix[2], matrix[3],
-      //                    matrix[4], matrix[5], matrix[6], matrix[7],
-      //                    matrix[8], matrix[9], matrix[10], matrix[11],
-      //                    matrix[12], matrix[13], matrix[14], matrix[15]));
+      // matrix[0], matrix[1], matrix[2], matrix[3],
+      // matrix[4], matrix[5], matrix[6], matrix[7],
+      // matrix[8], matrix[9], matrix[10], matrix[11],
+      // matrix[12], matrix[13], matrix[14], matrix[15]));
     } else {
       return "";
     }

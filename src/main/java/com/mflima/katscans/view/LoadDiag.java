@@ -100,7 +100,7 @@ public class LoadDiag extends javax.swing.JDialog {
                 Transferable transferable = support.getTransferable();
                 String incoming = (String) transferable.getTransferData(DataFlavor.stringFlavor);
 
-                if (incoming != null && !incoming.isEmpty()) {
+                if (!incoming.isEmpty()) {
                   txtFile.replaceSelection(incoming);
                   return true;
                 }
