@@ -175,7 +175,7 @@ public class DraggableTree extends JTree
     Point dragPoint = dtde.getLocation();
     TreePath newPath = getClosestPathForLocation(dragPoint.x, dragPoint.y);
 
-    if (newPath == null || path == null) {
+    if (newPath == null) {
       return;
     }
 
