@@ -13,9 +13,7 @@ import java.util.Collections;
 import java.util.stream.Stream;
 import javax.swing.event.EventListenerList;
 
-/**
- * @author Marcelo Lima
- */
+/** @author Marcelo Lima */
 public class TransferFunction extends KatModel<TransferFunction> implements Serializable {
 
   public enum Type {
@@ -163,8 +161,14 @@ public class TransferFunction extends KatModel<TransferFunction> implements Seri
       rebuildPaint();
     }
 
-    return new LinearGradientPaint(startX, 0f, endX, 0f, colorPoints,
-        quadratic ? colorsQuadratic : colorsLinear, MultipleGradientPaint.CycleMethod.NO_CYCLE);
+    return new LinearGradientPaint(
+        startX,
+        0f,
+        endX,
+        0f,
+        colorPoints,
+        quadratic ? colorsQuadratic : colorsLinear,
+        MultipleGradientPaint.CycleMethod.NO_CYCLE);
   }
 
   private void rebuildPaint() {
@@ -189,8 +193,12 @@ public class TransferFunction extends KatModel<TransferFunction> implements Seri
       }
       Color color = point.getColor();
       colorsLinear[index] = color;
-      colorsQuadratic[index] = new Color(color.getRed(), color.getGreen(), color.getBlue(),
-          (int) ((color.getAlpha() * color.getAlpha()) / 255d));
+      colorsQuadratic[index] =
+          new Color(
+              color.getRed(),
+              color.getGreen(),
+              color.getBlue(),
+              (int) ((color.getAlpha() * color.getAlpha()) / 255d));
       colorPoints[index] = pointValue;
       index++;
     }
@@ -217,8 +225,8 @@ public class TransferFunction extends KatModel<TransferFunction> implements Seri
     }
   }
 
-  public static class TransferFunctionPoint implements Comparable<TransferFunctionPoint>,
-      Serializable {
+  public static class TransferFunctionPoint
+      implements Comparable<TransferFunctionPoint>, Serializable {
 
     private Color color;
     private float point;
@@ -236,15 +244,14 @@ public class TransferFunction extends KatModel<TransferFunction> implements Seri
       this(color, point, owner, true);
     }
 
-    private TransferFunctionPoint(Color color, float point, TransferFunction owner,
-        boolean movable) {
+    private TransferFunctionPoint(
+        Color color, float point, TransferFunction owner, boolean movable) {
       if (owner == null) {
         throw new NullPointerException("Cannot have a " + getClass().getName() + " without owner.");
       }
 
       if (point < 0f || point > 1.0f) {
-        throw new IndexOutOfBoundsException("Cannot create a transfer function point at "
-            + point);
+        throw new IndexOutOfBoundsException("Cannot create a transfer function point at " + point);
       }
       this.color = color;
       this.point = point;
@@ -286,8 +293,7 @@ public class TransferFunction extends KatModel<TransferFunction> implements Seri
       }
 
       if (point < 0f || point > 1.0f) {
-        throw new IndexOutOfBoundsException("Cannot create a transfer function point at "
-            + point);
+        throw new IndexOutOfBoundsException("Cannot create a transfer function point at " + point);
       }
       this.point = point;
       owner.valueChanged();
@@ -323,7 +329,5 @@ public class TransferFunction extends KatModel<TransferFunction> implements Seri
     public int compareTo(TransferFunctionPoint o) {
       return Double.compare(point, o.point);
     }
-
   }
-
 }

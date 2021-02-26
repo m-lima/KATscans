@@ -12,11 +12,9 @@ import com.mflima.katscans.view.transferfunction.TransferFunctionChartEditor;
 import org.jfree.chart.event.ChartProgressEvent;
 import org.jfree.chart.event.ChartProgressListener;
 
-/**
- * @author Marcelo Lima
- */
-public class TransferFunctionEditor extends Histogram implements ChartProgressListener,
-    TransferFunctionListener {
+/** @author Marcelo Lima */
+public class TransferFunctionEditor extends Histogram
+    implements ChartProgressListener, TransferFunctionListener {
 
   private final JPanel pnlMain;
 
@@ -60,25 +58,25 @@ public class TransferFunctionEditor extends Histogram implements ChartProgressLi
   private void resizeTransferFunctionEditors() {
     Rectangle2D dataArea = chartPanel.getChartRenderingInfo().getPlotInfo().getDataArea();
 
-    int x = (int) domainAxis.valueToJava2D(
-        domainAxis.getRange().getLowerBound(),
-        dataArea,
-        plot.getDomainAxisEdge());
+    int x =
+        (int)
+            domainAxis.valueToJava2D(
+                domainAxis.getRange().getLowerBound(), dataArea, plot.getDomainAxisEdge());
 
-    int y = (int) logAxis.valueToJava2D(
-        logAxis.getRange().getUpperBound(),
-        dataArea,
-        plot.getRangeAxisEdge());
+    int y =
+        (int)
+            logAxis.valueToJava2D(
+                logAxis.getRange().getUpperBound(), dataArea, plot.getRangeAxisEdge());
 
-    int width = (int) domainAxis.valueToJava2D(
-        domainAxis.getRange().getUpperBound(),
-        dataArea,
-        plot.getDomainAxisEdge());
+    int width =
+        (int)
+            domainAxis.valueToJava2D(
+                domainAxis.getRange().getUpperBound(), dataArea, plot.getDomainAxisEdge());
 
-    int height = (int) logAxis.valueToJava2D(
-        logAxis.getRange().getLowerBound(),
-        dataArea,
-        plot.getRangeAxisEdge());
+    int height =
+        (int)
+            logAxis.valueToJava2D(
+                logAxis.getRange().getLowerBound(), dataArea, plot.getRangeAxisEdge());
 
     x *= chartPanel.getScaleX();
     y *= chartPanel.getScaleY();
@@ -88,8 +86,11 @@ public class TransferFunctionEditor extends Histogram implements ChartProgressLi
     height *= chartPanel.getScaleY();
     height -= y;
 
-    barEditor.setBounds(x - TransferFunctionBarEditor.MARKER_SIZE_HALF, 0,
-        width + TransferFunctionBarEditor.MARKER_SIZE, pnlBarEditorHolder.getHeight());
+    barEditor.setBounds(
+        x - TransferFunctionBarEditor.MARKER_SIZE_HALF,
+        0,
+        width + TransferFunctionBarEditor.MARKER_SIZE,
+        pnlBarEditorHolder.getHeight());
     chartEditor.setBounds(x, y, width, height);
 
     double gapBound = displayable.getMatrix().getMinValue();
@@ -101,7 +102,9 @@ public class TransferFunctionEditor extends Histogram implements ChartProgressLi
     maxBound /= rangeBound;
     gapBound /= rangeBound;
 
-    //barEditor.setRange((domainAxis.getRange().getLowerBound() - displayable.getMatrix().getMinValue()) / displayable.getMatrix().getMaxValue(), domainAxis.getRange().getUpperBound() / displayable.getMatrix().getMaxValue());
+    // barEditor.setRange((domainAxis.getRange().getLowerBound() -
+    // displayable.getMatrix().getMinValue()) / displayable.getMatrix().getMaxValue(),
+    // domainAxis.getRange().getUpperBound() / displayable.getMatrix().getMaxValue());
     barEditor.setRange(minBound, maxBound);
     chartEditor.setRange(minBound, maxBound);
   }
@@ -124,5 +127,4 @@ public class TransferFunctionEditor extends Histogram implements ChartProgressLi
     barEditor.pointValueChanged();
     chartEditor.pointValueChanged();
   }
-
 }

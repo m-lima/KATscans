@@ -18,11 +18,9 @@ import com.mflima.katscans.project.displayable.Displayable;
 import com.mflima.katscans.model.TransferFunction;
 import com.mflima.katscans.util.Normal;
 
-/**
- * @author Marcelo Lima
- */
-public class SurfaceRenderer extends VolumeRenderer implements MouseMotionListener, MouseListener,
-    TransferFunctionListener, LightListener {
+/** @author Marcelo Lima */
+public class SurfaceRenderer extends VolumeRenderer
+    implements MouseMotionListener, MouseListener, TransferFunctionListener, LightListener {
 
   private static final int LIGHT_DIRTY = 1 << 0;
   private static final int NORMAL_DIRTY = 1 << 1;
@@ -30,11 +28,7 @@ public class SurfaceRenderer extends VolumeRenderer implements MouseMotionListen
   private static final int THRESHOLD_HI_DIRTY = 1 << 3;
   private static final int THRESHOLD_LO_DIRTY = 1 << 4;
   private static final int TRACKED_FLAGS =
-      LIGHT_DIRTY |
-          NORMAL_DIRTY |
-          COLOR_DIRTY |
-          THRESHOLD_HI_DIRTY |
-          THRESHOLD_LO_DIRTY;
+      LIGHT_DIRTY | NORMAL_DIRTY | COLOR_DIRTY | THRESHOLD_HI_DIRTY | THRESHOLD_LO_DIRTY;
 
   private static final String PROPERTY_THRESHOLD_LO = "Threshold Low";
   private static final String PROPERTY_THRESHOLD_HI = "Threshold High";
@@ -47,9 +41,9 @@ public class SurfaceRenderer extends VolumeRenderer implements MouseMotionListen
 
   private float thresholdLo;
   private float thresholdHi;
-//    private boolean thresholdLoDirty;
-//    private boolean thresholdHiDirty;
-//    private boolean colorsDirty;
+  //    private boolean thresholdLoDirty;
+  //    private boolean thresholdHiDirty;
+  //    private boolean colorsDirty;
 
   private int lastY;
 
@@ -76,20 +70,20 @@ public class SurfaceRenderer extends VolumeRenderer implements MouseMotionListen
     return true;
   }
 
-//    @Override
-//    public void createStructure(int x, int y, float threshold) {
-//        float[] origin = new float[] {
-//            (x * 2f) / getWidth() - 1f,
-//            (y * 2f) / -getHeight() - 1f,
-//            camera.getZoom()
-//        };
-//        
-//        float[] clickTemp = new float[3];
-//        VectorUtil.mulRowMat4Vec3(clickTemp, rotation.getModelMatrix(), origin);
-//        System.out.println(Arrays.toString(clickTemp));
-//        VectorUtil.mulRowMat4Vec3(origin, camera.getViewMatrix(), clickTemp);
-//        System.out.println(Arrays.toString(origin));
-//    }
+  //    @Override
+  //    public void createStructure(int x, int y, float threshold) {
+  //        float[] origin = new float[] {
+  //            (x * 2f) / getWidth() - 1f,
+  //            (y * 2f) / -getHeight() - 1f,
+  //            camera.getZoom()
+  //        };
+  //
+  //        float[] clickTemp = new float[3];
+  //        VectorUtil.mulRowMat4Vec3(clickTemp, rotation.getModelMatrix(), origin);
+  //        System.out.println(Arrays.toString(clickTemp));
+  //        VectorUtil.mulRowMat4Vec3(origin, camera.getViewMatrix(), clickTemp);
+  //        System.out.println(Arrays.toString(origin));
+  //    }
 
   @Override
   protected void preDraw(GLAutoDrawable drawable) {
@@ -110,8 +104,15 @@ public class SurfaceRenderer extends VolumeRenderer implements MouseMotionListen
       if ((dirtyValues & COLOR_DIRTY) > 0) {
         gl.glActiveTexture(GL4.GL_TEXTURE0 + TEXTURE_COLOR);
         gl.glBindTexture(GL4.GL_TEXTURE_1D, colorLocation[0]);
-        gl.glTexImage1D(GL4.GL_TEXTURE_1D, 0, GL4.GL_RGBA, TransferFunction.TEXTURE_SIZE, 0,
-            GL4.GL_RGBA, GL4.GL_UNSIGNED_INT_8_8_8_8_REV, ByteBuffer.wrap(colors));
+        gl.glTexImage1D(
+            GL4.GL_TEXTURE_1D,
+            0,
+            GL4.GL_RGBA,
+            TransferFunction.TEXTURE_SIZE,
+            0,
+            GL4.GL_RGBA,
+            GL4.GL_UNSIGNED_INT_8_8_8_8_REV,
+            ByteBuffer.wrap(colors));
       }
 
       if ((dirtyValues & NORMAL_DIRTY) > 0) {
@@ -146,8 +147,15 @@ public class SurfaceRenderer extends VolumeRenderer implements MouseMotionListen
     gl.glTexParameteri(GL4.GL_TEXTURE_1D, GL4.GL_TEXTURE_MAG_FILTER, GL4.GL_LINEAR);
     gl.glTexParameteri(GL4.GL_TEXTURE_1D, GL4.GL_TEXTURE_WRAP_R, GL4.GL_CLAMP_TO_BORDER);
 
-    gl.glTexImage1D(GL4.GL_TEXTURE_1D, 0, GL4.GL_RGBA, TransferFunction.TEXTURE_SIZE, 0,
-        GL4.GL_RGBA, GL4.GL_UNSIGNED_INT_8_8_8_8_REV, ByteBuffer.wrap(colors));
+    gl.glTexImage1D(
+        GL4.GL_TEXTURE_1D,
+        0,
+        GL4.GL_RGBA,
+        TransferFunction.TEXTURE_SIZE,
+        0,
+        GL4.GL_RGBA,
+        GL4.GL_UNSIGNED_INT_8_8_8_8_REV,
+        ByteBuffer.wrap(colors));
 
     int location = gl.glGetUniformLocation(mainProgram, "colors");
     gl.glUniform1i(location, TEXTURE_COLOR);
@@ -179,10 +187,12 @@ public class SurfaceRenderer extends VolumeRenderer implements MouseMotionListen
   @Override
   public void mouseDragged(MouseEvent e) {
     final int modifiers = e.getModifiersEx();
-    if ((modifiers & ~(MouseEvent.CTRL_DOWN_MASK |
-        MouseEvent.BUTTON1_DOWN_MASK |
-        MouseEvent.BUTTON2_DOWN_MASK |
-        MouseEvent.BUTTON3_DOWN_MASK)) > 0) {
+    if ((modifiers
+            & ~(MouseEvent.CTRL_DOWN_MASK
+                | MouseEvent.BUTTON1_DOWN_MASK
+                | MouseEvent.BUTTON2_DOWN_MASK
+                | MouseEvent.BUTTON3_DOWN_MASK))
+        > 0) {
       return;
     }
 
@@ -263,12 +273,10 @@ public class SurfaceRenderer extends VolumeRenderer implements MouseMotionListen
   }
 
   @Override
-  public void mouseMoved(MouseEvent e) {
-  }
+  public void mouseMoved(MouseEvent e) {}
 
   @Override
-  public void mouseClicked(MouseEvent e) {
-  }
+  public void mouseClicked(MouseEvent e) {}
 
   @Override
   public void mousePressed(MouseEvent e) {
@@ -276,16 +284,13 @@ public class SurfaceRenderer extends VolumeRenderer implements MouseMotionListen
   }
 
   @Override
-  public void mouseReleased(MouseEvent e) {
-  }
+  public void mouseReleased(MouseEvent e) {}
 
   @Override
-  public void mouseEntered(MouseEvent e) {
-  }
+  public void mouseEntered(MouseEvent e) {}
 
   @Override
-  public void mouseExited(MouseEvent e) {
-  }
+  public void mouseExited(MouseEvent e) {}
 
   @Override
   public void pointCountChanged() {
@@ -348,5 +353,4 @@ public class SurfaceRenderer extends VolumeRenderer implements MouseMotionListen
     dirtyValues |= NORMAL_DIRTY;
     normal.updateMatrices(camera, rotation, tempMatrix);
   }
-
 }

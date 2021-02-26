@@ -3,9 +3,7 @@ package com.mflima.katscans.project;
 import com.mflima.katscans.project.displayable.DataFileNode;
 import javax.swing.tree.DefaultTreeModel;
 
-/**
- * @author Marcelo Lima
- */
+/** @author Marcelo Lima */
 public class ProjectHandler extends DefaultTreeModel {
 
   public boolean insertDataFile(DataFileNode node) {

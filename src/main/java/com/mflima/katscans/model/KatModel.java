@@ -6,10 +6,8 @@ import java.io.Serializable;
 import javax.swing.event.EventListenerList;
 import com.mflima.katscans.event.KatModelListener;
 
-/**
- * @author Marcelo Lima
- */
-abstract class KatModel<T>  implements Serializable {
+/** @author Marcelo Lima */
+abstract class KatModel<T> implements Serializable {
 
   protected transient EventListenerList listenerList;
 
@@ -44,5 +42,4 @@ abstract class KatModel<T>  implements Serializable {
   private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
     listenerList = new EventListenerList();
   }
-
 }

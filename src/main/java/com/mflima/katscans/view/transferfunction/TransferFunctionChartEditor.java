@@ -19,9 +19,7 @@ import com.mflima.katscans.event.TransferFunctionListener;
 import com.mflima.katscans.model.TransferFunction;
 import com.mflima.katscans.model.TransferFunction.TransferFunctionPoint;
 
-/**
- * @author Marcelo Lima
- */
+/** @author Marcelo Lima */
 public class TransferFunctionChartEditor extends JPanel implements TransferFunctionListener {
 
   public static final int MARKER_SIZE = 10;
@@ -50,11 +48,14 @@ public class TransferFunctionChartEditor extends JPanel implements TransferFunct
 
   private void buildMarkers() {
     removeAll();
-    transferFunction.getPoints().forEach(point -> {
-      Marker marker = new Marker(point);
-      add(marker);
-      marker.setSize(MARKER_SIZE, MARKER_SIZE);
-    });
+    transferFunction
+        .getPoints()
+        .forEach(
+            point -> {
+              Marker marker = new Marker(point);
+              add(marker);
+              marker.setSize(MARKER_SIZE, MARKER_SIZE);
+            });
     updateMarkersPositions();
   }
 
@@ -81,9 +82,9 @@ public class TransferFunctionChartEditor extends JPanel implements TransferFunct
     final int width = getWidth();
 
     g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-    g2d.setPaint(transferFunction.getPaint(
-        (float) (-minRange * ratio * width),
-        (float) ((1d - minRange) * ratio * width)));
+    g2d.setPaint(
+        transferFunction.getPaint(
+            (float) (-minRange * ratio * width), (float) ((1d - minRange) * ratio * width)));
 
     // TODO: Streamify this
     int x[] = new int[transferFunction.getPointCount()];
@@ -122,50 +123,56 @@ public class TransferFunctionChartEditor extends JPanel implements TransferFunct
 
       setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
-      addMouseListener(new MouseAdapter() {
-        @Override
-        public void mouseClicked(MouseEvent e) {
-          if (SwingUtilities.isRightMouseButton(e)) {
-            Color newColor = JColorChooser
-                .showDialog(Init.getFrameReference(), null, point.getColor());
-            if (newColor != null) {
-              point.setColor(new Color(newColor.getRed(), newColor.getGreen(), newColor.getBlue(),
-                  point.getColor().getAlpha()));
+      addMouseListener(
+          new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+              if (SwingUtilities.isRightMouseButton(e)) {
+                Color newColor =
+                    JColorChooser.showDialog(Init.getFrameReference(), null, point.getColor());
+                if (newColor != null) {
+                  point.setColor(
+                      new Color(
+                          newColor.getRed(),
+                          newColor.getGreen(),
+                          newColor.getBlue(),
+                          point.getColor().getAlpha()));
+                }
+              } else if (SwingUtilities.isMiddleMouseButton(e)) {
+                if (point.isMovable()) {
+                  transferFunction.removePoint(point);
+                }
+              }
             }
-          } else if (SwingUtilities.isMiddleMouseButton(e)) {
-            if (point.isMovable()) {
-              transferFunction.removePoint(point);
+          });
+
+      addMouseMotionListener(
+          new MouseAdapter() {
+            @Override
+            public void mouseDragged(MouseEvent e) {
+              final Container parent = getParent();
+
+              Point mousePoint = SwingUtilities.convertPoint(Marker.this, e.getPoint(), parent);
+
+              double alpha = 1d - mousePoint.y / (double) parent.getHeight();
+              point.setAlpha(alpha);
+
+              if (point.isMovable()) {
+                double newPoint = mousePoint.x / (double) parent.getWidth();
+                newPoint /= ratio;
+                newPoint += minRange;
+
+                if (newPoint < 0f + TransferFunction.MIN_STEP) {
+                  newPoint = 0f + TransferFunction.MIN_STEP;
+                } else if (newPoint > 1f - TransferFunction.MIN_STEP) {
+                  newPoint = 1f - TransferFunction.MIN_STEP;
+                }
+
+                point.setPoint((float) newPoint);
+                updatePosition();
+              }
             }
-          }
-        }
-      });
-
-      addMouseMotionListener(new MouseAdapter() {
-        @Override
-        public void mouseDragged(MouseEvent e) {
-          final Container parent = getParent();
-
-          Point mousePoint = SwingUtilities.convertPoint(Marker.this, e.getPoint(), parent);
-
-          double alpha = 1d - mousePoint.y / (double) parent.getHeight();
-          point.setAlpha(alpha);
-
-          if (point.isMovable()) {
-            double newPoint = mousePoint.x / (double) parent.getWidth();
-            newPoint /= ratio;
-            newPoint += minRange;
-
-            if (newPoint < 0f + TransferFunction.MIN_STEP) {
-              newPoint = 0f + TransferFunction.MIN_STEP;
-            } else if (newPoint > 1f - TransferFunction.MIN_STEP) {
-              newPoint = 1f - TransferFunction.MIN_STEP;
-            }
-
-            point.setPoint((float) newPoint);
-            updatePosition();
-          }
-        }
-      });
+          });
     }
 
     public void updatePosition() {
@@ -198,7 +205,5 @@ public class TransferFunctionChartEditor extends JPanel implements TransferFunct
       g.setColor(point.getColor());
       g.fillOval(iniX + 1, iniY + 1, radius - 2, radius - 2);
     }
-
   }
-
 }

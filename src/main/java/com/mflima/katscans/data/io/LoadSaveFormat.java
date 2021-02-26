@@ -6,9 +6,7 @@ import java.io.OutputStream;
 import javax.swing.filechooser.FileFilter;
 import com.mflima.katscans.data.VoxelMatrix;
 
-/**
- * @author Marcelo Lima
- */
+/** @author Marcelo Lima */
 public interface LoadSaveFormat {
 
   public static enum Format {

@@ -45,9 +45,7 @@ import com.mflima.katscans.project.displayable.Displayable;
 import com.mflima.katscans.project.io.PersistenceHandler;
 import com.mflima.katscans.view.project.ProjectBrowser;
 
-/**
- * @author Marcelo Lima
- */
+/** @author Marcelo Lima */
 public class MainFrame extends javax.swing.JFrame implements TreeModelListener, ActionListener {
 
   private static final int DATASET_MENU_POSITION = 1;
@@ -71,9 +69,7 @@ public class MainFrame extends javax.swing.JFrame implements TreeModelListener, 
 
   private final Timer autoSaveTimer;
 
-  /**
-   * Creates new form MainFrame
-   */
+  /** Creates new form MainFrame */
   public MainFrame() {
     this(null);
   }
@@ -118,12 +114,15 @@ public class MainFrame extends javax.swing.JFrame implements TreeModelListener, 
 
     setupMenus();
 
-    autoSaveTimer = new Timer(5 * 60 * 1000, new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        PersistenceHandler.getInstance().autoSave();
-      }
-    });
+    autoSaveTimer =
+        new Timer(
+            5 * 60 * 1000,
+            new ActionListener() {
+              @Override
+              public void actionPerformed(ActionEvent e) {
+                PersistenceHandler.getInstance().autoSave();
+              }
+            });
     autoSaveTimer.setRepeats(true);
     autoSaveTimer.setInitialDelay(0);
   }
@@ -136,12 +135,13 @@ public class MainFrame extends javax.swing.JFrame implements TreeModelListener, 
     rootWindow.getWindowBar(Direction.RIGHT).setEnabled(true);
     rootWindow.getWindowBar(Direction.LEFT).setEnabled(true);
     rootWindow.getWindowBar(Direction.LEFT).setContentPanelSize(300);
-    rootWindow.addListener(new DockingWindowAdapter() {
-      @Override
-      public void windowClosed(DockingWindow window) {
-        checkAndRemove(window);
-      }
-    });
+    rootWindow.addListener(
+        new DockingWindowAdapter() {
+          @Override
+          public void windowClosed(DockingWindow window) {
+            checkAndRemove(window);
+          }
+        });
   }
 
   private void checkAndRemove(DockingWindow view) {
@@ -167,10 +167,13 @@ public class MainFrame extends javax.swing.JFrame implements TreeModelListener, 
     DockingWindowsTheme theme = new ShapedGradientDockingTheme();
     properties.addSuperObject(theme.getRootWindowProperties());
     properties.getSplitWindowProperties().setDividerLocationDragEnabled(true);
-    properties.getShapedPanelProperties()
+    properties
+        .getShapedPanelProperties()
         .setComponentPainter(new SolidColorComponentPainter(new FixedColorProvider(THEME_COLOR)));
-    properties.getDragRectangleShapedPanelProperties().setComponentPainter(
-        new SolidColorComponentPainter(new FixedColorProvider(new Color(50, 50, 150, 100))));
+    properties
+        .getDragRectangleShapedPanelProperties()
+        .setComponentPainter(
+            new SolidColorComponentPainter(new FixedColorProvider(new Color(50, 50, 150, 100))));
     properties.setEdgeSplitDistance(50);
   }
 
@@ -205,22 +208,27 @@ public class MainFrame extends javax.swing.JFrame implements TreeModelListener, 
   }
 
   private void setupGlobalKeys() {
-    getRootPane().getInputMap(JRootPane.WHEN_IN_FOCUSED_WINDOW)
+    getRootPane()
+        .getInputMap(JRootPane.WHEN_IN_FOCUSED_WINDOW)
         .put(KeyStroke.getKeyStroke(KeyEvent.VK_1, KeyEvent.CTRL_DOWN_MASK), "showTree");
-    getRootPane().getActionMap().put("showTree", new AbstractAction() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        if (pojectBrowserMinized) {
-          datasetView.makeVisible();
-          datasetBrowser.focusTree();
-          pojectBrowserMinized = false;
-        } else {
-          datasetView.restore();
-          datasetView.minimize();
-          pojectBrowserMinized = true;
-        }
-      }
-    });
+    getRootPane()
+        .getActionMap()
+        .put(
+            "showTree",
+            new AbstractAction() {
+              @Override
+              public void actionPerformed(ActionEvent e) {
+                if (pojectBrowserMinized) {
+                  datasetView.makeVisible();
+                  datasetBrowser.focusTree();
+                  pojectBrowserMinized = false;
+                } else {
+                  datasetView.restore();
+                  datasetView.minimize();
+                  pojectBrowserMinized = true;
+                }
+              }
+            });
   }
 
   private JMenu buildWindowMenu() {
@@ -378,43 +386,47 @@ public class MainFrame extends javax.swing.JFrame implements TreeModelListener, 
     mitLoad.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/open.png"))); // NOI18N
     mitLoad.setMnemonic('L');
     mitLoad.setText("Load");
-    mitLoad.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(java.awt.event.ActionEvent evt) {
-        mitLoadActionPerformed(evt);
-      }
-    });
+    mitLoad.addActionListener(
+        new java.awt.event.ActionListener() {
+          public void actionPerformed(java.awt.event.ActionEvent evt) {
+            mitLoadActionPerformed(evt);
+          }
+        });
     mnuFile.add(mitLoad);
 
     mitSave.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/save.png"))); // NOI18N
     mitSave.setMnemonic('S');
     mitSave.setText("Save");
-    mitSave.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(java.awt.event.ActionEvent evt) {
-        mitSaveActionPerformed(evt);
-      }
-    });
+    mitSave.addActionListener(
+        new java.awt.event.ActionListener() {
+          public void actionPerformed(java.awt.event.ActionEvent evt) {
+            mitSaveActionPerformed(evt);
+          }
+        });
     mnuFile.add(mitSave);
 
-    mitSaveAs
-        .setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/save.png"))); // NOI18N
+    mitSaveAs.setIcon(
+        new javax.swing.ImageIcon(getClass().getResource("/icons/save.png"))); // NOI18N
     mitSaveAs.setMnemonic('A');
     mitSaveAs.setText("Save As");
-    mitSaveAs.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(java.awt.event.ActionEvent evt) {
-        mitSaveAsActionPerformed(evt);
-      }
-    });
+    mitSaveAs.addActionListener(
+        new java.awt.event.ActionListener() {
+          public void actionPerformed(java.awt.event.ActionEvent evt) {
+            mitSaveAsActionPerformed(evt);
+          }
+        });
     mnuFile.add(mitSaveAs);
     mnuFile.add(sepSaveLoad);
 
     mitExit.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/exit.png"))); // NOI18N
     mitExit.setMnemonic('X');
     mitExit.setText("Exit");
-    mitExit.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(java.awt.event.ActionEvent evt) {
-        mitExitActionPerformed(evt);
-      }
-    });
+    mitExit.addActionListener(
+        new java.awt.event.ActionListener() {
+          public void actionPerformed(java.awt.event.ActionEvent evt) {
+            mitExitActionPerformed(evt);
+          }
+        });
     mnuFile.add(mitExit);
 
     mbrMain.add(mnuFile);
@@ -422,10 +434,10 @@ public class MainFrame extends javax.swing.JFrame implements TreeModelListener, 
     setJMenuBar(mbrMain);
 
     pack();
-  }// </editor-fold>//GEN-END:initComponents
+  } // </editor-fold>//GEN-END:initComponents
 
   private void mitLoadActionPerformed(
-      java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mitLoadActionPerformed
+      java.awt.event.ActionEvent evt) { // GEN-FIRST:event_mitLoadActionPerformed
     KatViewNode[] oldViews = new KatViewNode[views.size()];
     if (views != null && oldViews.length > 0) {
       oldViews = views.toArray(oldViews);
@@ -438,23 +450,23 @@ public class MainFrame extends javax.swing.JFrame implements TreeModelListener, 
       }
       updatingMenu = false;
     }
-  }//GEN-LAST:event_mitLoadActionPerformed
+  } // GEN-LAST:event_mitLoadActionPerformed
 
   private void mitExitActionPerformed(
-      java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mitExitActionPerformed
+      java.awt.event.ActionEvent evt) { // GEN-FIRST:event_mitExitActionPerformed
     PersistenceHandler.getInstance().autoSave();
     System.exit(0);
-  }//GEN-LAST:event_mitExitActionPerformed
+  } // GEN-LAST:event_mitExitActionPerformed
 
   private void mitSaveActionPerformed(
-      java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mitSaveActionPerformed
+      java.awt.event.ActionEvent evt) { // GEN-FIRST:event_mitSaveActionPerformed
     PersistenceHandler.getInstance().save();
-  }//GEN-LAST:event_mitSaveActionPerformed
+  } // GEN-LAST:event_mitSaveActionPerformed
 
   private void mitSaveAsActionPerformed(
-      java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mitSaveAsActionPerformed
+      java.awt.event.ActionEvent evt) { // GEN-FIRST:event_mitSaveAsActionPerformed
     PersistenceHandler.getInstance().saveAs();
-  }//GEN-LAST:event_mitSaveAsActionPerformed
+  } // GEN-LAST:event_mitSaveAsActionPerformed
 
   // Variables declaration - do not modify//GEN-BEGIN:variables
   private javax.swing.JMenuBar mbrMain;

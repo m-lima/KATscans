@@ -12,14 +12,10 @@ import javax.swing.tree.TreeSelectionModel;
 import com.mflima.katscans.project.KatNode;
 import com.mflima.katscans.project.ProjectHandler;
 
-/**
- * @author Marcelo Lima
- */
+/** @author Marcelo Lima */
 public class ProjectBrowser extends javax.swing.JPanel {
 
-  /**
-   * Creates new form DatasetBrowser
-   */
+  /** Creates new form DatasetBrowser */
   public ProjectBrowser() {
     initComponents();
 
@@ -29,30 +25,31 @@ public class ProjectBrowser extends javax.swing.JPanel {
     treDatasets.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
     treDatasets.setSelectionRow(0);
 
-    treDatasets.addMouseListener(new MouseAdapter() {
-      @Override
-      public void mouseClicked(MouseEvent e) {
-        if (SwingUtilities.isRightMouseButton(e)) {
-          showPopup(e.getX(), e.getY());
-        }
-      }
-    });
-
-    treDatasets.addKeyListener(new KeyAdapter() {
-      @Override
-      public void keyTyped(KeyEvent e) {
-        if (e.getKeyChar() == ' ') {
-          TreePath node = treDatasets.getSelectionPath();
-          if (node == null) {
-            return;
+    treDatasets.addMouseListener(
+        new MouseAdapter() {
+          @Override
+          public void mouseClicked(MouseEvent e) {
+            if (SwingUtilities.isRightMouseButton(e)) {
+              showPopup(e.getX(), e.getY());
+            }
           }
+        });
 
-          Rectangle pathBounds = treDatasets.getPathBounds(node);
-          showPopup(pathBounds.x + pathBounds.width / 2, pathBounds.y + pathBounds.height / 2);
-        }
-      }
-    });
+    treDatasets.addKeyListener(
+        new KeyAdapter() {
+          @Override
+          public void keyTyped(KeyEvent e) {
+            if (e.getKeyChar() == ' ') {
+              TreePath node = treDatasets.getSelectionPath();
+              if (node == null) {
+                return;
+              }
 
+              Rectangle pathBounds = treDatasets.getPathBounds(node);
+              showPopup(pathBounds.x + pathBounds.width / 2, pathBounds.y + pathBounds.height / 2);
+            }
+          }
+        });
   }
 
   public void focusTree() {
@@ -92,24 +89,28 @@ public class ProjectBrowser extends javax.swing.JPanel {
     javax.swing.GroupLayout pnlMainLayout = new javax.swing.GroupLayout(pnlMain);
     pnlMain.setLayout(pnlMainLayout);
     pnlMainLayout.setHorizontalGroup(
-        pnlMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pnlMainLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(scrDatasets, javax.swing.GroupLayout.DEFAULT_SIZE, 303,
-                    Short.MAX_VALUE)
-                .addContainerGap())
-    );
+        pnlMainLayout
+            .createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(
+                pnlMainLayout
+                    .createSequentialGroup()
+                    .addContainerGap()
+                    .addComponent(
+                        scrDatasets, javax.swing.GroupLayout.DEFAULT_SIZE, 303, Short.MAX_VALUE)
+                    .addContainerGap()));
     pnlMainLayout.setVerticalGroup(
-        pnlMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pnlMainLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(scrDatasets, javax.swing.GroupLayout.DEFAULT_SIZE, 288,
-                    Short.MAX_VALUE)
-                .addContainerGap())
-    );
+        pnlMainLayout
+            .createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(
+                pnlMainLayout
+                    .createSequentialGroup()
+                    .addContainerGap()
+                    .addComponent(
+                        scrDatasets, javax.swing.GroupLayout.DEFAULT_SIZE, 288, Short.MAX_VALUE)
+                    .addContainerGap()));
 
     add(pnlMain, java.awt.BorderLayout.CENTER);
-  }// </editor-fold>//GEN-END:initComponents
+  } // </editor-fold>//GEN-END:initComponents
 
   // Variables declaration - do not modify//GEN-BEGIN:variables
   private javax.swing.JPanel pnlMain;

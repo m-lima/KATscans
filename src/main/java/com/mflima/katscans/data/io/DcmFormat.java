@@ -8,15 +8,13 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import com.mflima.katscans.data.VoxelMatrix;
 
-/**
- * @author Marcelo Lima
- */
+/** @author Marcelo Lima */
 class DcmFormat implements LoadSaveFormat {
 
   private static final int FORMAT_MAX_VALUE = 4096;
 
-  private static final FileFilter FILE_FILTER = new FileNameExtensionFilter("DICOM volume data",
-      "dcm");
+  private static final FileFilter FILE_FILTER =
+      new FileNameExtensionFilter("DICOM volume data", "dcm");
 
   @Override
   public String getName() {
@@ -89,8 +87,11 @@ class DcmFormat implements LoadSaveFormat {
         }
 
         shortBuffer = byteBuffer.asShortBuffer();
-        shortBuffer.get(grid, ((optionSizeZ - 1) - z) * optionSizeY * optionSizeX
-            + ((optionSizeY - 1) - y) * optionSizeX, optionSizeX);
+        shortBuffer.get(
+            grid,
+            ((optionSizeZ - 1) - z) * optionSizeY * optionSizeX
+                + ((optionSizeY - 1) - y) * optionSizeX,
+            optionSizeX);
       }
     }
 

@@ -22,11 +22,9 @@ import javax.swing.SwingUtilities;
 import com.mflima.katscans.util.MatrixUtil;
 import com.mflima.katscans.view.katview.opengl.VolumeRenderer;
 
-/**
- * @author Marcelo Lima
- */
-public class TrackBall implements MouseListener, MouseMotionListener, MouseWheelListener,
-    KeyListener, FocusListener {
+/** @author Marcelo Lima */
+public class TrackBall
+    implements MouseListener, MouseMotionListener, MouseWheelListener, KeyListener, FocusListener {
 
   public static final int MODEL_DIRTY = 1 << 0;
   public static final int VIEW_DIRTY = 1 << 1;
@@ -42,28 +40,28 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
 
   private static final float CUT_RATIO = -0.001f;
 
-  private static final float[] UP_VECTOR = new float[]{0f, 1f, 0f};
+  private static final float[] UP_VECTOR = new float[] {0f, 1f, 0f};
 
   private final float[] eyePosition;
   private final float[] targetPosition;
   private final float[] lightPosition;
-  transient private final float[] initialLightPosition;
+  private final transient float[] initialLightPosition;
 
-  transient private final float[] initialPosition;
-  transient private final float[] currentPosition;
-  transient private final float[] axis;
+  private final transient float[] initialPosition;
+  private final transient float[] currentPosition;
+  private final transient float[] axis;
 
-  transient private final Quaternion initialRotation;
+  private final transient Quaternion initialRotation;
   private final Quaternion currentRotation;
 
   private final float[] translation;
 
-  transient private int xPos;
-  transient private int yPos;
-  transient private float yPosOld;
-  transient private float xPosOld;
+  private transient int xPos;
+  private transient int yPos;
+  private transient float yPosOld;
+  private transient float xPosOld;
 
-  transient private final float[] tempMatrix;
+  private final transient float[] tempMatrix;
 
   private final float[] modelMatrix;
   private final float[] viewMatrix;
@@ -81,30 +79,30 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
 
   private int dirtyValues;
 
-  transient private boolean xDown;
-  transient private boolean yDown;
-  transient private boolean zDown;
+  private transient boolean xDown;
+  private transient boolean yDown;
+  private transient boolean zDown;
 
   private final float[] minValues;
   private final float[] maxValues;
 
   private float stepFactor;
 
-  transient private JPopupMenu popupMenu;
-  transient private JMenuItem menuOrtho;
+  private transient JPopupMenu popupMenu;
+  private transient JMenuItem menuOrtho;
 
   public TrackBall(float initialZoom) {
-    eyePosition = new float[]{0f, 0f, initialZoom};
-    targetPosition = new float[]{0f, 0f, -50f};
-    lightPosition = VectorUtil.normalizeVec3(new float[]{-2f, 2f, 5f});
-    initialLightPosition = VectorUtil.normalizeVec3(new float[]{-2f, 2f, 5f});
+    eyePosition = new float[] {0f, 0f, initialZoom};
+    targetPosition = new float[] {0f, 0f, -50f};
+    lightPosition = VectorUtil.normalizeVec3(new float[] {-2f, 2f, 5f});
+    initialLightPosition = VectorUtil.normalizeVec3(new float[] {-2f, 2f, 5f});
 
     initialPosition = new float[3];
     currentPosition = new float[3];
     axis = new float[3];
     initialRotation = new Quaternion();
     currentRotation = new Quaternion();
-    translation = new float[]{0f, 0f, 0f};
+    translation = new float[] {0f, 0f, 0f};
 
     tempMatrix = new float[16];
 
@@ -123,8 +121,8 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
     reuseView = false;
     reuseNormal = false;
 
-    minValues = new float[]{0f, 0f, 0f};
-    maxValues = new float[]{1f, 1f, 1f};
+    minValues = new float[] {0f, 0f, 0f};
+    maxValues = new float[] {1f, 1f, 1f};
 
     markAllDirty();
   }
@@ -134,7 +132,7 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
     assimilate(trackBall);
   }
 
-  //TODO Remove "assimilate"
+  // TODO Remove "assimilate"
   public void assimilate(TrackBall trackBall) {
     System.arraycopy(trackBall.eyePosition, 0, this.eyePosition, 0, eyePosition.length);
     System.arraycopy(trackBall.targetPosition, 0, this.targetPosition, 0, targetPosition.length);
@@ -145,8 +143,8 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
 
     System.arraycopy(trackBall.modelMatrix, 0, this.modelMatrix, 0, modelMatrix.length);
     System.arraycopy(trackBall.viewMatrix, 0, this.viewMatrix, 0, viewMatrix.length);
-    System.arraycopy(trackBall.projectionMatrix, 0, this.projectionMatrix, 0,
-        projectionMatrix.length);
+    System.arraycopy(
+        trackBall.projectionMatrix, 0, this.projectionMatrix, 0, projectionMatrix.length);
     System.arraycopy(trackBall.normalMatrix, 0, this.normalMatrix, 0, normalMatrix.length);
 
     this.orthographic = trackBall.orthographic;
@@ -194,8 +192,8 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
       return viewMatrix;
     } else {
       reuseView = true;
-      return FloatUtil
-          .makeLookAt(viewMatrix, 0, eyePosition, 0, targetPosition, 0, UP_VECTOR, 0, tempMatrix);
+      return FloatUtil.makeLookAt(
+          viewMatrix, 0, eyePosition, 0, targetPosition, 0, UP_VECTOR, 0, tempMatrix);
     }
   }
 
@@ -335,91 +333,94 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
 
   private void buildPopup(final VolumeRenderer owner) {
     popupMenu = new JPopupMenu();
-    final JMenuItem top = new JMenuItem("Top",
-        new ImageIcon(getClass().getResource("/icons/top.png")));
-    final JMenuItem bottom = new JMenuItem("Bottom",
-        new ImageIcon(getClass().getResource("/icons/bottom.png")));
-    final JMenuItem front = new JMenuItem("Front",
-        new ImageIcon(getClass().getResource("/icons/front.png")));
-    final JMenuItem back = new JMenuItem("Back",
-        new ImageIcon(getClass().getResource("/icons/back.png")));
-    final JMenuItem right = new JMenuItem("Right",
-        new ImageIcon(getClass().getResource("/icons/right.png")));
-    final JMenuItem left = new JMenuItem("Left",
-        new ImageIcon(getClass().getResource("/icons/left.png")));
-    final JMenuItem reset = new JMenuItem("Reset",
-        new ImageIcon(getClass().getResource("/icons/reset.png")));
+    final JMenuItem top =
+        new JMenuItem("Top", new ImageIcon(getClass().getResource("/icons/top.png")));
+    final JMenuItem bottom =
+        new JMenuItem("Bottom", new ImageIcon(getClass().getResource("/icons/bottom.png")));
+    final JMenuItem front =
+        new JMenuItem("Front", new ImageIcon(getClass().getResource("/icons/front.png")));
+    final JMenuItem back =
+        new JMenuItem("Back", new ImageIcon(getClass().getResource("/icons/back.png")));
+    final JMenuItem right =
+        new JMenuItem("Right", new ImageIcon(getClass().getResource("/icons/right.png")));
+    final JMenuItem left =
+        new JMenuItem("Left", new ImageIcon(getClass().getResource("/icons/left.png")));
+    final JMenuItem reset =
+        new JMenuItem("Reset", new ImageIcon(getClass().getResource("/icons/reset.png")));
     if (orthographic) {
-      menuOrtho = new JMenuItem("Perspective",
-          new ImageIcon(getClass().getResource("/icons/perspective.png")));
+      menuOrtho =
+          new JMenuItem(
+              "Perspective", new ImageIcon(getClass().getResource("/icons/perspective.png")));
     } else {
-      menuOrtho = new JMenuItem("Orthographic",
-          new ImageIcon(getClass().getResource("/icons/ortho.png")));
+      menuOrtho =
+          new JMenuItem("Orthographic", new ImageIcon(getClass().getResource("/icons/ortho.png")));
     }
-    final JMenuItem structure = new JMenuItem("Create structure",
-        new ImageIcon(getClass().getResource("/icons/tree/structure.png")));
+    final JMenuItem structure =
+        new JMenuItem(
+            "Create structure", new ImageIcon(getClass().getResource("/icons/tree/structure.png")));
 
-    ActionListener listener = new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        currentRotation.setIdentity();
-        if (e.getSource() == top) {
-          currentRotation.rotateByAngleX(+FloatUtil.HALF_PI);
-        } else if (e.getSource() == bottom) {
-          currentRotation.rotateByAngleX(-FloatUtil.HALF_PI);
-        } else if (e.getSource() == back) {
-          currentRotation.rotateByAngleX(FloatUtil.PI);
-          currentRotation.rotateByAngleZ(FloatUtil.PI);
-        } else if (e.getSource() == right) {
-          currentRotation.rotateByAngleY(-FloatUtil.HALF_PI);
-        } else if (e.getSource() == left) {
-          currentRotation.rotateByAngleY(+FloatUtil.HALF_PI);
-        } else if (e.getSource() == reset) {
-          currentRotation.setIdentity();
+    ActionListener listener =
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            currentRotation.setIdentity();
+            if (e.getSource() == top) {
+              currentRotation.rotateByAngleX(+FloatUtil.HALF_PI);
+            } else if (e.getSource() == bottom) {
+              currentRotation.rotateByAngleX(-FloatUtil.HALF_PI);
+            } else if (e.getSource() == back) {
+              currentRotation.rotateByAngleX(FloatUtil.PI);
+              currentRotation.rotateByAngleZ(FloatUtil.PI);
+            } else if (e.getSource() == right) {
+              currentRotation.rotateByAngleY(-FloatUtil.HALF_PI);
+            } else if (e.getSource() == left) {
+              currentRotation.rotateByAngleY(+FloatUtil.HALF_PI);
+            } else if (e.getSource() == reset) {
+              currentRotation.setIdentity();
 
-          eyePosition[0] = 0f;
-          eyePosition[1] = 0f;
-          eyePosition[2] = initialZoom;
+              eyePosition[0] = 0f;
+              eyePosition[1] = 0f;
+              eyePosition[2] = initialZoom;
 
-          lightPosition[0] = -0.34815532f;
-          lightPosition[1] = 0.34815532f;
-          lightPosition[2] = 0.87038827f;
+              lightPosition[0] = -0.34815532f;
+              lightPosition[1] = 0.34815532f;
+              lightPosition[2] = 0.87038827f;
 
-          translation[0] = 0f;
-          translation[1] = 0f;
-          translation[2] = 0f;
+              translation[0] = 0f;
+              translation[1] = 0f;
+              translation[2] = 0f;
 
-          minValues[0] = 0f;
-          minValues[1] = 0f;
-          minValues[2] = 0f;
-          maxValues[0] = 1f;
-          maxValues[1] = 1f;
-          maxValues[2] = 1f;
+              minValues[0] = 0f;
+              minValues[1] = 0f;
+              minValues[2] = 0f;
+              maxValues[0] = 1f;
+              maxValues[1] = 1f;
+              maxValues[2] = 1f;
 
-          targetPosition[0] = 0f;
-          targetPosition[1] = 0f;
-          targetPosition[2] = -50f;
+              targetPosition[0] = 0f;
+              targetPosition[1] = 0f;
+              targetPosition[2] = -50f;
 
-          fov = FloatUtil.QUARTER_PI;
-          slice = 0f;
-          updateProjection(owner.getWidth(), owner.getHeight());
+              fov = FloatUtil.QUARTER_PI;
+              slice = 0f;
+              updateProjection(owner.getWidth(), owner.getHeight());
 
-          markAllDirty();
-          reuseView = false;
-          reuseModel = false;
-          updateMatrices();
-        } else if (e.getSource() == menuOrtho) {
-          toggleOrthographic(owner);
-          return;
-        } else if (e.getSource() == structure) {
-          owner.createStructure(popupMenu.getX(), popupMenu.getY(), 1f);
-        }
-        dirtyValues |= MODEL_DIRTY;
-        reuseModel = false;
-        updateMatrices();
-        owner.repaint();
-      }
-    };
+              markAllDirty();
+              reuseView = false;
+              reuseModel = false;
+              updateMatrices();
+            } else if (e.getSource() == menuOrtho) {
+              toggleOrthographic(owner);
+              return;
+            } else if (e.getSource() == structure) {
+              owner.createStructure(popupMenu.getX(), popupMenu.getY(), 1f);
+            }
+            dirtyValues |= MODEL_DIRTY;
+            reuseModel = false;
+            updateMatrices();
+            owner.repaint();
+          }
+        };
 
     top.addActionListener(listener);
     bottom.addActionListener(listener);
@@ -483,11 +484,13 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
   public void mousePressed(MouseEvent e) {
     final int modifiers = e.getModifiersEx();
 
-    if ((modifiers & ~(MouseEvent.SHIFT_DOWN_MASK
-        | MouseEvent.ALT_DOWN_MASK
-        | MouseEvent.BUTTON1_DOWN_MASK
-        | MouseEvent.BUTTON2_DOWN_MASK
-        | MouseEvent.BUTTON3_DOWN_MASK)) > 0) {
+    if ((modifiers
+            & ~(MouseEvent.SHIFT_DOWN_MASK
+                | MouseEvent.ALT_DOWN_MASK
+                | MouseEvent.BUTTON1_DOWN_MASK
+                | MouseEvent.BUTTON2_DOWN_MASK
+                | MouseEvent.BUTTON3_DOWN_MASK))
+        > 0) {
       return;
     }
 
@@ -500,8 +503,8 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
       yPos = e.getY();
     } else if (SwingUtilities.isLeftMouseButton(e)) {
       Component component = e.getComponent();
-      getSurfaceVector(e.getX(), e.getY(), component.getWidth(), component.getHeight(),
-          initialPosition);
+      getSurfaceVector(
+          e.getX(), e.getY(), component.getWidth(), component.getHeight(), initialPosition);
       initialRotation.set(currentRotation);
       System.arraycopy(lightPosition, 0, initialLightPosition, 0, lightPosition.length);
     }
@@ -513,22 +516,22 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
   }
 
   @Override
-  public void mouseEntered(MouseEvent e) {
-  }
+  public void mouseEntered(MouseEvent e) {}
 
   @Override
-  public void mouseExited(MouseEvent e) {
-  }
+  public void mouseExited(MouseEvent e) {}
 
   @Override
   public void mouseDragged(MouseEvent e) {
     final int modifiers = e.getModifiersEx();
 
-    if ((modifiers & ~(MouseEvent.SHIFT_DOWN_MASK
-        | MouseEvent.ALT_DOWN_MASK
-        | MouseEvent.BUTTON1_DOWN_MASK
-        | MouseEvent.BUTTON2_DOWN_MASK
-        | MouseEvent.BUTTON3_DOWN_MASK)) > 0) {
+    if ((modifiers
+            & ~(MouseEvent.SHIFT_DOWN_MASK
+                | MouseEvent.ALT_DOWN_MASK
+                | MouseEvent.BUTTON1_DOWN_MASK
+                | MouseEvent.BUTTON2_DOWN_MASK
+                | MouseEvent.BUTTON3_DOWN_MASK))
+        > 0) {
       return;
     }
 
@@ -555,8 +558,8 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
         yPos = e.getY();
         dirtyValues |= STEP_DIRTY;
       } else {
-        getSurfaceVector(e.getX(), e.getY(), renderer.getWidth(), renderer.getHeight(),
-            currentPosition);
+        getSurfaceVector(
+            e.getX(), e.getY(), renderer.getWidth(), renderer.getHeight(), currentPosition);
 
         float angle = FloatUtil.acos(VectorUtil.dotVec3(initialPosition, currentPosition));
         VectorUtil.crossVec3(axis, initialPosition, currentPosition);
@@ -710,8 +713,7 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
   }
 
   @Override
-  public void mouseMoved(MouseEvent e) {
-  }
+  public void mouseMoved(MouseEvent e) {}
 
   @Override
   public void mouseWheelMoved(MouseWheelEvent e) {
@@ -756,8 +758,7 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
   }
 
   @Override
-  public void keyTyped(KeyEvent e) {
-  }
+  public void keyTyped(KeyEvent e) {}
 
   @Override
   public void keyPressed(KeyEvent e) {
@@ -810,8 +811,7 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
   }
 
   @Override
-  public void focusGained(FocusEvent e) {
-  }
+  public void focusGained(FocusEvent e) {}
 
   @Override
   public void focusLost(FocusEvent e) {
@@ -819,5 +819,4 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
     yDown = false;
     zDown = false;
   }
-
 }

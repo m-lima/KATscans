@@ -13,13 +13,11 @@ import com.mflima.katscans.view.katview.opengl.MaximumRenderer;
 import com.mflima.katscans.view.katview.opengl.SliceNavigator;
 import com.mflima.katscans.view.katview.opengl.SurfaceRenderer;
 
-/**
- * @author Marcelo Lima
- */
+/** @author Marcelo Lima */
 public interface KatView {
 
-  //TODO Centralize all enums
-  //TODO Also remove popup creation from KatNode
+  // TODO Centralize all enums
+  // TODO Also remove popup creation from KatNode
   public enum Type {
     SURF("Surface Renderer", 'F', SurfaceRenderer.class),
     COMPOSITE("Composite Renderer", 'C', CompositeRenderer.class),
@@ -58,7 +56,6 @@ public interface KatView {
     public Constructor<? extends Component> getConstructor() {
       return constructor;
     }
-
   }
 
   public Map<String, Object> packProperties();

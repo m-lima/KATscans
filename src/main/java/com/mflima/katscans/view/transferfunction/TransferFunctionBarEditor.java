@@ -25,9 +25,7 @@ import com.mflima.katscans.event.TransferFunctionListener;
 import com.mflima.katscans.model.TransferFunction;
 import com.mflima.katscans.model.TransferFunction.TransferFunctionPoint;
 
-/**
- * @author Marcelo Lima
- */
+/** @author Marcelo Lima */
 public class TransferFunctionBarEditor extends JPanel implements TransferFunctionListener {
 
   public static final int MARKER_SIZE = 10;
@@ -78,27 +76,30 @@ public class TransferFunctionBarEditor extends JPanel implements TransferFunctio
 
     buildMarkers();
 
-    pnlMarker.addComponentListener(new ComponentAdapter() {
-      @Override
-      public void componentResized(ComponentEvent e) {
-        updateMarkersPositions();
-      }
+    pnlMarker.addComponentListener(
+        new ComponentAdapter() {
+          @Override
+          public void componentResized(ComponentEvent e) {
+            updateMarkersPositions();
+          }
 
-      @Override
-      public void componentShown(ComponentEvent e) {
-        updateMarkersPositions();
-      }
-
-    });
+          @Override
+          public void componentShown(ComponentEvent e) {
+            updateMarkersPositions();
+          }
+        });
   }
 
   private void buildMarkers() {
     pnlMarker.removeAll();
-    transferFunction.getPoints().forEach(point ->{
-      Marker marker = new Marker(point);
-      pnlMarker.add(marker);
-      marker.setSize(pnlMarker.getHeight(), pnlMarker.getHeight());
-    });
+    transferFunction
+        .getPoints()
+        .forEach(
+            point -> {
+              Marker marker = new Marker(point);
+              pnlMarker.add(marker);
+              marker.setSize(pnlMarker.getHeight(), pnlMarker.getHeight());
+            });
     updateMarkersPositions();
   }
 
@@ -138,52 +139,54 @@ public class TransferFunctionBarEditor extends JPanel implements TransferFunctio
 
       setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
-      addMouseListener(new MouseAdapter() {
-        @Override
-        public void mouseClicked(MouseEvent e) {
-          if (SwingUtilities.isRightMouseButton(e)) {
-            Color newColor = JColorChooser
-                .showDialog(Init.getFrameReference(), null, point.getColor());
-            if (newColor != null) {
-              point.setColor(newColor);
-            }
-          } else {
-            if (SwingUtilities.isMiddleMouseButton(e)) {
-              if (point.isMovable()) {
-                transferFunction.removePoint(point);
+      addMouseListener(
+          new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+              if (SwingUtilities.isRightMouseButton(e)) {
+                Color newColor =
+                    JColorChooser.showDialog(Init.getFrameReference(), null, point.getColor());
+                if (newColor != null) {
+                  point.setColor(newColor);
+                }
+              } else {
+                if (SwingUtilities.isMiddleMouseButton(e)) {
+                  if (point.isMovable()) {
+                    transferFunction.removePoint(point);
+                  }
+                }
               }
             }
-          }
-        }
-      });
+          });
 
       if (point.isMovable()) {
-        addMouseMotionListener(new MouseAdapter() {
-          @Override
-          public void mouseDragged(MouseEvent e) {
-            final Container parent = getParent();
+        addMouseMotionListener(
+            new MouseAdapter() {
+              @Override
+              public void mouseDragged(MouseEvent e) {
+                final Container parent = getParent();
 
-            Point mousePoint = SwingUtilities.convertPoint(Marker.this, e.getPoint(), parent);
-            if (mousePoint.x > parent.getWidth() || mousePoint.x < 0) {
-              return;
-            }
+                Point mousePoint = SwingUtilities.convertPoint(Marker.this, e.getPoint(), parent);
+                if (mousePoint.x > parent.getWidth() || mousePoint.x < 0) {
+                  return;
+                }
 
-            double newValue = mousePoint.x / (double) parent.getWidth();
-            newValue /= ratio;
-            newValue += minRange;
+                double newValue = mousePoint.x / (double) parent.getWidth();
+                newValue /= ratio;
+                newValue += minRange;
 
-            if (newValue < 0f + TransferFunction.MIN_STEP) {
-              newValue = 0f + TransferFunction.MIN_STEP;
-            } else {
-              if (newValue > 1f - TransferFunction.MIN_STEP) {
-                newValue = 1f - TransferFunction.MIN_STEP;
+                if (newValue < 0f + TransferFunction.MIN_STEP) {
+                  newValue = 0f + TransferFunction.MIN_STEP;
+                } else {
+                  if (newValue > 1f - TransferFunction.MIN_STEP) {
+                    newValue = 1f - TransferFunction.MIN_STEP;
+                  }
+                }
+
+                point.setPoint((float) newValue);
+                updatePosition();
               }
-            }
-
-            point.setPoint((float) newValue);
-            updatePosition();
-          }
-        });
+            });
       }
     }
 
@@ -210,7 +213,6 @@ public class TransferFunctionBarEditor extends JPanel implements TransferFunctio
       g.setColor(point.getColor());
       g.fillOval(iniX + 1, iniY + 1, radius - 2, radius - 2);
     }
-
   }
 
   private class Viewer extends JComponent {
@@ -220,21 +222,24 @@ public class TransferFunctionBarEditor extends JPanel implements TransferFunctio
       setOpaque(true);
       setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
-      addMouseListener(new MouseAdapter() {
-        @Override
-        public void mouseClicked(MouseEvent e) {
-          if (SwingUtilities.isLeftMouseButton(e)) {
-            double point = e.getX() / (double) getWidth();
-            point /= ratio;
-            point += minRange;
+      addMouseListener(
+          new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+              if (SwingUtilities.isLeftMouseButton(e)) {
+                double point = e.getX() / (double) getWidth();
+                point /= ratio;
+                point += minRange;
 
-            BufferedImage image = new BufferedImage(getWidth(), 1, BufferedImage.TYPE_4BYTE_ABGR);
-            Graphics g = image.getGraphics();
-            paintComponent(g, true);
-            transferFunction.addPoint(new Color(image.getRGB(e.getX(), 0), true), (float) point);
-          }
-        }
-      });
+                BufferedImage image =
+                    new BufferedImage(getWidth(), 1, BufferedImage.TYPE_4BYTE_ABGR);
+                Graphics g = image.getGraphics();
+                paintComponent(g, true);
+                transferFunction.addPoint(
+                    new Color(image.getRGB(e.getX(), 0), true), (float) point);
+              }
+            }
+          });
     }
 
     @Override
@@ -264,21 +269,22 @@ public class TransferFunctionBarEditor extends JPanel implements TransferFunctio
         }
       }
 
-      g2d.setPaint(transferFunction.getPaint((float) (-minRange * ratio * width),
-          (float) ((1d - minRange) * ratio * width)));
+      g2d.setPaint(
+          transferFunction.getPaint(
+              (float) (-minRange * ratio * width), (float) ((1d - minRange) * ratio * width)));
       g2d.fillRect(0, 0, width, height);
 
       if (!onlyGradient) {
         g2d.setColor(Color.BLACK);
 
-        transferFunction.getPoints()
+        transferFunction
+            .getPoints()
             .map(point -> (int) ((point.getPoint() - minRange) * ratio) * width)
-            .forEach(x -> {
-              g2d.drawLine(x, 0, x, height);
-            });
+            .forEach(
+                x -> {
+                  g2d.drawLine(x, 0, x, height);
+                });
       }
     }
-
   }
-
 }

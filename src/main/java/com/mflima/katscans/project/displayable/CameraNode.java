@@ -6,9 +6,7 @@ import javax.swing.JMenuItem;
 import javax.swing.tree.MutableTreeNode;
 import com.mflima.katscans.model.Camera;
 
-/**
- * @author Marcelo Lima
- */
+/** @author Marcelo Lima */
 public class CameraNode extends SubGroup implements Serializable {
 
   private final Camera camera;
@@ -50,5 +48,4 @@ public class CameraNode extends SubGroup implements Serializable {
   protected JMenuItem[] getExtraMenus() {
     return null;
   }
-
 }

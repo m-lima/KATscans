@@ -4,9 +4,7 @@ import com.jogamp.opengl.math.FloatUtil;
 import com.mflima.katscans.model.Camera;
 import com.mflima.katscans.model.Rotation;
 
-/**
- * @author Marcelo Lima
- */
+/** @author Marcelo Lima */
 public class Normal {
 
   private final float[] normalMatrix;
@@ -25,5 +23,4 @@ public class Normal {
     FloatUtil.transposeMatrix(normalMatrix, tempMatrix);
     MatrixUtil.getMatrix3(tempMatrix, normalMatrix);
   }
-
 }

@@ -19,9 +19,7 @@ import com.mflima.katscans.model.TransferFunction;
 import com.mflima.katscans.view.RenameDiag;
 import com.mflima.katscans.view.katview.KatView.Type;
 
-/**
- * @author Marcelo Lima
- */
+/** @author Marcelo Lima */
 public abstract class Displayable extends KatNode {
 
   private static final String TRANSFER = "Override Tranfer Function";
@@ -67,13 +65,14 @@ public abstract class Displayable extends KatNode {
     Type[] types = Type.values();
     for (final Type type : types) {
       JMenuItem item = new JMenuItem(type.getText(), type.getMnemonic());
-      item.addActionListener(new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-          KatViewNode view = KatViewNode.buildKatView(type);
-          ProjectHandler.getInstance().insertNodeInto(view, Displayable.this, getChildCount());
-        }
-      });
+      item.addActionListener(
+          new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+              KatViewNode view = KatViewNode.buildKatView(type);
+              ProjectHandler.getInstance().insertNodeInto(view, Displayable.this, getChildCount());
+            }
+          });
       menu.add(item);
     }
     if (types.length > 0) {
@@ -130,7 +129,7 @@ public abstract class Displayable extends KatNode {
   protected abstract JMenuItem[] getExtraMenus();
 
   public void remove() {
-    //TODO Remove reference to ProjectHandler
+    // TODO Remove reference to ProjectHandler
     ProjectHandler.getInstance().removeNodeFromParent(this);
 
     Enumeration<KatNode> children = children();
@@ -185,22 +184,20 @@ public abstract class Displayable extends KatNode {
           break;
         case CAMERA:
           ProjectHandler.getInstance()
-              .insertNodeInto(new CameraNode(2 * getMatrix().getRatio()[2]), Displayable.this,
-                  getChildCount());
+              .insertNodeInto(
+                  new CameraNode(2 * getMatrix().getRatio()[2]), Displayable.this, getChildCount());
           break;
         default:
           TransferFunction.Type[] types = TransferFunction.Type.values();
           for (TransferFunction.Type type : types) {
             if (type.getText().equals(text)) {
               ProjectHandler.getInstance()
-                  .insertNodeInto(new TransferFunctionNode(type), Displayable.this,
-                      getChildCount());
+                  .insertNodeInto(
+                      new TransferFunctionNode(type), Displayable.this, getChildCount());
               return;
             }
           }
       }
     }
-
   }
-
 }

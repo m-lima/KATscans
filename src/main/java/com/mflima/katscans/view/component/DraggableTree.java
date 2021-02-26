@@ -34,11 +34,9 @@ import com.mflima.katscans.project.ProjectHandler;
 import com.mflima.katscans.project.ProjectNode;
 import com.mflima.katscans.project.displayable.Displayable;
 
-/**
- * @author Marcelo
- */
-public class DraggableTree extends JTree implements DragSourceListener, DropTargetListener,
-    DragGestureListener {
+/** @author Marcelo */
+public class DraggableTree extends JTree
+    implements DragSourceListener, DropTargetListener, DragGestureListener {
 
   public static final DataFlavor LOCAL_OBJECT_FLAVOR;
   public static final DataFlavor[] SUPPORTED_FLAVORS;
@@ -51,7 +49,7 @@ public class DraggableTree extends JTree implements DragSourceListener, DropTarg
       Logger.getLogger(DraggableTree.class.getName()).log(Level.SEVERE, null, cnfe);
     }
     LOCAL_OBJECT_FLAVOR = initialFlavor;
-    SUPPORTED_FLAVORS = new DataFlavor[]{LOCAL_OBJECT_FLAVOR, DraggableTree.LOCAL_OBJECT_FLAVOR};
+    SUPPORTED_FLAVORS = new DataFlavor[] {LOCAL_OBJECT_FLAVOR, DraggableTree.LOCAL_OBJECT_FLAVOR};
   }
 
   private static final Color INVALID_COLOR = new Color(150, 0, 0);
@@ -134,13 +132,14 @@ public class DraggableTree extends JTree implements DragSourceListener, DropTarg
     Rectangle pathBounds = getPathBounds(selectedPath);
     Point clickOffset = new Point(clickPoint.x - pathBounds.x, clickPoint.y - pathBounds.y);
 
-    BufferedImage image = new BufferedImage(pathBounds.width, pathBounds.height,
-        BufferedImage.TYPE_4BYTE_ABGR);
+    BufferedImage image =
+        new BufferedImage(pathBounds.width, pathBounds.height, BufferedImage.TYPE_4BYTE_ABGR);
     Graphics2D g2d = image.createGraphics();
 
-    Component renderer = getCellRenderer()
-        .getTreeCellRendererComponent(this, node, true, false, node.isLeaf(),
-            getRowForPath(selectedPath), false);
+    Component renderer =
+        getCellRenderer()
+            .getTreeCellRendererComponent(
+                this, node, true, false, node.isLeaf(), getRowForPath(selectedPath), false);
     renderer.setSize(pathBounds.width, pathBounds.height);
     renderer.paint(g2d);
     g2d.dispose();
@@ -275,12 +274,10 @@ public class DraggableTree extends JTree implements DragSourceListener, DropTarg
   }
 
   @Override
-  public void dropActionChanged(DropTargetDragEvent dtde) {
-  }
+  public void dropActionChanged(DropTargetDragEvent dtde) {}
 
   @Override
-  public void dragEnter(DragSourceDragEvent dsde) {
-  }
+  public void dragEnter(DragSourceDragEvent dsde) {}
 
   @Override
   public void dragExit(DragSourceEvent dsde) {
@@ -311,7 +308,5 @@ public class DraggableTree extends JTree implements DragSourceListener, DropTarg
   }
 
   @Override
-  public void dropActionChanged(DragSourceDragEvent dsde) {
-  }
-
+  public void dropActionChanged(DragSourceDragEvent dsde) {}
 }

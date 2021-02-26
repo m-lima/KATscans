@@ -27,11 +27,9 @@ import com.mflima.katscans.project.displayable.Displayable;
 import com.mflima.katscans.model.TransferFunction;
 import com.mflima.katscans.view.katview.KatView;
 
-/**
- * @author Marcelo Lima
- */
-public class SliceNavigator extends GLJPanel implements KatView, GLEventListener,
-    MouseWheelListener, TransferFunctionListener {
+/** @author Marcelo Lima */
+public class SliceNavigator extends GLJPanel
+    implements KatView, GLEventListener, MouseWheelListener, TransferFunctionListener {
 
   private static final String PROPERTY_SLICE = "Slice";
 
@@ -51,8 +49,8 @@ public class SliceNavigator extends GLJPanel implements KatView, GLEventListener
   private final String SHADERS_ROOT = "/shaders";
   private final String SHADERS_NAME = "slicer";
 
-  private float[] vertices = new float[]{0f, 0f, 0f, 0f, 1f, 0f, 1f, 1f, 0f, 1f, 0f, 0f};
-  private short[] indices = new short[]{0, 1, 2, 0, 2, 3};
+  private float[] vertices = new float[] {0f, 0f, 0f, 0f, 1f, 0f, 1f, 1f, 0f, 1f, 0f, 0f};
+  private short[] indices = new short[] {0, 1, 2, 0, 2, 3};
   private int programName;
   private float sliceMax;
   private int slice;
@@ -78,12 +76,18 @@ public class SliceNavigator extends GLJPanel implements KatView, GLEventListener
     gl.glGenBuffers(bufferLocation.length, bufferLocation, 0);
 
     gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, bufferLocation[VERTICES]);
-    gl.glBufferData(GL4.GL_ARRAY_BUFFER, (long) vertices.length * SIZEOF_FLOAT, FloatBuffer.wrap(vertices),
+    gl.glBufferData(
+        GL4.GL_ARRAY_BUFFER,
+        (long) vertices.length * SIZEOF_FLOAT,
+        FloatBuffer.wrap(vertices),
         GL4.GL_STATIC_DRAW);
 
     gl.glBindBuffer(GL4.GL_ELEMENT_ARRAY_BUFFER, bufferLocation[INDICES]);
-    gl.glBufferData(GL4.GL_ELEMENT_ARRAY_BUFFER, (long) indices.length * SIZEOF_SHORT,
-        ShortBuffer.wrap(indices), GL4.GL_STATIC_DRAW);
+    gl.glBufferData(
+        GL4.GL_ELEMENT_ARRAY_BUFFER,
+        (long) indices.length * SIZEOF_SHORT,
+        ShortBuffer.wrap(indices),
+        GL4.GL_STATIC_DRAW);
 
     checkError(gl, "Create Buffers");
 
@@ -106,8 +110,16 @@ public class SliceNavigator extends GLJPanel implements KatView, GLEventListener
       gl.glTexParameteri(GL4.GL_TEXTURE_3D, GL4.GL_TEXTURE_WRAP_S, GL4.GL_CLAMP_TO_EDGE);
       gl.glTexParameteri(GL4.GL_TEXTURE_3D, GL4.GL_TEXTURE_WRAP_T, GL4.GL_CLAMP_TO_EDGE);
 
-      gl.glTexImage3D(GL4.GL_TEXTURE_3D, 0, GL4.GL_RED, voxelMatrix.getSizeX(),
-          voxelMatrix.getSizeY(), voxelMatrix.getSizeZ(), 0, GL4.GL_RED, GL4.GL_UNSIGNED_SHORT,
+      gl.glTexImage3D(
+          GL4.GL_TEXTURE_3D,
+          0,
+          GL4.GL_RED,
+          voxelMatrix.getSizeX(),
+          voxelMatrix.getSizeY(),
+          voxelMatrix.getSizeZ(),
+          0,
+          GL4.GL_RED,
+          GL4.GL_UNSIGNED_SHORT,
           ShortBuffer.wrap(texture));
 
       checkError(gl, "Create Texture");
@@ -122,12 +134,12 @@ public class SliceNavigator extends GLJPanel implements KatView, GLEventListener
       transferFunctionDirty = true;
     }
 
-    ShaderCode vertShader = ShaderCode
-        .create(gl, GL4.GL_VERTEX_SHADER, this.getClass(), SHADERS_ROOT,
-            null, SHADERS_NAME, true);
-    ShaderCode fragShader = ShaderCode
-        .create(gl, GL4.GL_FRAGMENT_SHADER, this.getClass(), SHADERS_ROOT,
-            null, SHADERS_NAME, true);
+    ShaderCode vertShader =
+        ShaderCode.create(
+            gl, GL4.GL_VERTEX_SHADER, this.getClass(), SHADERS_ROOT, null, SHADERS_NAME, true);
+    ShaderCode fragShader =
+        ShaderCode.create(
+            gl, GL4.GL_FRAGMENT_SHADER, this.getClass(), SHADERS_ROOT, null, SHADERS_NAME, true);
 
     ShaderProgram shaderProgram = new ShaderProgram();
     shaderProgram.add(vertShader);
@@ -182,19 +194,29 @@ public class SliceNavigator extends GLJPanel implements KatView, GLEventListener
     gl.glVertexAttribPointer(0, 3, GL4.GL_FLOAT, false, 0, 0);
 
     if (transferFunctionDirty) {
-      BufferedImage transferImage = new BufferedImage(TransferFunction.TEXTURE_SIZE, 1,
-          BufferedImage.TYPE_4BYTE_ABGR);
+      BufferedImage transferImage =
+          new BufferedImage(TransferFunction.TEXTURE_SIZE, 1, BufferedImage.TYPE_4BYTE_ABGR);
       Graphics2D g2d = (Graphics2D) transferImage.getGraphics();
       g2d.setPaint(displayable.getTransferFunction().getPaint());
       g2d.drawLine(0, 0, TransferFunction.TEXTURE_SIZE, 0);
       g2d.dispose();
 
-      byte[] dataElements = (byte[]) transferImage.getRaster()
-          .getDataElements(0, 0, TransferFunction.TEXTURE_SIZE, 1, null);
+      byte[] dataElements =
+          (byte[])
+              transferImage
+                  .getRaster()
+                  .getDataElements(0, 0, TransferFunction.TEXTURE_SIZE, 1, null);
       gl.glActiveTexture(GL4.GL_TEXTURE0 + TRANSFER);
       gl.glBindTexture(GL4.GL_TEXTURE_1D, textureLocation[TRANSFER]);
-      gl.glTexImage1D(GL4.GL_TEXTURE_1D, 0, GL4.GL_RGBA, TransferFunction.TEXTURE_SIZE, 0,
-          GL4.GL_RGBA, GL4.GL_UNSIGNED_INT_8_8_8_8_REV, ByteBuffer.wrap(dataElements));
+      gl.glTexImage1D(
+          GL4.GL_TEXTURE_1D,
+          0,
+          GL4.GL_RGBA,
+          TransferFunction.TEXTURE_SIZE,
+          0,
+          GL4.GL_RGBA,
+          GL4.GL_UNSIGNED_INT_8_8_8_8_REV,
+          ByteBuffer.wrap(dataElements));
       transferFunctionDirty = false;
     }
 
@@ -286,5 +308,4 @@ public class SliceNavigator extends GLJPanel implements KatView, GLEventListener
     this.slice = newSlice;
     repaint();
   }
-
 }

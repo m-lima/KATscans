@@ -13,11 +13,9 @@ import com.mflima.katscans.project.displayable.Displayable;
 import com.mflima.katscans.model.TransferFunction;
 import com.mflima.katscans.util.Normal;
 
-/**
- * @author Marcelo Lima
- */
-public class CompositeRenderer extends VolumeRenderer implements TransferFunctionListener,
-    LightListener {
+/** @author Marcelo Lima */
+public class CompositeRenderer extends VolumeRenderer
+    implements TransferFunctionListener, LightListener {
 
   private static final int LIGHT_DIRTY = 1 << 0;
   private static final int NORMAL_DIRTY = 1 << 1;
@@ -101,19 +99,27 @@ public class CompositeRenderer extends VolumeRenderer implements TransferFunctio
   }
 
   private void updateTransferFunction(GL4 gl) {
-    BufferedImage transferImage = new BufferedImage(TransferFunction.TEXTURE_SIZE, 1,
-        BufferedImage.TYPE_4BYTE_ABGR);
+    BufferedImage transferImage =
+        new BufferedImage(TransferFunction.TEXTURE_SIZE, 1, BufferedImage.TYPE_4BYTE_ABGR);
     Graphics2D g2d = (Graphics2D) transferImage.getGraphics();
     g2d.setPaint(displayable.getTransferFunction().getPaint());
     g2d.drawLine(0, 0, TransferFunction.TEXTURE_SIZE, 0);
     g2d.dispose();
 
-    byte[] dataElements = (byte[]) transferImage.getRaster()
-        .getDataElements(0, 0, TransferFunction.TEXTURE_SIZE, 1, null);
+    byte[] dataElements =
+        (byte[])
+            transferImage.getRaster().getDataElements(0, 0, TransferFunction.TEXTURE_SIZE, 1, null);
     gl.glActiveTexture(GL4.GL_TEXTURE0 + TEXTURE_TRANSFER);
     gl.glBindTexture(GL4.GL_TEXTURE_1D, textureLocation[0]);
-    gl.glTexImage1D(GL4.GL_TEXTURE_1D, 0, GL4.GL_RGBA, TransferFunction.TEXTURE_SIZE, 0,
-        GL4.GL_RGBA, GL4.GL_UNSIGNED_INT_8_8_8_8_REV, ByteBuffer.wrap(dataElements));
+    gl.glTexImage1D(
+        GL4.GL_TEXTURE_1D,
+        0,
+        GL4.GL_RGBA,
+        TransferFunction.TEXTURE_SIZE,
+        0,
+        GL4.GL_RGBA,
+        GL4.GL_UNSIGNED_INT_8_8_8_8_REV,
+        ByteBuffer.wrap(dataElements));
 
     checkError(gl, "Update transfer function");
   }
@@ -149,5 +155,4 @@ public class CompositeRenderer extends VolumeRenderer implements TransferFunctio
     dirtyValues |= NORMAL_DIRTY;
     normal.updateMatrices(camera, rotation, tempMatrix);
   }
-
 }

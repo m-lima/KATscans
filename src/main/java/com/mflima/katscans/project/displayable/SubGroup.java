@@ -3,9 +3,7 @@ package com.mflima.katscans.project.displayable;
 import javax.swing.tree.MutableTreeNode;
 import com.mflima.katscans.project.ProjectNode;
 
-/**
- * @author Marcelo Lima
- */
+/** @author Marcelo Lima */
 public abstract class SubGroup extends Displayable {
 
   public SubGroup(String name) {
@@ -23,8 +21,11 @@ public abstract class SubGroup extends Displayable {
       super.setParent(newParent);
     } else {
       throw new IllegalArgumentException(
-          "Can only have " + Displayable.class.getSimpleName() + " nodes as parents of "
-              + getClass().getSimpleName() + " nodes.");
+          "Can only have "
+              + Displayable.class.getSimpleName()
+              + " nodes as parents of "
+              + getClass().getSimpleName()
+              + " nodes.");
     }
   }
 
@@ -32,8 +33,13 @@ public abstract class SubGroup extends Displayable {
   public void insert(MutableTreeNode child, int index) {
     if (child instanceof ProjectNode || child instanceof DataFileNode) {
       throw new IllegalArgumentException(
-          "Cannot add " + DataFileNode.class.getSimpleName() + " nodes or " + ProjectNode.class
-              .getSimpleName() + "nodes to " + getClass().getSimpleName() + " nodes.");
+          "Cannot add "
+              + DataFileNode.class.getSimpleName()
+              + " nodes or "
+              + ProjectNode.class.getSimpleName()
+              + "nodes to "
+              + getClass().getSimpleName()
+              + " nodes.");
     }
     super.insert(child, index);
   }
@@ -42,5 +48,4 @@ public abstract class SubGroup extends Displayable {
   public boolean getAllowsChildren() {
     return true;
   }
-
 }

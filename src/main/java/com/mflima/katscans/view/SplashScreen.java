@@ -10,14 +10,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
 
-/**
- * @author mflim_000
- */
+/** @author mflim_000 */
 public class SplashScreen extends javax.swing.JDialog {
 
-  /**
-   * Creates new form SplashScreen
-   */
+  /** Creates new form SplashScreen */
   public SplashScreen(JFrame owner, GraphicsConfiguration gc) {
     super(owner, "KATscans", true, gc);
 
@@ -65,7 +61,6 @@ public class SplashScreen extends javax.swing.JDialog {
         SplashScreen.this.setVisible(false);
         SplashScreen.this.dispose();
       }
-
     }.start();
   }
 
@@ -90,8 +85,8 @@ public class SplashScreen extends javax.swing.JDialog {
     pnlTitle.setOpaque(false);
     pnlTitle.setLayout(new java.awt.BorderLayout());
 
-    btnClose
-        .setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/exit_bw.png"))); // NOI18N
+    btnClose.setIcon(
+        new javax.swing.ImageIcon(getClass().getResource("/icons/exit_bw.png"))); // NOI18N
     btnClose.setBorder(null);
     btnClose.setBorderPainted(false);
     btnClose.setContentAreaFilled(false);
@@ -101,11 +96,12 @@ public class SplashScreen extends javax.swing.JDialog {
     btnClose.setPreferredSize(new java.awt.Dimension(26, 26));
     btnClose.setRolloverIcon(
         new javax.swing.ImageIcon(getClass().getResource("/icons/exit_over.png"))); // NOI18N
-    btnClose.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(java.awt.event.ActionEvent evt) {
-        btnCloseActionPerformed(evt);
-      }
-    });
+    btnClose.addActionListener(
+        new java.awt.event.ActionListener() {
+          public void actionPerformed(java.awt.event.ActionEvent evt) {
+            btnCloseActionPerformed(evt);
+          }
+        });
     pnlTitle.add(btnClose, java.awt.BorderLayout.EAST);
 
     pnlBackground.add(pnlTitle, java.awt.BorderLayout.PAGE_START);
@@ -123,12 +119,12 @@ public class SplashScreen extends javax.swing.JDialog {
     getContentPane().add(pnlBackground, java.awt.BorderLayout.CENTER);
 
     pack();
-  }// </editor-fold>//GEN-END:initComponents
+  } // </editor-fold>//GEN-END:initComponents
 
   private void btnCloseActionPerformed(
-      java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCloseActionPerformed
+      java.awt.event.ActionEvent evt) { // GEN-FIRST:event_btnCloseActionPerformed
     System.exit(0);
-  }//GEN-LAST:event_btnCloseActionPerformed
+  } // GEN-LAST:event_btnCloseActionPerformed
 
   // Variables declaration - do not modify//GEN-BEGIN:variables
   private javax.swing.JButton btnClose;

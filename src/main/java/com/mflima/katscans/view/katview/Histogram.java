@@ -24,9 +24,7 @@ import org.jfree.data.RangeType;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
-/**
- * @author Marcelo Lima
- */
+/** @author Marcelo Lima */
 public class Histogram extends JPanel implements KatView {
 
   protected final XYPlot plot;
@@ -57,14 +55,17 @@ public class Histogram extends JPanel implements KatView {
     barRenderer = new XYBarRenderer();
     plot = new XYPlot();
     chart = new JFreeChart(plot);
-    chartPanel = new ChartPanel(chart) {
-      @Override
-      public void restoreAutoBounds() {
-        super.restoreAutoBounds();
-        domainAxis.setRange(new Range(Histogram.this.displayable.getMatrix().getMinValue(),
-            Histogram.this.displayable.getMatrix().getMaxValue()));
-      }
-    };
+    chartPanel =
+        new ChartPanel(chart) {
+          @Override
+          public void restoreAutoBounds() {
+            super.restoreAutoBounds();
+            domainAxis.setRange(
+                new Range(
+                    Histogram.this.displayable.getMatrix().getMinValue(),
+                    Histogram.this.displayable.getMatrix().getMaxValue()));
+          }
+        };
 
     menuLog = new JMenuItem("Linear");
     log = true;
@@ -99,19 +100,20 @@ public class Histogram extends JPanel implements KatView {
     chartPanel.getPopupMenu().addSeparator();
     chartPanel.getPopupMenu().add(menuLog);
 
-    menuLog.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        if (log) {
-          menuLog.setText("Logarithmic");
-          plot.setRangeAxis(0, linAxis);
-        } else {
-          menuLog.setText("Linear");
-          plot.setRangeAxis(0, logAxis);
-        }
-        log = !log;
-      }
-    });
+    menuLog.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            if (log) {
+              menuLog.setText("Logarithmic");
+              plot.setRangeAxis(0, linAxis);
+            } else {
+              menuLog.setText("Linear");
+              plot.setRangeAxis(0, logAxis);
+            }
+            log = !log;
+          }
+        });
   }
 
   private void initPlot() {
@@ -142,7 +144,5 @@ public class Histogram extends JPanel implements KatView {
   }
 
   @Override
-  public void loadProperties(Map<String, Object> properties) {
-  }
-
+  public void loadProperties(Map<String, Object> properties) {}
 }

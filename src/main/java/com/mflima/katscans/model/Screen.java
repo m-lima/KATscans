@@ -5,9 +5,7 @@ import java.awt.EventQueue;
 import com.mflima.katscans.event.KatModelListener;
 import com.mflima.katscans.event.ScreenListener;
 
-/**
- * @author Marcelo Lima
- */
+/** @author Marcelo Lima */
 public class Screen extends KatModel<Screen> {
 
   private final float[] projectionMatrix;
@@ -119,12 +117,13 @@ public class Screen extends KatModel<Screen> {
     KatModelListener[] listeners = listenerList.getListeners(KatModelListener.class);
 
     for (final KatModelListener listener : listeners) {
-      EventQueue.invokeLater(new Runnable() {
-        @Override
-        public void run() {
-          ((ScreenListener) listener).orthographicValueChanged();
-        }
-      });
+      EventQueue.invokeLater(
+          new Runnable() {
+            @Override
+            public void run() {
+              ((ScreenListener) listener).orthographicValueChanged();
+            }
+          });
     }
   }
 
@@ -132,12 +131,13 @@ public class Screen extends KatModel<Screen> {
     KatModelListener[] listeners = listenerList.getListeners(KatModelListener.class);
 
     for (final KatModelListener listener : listeners) {
-      EventQueue.invokeLater(new Runnable() {
-        @Override
-        public void run() {
-          ((ScreenListener) listener).projectionValueChanged();
-        }
-      });
+      EventQueue.invokeLater(
+          new Runnable() {
+            @Override
+            public void run() {
+              ((ScreenListener) listener).projectionValueChanged();
+            }
+          });
     }
   }
 
@@ -145,13 +145,13 @@ public class Screen extends KatModel<Screen> {
     KatModelListener[] listeners = listenerList.getListeners(KatModelListener.class);
 
     for (final KatModelListener listener : listeners) {
-      EventQueue.invokeLater(new Runnable() {
-        @Override
-        public void run() {
-          ((ScreenListener) listener).stepValueChanged();
-        }
-      });
+      EventQueue.invokeLater(
+          new Runnable() {
+            @Override
+            public void run() {
+              ((ScreenListener) listener).stepValueChanged();
+            }
+          });
     }
   }
-
 }

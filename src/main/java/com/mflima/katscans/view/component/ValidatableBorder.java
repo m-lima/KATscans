@@ -16,15 +16,13 @@ import javax.swing.border.Border;
 import javax.swing.plaf.InsetsUIResource;
 import javax.swing.text.JTextComponent;
 
-/**
- * @author Marcelo Lima
- */
+/** @author Marcelo Lima */
 public class ValidatableBorder implements Border {
 
   public static final Color INVALID_COLOR = new Color(130, 50, 50);
-  private static final DoubleColor INVALID_DOUBLE_COLOR = new DoubleColor(new Color(212, 121, 35),
-      new Color(255, 175, 96));
-//    private static final Color INVALID_COLOR = new Color(212, 121, 35);
+  private static final DoubleColor INVALID_DOUBLE_COLOR =
+      new DoubleColor(new Color(212, 121, 35), new Color(255, 175, 96));
+  //    private static final Color INVALID_COLOR = new Color(212, 121, 35);
 
   private boolean valid = true;
 
@@ -70,8 +68,8 @@ public class ValidatableBorder implements Border {
       if (valid) {
         DarculaUIUtil.paintFocusRing(g, 2, 2, width - 4, height - 4);
       } else {
-        DarculaUIUtil
-            .paintFocusRing(g, INVALID_DOUBLE_COLOR, new Rectangle(2, 2, width - 4, height - 4));
+        DarculaUIUtil.paintFocusRing(
+            g, INVALID_DOUBLE_COLOR, new Rectangle(2, 2, width - 4, height - 4));
       }
     } else {
       boolean editable = !(c instanceof JTextComponent) || (((JTextComponent) c).isEditable());

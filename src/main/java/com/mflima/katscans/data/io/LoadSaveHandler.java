@@ -22,9 +22,7 @@ import com.mflima.katscans.project.displayable.DataFileNode;
 import com.mflima.katscans.project.ProjectHandler;
 import com.mflima.katscans.util.FileAwareInputStream;
 
-/**
- * @author Marcelo Lima
- */
+/** @author Marcelo Lima */
 public class LoadSaveHandler {
 
   private static final String LAST_LOAD = "lastLoad.lsl";
@@ -39,8 +37,8 @@ public class LoadSaveHandler {
     try (FileAwareInputStream input = new FileAwareInputStream(file)) {
       VoxelMatrix voxelMatrix = format.getFormat().loadData(input, options);
       ProjectHandler projectHandler = ProjectHandler.getInstance();
-      if (projectHandler
-          .insertDataFile(new DataFileNode(name, file, format, options, voxelMatrix))) {
+      if (projectHandler.insertDataFile(
+          new DataFileNode(name, file, format, options, voxelMatrix))) {
         saveLastLoad(file);
         return true;
       }
@@ -129,8 +127,8 @@ public class LoadSaveHandler {
 
   private JFileChooser buildFileChooser() {
     JFileChooser fileChooser = new JFileChooser();
-    Component[] components = ((JPanel) ((JPanel) fileChooser.getComponents()[0]).getComponents()[0])
-        .getComponents();
+    Component[] components =
+        ((JPanel) ((JPanel) fileChooser.getComponents()[0]).getComponents()[0]).getComponents();
     for (Component component : components) {
       if (component instanceof JButton) {
         ((JButton) component).setBorder(null);
@@ -140,5 +138,4 @@ public class LoadSaveHandler {
     }
     return fileChooser;
   }
-
 }

@@ -8,15 +8,13 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import com.mflima.katscans.data.VoxelMatrix;
 
-/**
- * @author Marcelo Lima
- */
+/** @author Marcelo Lima */
 class RawFormat implements LoadSaveFormat {
 
   private static final int FORMAT_MAX_VALUE = 255;
 
-  private static final FileFilter FILE_FILTER = new FileNameExtensionFilter("Raw volume data",
-      "raw");
+  private static final FileFilter FILE_FILTER =
+      new FileNameExtensionFilter("Raw volume data", "raw");
 
   @Override
   public String getName() {
@@ -89,8 +87,11 @@ class RawFormat implements LoadSaveFormat {
 
         byte[] byteArray = byteBuffer.array();
         for (int i = 0; i < byteArray.length; i++) {
-          grid[((optionSizeZ - 1) - z) * optionSizeY * optionSizeX
-              + ((optionSizeY - 1) - y) * optionSizeX + i] = byteArray[i];
+          grid[
+                  ((optionSizeZ - 1) - z) * optionSizeY * optionSizeX
+                      + ((optionSizeY - 1) - y) * optionSizeX
+                      + i] =
+              byteArray[i];
         }
       }
     }

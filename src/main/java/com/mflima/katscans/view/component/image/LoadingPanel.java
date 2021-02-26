@@ -9,9 +9,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-/**
- * @author Marcelo Lima
- */
+/** @author Marcelo Lima */
 public class LoadingPanel extends JPanel {
 
   private final boolean transparent;
@@ -31,7 +29,7 @@ public class LoadingPanel extends JPanel {
     if (transparent) {
       ((Graphics2D) g).setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, 0.5f));
     }
-    super.paint(g); //To change body of generated methods, choose Tools | Templates.
+    super.paint(g); // To change body of generated methods, choose Tools | Templates.
   }
 
   @Override
@@ -39,5 +37,4 @@ public class LoadingPanel extends JPanel {
     g.setColor(Color.BLACK);
     g.fillRect(0, 0, getWidth(), getHeight());
   }
-
 }

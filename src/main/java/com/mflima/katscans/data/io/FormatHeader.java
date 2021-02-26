@@ -1,8 +1,6 @@
 package com.mflima.katscans.data.io;
 
-/**
- * @author Marcelo Lima
- */
+/** @author Marcelo Lima */
 public class FormatHeader {
 
   private final int sizeX;
@@ -18,13 +16,20 @@ public class FormatHeader {
     this(sizeX, sizeY, sizeZ, 1d, 1d, 1d, 0, max);
   }
 
-  public FormatHeader(int sizeX, int sizeY, int sizeZ, double ratioX, double ratioY, double ratioZ,
-      int max) {
+  public FormatHeader(
+      int sizeX, int sizeY, int sizeZ, double ratioX, double ratioY, double ratioZ, int max) {
     this(sizeX, sizeY, sizeZ, ratioX, ratioY, ratioZ, 0, max);
   }
 
-  public FormatHeader(int sizeX, int sizeY, int sizeZ, double ratioX, double ratioY, double ratioZ,
-      int min, int max) {
+  public FormatHeader(
+      int sizeX,
+      int sizeY,
+      int sizeZ,
+      double ratioX,
+      double ratioY,
+      double ratioZ,
+      int min,
+      int max) {
     this.sizeX = sizeX;
     this.sizeY = sizeY;
     this.sizeZ = sizeZ;
@@ -66,5 +71,4 @@ public class FormatHeader {
   public int getMax() {
     return max;
   }
-
 }

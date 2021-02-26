@@ -8,15 +8,13 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import com.mflima.katscans.data.VoxelMatrix;
 
-/**
- * @author Marcelo Lima
- */
+/** @author Marcelo Lima */
 class GridFormat implements LoadSaveFormat {
 
   private static final int FORMAT_MAX_VALUE = 65536;
 
-  private static final FileFilter FILE_FILTER = new FileNameExtensionFilter("Grid volume data",
-      "grid");
+  private static final FileFilter FILE_FILTER =
+      new FileNameExtensionFilter("Grid volume data", "grid");
 
   @Override
   public String getName() {
@@ -100,7 +98,9 @@ class GridFormat implements LoadSaveFormat {
         }
 
         shortBuffer = byteBuffer.asShortBuffer();
-        shortBuffer.get(grid, z * optionSizeY * optionSizeX + ((optionSizeY - 1) - y) * optionSizeX,
+        shortBuffer.get(
+            grid,
+            z * optionSizeY * optionSizeX + ((optionSizeY - 1) - y) * optionSizeX,
             optionSizeX);
       }
     }
@@ -112,7 +112,6 @@ class GridFormat implements LoadSaveFormat {
   @Override
   public void saveData(OutputStream stream, VoxelMatrix object) throws IOException {
     throw new UnsupportedOperationException(
-        "Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        "Not supported yet."); // To change body of generated methods, choose Tools | Templates.
   }
-
 }

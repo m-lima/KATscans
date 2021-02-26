@@ -7,22 +7,17 @@ import java.awt.Insets;
 import java.awt.LayoutManager2;
 import java.awt.Rectangle;
 
-/**
- * @author Marcelo Lima
- */
+/** @author Marcelo Lima */
 public class FullLayout implements LayoutManager2 {
 
   @Override
-  public void addLayoutComponent(Component comp, Object constraints) {
-  }
+  public void addLayoutComponent(Component comp, Object constraints) {}
 
   @Override
-  public void addLayoutComponent(String name, Component comp) {
-  }
+  public void addLayoutComponent(String name, Component comp) {}
 
   @Override
-  public void removeLayoutComponent(Component comp) {
-  }
+  public void removeLayoutComponent(Component comp) {}
 
   @Override
   public Dimension maximumLayoutSize(Container target) {
@@ -40,8 +35,7 @@ public class FullLayout implements LayoutManager2 {
   }
 
   @Override
-  public void invalidateLayout(Container target) {
-  }
+  public void invalidateLayout(Container target) {}
 
   @Override
   public Dimension preferredLayoutSize(Container parent) {
@@ -69,5 +63,4 @@ public class FullLayout implements LayoutManager2 {
       }
     }
   }
-
 }

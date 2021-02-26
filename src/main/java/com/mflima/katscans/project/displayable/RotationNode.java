@@ -5,9 +5,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
 import com.mflima.katscans.model.Rotation;
 
-/**
- * @author Marcelo Lima
- */
+/** @author Marcelo Lima */
 public class RotationNode extends SubGroup implements Serializable {
 
   private final Rotation rotation;
@@ -38,5 +36,4 @@ public class RotationNode extends SubGroup implements Serializable {
   protected JMenuItem[] getExtraMenus() {
     return null;
   }
-
 }

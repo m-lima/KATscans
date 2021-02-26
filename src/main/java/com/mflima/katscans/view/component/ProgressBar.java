@@ -6,9 +6,7 @@ import java.awt.Insets;
 import java.awt.Rectangle;
 import javax.swing.JLabel;
 
-/**
- * @author Marcelo Lima
- */
+/** @author Marcelo Lima */
 public class ProgressBar extends JLabel {
 
   private double value;
@@ -90,16 +88,30 @@ public class ProgressBar extends JLabel {
       if (progressBorderColor != null) {
         g.setColor(progressBorderColor);
         if (borderThickness == 1) {
-          g.drawRect(insets.left, insets.top, (bounds.width - 1) - (insets.left + insets.right),
+          g.drawRect(
+              insets.left,
+              insets.top,
+              (bounds.width - 1) - (insets.left + insets.right),
               (bounds.height - 1) - (insets.top + insets.bottom));
         } else if (borderThickness > 1) {
-          g.fillRect(insets.left, insets.top, bounds.width - (insets.left + insets.right),
+          g.fillRect(
+              insets.left,
+              insets.top,
+              bounds.width - (insets.left + insets.right),
               borderThickness);
-          g.fillRect(insets.left, bounds.height - (insets.bottom + borderThickness),
-              (bounds.width) - (insets.left + insets.right), borderThickness);
-          g.fillRect(insets.left, insets.top + borderThickness, borderThickness,
+          g.fillRect(
+              insets.left,
+              bounds.height - (insets.bottom + borderThickness),
+              (bounds.width) - (insets.left + insets.right),
+              borderThickness);
+          g.fillRect(
+              insets.left,
+              insets.top + borderThickness,
+              borderThickness,
               (bounds.height - (borderThickness * 2)) - (insets.top + insets.bottom));
-          g.fillRect(bounds.width - (insets.right + borderThickness), insets.top + borderThickness,
+          g.fillRect(
+              bounds.width - (insets.right + borderThickness),
+              insets.top + borderThickness,
               borderThickness,
               (bounds.height - (borderThickness * 2)) - (insets.top + insets.bottom));
         }
@@ -113,12 +125,13 @@ public class ProgressBar extends JLabel {
       insets.top += insetOffset;
       insets.bottom += insetOffset;
 
-      g.fillRect(insets.left, insets.top,
+      g.fillRect(
+          insets.left,
+          insets.top,
           (int) (value * bounds.width - (insets.left + insets.right)),
           bounds.height - (insets.top + insets.bottom));
     }
 
     super.paintComponent(g);
   }
-
 }

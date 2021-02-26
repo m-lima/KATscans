@@ -5,9 +5,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
 import com.mflima.katscans.model.Light;
 
-/**
- * @author Marcelo Lima
- */
+/** @author Marcelo Lima */
 public class LightNode extends SubGroup implements Serializable {
 
   private final Light light;
@@ -38,5 +36,4 @@ public class LightNode extends SubGroup implements Serializable {
   protected JMenuItem[] getExtraMenus() {
     return null;
   }
-
 }

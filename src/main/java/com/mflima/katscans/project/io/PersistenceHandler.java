@@ -26,21 +26,18 @@ import com.mflima.katscans.data.io.LoadSaveHandler;
 import com.mflima.katscans.project.ProjectHandler;
 import com.mflima.katscans.project.ProjectNode;
 
-/**
- * @author Marcelo Lima
- */
+/** @author Marcelo Lima */
 public class PersistenceHandler {
 
   private static final String KAT_EXTENSION = "kat";
   private static final String LAST_LOAD = "lastProjLoad.lsl";
   private static final File AUTO_SAVE = new File("autosave." + KAT_EXTENSION);
-  private static final FileFilter FILE_FILTER = new FileNameExtensionFilter("KAT project file",
-      KAT_EXTENSION);
+  private static final FileFilter FILE_FILTER =
+      new FileNameExtensionFilter("KAT project file", KAT_EXTENSION);
 
   private File lastFile;
 
-  private PersistenceHandler() {
-  }
+  private PersistenceHandler() {}
 
   public void autoSave() {
     doSave(AUTO_SAVE, false);
@@ -80,8 +77,8 @@ public class PersistenceHandler {
     } catch (IOException ex) {
       Logger.getLogger(PersistenceHandler.class.getName()).log(Level.SEVERE, null, ex);
       if (userRequest) {
-        JOptionPane.showMessageDialog(Init.getFrameReference(), "Could not save file", "Save",
-            JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(
+            Init.getFrameReference(), "Could not save file", "Save", JOptionPane.ERROR_MESSAGE);
       }
     }
   }
@@ -94,8 +91,8 @@ public class PersistenceHandler {
     }
 
     if (!newFile.exists() || !newFile.canRead()) {
-      JOptionPane.showMessageDialog(Init.getFrameReference(), "Could not load file", "Load",
-          JOptionPane.ERROR_MESSAGE);
+      JOptionPane.showMessageDialog(
+          Init.getFrameReference(), "Could not load file", "Load", JOptionPane.ERROR_MESSAGE);
       return false;
     }
 
@@ -110,8 +107,8 @@ public class PersistenceHandler {
       return true;
     } catch (IOException | ClassNotFoundException | ClassCastException ex) {
       Logger.getLogger(PersistenceHandler.class.getName()).log(Level.SEVERE, null, ex);
-      JOptionPane.showMessageDialog(Init.getFrameReference(), "Could not load file", "Load",
-          JOptionPane.ERROR_MESSAGE);
+      JOptionPane.showMessageDialog(
+          Init.getFrameReference(), "Could not load file", "Load", JOptionPane.ERROR_MESSAGE);
     }
 
     return false;
@@ -166,8 +163,8 @@ public class PersistenceHandler {
 
   private JFileChooser buildFileChooser() {
     JFileChooser fileChooser = new JFileChooser();
-    Component[] components = ((JPanel) ((JPanel) fileChooser.getComponents()[0]).getComponents()[0])
-        .getComponents();
+    Component[] components =
+        ((JPanel) ((JPanel) fileChooser.getComponents()[0]).getComponents()[0]).getComponents();
     for (Component component : components) {
       if (component instanceof JButton) {
         ((JButton) component).setBorder(null);

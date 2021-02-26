@@ -39,11 +39,14 @@ import com.mflima.katscans.util.KatViewHandler;
 import com.mflima.katscans.model.Screen;
 import com.mflima.katscans.view.katview.KatView;
 
-/**
- * @author Marcelo Lima
- */
-public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEventListener,
-    RotationListener, CameraListener, CutListener, ScreenListener {
+/** @author Marcelo Lima */
+public abstract class VolumeRenderer extends GLJPanel
+    implements KatView,
+        GLEventListener,
+        RotationListener,
+        CameraListener,
+        CutListener,
+        ScreenListener {
 
   private static final int MODEL_DIRTY = 1 << 0;
   private static final int VIEW_DIRTY = 1 << 1;
@@ -54,14 +57,14 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
   private static final int MAX_DIRTY = 1 << 6;
   private static final int STEP_DIRTY = 1 << 7;
   private static final int TRACKED_FLAGS =
-      PROJECTION_DIRTY |
-          VIEW_DIRTY |
-          MODEL_DIRTY |
-          ORTHO_DIRTY |
-          SLICE_DIRTY |
-          MIN_DIRTY |
-          MAX_DIRTY |
-          STEP_DIRTY;
+      PROJECTION_DIRTY
+          | VIEW_DIRTY
+          | MODEL_DIRTY
+          | ORTHO_DIRTY
+          | SLICE_DIRTY
+          | MIN_DIRTY
+          | MAX_DIRTY
+          | STEP_DIRTY;
 
   private static final String PROPERTY_SCREEN = "Screen";
 
@@ -92,7 +95,7 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
   private final int[] textureLocation;
   private final int[] frameBuffer;
 
-  transient protected final float[] tempMatrix;
+  protected final transient float[] tempMatrix;
 
   private int indicesCount;
 
@@ -140,13 +143,16 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
     tempMatrix = new float[16];
     numSample = 256;
 
-    threadLOD = new Timer(750, new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        highLOD = true;
-        repaint();
-      }
-    });
+    threadLOD =
+        new Timer(
+            750,
+            new ActionListener() {
+              @Override
+              public void actionPerformed(ActionEvent e) {
+                highLOD = true;
+                repaint();
+              }
+            });
     threadLOD.setRepeats(false);
   }
 
@@ -154,8 +160,7 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
 
   public abstract boolean isIlluminated();
 
-  public void createStructure(int x, int y, float threshold) {
-  }
+  public void createStructure(int x, int y, float threshold) {}
 
   @Override
   public void init(GLAutoDrawable drawable) {
@@ -183,19 +188,27 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
 
     float[] vertices = displayObject.getVertices();
     gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, bufferLocation[BUFFER_VERTICES]);
-    gl.glBufferData(GL4.GL_ARRAY_BUFFER, (long) vertices.length * SIZEOF_FLOAT,
+    gl.glBufferData(
+        GL4.GL_ARRAY_BUFFER,
+        (long) vertices.length * SIZEOF_FLOAT,
         FloatBuffer.wrap(vertices),
         GL4.GL_STATIC_DRAW);
 
     short[] indices = displayObject.getIndicesCW();
     gl.glBindBuffer(GL4.GL_ELEMENT_ARRAY_BUFFER, bufferLocation[BUFFER_INDICES]);
-    gl.glBufferData(GL4.GL_ELEMENT_ARRAY_BUFFER, (long) indices.length * SIZEOF_SHORT,
-        ShortBuffer.wrap(indices), GL4.GL_STATIC_DRAW);
+    gl.glBufferData(
+        GL4.GL_ELEMENT_ARRAY_BUFFER,
+        (long) indices.length * SIZEOF_SHORT,
+        ShortBuffer.wrap(indices),
+        GL4.GL_STATIC_DRAW);
 
     indices = displayObject.getIndicesCCW();
     gl.glBindBuffer(GL4.GL_ELEMENT_ARRAY_BUFFER, bufferLocation[BUFFER_INDICES_REV]);
-    gl.glBufferData(GL4.GL_ELEMENT_ARRAY_BUFFER, (long) indices.length * SIZEOF_SHORT,
-        ShortBuffer.wrap(indices), GL4.GL_STATIC_DRAW);
+    gl.glBufferData(
+        GL4.GL_ELEMENT_ARRAY_BUFFER,
+        (long) indices.length * SIZEOF_SHORT,
+        ShortBuffer.wrap(indices),
+        GL4.GL_STATIC_DRAW);
 
     checkError(gl, "Load vertices");
   }
@@ -203,9 +216,12 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
   private void loadTexture(GL4 gl, VoxelMatrix voxelMatrix) throws RuntimeException {
     short[] texture = voxelMatrix.getData();
 
-    numSample = (int) Math.sqrt(voxelMatrix.getSizeX() * voxelMatrix.getSizeX()
-        + voxelMatrix.getSizeY() * voxelMatrix.getSizeY()
-        + voxelMatrix.getSizeZ() * voxelMatrix.getSizeZ());
+    numSample =
+        (int)
+            Math.sqrt(
+                voxelMatrix.getSizeX() * voxelMatrix.getSizeX()
+                    + voxelMatrix.getSizeY() * voxelMatrix.getSizeY()
+                    + voxelMatrix.getSizeZ() * voxelMatrix.getSizeZ());
 
     gl.glGenTextures(1, textureLocation, TEXTURE_VOLUME);
     gl.glActiveTexture(GL4.GL_TEXTURE0 + TEXTURE_VOLUME);
@@ -215,8 +231,16 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
     gl.glTexParameteri(GL4.GL_TEXTURE_3D, GL4.GL_TEXTURE_WRAP_R, GL4.GL_CLAMP_TO_BORDER);
     gl.glTexParameteri(GL4.GL_TEXTURE_3D, GL4.GL_TEXTURE_WRAP_S, GL4.GL_CLAMP_TO_BORDER);
     gl.glTexParameteri(GL4.GL_TEXTURE_3D, GL4.GL_TEXTURE_WRAP_T, GL4.GL_CLAMP_TO_BORDER);
-    gl.glTexImage3D(GL4.GL_TEXTURE_3D, 0, GL4.GL_RED, voxelMatrix.getSizeX(),
-        voxelMatrix.getSizeY(), voxelMatrix.getSizeZ(), 0, GL4.GL_RED, GL4.GL_UNSIGNED_SHORT,
+    gl.glTexImage3D(
+        GL4.GL_TEXTURE_3D,
+        0,
+        GL4.GL_RED,
+        voxelMatrix.getSizeX(),
+        voxelMatrix.getSizeY(),
+        voxelMatrix.getSizeZ(),
+        0,
+        GL4.GL_RED,
+        GL4.GL_UNSIGNED_SHORT,
         ShortBuffer.wrap(texture));
     checkError(gl, "Create Texture");
   }
@@ -233,13 +257,25 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
     gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_MIN_FILTER, GL4.GL_LINEAR);
     gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_WRAP_S, GL4.GL_CLAMP_TO_BORDER);
     gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_WRAP_T, GL4.GL_CLAMP_TO_BORDER);
-    gl.glTexImage2D(GL4.GL_TEXTURE_2D, 0, GL4.GL_RGB, lodWidth, lodHeight, 0, GL4.GL_RGB,
-        GL4.GL_UNSIGNED_BYTE, null);
+    gl.glTexImage2D(
+        GL4.GL_TEXTURE_2D,
+        0,
+        GL4.GL_RGB,
+        lodWidth,
+        lodHeight,
+        0,
+        GL4.GL_RGB,
+        GL4.GL_UNSIGNED_BYTE,
+        null);
 
     gl.glGenFramebuffers(1, frameBuffer, FRAME_BUFFER_FRONT);
     gl.glBindFramebuffer(GL4.GL_FRAMEBUFFER, frameBuffer[FRAME_BUFFER_FRONT]);
-    gl.glFramebufferTexture2D(GL4.GL_FRAMEBUFFER, GL4.GL_COLOR_ATTACHMENT0, GL4.GL_TEXTURE_2D,
-        textureLocation[TEXTURE_FRAME_BUFFER], 0);
+    gl.glFramebufferTexture2D(
+        GL4.GL_FRAMEBUFFER,
+        GL4.GL_COLOR_ATTACHMENT0,
+        GL4.GL_TEXTURE_2D,
+        textureLocation[TEXTURE_FRAME_BUFFER],
+        0);
 
     if (gl.glCheckFramebufferStatus(GL4.GL_FRAMEBUFFER) != GL4.GL_FRAMEBUFFER_COMPLETE) {
       throw new GLException("Failed to load front frame buffer");
@@ -256,13 +292,25 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
     gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_WRAP_S, GL4.GL_CLAMP_TO_BORDER);
     gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_WRAP_T, GL4.GL_CLAMP_TO_BORDER);
 
-    gl.glTexImage2D(GL4.GL_TEXTURE_2D, 0, GL4.GL_RGB, lodWidth, lodHeight, 0, GL4.GL_RGB,
-        GL4.GL_UNSIGNED_BYTE, null);
+    gl.glTexImage2D(
+        GL4.GL_TEXTURE_2D,
+        0,
+        GL4.GL_RGB,
+        lodWidth,
+        lodHeight,
+        0,
+        GL4.GL_RGB,
+        GL4.GL_UNSIGNED_BYTE,
+        null);
 
     gl.glGenFramebuffers(1, frameBuffer, FRAME_BUFFER_RESO);
     gl.glBindFramebuffer(GL4.GL_FRAMEBUFFER, frameBuffer[FRAME_BUFFER_RESO]);
-    gl.glFramebufferTexture2D(GL4.GL_FRAMEBUFFER, GL4.GL_COLOR_ATTACHMENT0, GL4.GL_TEXTURE_2D,
-        textureLocation[TEXTURE_RESO_BUFFER], 0);
+    gl.glFramebufferTexture2D(
+        GL4.GL_FRAMEBUFFER,
+        GL4.GL_COLOR_ATTACHMENT0,
+        GL4.GL_TEXTURE_2D,
+        textureLocation[TEXTURE_RESO_BUFFER],
+        0);
 
     if (gl.glCheckFramebufferStatus(GL4.GL_FRAMEBUFFER) != GL4.GL_FRAMEBUFFER_COMPLETE) {
       throw new GLException("Failed to load resolution frame buffer");
@@ -313,8 +361,9 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
     String[] shaderCode = new String[1];
     StringBuilder codeBuilder = new StringBuilder();
     codeFile += type == GL4.GL_VERTEX_SHADER ? ".vp" : ".fp";
-    try (BufferedReader reader = new BufferedReader(
-        new InputStreamReader(getClass().getResourceAsStream(SHADERS_ROOT + codeFile)))) {
+    try (BufferedReader reader =
+        new BufferedReader(
+            new InputStreamReader(getClass().getResourceAsStream(SHADERS_ROOT + codeFile)))) {
       String line;
       while ((line = reader.readLine()) != null) {
         codeBuilder.append(line);
@@ -330,7 +379,7 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
     }
 
     int shader = gl.glCreateShader(type);
-    gl.glShaderSource(shader, 1, shaderCode, new int[]{shaderCode[0].length()}, 0);
+    gl.glShaderSource(shader, 1, shaderCode, new int[] {shaderCode[0].length()}, 0);
     gl.glCompileShader(shader);
     shaderLocation[location] = shader;
     checkCompile(gl, shader, codeFile);
@@ -401,8 +450,17 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
     gl.glBindFramebuffer(GL4.GL_DRAW_FRAMEBUFFER, 0);
     gl.glViewport(0, 0, getWidth(), getHeight());
     initializeRender(gl);
-    gl.glBlitFramebuffer(0, 0, lodWidth, lodHeight, 0, 0, getWidth(), getHeight(),
-        GL4.GL_COLOR_BUFFER_BIT, GL4.GL_NEAREST);
+    gl.glBlitFramebuffer(
+        0,
+        0,
+        lodWidth,
+        lodHeight,
+        0,
+        0,
+        getWidth(),
+        getHeight(),
+        GL4.GL_COLOR_BUFFER_BIT,
+        GL4.GL_NEAREST);
 
     if (highLOD) {
       updateFrameBuffersSize(gl, (int) (getWidth() * lodFactor), (int) (getHeight() * lodFactor));
@@ -413,17 +471,17 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
   }
 
   private void initializeRender(GL4 gl) {
-//        gl4.glClearColor(0.234375f, 0.24609375f, 0.25390625f,1.0f);
-//        gl4.glClearColor(0.2f,0.2f,0.2f,1.0f);
+    //        gl4.glClearColor(0.234375f, 0.24609375f, 0.25390625f,1.0f);
+    //        gl4.glClearColor(0.2f,0.2f,0.2f,1.0f);
     gl.glClearColor(0f, 0f, 0f, 1.0f);
     gl.glClear(GL4.GL_COLOR_BUFFER_BIT);
 
-//        gl4.glEnable(GL4.GL_DEPTH_TEST);
+    //        gl4.glEnable(GL4.GL_DEPTH_TEST);
     gl.glEnable(GL4.GL_CULL_FACE);
     gl.glCullFace(GL4.GL_BACK);
     gl.glEnable(GL4.GL_BLEND);
     gl.glBlendFunc(GL4.GL_SRC_ALPHA, GL4.GL_ONE_MINUS_SRC_ALPHA);
-//        gl.glBlendFunc(GL4.GL_ONE_MINUS_DST_ALPHA, GL4.GL_ONE);
+    //        gl.glBlendFunc(GL4.GL_ONE_MINUS_DST_ALPHA, GL4.GL_ONE);
 
     checkError(gl, "Initialize render");
   }
@@ -471,8 +529,12 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
         uniformLocation = gl.glGetUniformLocation(mainProgram, "model");
         gl.glUniformMatrix4fv(uniformLocation, 1, false, rotation.getModelMatrix(), 0);
         uniformLocation = gl.glGetUniformLocation(mainProgram, "invModel");
-        gl.glUniformMatrix3fv(uniformLocation, 1, false,
-            MatrixUtil.getMatrix3(MatrixUtil.getInverse(rotation.getModelMatrix())), 0);
+        gl.glUniformMatrix3fv(
+            uniformLocation,
+            1,
+            false,
+            MatrixUtil.getMatrix3(MatrixUtil.getInverse(rotation.getModelMatrix())),
+            0);
       }
 
       if ((dirtyValues & ORTHO_DIRTY) > 0) {
@@ -508,8 +570,8 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
 
   private void draw(GL4 gl, boolean back) {
     gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, bufferLocation[BUFFER_VERTICES]);
-    gl.glBindBuffer(GL4.GL_ELEMENT_ARRAY_BUFFER,
-        bufferLocation[back ? BUFFER_INDICES_REV : BUFFER_INDICES]);
+    gl.glBindBuffer(
+        GL4.GL_ELEMENT_ARRAY_BUFFER, bufferLocation[back ? BUFFER_INDICES_REV : BUFFER_INDICES]);
     gl.glEnableVertexAttribArray(0);
     gl.glVertexAttribPointer(0, 3, GL4.GL_FLOAT, false, 0, 0);
 
@@ -578,13 +640,29 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
 
     gl.glActiveTexture(GL4.GL_TEXTURE0 + TEXTURE_FRAME_BUFFER);
     gl.glBindTexture(GL4.GL_TEXTURE_2D, textureLocation[TEXTURE_FRAME_BUFFER]);
-    gl.glTexImage2D(GL4.GL_TEXTURE_2D, 0, GL4.GL_RGB, lodWidth, lodHeight, 0, GL4.GL_RGB,
-        GL4.GL_UNSIGNED_BYTE, null);
+    gl.glTexImage2D(
+        GL4.GL_TEXTURE_2D,
+        0,
+        GL4.GL_RGB,
+        lodWidth,
+        lodHeight,
+        0,
+        GL4.GL_RGB,
+        GL4.GL_UNSIGNED_BYTE,
+        null);
 
     gl.glActiveTexture(GL4.GL_TEXTURE0 + TEXTURE_RESO_BUFFER);
     gl.glBindTexture(GL4.GL_TEXTURE_2D, textureLocation[TEXTURE_RESO_BUFFER]);
-    gl.glTexImage2D(GL4.GL_TEXTURE_2D, 0, GL4.GL_RGB, lodWidth, lodHeight, 0, GL4.GL_RGB,
-        GL4.GL_UNSIGNED_BYTE, null);
+    gl.glTexImage2D(
+        GL4.GL_TEXTURE_2D,
+        0,
+        GL4.GL_RGB,
+        lodWidth,
+        lodHeight,
+        0,
+        GL4.GL_RGB,
+        GL4.GL_UNSIGNED_BYTE,
+        null);
 
     gl.glUseProgram(mainProgram);
     int location = gl.glGetUniformLocation(mainProgram, "screenSize");
@@ -723,5 +801,4 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
 
     this.screen.assimilate(newScreen);
   }
-
 }

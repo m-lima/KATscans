@@ -6,15 +6,13 @@ import java.io.Serializable;
 import com.mflima.katscans.event.KatModelListener;
 import com.mflima.katscans.event.LightListener;
 
-/**
- * @author Marcelo Lima
- */
+/** @author Marcelo Lima */
 public class Light extends KatModel<Light> implements Serializable {
 
   private final float[] lightPosition;
 
   public Light() {
-    lightPosition = VectorUtil.normalizeVec3(new float[]{-2f, 2f, 5f});
+    lightPosition = VectorUtil.normalizeVec3(new float[] {-2f, 2f, 5f});
   }
 
   public float[] getLightPosition() {
@@ -43,14 +41,13 @@ public class Light extends KatModel<Light> implements Serializable {
     KatModelListener[] listeners = listenerList.getListeners(KatModelListener.class);
 
     for (final KatModelListener listener : listeners) {
-      EventQueue.invokeLater(new Runnable() {
-        @Override
-        public void run() {
-          ((LightListener) listener).lightValueChanged();
-        }
-      });
+      EventQueue.invokeLater(
+          new Runnable() {
+            @Override
+            public void run() {
+              ((LightListener) listener).lightValueChanged();
+            }
+          });
     }
   }
-
-
 }

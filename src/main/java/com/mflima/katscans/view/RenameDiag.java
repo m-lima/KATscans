@@ -14,9 +14,7 @@ import com.mflima.katscans.project.KatNode;
 import com.mflima.katscans.project.ProjectHandler;
 import com.mflima.katscans.view.component.ValidatableBorder;
 
-/**
- * @author mflim_000
- */
+/** @author mflim_000 */
 public class RenameDiag extends javax.swing.JDialog {
 
   private final KatNode node;
@@ -26,9 +24,7 @@ public class RenameDiag extends javax.swing.JDialog {
     new RenameDiag(node).setVisible(true);
   }
 
-  /**
-   * Creates new form RenameDiag
-   */
+  /** Creates new form RenameDiag */
   private RenameDiag(KatNode node) {
     super(Init.getFrameReference(), true);
     setUndecorated(true);
@@ -42,31 +38,39 @@ public class RenameDiag extends javax.swing.JDialog {
     txtName.setBorder(txtFileBorder);
     txtName.setText(node.getName());
 
-    txtName.getDocument().addDocumentListener(new DocumentListener() {
-      @Override
-      public void insertUpdate(DocumentEvent e) {
-        validateName();
-      }
+    txtName
+        .getDocument()
+        .addDocumentListener(
+            new DocumentListener() {
+              @Override
+              public void insertUpdate(DocumentEvent e) {
+                validateName();
+              }
 
-      @Override
-      public void removeUpdate(DocumentEvent e) {
-        validateName();
-      }
+              @Override
+              public void removeUpdate(DocumentEvent e) {
+                validateName();
+              }
 
-      @Override
-      public void changedUpdate(DocumentEvent e) {
-        validateName();
-      }
-    });
+              @Override
+              public void changedUpdate(DocumentEvent e) {
+                validateName();
+              }
+            });
 
-    getRootPane().getInputMap(JRootPane.WHEN_IN_FOCUSED_WINDOW)
+    getRootPane()
+        .getInputMap(JRootPane.WHEN_IN_FOCUSED_WINDOW)
         .put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "cancel");
-    getRootPane().getActionMap().put("cancel", new AbstractAction() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        dispose();
-      }
-    });
+    getRootPane()
+        .getActionMap()
+        .put(
+            "cancel",
+            new AbstractAction() {
+              @Override
+              public void actionPerformed(ActionEvent e) {
+                dispose();
+              }
+            });
   }
 
   private boolean validateName() {
@@ -103,92 +107,111 @@ public class RenameDiag extends javax.swing.JDialog {
 
     lblName.setText("Name:");
 
-    txtName.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(java.awt.event.ActionEvent evt) {
-        txtNameActionPerformed(evt);
-      }
-    });
+    txtName.addActionListener(
+        new java.awt.event.ActionListener() {
+          public void actionPerformed(java.awt.event.ActionEvent evt) {
+            txtNameActionPerformed(evt);
+          }
+        });
 
     btnCancel.setMnemonic('C');
     btnCancel.setText("Cancel");
-    btnCancel.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(java.awt.event.ActionEvent evt) {
-        btnCancelActionPerformed(evt);
-      }
-    });
+    btnCancel.addActionListener(
+        new java.awt.event.ActionListener() {
+          public void actionPerformed(java.awt.event.ActionEvent evt) {
+            btnCancelActionPerformed(evt);
+          }
+        });
 
     btnOk.setMnemonic('O');
     btnOk.setText("Ok");
-    btnOk.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(java.awt.event.ActionEvent evt) {
-        btnOkActionPerformed(evt);
-      }
-    });
+    btnOk.addActionListener(
+        new java.awt.event.ActionListener() {
+          public void actionPerformed(java.awt.event.ActionEvent evt) {
+            btnOkActionPerformed(evt);
+          }
+        });
 
     javax.swing.GroupLayout pnlMainLayout = new javax.swing.GroupLayout(pnlMain);
     pnlMain.setLayout(pnlMainLayout);
     pnlMainLayout.setHorizontalGroup(
-        pnlMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pnlMainLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(
-                    pnlMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(pnlMainLayout.createSequentialGroup()
-                            .addComponent(lblName)
-                            .addGap(0, 0, Short.MAX_VALUE))
-                        .addComponent(txtName)
-                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING,
-                            pnlMainLayout.createSequentialGroup()
-                                .addGap(0, 124, Short.MAX_VALUE)
-                                .addComponent(btnOk)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(btnCancel)))
-                .addContainerGap())
-    );
+        pnlMainLayout
+            .createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(
+                pnlMainLayout
+                    .createSequentialGroup()
+                    .addContainerGap()
+                    .addGroup(
+                        pnlMainLayout
+                            .createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(
+                                pnlMainLayout
+                                    .createSequentialGroup()
+                                    .addComponent(lblName)
+                                    .addGap(0, 0, Short.MAX_VALUE))
+                            .addComponent(txtName)
+                            .addGroup(
+                                javax.swing.GroupLayout.Alignment.TRAILING,
+                                pnlMainLayout
+                                    .createSequentialGroup()
+                                    .addGap(0, 124, Short.MAX_VALUE)
+                                    .addComponent(btnOk)
+                                    .addPreferredGap(
+                                        javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(btnCancel)))
+                    .addContainerGap()));
 
-    pnlMainLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL,
-        new java.awt.Component[]{btnCancel, btnOk});
+    pnlMainLayout.linkSize(
+        javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {btnCancel, btnOk});
 
     pnlMainLayout.setVerticalGroup(
-        pnlMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pnlMainLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(lblName)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(txtName, javax.swing.GroupLayout.PREFERRED_SIZE,
-                    javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED,
-                    javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(
-                    pnlMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(btnCancel)
-                        .addComponent(btnOk))
-                .addContainerGap())
-    );
+        pnlMainLayout
+            .createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(
+                pnlMainLayout
+                    .createSequentialGroup()
+                    .addContainerGap()
+                    .addComponent(lblName)
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addComponent(
+                        txtName,
+                        javax.swing.GroupLayout.PREFERRED_SIZE,
+                        javax.swing.GroupLayout.DEFAULT_SIZE,
+                        javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addPreferredGap(
+                        javax.swing.LayoutStyle.ComponentPlacement.RELATED,
+                        javax.swing.GroupLayout.DEFAULT_SIZE,
+                        Short.MAX_VALUE)
+                    .addGroup(
+                        pnlMainLayout
+                            .createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(btnCancel)
+                            .addComponent(btnOk))
+                    .addContainerGap()));
 
     getContentPane().add(pnlMain, java.awt.BorderLayout.CENTER);
 
     pack();
-  }// </editor-fold>//GEN-END:initComponents
+  } // </editor-fold>//GEN-END:initComponents
 
   private void txtNameActionPerformed(
-      java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtNameActionPerformed
+      java.awt.event.ActionEvent evt) { // GEN-FIRST:event_txtNameActionPerformed
     btnOkActionPerformed(evt);
-  }//GEN-LAST:event_txtNameActionPerformed
+  } // GEN-LAST:event_txtNameActionPerformed
 
   private void btnCancelActionPerformed(
-      java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelActionPerformed
+      java.awt.event.ActionEvent evt) { // GEN-FIRST:event_btnCancelActionPerformed
     dispose();
-  }//GEN-LAST:event_btnCancelActionPerformed
+  } // GEN-LAST:event_btnCancelActionPerformed
 
   private void btnOkActionPerformed(
-      java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnOkActionPerformed
+      java.awt.event.ActionEvent evt) { // GEN-FIRST:event_btnOkActionPerformed
     if (validateName()) {
       node.setName(txtName.getText());
       ProjectHandler.getInstance().nodeChanged(node);
       dispose();
     }
-  }//GEN-LAST:event_btnOkActionPerformed
+  } // GEN-LAST:event_btnOkActionPerformed
 
   // Variables declaration - do not modify//GEN-BEGIN:variables
   private javax.swing.JButton btnCancel;

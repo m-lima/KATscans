@@ -7,14 +7,12 @@ import java.io.Serializable;
 import com.mflima.katscans.event.KatModelListener;
 import com.mflima.katscans.event.RotationListener;
 
-/**
- * @author Marcelo Lima
- */
+/** @author Marcelo Lima */
 public class Rotation extends KatModel<Rotation> implements Serializable {
 
   private final float[] modelMatrix;
 
-  //TODO persist
+  // TODO persist
   private transient Quaternion currentRotation;
 
   private boolean reuseModel;
@@ -137,13 +135,13 @@ public class Rotation extends KatModel<Rotation> implements Serializable {
     KatModelListener[] listeners = listenerList.getListeners(KatModelListener.class);
 
     for (final KatModelListener listener : listeners) {
-      EventQueue.invokeLater(new Runnable() {
-        @Override
-        public void run() {
-          ((RotationListener) listener).rotationValueChanged();
-        }
-      });
+      EventQueue.invokeLater(
+          new Runnable() {
+            @Override
+            public void run() {
+              ((RotationListener) listener).rotationValueChanged();
+            }
+          });
     }
   }
-
 }

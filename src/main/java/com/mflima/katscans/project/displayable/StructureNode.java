@@ -4,9 +4,7 @@ import java.io.Serializable;
 import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
 
-/**
- * @author Marcelo Lima
- */
+/** @author Marcelo Lima */
 public class StructureNode extends SubGroup implements Serializable {
 
   public StructureNode() {
@@ -27,5 +25,4 @@ public class StructureNode extends SubGroup implements Serializable {
   public ImageIcon getIcon() {
     return new ImageIcon(getClass().getResource("/icons/tree/structure.png"));
   }
-
 }

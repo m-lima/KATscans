@@ -13,9 +13,7 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
-/**
- * @author Marcelo Lima
- */
+/** @author Marcelo Lima */
 public class BackgroundPanel extends JPanel {
 
   private static final String IMAGE_NAME = "/img/background.png";
@@ -44,19 +42,20 @@ public class BackgroundPanel extends JPanel {
     transform.setToIdentity();
   }
 
-//    @Override
-//    public void setBounds(int x, int y, int width, int height) {
-//        super.setBounds(x, y, width, height); //To change body of generated methods, choose Tools | Templates.
-//        Insets insets = getInsets();
-//        width -= (insets.left + insets.right);
-//        height -= (insets.bottom + insets.bottom);
-//        double scaleX = width / 1920d;
-//        double scaleY = height / 1080d;
-//        double scale = Math.min(scaleX, scaleY);
-////        transform.setToScale(scale, scale);
-//        transform.setToTranslation(width - (IMAGE.getWidth()), height - (IMAGE.getHeight()));
-////        System.out.println("Scale: " + scale);
-//    }
+  //    @Override
+  //    public void setBounds(int x, int y, int width, int height) {
+  //        super.setBounds(x, y, width, height); //To change body of generated methods, choose
+  // Tools | Templates.
+  //        Insets insets = getInsets();
+  //        width -= (insets.left + insets.right);
+  //        height -= (insets.bottom + insets.bottom);
+  //        double scaleX = width / 1920d;
+  //        double scaleY = height / 1080d;
+  //        double scale = Math.min(scaleX, scaleY);
+  ////        transform.setToScale(scale, scale);
+  //        transform.setToTranslation(width - (IMAGE.getWidth()), height - (IMAGE.getHeight()));
+  ////        System.out.println("Scale: " + scale);
+  //    }
 
   @Override
   protected void paintComponent(Graphics g) {
@@ -65,10 +64,13 @@ public class BackgroundPanel extends JPanel {
       Insets insets = getInsets();
       Rectangle bounds = getBounds();
       g.fillRect(0, 0, bounds.width, bounds.height);
-      g.drawImage(IMAGE, bounds.width - (insets.right + IMAGE.getWidth()),
-          bounds.height - (insets.bottom + IMAGE.getHeight()), this);
-//            Graphics2D g2d = (Graphics2D) g;
-//            g2d.drawImage(IMAGE, transform, this);
+      g.drawImage(
+          IMAGE,
+          bounds.width - (insets.right + IMAGE.getWidth()),
+          bounds.height - (insets.bottom + IMAGE.getHeight()),
+          this);
+      //            Graphics2D g2d = (Graphics2D) g;
+      //            g2d.drawImage(IMAGE, transform, this);
     } else {
       super.paintComponent(g);
     }

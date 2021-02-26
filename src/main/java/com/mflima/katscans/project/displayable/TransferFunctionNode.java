@@ -7,9 +7,7 @@ import javax.swing.JMenuItem;
 import com.mflima.katscans.model.TransferFunction;
 import com.mflima.katscans.model.TransferFunction.Type;
 
-/**
- * @author Marcelo Lima
- */
+/** @author Marcelo Lima */
 public class TransferFunctionNode extends SubGroup implements ActionListener {
 
   private final TransferFunction transferFunction;
@@ -64,5 +62,4 @@ public class TransferFunctionNode extends SubGroup implements ActionListener {
   public ImageIcon getIcon() {
     return new ImageIcon(getClass().getResource("/icons/tree/transfer.png"));
   }
-
 }

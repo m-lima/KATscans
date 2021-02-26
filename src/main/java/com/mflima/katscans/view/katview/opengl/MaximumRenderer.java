@@ -4,9 +4,7 @@ import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLException;
 import com.mflima.katscans.project.displayable.Displayable;
 
-/**
- * @author Marcelo Lima
- */
+/** @author Marcelo Lima */
 public class MaximumRenderer extends VolumeRenderer {
 
   public MaximumRenderer(Displayable displayable) throws GLException {
@@ -19,7 +17,5 @@ public class MaximumRenderer extends VolumeRenderer {
   }
 
   @Override
-  protected void preDraw(GLAutoDrawable drawable) {
-  }
-
+  protected void preDraw(GLAutoDrawable drawable) {}
 }

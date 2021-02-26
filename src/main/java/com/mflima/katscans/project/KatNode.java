@@ -15,9 +15,7 @@ import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeNode;
 import com.mflima.katscans.view.component.DraggableTree;
 
-/**
- * @author Marcelo Lima
- */
+/** @author Marcelo Lima */
 public abstract class KatNode implements MutableTreeNode, Serializable, Transferable {
 
   private KatNode parent;
@@ -247,7 +245,7 @@ public abstract class KatNode implements MutableTreeNode, Serializable, Transfer
 
   @Override
   public DataFlavor[] getTransferDataFlavors() {
-    return new DataFlavor[]{DraggableTree.LOCAL_OBJECT_FLAVOR, DraggableTree.LOCAL_OBJECT_FLAVOR};
+    return new DataFlavor[] {DraggableTree.LOCAL_OBJECT_FLAVOR, DraggableTree.LOCAL_OBJECT_FLAVOR};
   }
 
   @Override
@@ -269,5 +267,4 @@ public abstract class KatNode implements MutableTreeNode, Serializable, Transfer
       throw new UnsupportedFlavorException(flavor);
     }
   }
-
 }

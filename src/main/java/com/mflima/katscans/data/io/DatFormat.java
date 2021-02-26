@@ -11,15 +11,13 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import com.mflima.katscans.data.VoxelMatrix;
 import com.mflima.katscans.util.FileAwareInputStream;
 
-/**
- * @author Marcelo Lima
- */
+/** @author Marcelo Lima */
 class DatFormat implements LoadSaveFormat {
 
   private static final int FORMAT_MAX_VALUE = 4096;
 
-  private static final FileFilter FILE_FILTER = new FileNameExtensionFilter("Dat volume data",
-      "dat");
+  private static final FileFilter FILE_FILTER =
+      new FileNameExtensionFilter("Dat volume data", "dat");
 
   @Override
   public String getName() {
@@ -135,7 +133,9 @@ class DatFormat implements LoadSaveFormat {
         }
 
         shortBuffer = byteBuffer.asShortBuffer();
-        shortBuffer.get(grid, z * optionSizeY * optionSizeX + ((optionSizeY - 1) - y) * optionSizeX,
+        shortBuffer.get(
+            grid,
+            z * optionSizeY * optionSizeX + ((optionSizeY - 1) - y) * optionSizeX,
             optionSizeX);
       }
     }

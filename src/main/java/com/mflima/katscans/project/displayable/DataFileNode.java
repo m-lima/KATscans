@@ -21,9 +21,7 @@ import com.mflima.katscans.model.Light;
 import com.mflima.katscans.model.TransferFunction;
 import com.mflima.katscans.project.ProjectNode;
 
-/**
- * @author Marcelo Lima
- */
+/** @author Marcelo Lima */
 public class DataFileNode extends Displayable implements Serializable {
 
   private File file;
@@ -37,7 +35,11 @@ public class DataFileNode extends Displayable implements Serializable {
   private final Light light;
   private final Camera camera;
 
-  public DataFileNode(String name, File file, LoadSaveFormat.Format format, LoadSaveOptions options,
+  public DataFileNode(
+      String name,
+      File file,
+      LoadSaveFormat.Format format,
+      LoadSaveOptions options,
       VoxelMatrix matrix) {
     super(name);
     this.file = file;
@@ -54,8 +56,9 @@ public class DataFileNode extends Displayable implements Serializable {
 
   @Override
   protected DataFileNode internalCopy() {
-    DataFileNode newNode = new DataFileNode(getName(), new File(file.getAbsolutePath()), format,
-        options, matrix.copy());
+    DataFileNode newNode =
+        new DataFileNode(
+            getName(), new File(file.getAbsolutePath()), format, options, matrix.copy());
     newNode.transferFunction.assimilate(transferFunction);
     newNode.cut.assimilate(cut);
     newNode.rotation.assimilate(rotation);
@@ -68,8 +71,11 @@ public class DataFileNode extends Displayable implements Serializable {
   public VoxelMatrix getMatrix() {
     if (matrix == null) {
       while (file == null || !file.exists() || !file.canRead()) {
-        JOptionPane.showMessageDialog(Init.getFrameReference(),
-            "Could not load data from " + file.getPath(), "Load", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(
+            Init.getFrameReference(),
+            "Could not load data from " + file.getPath(),
+            "Load",
+            JOptionPane.ERROR_MESSAGE);
         file = new LoadSaveHandler(format).showLoadDialog(file);
         if (file == null) {
           remove();
@@ -80,8 +86,11 @@ public class DataFileNode extends Displayable implements Serializable {
         matrix = format.getFormat().loadData(new FileInputStream(file), options);
       } catch (Exception ex) {
         Logger.getLogger(DataFileNode.class.getName()).log(Level.SEVERE, null, ex);
-        JOptionPane.showMessageDialog(Init.getFrameReference(),
-            "Could not load data from " + file.getPath(), "Load", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(
+            Init.getFrameReference(),
+            "Could not load data from " + file.getPath(),
+            "Load",
+            JOptionPane.ERROR_MESSAGE);
         remove();
       }
     }
@@ -129,8 +138,11 @@ public class DataFileNode extends Displayable implements Serializable {
       super.setParent(newParent);
     } else {
       throw new IllegalArgumentException(
-          "Can only have " + ProjectNode.class.getSimpleName() + " nodes as parents of "
-              + getClass().getSimpleName() + " nodes.");
+          "Can only have "
+              + ProjectNode.class.getSimpleName()
+              + " nodes as parents of "
+              + getClass().getSimpleName()
+              + " nodes.");
     }
   }
 
@@ -138,8 +150,13 @@ public class DataFileNode extends Displayable implements Serializable {
   public void insert(MutableTreeNode child, int index) {
     if (child instanceof ProjectNode || child instanceof DataFileNode) {
       throw new IllegalArgumentException(
-          "Cannot add " + getClass().getSimpleName() + " nodes or " + ProjectNode.class
-              .getSimpleName() + "nodes to " + getClass().getSimpleName() + " nodes.");
+          "Cannot add "
+              + getClass().getSimpleName()
+              + " nodes or "
+              + ProjectNode.class.getSimpleName()
+              + "nodes to "
+              + getClass().getSimpleName()
+              + " nodes.");
     }
     super.insert(child, index);
   }
@@ -153,5 +170,4 @@ public class DataFileNode extends Displayable implements Serializable {
   protected JMenuItem[] getExtraMenus() {
     return null;
   }
-
 }

@@ -21,9 +21,7 @@ import com.mflima.katscans.view.component.image.LoadingPanel;
 import com.mflima.katscans.view.katview.KatView;
 import com.mflima.katscans.view.katview.KatView.Type;
 
-/**
- * @author Marcelo Lima
- */
+/** @author Marcelo Lima */
 public class KatViewNode extends KatNode {
 
   private Type type;
@@ -111,7 +109,8 @@ public class KatViewNode extends KatNode {
       }
 
       if (katView instanceof TransferFunctionListener) {
-        displayable.getTransferFunction()
+        displayable
+            .getTransferFunction()
             .removeKatModelListener((TransferFunctionListener) katView);
       }
     }
@@ -121,8 +120,11 @@ public class KatViewNode extends KatNode {
   public void setParent(MutableTreeNode newParent) {
     if (!(newParent instanceof Displayable)) {
       throw new IllegalArgumentException(
-          "Can only have " + Displayable.class.getSimpleName() + " nodes as parents of "
-              + getClass().getSimpleName() + " nodes.");
+          "Can only have "
+              + Displayable.class.getSimpleName()
+              + " nodes as parents of "
+              + getClass().getSimpleName()
+              + " nodes.");
     }
 
     final Displayable displayable = (Displayable) newParent;
@@ -165,7 +167,8 @@ public class KatViewNode extends KatNode {
             }
 
             if (katView instanceof TransferFunctionListener) {
-              displayable.getTransferFunction()
+              displayable
+                  .getTransferFunction()
                   .addKatModelListener((TransferFunctionListener) katView);
             }
           }
@@ -173,7 +176,10 @@ public class KatViewNode extends KatNode {
           ((KatView) katView).loadProperties(properties);
           view.getViewProperties().setTitle(type.getText() + " - " + displayable.getName());
           view.setComponent(katView);
-        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+        } catch (InstantiationException
+            | IllegalAccessException
+            | IllegalArgumentException
+            | InvocationTargetException ex) {
           Logger.getLogger(KatViewNode.class.getName()).log(Level.SEVERE, null, ex);
           view.close();
         }

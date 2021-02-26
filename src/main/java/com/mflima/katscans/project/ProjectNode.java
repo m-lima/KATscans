@@ -13,9 +13,7 @@ import com.mflima.katscans.data.io.LoadSaveFormat;
 import com.mflima.katscans.view.LoadDiag;
 import com.mflima.katscans.view.RenameDiag;
 
-/**
- * @author Marcelo Lima
- */
+/** @author Marcelo Lima */
 public class ProjectNode extends KatNode {
 
   private static final ProjectMenuListener LISTENER = new ProjectMenuListener();
@@ -42,12 +40,13 @@ public class ProjectNode extends KatNode {
     JMenuItem item = new JMenuItem(RENAME, 'R');
     item.setIcon(new ImageIcon(ProjectNode.class.getResource("/icons/edit.png")));
 
-    item.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        RenameDiag.promptRename(ProjectNode.this);
-      }
-    });
+    item.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            RenameDiag.promptRename(ProjectNode.this);
+          }
+        });
 
     menu.add(item);
     return menu;
@@ -60,8 +59,8 @@ public class ProjectNode extends KatNode {
 
     LoadSaveFormat.Format[] formats = LoadSaveFormat.Format.values();
     for (LoadSaveFormat.Format format : formats) {
-      JMenuItem menuItem = new JMenuItem(format.getFormat().getName(),
-          format.getFormat().getMnemonic());
+      JMenuItem menuItem =
+          new JMenuItem(format.getFormat().getName(), format.getFormat().getMnemonic());
       menuItem.addActionListener(LISTENER);
       loadMenu.add(menuItem);
     }
@@ -72,21 +71,22 @@ public class ProjectNode extends KatNode {
   private JMenuItem getClearDatasets() {
     JMenuItem clearDatasets = new JMenuItem(CLEAR_ALL, 'C');
     clearDatasets.setIcon(new ImageIcon(ProjectNode.class.getResource("/icons/closeData.png")));
-    clearDatasets.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
+    clearDatasets.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
 
-        Enumeration<KatNode> children = children();
-        ArrayList<DataFileNode> childrenList = new ArrayList<>();
-        while (children.hasMoreElements()) {
-          childrenList.add((DataFileNode) children.nextElement());
-        }
+            Enumeration<KatNode> children = children();
+            ArrayList<DataFileNode> childrenList = new ArrayList<>();
+            while (children.hasMoreElements()) {
+              childrenList.add((DataFileNode) children.nextElement());
+            }
 
-        for (DataFileNode dataNode : childrenList) {
-          dataNode.remove();
-        }
-      }
-    });
+            for (DataFileNode dataNode : childrenList) {
+              dataNode.remove();
+            }
+          }
+        });
     return clearDatasets;
   }
 
@@ -100,9 +100,8 @@ public class ProjectNode extends KatNode {
     if (child instanceof DataFileNode) {
       super.insert(child, index);
     } else {
-      throw new IllegalArgumentException("Can only add "
-          + DataFileNode.class.getSimpleName()
-          + " nodes to Project nodes.");
+      throw new IllegalArgumentException(
+          "Can only add " + DataFileNode.class.getSimpleName() + " nodes to Project nodes.");
     }
   }
 
@@ -116,8 +115,7 @@ public class ProjectNode extends KatNode {
     if (newParent == null) {
       return;
     }
-    throw new IllegalArgumentException(getClass().getSimpleName()
-        + " nodes may not have parents.");
+    throw new IllegalArgumentException(getClass().getSimpleName() + " nodes may not have parents.");
   }
 
   @Override
@@ -140,7 +138,5 @@ public class ProjectNode extends KatNode {
         }
       }
     }
-
   }
-
 }

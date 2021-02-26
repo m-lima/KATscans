@@ -2,9 +2,7 @@ package com.mflima.katscans.data;
 
 import com.mflima.katscans.data.io.LoadSaveOptions;
 
-/**
- * @author Marcelo Lima
- */
+/** @author Marcelo Lima */
 public class VoxelMatrix {
 
   private final int sizeX, sizeY, sizeZ;
@@ -68,9 +66,12 @@ public class VoxelMatrix {
     histogram = new int[maxValue];
 
     int maxSize = Math.max(sizeX, Math.max(sizeY, sizeZ));
-    ratio = new float[]{sizeX * options.getRatioX() / maxSize,
-        sizeY * options.getRatioY() / maxSize,
-        sizeZ * options.getRatioZ() / maxSize};
+    ratio =
+        new float[] {
+          sizeX * options.getRatioX() / maxSize,
+          sizeY * options.getRatioY() / maxSize,
+          sizeZ * options.getRatioZ() / maxSize
+        };
 
     initialized = false;
   }
@@ -182,5 +183,4 @@ public class VoxelMatrix {
 
     return this.grid == other.grid;
   }
-
 }

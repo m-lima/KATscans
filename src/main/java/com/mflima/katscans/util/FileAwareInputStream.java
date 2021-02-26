@@ -4,9 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
-/**
- * @author Marcelo Lima
- */
+/** @author Marcelo Lima */
 public class FileAwareInputStream extends FileInputStream {
 
   private final File file;
@@ -24,5 +22,4 @@ public class FileAwareInputStream extends FileInputStream {
   public File getFile() {
     return file;
   }
-
 }

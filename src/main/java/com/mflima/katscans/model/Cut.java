@@ -5,9 +5,7 @@ import java.io.Serializable;
 import com.mflima.katscans.event.CutListener;
 import com.mflima.katscans.event.KatModelListener;
 
-/**
- * @author Marcelo Lima
- */
+/** @author Marcelo Lima */
 public class Cut extends KatModel<Cut> implements Serializable {
 
   private final float[] minValues;
@@ -15,8 +13,8 @@ public class Cut extends KatModel<Cut> implements Serializable {
   private float slice;
 
   public Cut() {
-    minValues = new float[]{0f, 0f, 0f};
-    maxValues = new float[]{1f, 1f, 1f};
+    minValues = new float[] {0f, 0f, 0f};
+    maxValues = new float[] {1f, 1f, 1f};
 
     slice = 0f;
   }
@@ -165,12 +163,13 @@ public class Cut extends KatModel<Cut> implements Serializable {
     KatModelListener[] listeners = listenerList.getListeners(KatModelListener.class);
 
     for (final KatModelListener listener : listeners) {
-      EventQueue.invokeLater(new Runnable() {
-        @Override
-        public void run() {
-          ((CutListener) listener).minValueChanged();
-        }
-      });
+      EventQueue.invokeLater(
+          new Runnable() {
+            @Override
+            public void run() {
+              ((CutListener) listener).minValueChanged();
+            }
+          });
     }
   }
 
@@ -178,12 +177,13 @@ public class Cut extends KatModel<Cut> implements Serializable {
     KatModelListener[] listeners = listenerList.getListeners(KatModelListener.class);
 
     for (final KatModelListener listener : listeners) {
-      EventQueue.invokeLater(new Runnable() {
-        @Override
-        public void run() {
-          ((CutListener) listener).maxValueChanged();
-        }
-      });
+      EventQueue.invokeLater(
+          new Runnable() {
+            @Override
+            public void run() {
+              ((CutListener) listener).maxValueChanged();
+            }
+          });
     }
   }
 
@@ -191,13 +191,13 @@ public class Cut extends KatModel<Cut> implements Serializable {
     KatModelListener[] listeners = listenerList.getListeners(KatModelListener.class);
 
     for (final KatModelListener listener : listeners) {
-      EventQueue.invokeLater(new Runnable() {
-        @Override
-        public void run() {
-          ((CutListener) listener).sliceValueChanged();
-        }
-      });
+      EventQueue.invokeLater(
+          new Runnable() {
+            @Override
+            public void run() {
+              ((CutListener) listener).sliceValueChanged();
+            }
+          });
     }
   }
-
 }

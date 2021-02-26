@@ -27,42 +27,40 @@ import com.mflima.katscans.model.Rotation;
 import com.mflima.katscans.project.displayable.Displayable;
 import com.mflima.katscans.view.katview.opengl.VolumeRenderer;
 
-/**
- * @author Marcelo Lima
- */
-public class KatViewHandler implements MouseListener, MouseMotionListener, MouseWheelListener,
-    KeyListener, FocusListener {
+/** @author Marcelo Lima */
+public class KatViewHandler
+    implements MouseListener, MouseMotionListener, MouseWheelListener, KeyListener, FocusListener {
 
   private static final float CUT_RATIO = -0.001f;
 
-  transient private final float[] initialLightPosition;
+  private final transient float[] initialLightPosition;
 
-  transient private final float[] initialPosition;
-  transient private final float[] currentPosition;
-  transient private final float[] axis;
+  private final transient float[] initialPosition;
+  private final transient float[] currentPosition;
+  private final transient float[] axis;
 
-  transient private final Quaternion initialRotation;
+  private final transient Quaternion initialRotation;
 
-  transient private int xPos;
-  transient private int yPos;
-  transient private float yPosOld;
-  transient private float xPosOld;
+  private transient int xPos;
+  private transient int yPos;
+  private transient float yPosOld;
+  private transient float xPosOld;
 
-  transient private boolean xDown;
-  transient private boolean yDown;
-  transient private boolean zDown;
+  private transient boolean xDown;
+  private transient boolean yDown;
+  private transient boolean zDown;
 
-  transient private JPopupMenu popupMenu;
-  transient private JMenuItem menuOrtho;
+  private transient JPopupMenu popupMenu;
+  private transient JMenuItem menuOrtho;
 
-  transient private final Cut cut;
-  transient private final Light light;
-  transient private final Rotation rotation;
-  transient private final Camera camera;
-  transient private final Screen screen;
+  private final transient Cut cut;
+  private final transient Light light;
+  private final transient Rotation rotation;
+  private final transient Camera camera;
+  private final transient Screen screen;
 
   public KatViewHandler(VolumeRenderer renderer, Displayable displayable, Screen screen) {
-    initialLightPosition = VectorUtil.normalizeVec3(new float[]{-2f, 2f, 5f});
+    initialLightPosition = VectorUtil.normalizeVec3(new float[] {-2f, 2f, 5f});
 
     initialPosition = new float[3];
     currentPosition = new float[3];
@@ -107,58 +105,61 @@ public class KatViewHandler implements MouseListener, MouseMotionListener, Mouse
 
   private void buildPopup(final VolumeRenderer owner) {
     popupMenu = new JPopupMenu();
-    final JMenuItem top = new JMenuItem("Top",
-        new ImageIcon(getClass().getResource("/icons/top.png")));
-    final JMenuItem bottom = new JMenuItem("Bottom",
-        new ImageIcon(getClass().getResource("/icons/bottom.png")));
-    final JMenuItem front = new JMenuItem("Front",
-        new ImageIcon(getClass().getResource("/icons/front.png")));
-    final JMenuItem back = new JMenuItem("Back",
-        new ImageIcon(getClass().getResource("/icons/back.png")));
-    final JMenuItem right = new JMenuItem("Right",
-        new ImageIcon(getClass().getResource("/icons/right.png")));
-    final JMenuItem left = new JMenuItem("Left",
-        new ImageIcon(getClass().getResource("/icons/left.png")));
-    final JMenuItem reset = new JMenuItem("Reset",
-        new ImageIcon(getClass().getResource("/icons/reset.png")));
+    final JMenuItem top =
+        new JMenuItem("Top", new ImageIcon(getClass().getResource("/icons/top.png")));
+    final JMenuItem bottom =
+        new JMenuItem("Bottom", new ImageIcon(getClass().getResource("/icons/bottom.png")));
+    final JMenuItem front =
+        new JMenuItem("Front", new ImageIcon(getClass().getResource("/icons/front.png")));
+    final JMenuItem back =
+        new JMenuItem("Back", new ImageIcon(getClass().getResource("/icons/back.png")));
+    final JMenuItem right =
+        new JMenuItem("Right", new ImageIcon(getClass().getResource("/icons/right.png")));
+    final JMenuItem left =
+        new JMenuItem("Left", new ImageIcon(getClass().getResource("/icons/left.png")));
+    final JMenuItem reset =
+        new JMenuItem("Reset", new ImageIcon(getClass().getResource("/icons/reset.png")));
     if (screen.isOrthographic()) {
-      menuOrtho = new JMenuItem("Perspective",
-          new ImageIcon(getClass().getResource("/icons/perspective.png")));
+      menuOrtho =
+          new JMenuItem(
+              "Perspective", new ImageIcon(getClass().getResource("/icons/perspective.png")));
     } else {
-      menuOrtho = new JMenuItem("Orthographic",
-          new ImageIcon(getClass().getResource("/icons/ortho.png")));
+      menuOrtho =
+          new JMenuItem("Orthographic", new ImageIcon(getClass().getResource("/icons/ortho.png")));
     }
-    final JMenuItem structure = new JMenuItem("Create structure",
-        new ImageIcon(getClass().getResource("/icons/tree/structure.png")));
+    final JMenuItem structure =
+        new JMenuItem(
+            "Create structure", new ImageIcon(getClass().getResource("/icons/tree/structure.png")));
 
-    ActionListener listener = new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == top) {
-          rotation.top();
-        } else if (e.getSource() == bottom) {
-          rotation.bottom();
-        } else if (e.getSource() == front) {
-          rotation.front();
-        } else if (e.getSource() == back) {
-          rotation.back();
-        } else if (e.getSource() == right) {
-          rotation.right();
-        } else if (e.getSource() == left) {
-          rotation.left();
-        } else if (e.getSource() == reset) {
-          rotation.reset();
-          camera.reset();
-          light.reset();
-          cut.reset();
-          screen.reset();
-        } else if (e.getSource() == menuOrtho) {
-          toggleOrthographic();
-        } else if (e.getSource() == structure) {
-          owner.createStructure(xPos, yPos, 1f);
-        }
-      }
-    };
+    ActionListener listener =
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            if (e.getSource() == top) {
+              rotation.top();
+            } else if (e.getSource() == bottom) {
+              rotation.bottom();
+            } else if (e.getSource() == front) {
+              rotation.front();
+            } else if (e.getSource() == back) {
+              rotation.back();
+            } else if (e.getSource() == right) {
+              rotation.right();
+            } else if (e.getSource() == left) {
+              rotation.left();
+            } else if (e.getSource() == reset) {
+              rotation.reset();
+              camera.reset();
+              light.reset();
+              cut.reset();
+              screen.reset();
+            } else if (e.getSource() == menuOrtho) {
+              toggleOrthographic();
+            } else if (e.getSource() == structure) {
+              owner.createStructure(xPos, yPos, 1f);
+            }
+          }
+        };
 
     top.addActionListener(listener);
     bottom.addActionListener(listener);
@@ -225,11 +226,13 @@ public class KatViewHandler implements MouseListener, MouseMotionListener, Mouse
   public void mousePressed(MouseEvent e) {
     final int modifiers = e.getModifiersEx();
 
-    if ((modifiers & ~(MouseEvent.SHIFT_DOWN_MASK
-        | MouseEvent.ALT_DOWN_MASK
-        | MouseEvent.BUTTON1_DOWN_MASK
-        | MouseEvent.BUTTON2_DOWN_MASK
-        | MouseEvent.BUTTON3_DOWN_MASK)) > 0) {
+    if ((modifiers
+            & ~(MouseEvent.SHIFT_DOWN_MASK
+                | MouseEvent.ALT_DOWN_MASK
+                | MouseEvent.BUTTON1_DOWN_MASK
+                | MouseEvent.BUTTON2_DOWN_MASK
+                | MouseEvent.BUTTON3_DOWN_MASK))
+        > 0) {
       return;
     }
 
@@ -243,11 +246,11 @@ public class KatViewHandler implements MouseListener, MouseMotionListener, Mouse
       yPos = e.getY();
     } else if (SwingUtilities.isLeftMouseButton(e)) {
       Component component = e.getComponent();
-      getSurfaceVector(e.getX(), e.getY(), component.getWidth(), component.getHeight(),
-          initialPosition);
+      getSurfaceVector(
+          e.getX(), e.getY(), component.getWidth(), component.getHeight(), initialPosition);
       initialRotation.set(rotation.getCurrentRotation());
-      System.arraycopy(light.getLightPosition(), 0, initialLightPosition, 0,
-          initialLightPosition.length);
+      System.arraycopy(
+          light.getLightPosition(), 0, initialLightPosition, 0, initialLightPosition.length);
     }
   }
 
@@ -257,22 +260,22 @@ public class KatViewHandler implements MouseListener, MouseMotionListener, Mouse
   }
 
   @Override
-  public void mouseEntered(MouseEvent e) {
-  }
+  public void mouseEntered(MouseEvent e) {}
 
   @Override
-  public void mouseExited(MouseEvent e) {
-  }
+  public void mouseExited(MouseEvent e) {}
 
   @Override
   public void mouseDragged(MouseEvent e) {
     final int modifiers = e.getModifiersEx();
 
-    if ((modifiers & ~(MouseEvent.SHIFT_DOWN_MASK
-        | MouseEvent.ALT_DOWN_MASK
-        | MouseEvent.BUTTON1_DOWN_MASK
-        | MouseEvent.BUTTON2_DOWN_MASK
-        | MouseEvent.BUTTON3_DOWN_MASK)) > 0) {
+    if ((modifiers
+            & ~(MouseEvent.SHIFT_DOWN_MASK
+                | MouseEvent.ALT_DOWN_MASK
+                | MouseEvent.BUTTON1_DOWN_MASK
+                | MouseEvent.BUTTON2_DOWN_MASK
+                | MouseEvent.BUTTON3_DOWN_MASK))
+        > 0) {
       return;
     }
 
@@ -287,8 +290,8 @@ public class KatViewHandler implements MouseListener, MouseMotionListener, Mouse
         screen.changeStepValue((e.getY() - yPos) * 0.025f);
         yPos = e.getY();
       } else {
-        getSurfaceVector(e.getX(), e.getY(), renderer.getWidth(), renderer.getHeight(),
-            currentPosition);
+        getSurfaceVector(
+            e.getX(), e.getY(), renderer.getWidth(), renderer.getHeight(), currentPosition);
 
         float angle = FloatUtil.acos(VectorUtil.dotVec3(initialPosition, currentPosition));
         VectorUtil.crossVec3(axis, initialPosition, currentPosition);
@@ -334,7 +337,10 @@ public class KatViewHandler implements MouseListener, MouseMotionListener, Mouse
       float deltaY = e.getY() - yPos;
 
       if ((modifiers & MouseEvent.ALT_DOWN_MASK) > 0) {
-        screen.changeFOV(deltaY * FloatUtil.PI / (180f * 16f), camera, renderer.getWidth(),
+        screen.changeFOV(
+            deltaY * FloatUtil.PI / (180f * 16f),
+            camera,
+            renderer.getWidth(),
             renderer.getHeight());
       } else if (e.isShiftDown()) {
         cut.changeSlice(deltaY * -0.0025f);
@@ -390,15 +396,15 @@ public class KatViewHandler implements MouseListener, MouseMotionListener, Mouse
 
         yPos = e.getY();
       } else {
-        camera.setEyePosition(xPosOld + (xPos - e.getX()) / (float) renderer.getWidth(),
+        camera.setEyePosition(
+            xPosOld + (xPos - e.getX()) / (float) renderer.getWidth(),
             yPosOld - (yPos - e.getY()) / (float) renderer.getHeight());
       }
     }
   }
 
   @Override
-  public void mouseMoved(MouseEvent e) {
-  }
+  public void mouseMoved(MouseEvent e) {}
 
   @Override
   public void mouseWheelMoved(MouseWheelEvent e) {
@@ -409,7 +415,10 @@ public class KatViewHandler implements MouseListener, MouseMotionListener, Mouse
 
     Component component = e.getComponent();
     if (e.isAltDown()) {
-      screen.changeFOV(e.getWheelRotation() * FloatUtil.PI / 180f, camera, component.getWidth(),
+      screen.changeFOV(
+          e.getWheelRotation() * FloatUtil.PI / 180f,
+          camera,
+          component.getWidth(),
           component.getHeight());
     } else if (e.isShiftDown()) {
       cut.changeSlice(e.getWheelRotation() * -0.05f);
@@ -419,8 +428,7 @@ public class KatViewHandler implements MouseListener, MouseMotionListener, Mouse
   }
 
   @Override
-  public void keyTyped(KeyEvent e) {
-  }
+  public void keyTyped(KeyEvent e) {}
 
   @Override
   public void keyPressed(KeyEvent e) {
@@ -470,8 +478,7 @@ public class KatViewHandler implements MouseListener, MouseMotionListener, Mouse
   }
 
   @Override
-  public void focusGained(FocusEvent e) {
-  }
+  public void focusGained(FocusEvent e) {}
 
   @Override
   public void focusLost(FocusEvent e) {
@@ -479,5 +486,4 @@ public class KatViewHandler implements MouseListener, MouseMotionListener, Mouse
     yDown = false;
     zDown = false;
   }
-
 }

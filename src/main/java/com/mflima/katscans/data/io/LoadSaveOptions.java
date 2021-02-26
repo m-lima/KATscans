@@ -2,9 +2,7 @@ package com.mflima.katscans.data.io;
 
 import java.io.Serializable;
 
-/**
- * @author Marcelo Lima
- */
+/** @author Marcelo Lima */
 public class LoadSaveOptions implements Serializable {
 
   private final int sizeX;
@@ -20,8 +18,17 @@ public class LoadSaveOptions implements Serializable {
   private final int maxFormatValue;
   private final boolean normalizeValues;
 
-  public LoadSaveOptions(int sizeX, int sizeY, int sizeZ, float ratioX, float ratioY, float ratioZ,
-      int minValue, int maxValue, int maxFormatValue, boolean normalizeValues) {
+  public LoadSaveOptions(
+      int sizeX,
+      int sizeY,
+      int sizeZ,
+      float ratioX,
+      float ratioY,
+      float ratioZ,
+      int minValue,
+      int maxValue,
+      int maxFormatValue,
+      boolean normalizeValues) {
     this.sizeX = sizeX;
     this.sizeY = sizeY;
     this.sizeZ = sizeZ;
@@ -73,5 +80,4 @@ public class LoadSaveOptions implements Serializable {
   public boolean isNormalizeValues() {
     return normalizeValues;
   }
-
 }

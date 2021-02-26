@@ -14,9 +14,7 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
-/**
- * @author Marcelo Lima
- */
+/** @author Marcelo Lima */
 public class SplashImage extends JPanel {
 
   private static final String IMAGE_NAME = "/img/splashWhite.png";
@@ -64,12 +62,18 @@ public class SplashImage extends JPanel {
       Rectangle bounds = getBounds();
       Insets insets = getInsets();
       g.fillRect(0, 0, bounds.width, bounds.height);
-      g.drawImage(IMAGE, bounds.width - (insets.right + IMAGE.getWidth()),
-          bounds.height - (insets.bottom + IMAGE.getHeight()), this);
+      g.drawImage(
+          IMAGE,
+          bounds.width - (insets.right + IMAGE.getWidth()),
+          bounds.height - (insets.bottom + IMAGE.getHeight()),
+          this);
       if (IMAGE_FADE != null && mix > 0f) {
         ((Graphics2D) g).setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, mix));
-        g.drawImage(IMAGE_FADE, bounds.width - (insets.right + IMAGE.getWidth()),
-            bounds.height - (insets.bottom + IMAGE.getHeight()), this);
+        g.drawImage(
+            IMAGE_FADE,
+            bounds.width - (insets.right + IMAGE.getWidth()),
+            bounds.height - (insets.bottom + IMAGE.getHeight()),
+            this);
       }
     } else {
       super.paintComponent(g);

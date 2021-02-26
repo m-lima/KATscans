@@ -6,12 +6,10 @@ import java.io.Serializable;
 import com.mflima.katscans.event.CameraListener;
 import com.mflima.katscans.event.KatModelListener;
 
-/**
- * @author Marcelo Lima
- */
+/** @author Marcelo Lima */
 public class Camera extends KatModel<Camera> implements Serializable {
 
-  private static final float[] UP_VECTOR = new float[]{0f, 1f, 0f};
+  private static final float[] UP_VECTOR = new float[] {0f, 1f, 0f};
 
   private final float[] eyePosition;
   private final float[] targetPosition;
@@ -27,8 +25,8 @@ public class Camera extends KatModel<Camera> implements Serializable {
   }
 
   public Camera(float initialZoom) {
-    eyePosition = new float[]{0f, 0f, initialZoom};
-    targetPosition = new float[]{0f, 0f, -50f};
+    eyePosition = new float[] {0f, 0f, initialZoom};
+    targetPosition = new float[] {0f, 0f, -50f};
 
     viewMatrix = new float[16];
     tempMatrix = new float[16];
@@ -77,8 +75,8 @@ public class Camera extends KatModel<Camera> implements Serializable {
       return viewMatrix;
     } else {
       reuseView = true;
-      return FloatUtil
-          .makeLookAt(viewMatrix, 0, eyePosition, 0, targetPosition, 0, UP_VECTOR, 0, tempMatrix);
+      return FloatUtil.makeLookAt(
+          viewMatrix, 0, eyePosition, 0, targetPosition, 0, UP_VECTOR, 0, tempMatrix);
     }
   }
 
@@ -116,12 +114,13 @@ public class Camera extends KatModel<Camera> implements Serializable {
     KatModelListener[] listeners = listenerList.getListeners(KatModelListener.class);
 
     for (final KatModelListener listener : listeners) {
-      EventQueue.invokeLater(new Runnable() {
-        @Override
-        public void run() {
-          ((CameraListener) listener).viewValueChanged();
-        }
-      });
+      EventQueue.invokeLater(
+          new Runnable() {
+            @Override
+            public void run() {
+              ((CameraListener) listener).viewValueChanged();
+            }
+          });
     }
   }
 
@@ -130,13 +129,13 @@ public class Camera extends KatModel<Camera> implements Serializable {
     KatModelListener[] listeners = listenerList.getListeners(KatModelListener.class);
 
     for (final KatModelListener listener : listeners) {
-      EventQueue.invokeLater(new Runnable() {
-        @Override
-        public void run() {
-          ((CameraListener) listener).zoomValueChanged();
-        }
-      });
+      EventQueue.invokeLater(
+          new Runnable() {
+            @Override
+            public void run() {
+              ((CameraListener) listener).zoomValueChanged();
+            }
+          });
     }
   }
-
 }
