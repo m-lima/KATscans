@@ -101,7 +101,7 @@ public class Screen extends KatModel<Screen> {
   }
 
   public void updateProjection(Camera camera, float width, float height) {
-    width /= height;
+    width = width / height;
     if (orthographic) {
       float top = FloatUtil.tan(fov / 2f) * camera.getZoom();
       float bottom = -1.0f * top;

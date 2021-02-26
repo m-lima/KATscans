@@ -47,7 +47,7 @@ public class TransferFunctionEditor extends Histogram implements ChartProgressLi
     pnlChartHolder = new JLayeredPane();
     pnlChartHolder.setLayout(new FullLayout());
     pnlChartHolder.add(chartPanel, JLayeredPane.DEFAULT_LAYER);
-    pnlChartHolder.add(pnlChartEditorHolder, new Integer(JLayeredPane.DEFAULT_LAYER + 1));
+    pnlChartHolder.add(pnlChartEditorHolder, Integer.valueOf(JLayeredPane.DEFAULT_LAYER + 1));
 
     pnlMain = new JPanel(new BorderLayout());
     pnlMain.add(pnlChartHolder, BorderLayout.CENTER);

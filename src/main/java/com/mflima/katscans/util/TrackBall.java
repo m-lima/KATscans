@@ -131,35 +131,7 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
 
   private TrackBall(TrackBall trackBall) {
     this(trackBall.initialZoom);
-    System.arraycopy(trackBall.eyePosition, 0, this.eyePosition, 0, eyePosition.length);
-    System.arraycopy(trackBall.targetPosition, 0, this.targetPosition, 0, targetPosition.length);
-    System.arraycopy(trackBall.lightPosition, 0, this.lightPosition, 0, lightPosition.length);
-
-    this.currentRotation.set(trackBall.currentRotation);
-    System.arraycopy(trackBall.translation, 0, this.translation, 0, translation.length);
-
-    System.arraycopy(trackBall.modelMatrix, 0, this.modelMatrix, 0, modelMatrix.length);
-    System.arraycopy(trackBall.viewMatrix, 0, this.viewMatrix, 0, viewMatrix.length);
-    System.arraycopy(trackBall.projectionMatrix, 0, this.projectionMatrix, 0,
-        projectionMatrix.length);
-    System.arraycopy(trackBall.normalMatrix, 0, this.normalMatrix, 0, normalMatrix.length);
-
-    this.orthographic = trackBall.orthographic;
-    this.fov = trackBall.fov;
-    this.initialZoom = trackBall.initialZoom;
-    this.slice = trackBall.slice;
-    this.stepFactor = trackBall.stepFactor;
-
-    this.reuseModel = trackBall.reuseModel;
-    this.reuseView = trackBall.reuseView;
-    if (!trackBall.reuseNormal) {
-      updateMatrices();
-    }
-
-    System.arraycopy(trackBall.minValues, 0, this.minValues, 0, minValues.length);
-    System.arraycopy(trackBall.maxValues, 0, this.maxValues, 0, maxValues.length);
-
-    markAllDirty();
+    assimilate(trackBall);
   }
 
   //TODO Remove "assimilate"
@@ -743,8 +715,8 @@ public class TrackBall implements MouseListener, MouseMotionListener, MouseWheel
 
   @Override
   public void mouseWheelMoved(MouseWheelEvent e) {
-    final int modifiers = e.getModifiers();
-    if ((modifiers & ~(MouseEvent.SHIFT_MASK | MouseEvent.ALT_MASK)) > 0) {
+    final int modifiers = e.getModifiersEx();
+    if ((modifiers & ~(MouseEvent.SHIFT_DOWN_MASK | MouseEvent.ALT_DOWN_MASK)) > 0) {
       return;
     }
 

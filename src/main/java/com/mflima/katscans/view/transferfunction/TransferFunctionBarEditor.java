@@ -94,13 +94,11 @@ public class TransferFunctionBarEditor extends JPanel implements TransferFunctio
 
   private void buildMarkers() {
     pnlMarker.removeAll();
-    Marker marker;
-    for (int i = 0; i < transferFunction.getPointCount(); i++) {
-      TransferFunctionPoint point = transferFunction.getPoint(i);
-      marker = new Marker(point);
+    transferFunction.getPoints().forEach(point ->{
+      Marker marker = new Marker(point);
       pnlMarker.add(marker);
       marker.setSize(pnlMarker.getHeight(), pnlMarker.getHeight());
-    }
+    });
     updateMarkersPositions();
   }
 
@@ -273,11 +271,11 @@ public class TransferFunctionBarEditor extends JPanel implements TransferFunctio
       if (!onlyGradient) {
         g2d.setColor(Color.BLACK);
 
-        for (int i = 0; i < transferFunction.getPointCount(); i++) {
-          double x = (transferFunction.getPoint(i).getPoint() - minRange) * ratio;
-          x *= width;
-          g2d.drawLine((int) x, 0, (int) x, height);
-        }
+        transferFunction.getPoints()
+            .map(point -> (int) ((point.getPoint() - minRange) * ratio) * width)
+            .forEach(x -> {
+              g2d.drawLine(x, 0, x, height);
+            });
       }
     }
 

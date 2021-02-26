@@ -1,5 +1,8 @@
 package com.mflima.katscans.view.katview.opengl;
 
+import static com.jogamp.common.nio.Buffers.SIZEOF_FLOAT;
+import static com.jogamp.common.nio.Buffers.SIZEOF_SHORT;
+
 import com.jogamp.opengl.GL4;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLCapabilities;
@@ -180,17 +183,18 @@ public abstract class VolumeRenderer extends GLJPanel implements KatView, GLEven
 
     float[] vertices = displayObject.getVertices();
     gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, bufferLocation[BUFFER_VERTICES]);
-    gl.glBufferData(GL4.GL_ARRAY_BUFFER, vertices.length * Float.BYTES, FloatBuffer.wrap(vertices),
+    gl.glBufferData(GL4.GL_ARRAY_BUFFER, (long) vertices.length * SIZEOF_FLOAT,
+        FloatBuffer.wrap(vertices),
         GL4.GL_STATIC_DRAW);
 
     short[] indices = displayObject.getIndicesCW();
     gl.glBindBuffer(GL4.GL_ELEMENT_ARRAY_BUFFER, bufferLocation[BUFFER_INDICES]);
-    gl.glBufferData(GL4.GL_ELEMENT_ARRAY_BUFFER, indices.length * Short.BYTES,
+    gl.glBufferData(GL4.GL_ELEMENT_ARRAY_BUFFER, (long) indices.length * SIZEOF_SHORT,
         ShortBuffer.wrap(indices), GL4.GL_STATIC_DRAW);
 
     indices = displayObject.getIndicesCCW();
     gl.glBindBuffer(GL4.GL_ELEMENT_ARRAY_BUFFER, bufferLocation[BUFFER_INDICES_REV]);
-    gl.glBufferData(GL4.GL_ELEMENT_ARRAY_BUFFER, indices.length * Short.BYTES,
+    gl.glBufferData(GL4.GL_ELEMENT_ARRAY_BUFFER, (long) indices.length * SIZEOF_SHORT,
         ShortBuffer.wrap(indices), GL4.GL_STATIC_DRAW);
 
     checkError(gl, "Load vertices");

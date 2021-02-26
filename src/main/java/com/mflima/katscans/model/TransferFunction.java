@@ -1,5 +1,7 @@
 package com.mflima.katscans.model;
 
+import com.mflima.katscans.event.KatModelListener;
+import com.mflima.katscans.event.TransferFunctionListener;
 import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.LinearGradientPaint;
@@ -8,9 +10,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.stream.Stream;
 import javax.swing.event.EventListenerList;
-import com.mflima.katscans.event.KatModelListener;
-import com.mflima.katscans.event.TransferFunctionListener;
 
 /**
  * @author Marcelo Lima
@@ -26,7 +27,7 @@ public class TransferFunction extends KatModel<TransferFunction> implements Seri
     private final String makeText;
     private final char mnemonic;
 
-    private Type(String text, String makeText, char mnemonic) {
+    Type(String text, String makeText, char mnemonic) {
       this.text = text;
       this.makeText = makeText;
       this.mnemonic = mnemonic;
@@ -120,35 +121,28 @@ public class TransferFunction extends KatModel<TransferFunction> implements Seri
     return points.size();
   }
 
-  public boolean addPoint(Color color, float point) {
+  public void addPoint(Color color, float point) {
     TransferFunctionPoint newPoint = new TransferFunctionPoint(color, point, this);
-    final boolean returnValue = points.add(newPoint);
+    points.add(newPoint);
     dirtyPaint = true;
 
     firePointCountChanged();
-    return returnValue;
+  }
+
+  public Stream<TransferFunctionPoint> getPoints() {
+    return points.stream();
   }
 
   public TransferFunctionPoint getPoint(int index) {
     return points.get(index);
   }
 
-  public boolean removePoint(TransferFunctionPoint point) {
+  public void removePoint(TransferFunctionPoint point) {
     boolean removed = points.remove(point);
     if (removed) {
       dirtyPaint = true;
       firePointCountChanged();
     }
-    return removed;
-  }
-
-  public TransferFunctionPoint removePoint(int index) {
-    final TransferFunctionPoint point = points.remove(index);
-    if (point != null) {
-      dirtyPaint = true;
-      firePointCountChanged();
-    }
-    return point;
   }
 
   private void valueChanged() {
@@ -211,12 +205,7 @@ public class TransferFunction extends KatModel<TransferFunction> implements Seri
     KatModelListener[] listeners = listenerList.getListeners(KatModelListener.class);
 
     for (final KatModelListener listener : listeners) {
-      EventQueue.invokeLater(new Runnable() {
-        @Override
-        public void run() {
-          ((TransferFunctionListener) listener).pointCountChanged();
-        }
-      });
+      EventQueue.invokeLater(((TransferFunctionListener) listener)::pointCountChanged);
     }
   }
 
@@ -224,21 +213,17 @@ public class TransferFunction extends KatModel<TransferFunction> implements Seri
     KatModelListener[] listeners = listenerList.getListeners(KatModelListener.class);
 
     for (final KatModelListener listener : listeners) {
-      EventQueue.invokeLater(new Runnable() {
-        @Override
-        public void run() {
-          ((TransferFunctionListener) listener).pointValueChanged();
-        }
-      });
+      EventQueue.invokeLater(((TransferFunctionListener) listener)::pointValueChanged);
     }
   }
 
-  public class TransferFunctionPoint implements Comparable<TransferFunctionPoint>, Serializable {
+  public static class TransferFunctionPoint implements Comparable<TransferFunctionPoint>,
+      Serializable {
 
     private Color color;
     private float point;
-    private TransferFunction owner;
-    private boolean movable;
+    private final TransferFunction owner;
+    private final boolean movable;
 
     private TransferFunctionPoint(TransferFunctionPoint other, TransferFunction owner) {
       this.color = other.color;
@@ -331,11 +316,7 @@ public class TransferFunction extends KatModel<TransferFunction> implements Seri
         return false;
       }
       final TransferFunctionPoint other = (TransferFunctionPoint) obj;
-      if (Float.floatToIntBits(this.point)
-          != Float.floatToIntBits(other.point)) {
-        return false;
-      }
-      return true;
+      return Float.floatToIntBits(this.point) == Float.floatToIntBits(other.point);
     }
 
     @Override

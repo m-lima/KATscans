@@ -1,5 +1,8 @@
 package com.mflima.katscans.view.katview.opengl;
 
+import static com.jogamp.common.nio.Buffers.SIZEOF_FLOAT;
+import static com.jogamp.common.nio.Buffers.SIZEOF_SHORT;
+
 import com.jogamp.opengl.GL4;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLCapabilities;
@@ -75,11 +78,11 @@ public class SliceNavigator extends GLJPanel implements KatView, GLEventListener
     gl.glGenBuffers(bufferLocation.length, bufferLocation, 0);
 
     gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, bufferLocation[VERTICES]);
-    gl.glBufferData(GL4.GL_ARRAY_BUFFER, vertices.length * Float.BYTES, FloatBuffer.wrap(vertices),
+    gl.glBufferData(GL4.GL_ARRAY_BUFFER, (long) vertices.length * SIZEOF_FLOAT, FloatBuffer.wrap(vertices),
         GL4.GL_STATIC_DRAW);
 
     gl.glBindBuffer(GL4.GL_ELEMENT_ARRAY_BUFFER, bufferLocation[INDICES]);
-    gl.glBufferData(GL4.GL_ELEMENT_ARRAY_BUFFER, indices.length * Short.BYTES,
+    gl.glBufferData(GL4.GL_ELEMENT_ARRAY_BUFFER, (long) indices.length * SIZEOF_SHORT,
         ShortBuffer.wrap(indices), GL4.GL_STATIC_DRAW);
 
     checkError(gl, "Create Buffers");

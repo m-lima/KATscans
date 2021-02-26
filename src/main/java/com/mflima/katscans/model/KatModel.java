@@ -9,7 +9,7 @@ import com.mflima.katscans.event.KatModelListener;
 /**
  * @author Marcelo Lima
  */
-public abstract class KatModel<T extends KatModel> implements Serializable {
+abstract class KatModel<T>  implements Serializable {
 
   protected transient EventListenerList listenerList;
 
@@ -23,12 +23,6 @@ public abstract class KatModel<T extends KatModel> implements Serializable {
 
   public void reset() {
     assimilate(newInstance());
-  }
-
-  public final T copy() {
-    T katModel = newInstance();
-    katModel.assimilate(this);
-    return katModel;
   }
 
   public synchronized void addKatModelListener(KatModelListener listener) {

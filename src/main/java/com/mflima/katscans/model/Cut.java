@@ -31,7 +31,7 @@ public class Cut extends KatModel<Cut> implements Serializable {
     System.arraycopy(katModel.minValues, 0, this.minValues, 0, minValues.length);
     System.arraycopy(katModel.maxValues, 0, this.maxValues, 0, maxValues.length);
 
-    this.slice = slice;
+    this.slice = katModel.slice;
 
     fireMinValueChanged();
     fireMaxValueChanged();

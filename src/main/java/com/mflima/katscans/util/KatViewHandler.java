@@ -138,6 +138,8 @@ public class KatViewHandler implements MouseListener, MouseMotionListener, Mouse
           rotation.top();
         } else if (e.getSource() == bottom) {
           rotation.bottom();
+        } else if (e.getSource() == front) {
+          rotation.front();
         } else if (e.getSource() == back) {
           rotation.back();
         } else if (e.getSource() == right) {
@@ -400,8 +402,8 @@ public class KatViewHandler implements MouseListener, MouseMotionListener, Mouse
 
   @Override
   public void mouseWheelMoved(MouseWheelEvent e) {
-    final int modifiers = e.getModifiers();
-    if ((modifiers & ~(MouseEvent.SHIFT_MASK | MouseEvent.ALT_MASK)) > 0) {
+    final int modifiers = e.getModifiersEx();
+    if ((modifiers & ~(MouseEvent.SHIFT_DOWN_MASK | MouseEvent.ALT_DOWN_MASK)) > 0) {
       return;
     }
 

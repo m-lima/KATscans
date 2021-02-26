@@ -50,13 +50,11 @@ public class TransferFunctionChartEditor extends JPanel implements TransferFunct
 
   private void buildMarkers() {
     removeAll();
-    Marker marker;
-    for (int i = 0; i < transferFunction.getPointCount(); i++) {
-      TransferFunctionPoint point = transferFunction.getPoint(i);
-      marker = new Marker(point);
+    transferFunction.getPoints().forEach(point -> {
+      Marker marker = new Marker(point);
       add(marker);
       marker.setSize(MARKER_SIZE, MARKER_SIZE);
-    }
+    });
     updateMarkersPositions();
   }
 
@@ -87,6 +85,7 @@ public class TransferFunctionChartEditor extends JPanel implements TransferFunct
         (float) (-minRange * ratio * width),
         (float) ((1d - minRange) * ratio * width)));
 
+    // TODO: Streamify this
     int x[] = new int[transferFunction.getPointCount()];
     int y[] = new int[transferFunction.getPointCount()];
     for (int i = 0; i < transferFunction.getPointCount(); i++) {
