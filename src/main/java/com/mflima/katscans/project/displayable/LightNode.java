@@ -1,9 +1,9 @@
 package com.mflima.katscans.project.displayable;
 
+import com.mflima.katscans.model.Light;
 import java.io.Serializable;
 import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
-import com.mflima.katscans.model.Light;
 
 /** @author Marcelo Lima */
 public class LightNode extends SubGroup implements Serializable {

@@ -1,5 +1,14 @@
 package com.mflima.katscans.project;
 
+import com.mflima.katscans.event.CameraListener;
+import com.mflima.katscans.event.CutListener;
+import com.mflima.katscans.event.LightListener;
+import com.mflima.katscans.event.RotationListener;
+import com.mflima.katscans.event.TransferFunctionListener;
+import com.mflima.katscans.project.displayable.Displayable;
+import com.mflima.katscans.view.component.image.LoadingPanel;
+import com.mflima.katscans.view.katview.KatView;
+import com.mflima.katscans.view.katview.KatView.Type;
 import java.awt.Component;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -11,15 +20,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JMenu;
 import javax.swing.tree.MutableTreeNode;
 import net.infonode.docking.View;
-import com.mflima.katscans.event.CameraListener;
-import com.mflima.katscans.event.CutListener;
-import com.mflima.katscans.event.LightListener;
-import com.mflima.katscans.event.RotationListener;
-import com.mflima.katscans.event.TransferFunctionListener;
-import com.mflima.katscans.project.displayable.Displayable;
-import com.mflima.katscans.view.component.image.LoadingPanel;
-import com.mflima.katscans.view.katview.KatView;
-import com.mflima.katscans.view.katview.KatView.Type;
 
 /** @author Marcelo Lima */
 public class KatViewNode extends KatNode {
@@ -149,28 +149,26 @@ public class KatViewNode extends KatNode {
 
           Component katView = type.getConstructor().newInstance(displayable);
 
-          if (displayable != null) {
-            if (katView instanceof CameraListener) {
-              displayable.getCamera().addKatModelListener((CameraListener) katView);
-            }
+          if (katView instanceof CameraListener) {
+            displayable.getCamera().addKatModelListener((CameraListener) katView);
+          }
 
-            if (katView instanceof CutListener) {
-              displayable.getCut().addKatModelListener((CutListener) katView);
-            }
+          if (katView instanceof CutListener) {
+            displayable.getCut().addKatModelListener((CutListener) katView);
+          }
 
-            if (katView instanceof LightListener) {
-              displayable.getLight().addKatModelListener((LightListener) katView);
-            }
+          if (katView instanceof LightListener) {
+            displayable.getLight().addKatModelListener((LightListener) katView);
+          }
 
-            if (katView instanceof RotationListener) {
-              displayable.getRotation().addKatModelListener((RotationListener) katView);
-            }
+          if (katView instanceof RotationListener) {
+            displayable.getRotation().addKatModelListener((RotationListener) katView);
+          }
 
-            if (katView instanceof TransferFunctionListener) {
-              displayable
-                  .getTransferFunction()
-                  .addKatModelListener((TransferFunctionListener) katView);
-            }
+          if (katView instanceof TransferFunctionListener) {
+            displayable
+                .getTransferFunction()
+                .addKatModelListener((TransferFunctionListener) katView);
           }
 
           ((KatView) katView).loadProperties(properties);

@@ -1,9 +1,9 @@
 package com.mflima.katscans.project.displayable;
 
+import com.mflima.katscans.model.Rotation;
 import java.io.Serializable;
 import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
-import com.mflima.katscans.model.Rotation;
 
 /** @author Marcelo Lima */
 public class RotationNode extends SubGroup implements Serializable {

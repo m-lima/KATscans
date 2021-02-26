@@ -1,7 +1,7 @@
 package com.mflima.katscans.project.displayable;
 
-import javax.swing.tree.MutableTreeNode;
 import com.mflima.katscans.project.ProjectNode;
+import javax.swing.tree.MutableTreeNode;
 
 /** @author Marcelo Lima */
 public abstract class SubGroup extends Displayable {

@@ -1,9 +1,9 @@
 package com.mflima.katscans.project.displayable;
 
+import com.mflima.katscans.model.Cut;
 import java.io.Serializable;
 import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
-import com.mflima.katscans.model.Cut;
 
 /** @author Marcelo Lima */
 public class CutNode extends SubGroup implements Serializable {

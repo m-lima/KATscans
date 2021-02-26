@@ -1,5 +1,16 @@
 package com.mflima.katscans.project.displayable;
 
+import com.mflima.katscans.Init;
+import com.mflima.katscans.data.VoxelMatrix;
+import com.mflima.katscans.data.io.LoadSaveFormat;
+import com.mflima.katscans.data.io.LoadSaveHandler;
+import com.mflima.katscans.data.io.LoadSaveOptions;
+import com.mflima.katscans.model.Camera;
+import com.mflima.katscans.model.Cut;
+import com.mflima.katscans.model.Light;
+import com.mflima.katscans.model.Rotation;
+import com.mflima.katscans.model.TransferFunction;
+import com.mflima.katscans.project.ProjectNode;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.Serializable;
@@ -9,17 +20,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.tree.MutableTreeNode;
-import com.mflima.katscans.Init;
-import com.mflima.katscans.data.io.LoadSaveFormat;
-import com.mflima.katscans.data.io.LoadSaveHandler;
-import com.mflima.katscans.data.io.LoadSaveOptions;
-import com.mflima.katscans.data.VoxelMatrix;
-import com.mflima.katscans.model.Camera;
-import com.mflima.katscans.model.Rotation;
-import com.mflima.katscans.model.Cut;
-import com.mflima.katscans.model.Light;
-import com.mflima.katscans.model.TransferFunction;
-import com.mflima.katscans.project.ProjectNode;
 
 /** @author Marcelo Lima */
 public class DataFileNode extends Displayable implements Serializable {

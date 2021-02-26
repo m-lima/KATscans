@@ -53,7 +53,7 @@ public class PersistenceHandler {
   }
 
   public void saveAs() {
-    File newFile = showFileDialog(null, false);
+    File newFile = showFileDialog(false);
 
     if (newFile == null) {
       return;
@@ -84,7 +84,7 @@ public class PersistenceHandler {
   }
 
   public boolean load() {
-    File newFile = showFileDialog(null, true);
+    File newFile = showFileDialog(true);
 
     if (newFile == null) {
       return false;
@@ -118,7 +118,7 @@ public class PersistenceHandler {
     String path = "";
     try (BufferedReader reader = new BufferedReader(new FileReader(LAST_LOAD))) {
       path = reader.readLine();
-    } catch (FileNotFoundException ex) {
+    } catch (FileNotFoundException ignored) {
     } catch (IOException ex) {
       Logger.getLogger(LoadSaveHandler.class.getName()).log(Level.SEVERE, null, ex);
     }
@@ -134,14 +134,13 @@ public class PersistenceHandler {
     }
   }
 
-  private File showFileDialog(File currentFile, boolean load) {
-    if (currentFile == null) {
-      String path = getLastLoad();
-      if (!(path == null || path.isEmpty())) {
-        currentFile = new File(path);
-      }
+  private File showFileDialog(boolean load) {
+    String path = getLastLoad();
+    if (path == null || path.isEmpty()) {
+      return null;
     }
 
+    File currentFile = new File(path);
     JFileChooser fileChooser = buildFileChooser();
     fileChooser.setSelectedFile(currentFile);
     fileChooser.setMultiSelectionEnabled(false);

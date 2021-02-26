@@ -1,6 +1,9 @@
 package com.mflima.katscans.project;
 
+import com.mflima.katscans.data.io.LoadSaveFormat;
 import com.mflima.katscans.project.displayable.DataFileNode;
+import com.mflima.katscans.view.LoadDiag;
+import com.mflima.katscans.view.RenameDiag;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -9,9 +12,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.tree.MutableTreeNode;
-import com.mflima.katscans.data.io.LoadSaveFormat;
-import com.mflima.katscans.view.LoadDiag;
-import com.mflima.katscans.view.RenameDiag;
 
 /** @author Marcelo Lima */
 public class ProjectNode extends KatNode {
@@ -41,13 +41,7 @@ public class ProjectNode extends KatNode {
     JMenuItem item = new JMenuItem(RENAME, 'R');
     item.setIcon(new ImageIcon(ProjectNode.class.getResource("/icons/edit.png")));
 
-    item.addActionListener(
-        new ActionListener() {
-          @Override
-          public void actionPerformed(ActionEvent e) {
-            RenameDiag.promptRename(ProjectNode.this);
-          }
-        });
+    item.addActionListener(e -> RenameDiag.promptRename(ProjectNode.this));
 
     menu.add(item);
     return menu;
@@ -73,19 +67,15 @@ public class ProjectNode extends KatNode {
     JMenuItem clearDatasets = new JMenuItem(CLEAR_ALL, 'C');
     clearDatasets.setIcon(new ImageIcon(ProjectNode.class.getResource("/icons/closeData.png")));
     clearDatasets.addActionListener(
-        new ActionListener() {
-          @Override
-          public void actionPerformed(ActionEvent e) {
+        e -> {
+          Enumeration<KatNode> children = children();
+          ArrayList<DataFileNode> childrenList = new ArrayList<>();
+          while (children.hasMoreElements()) {
+            childrenList.add((DataFileNode) children.nextElement());
+          }
 
-            Enumeration<KatNode> children = children();
-            ArrayList<DataFileNode> childrenList = new ArrayList<>();
-            while (children.hasMoreElements()) {
-              childrenList.add((DataFileNode) children.nextElement());
-            }
-
-            for (DataFileNode dataNode : childrenList) {
-              dataNode.remove();
-            }
+          for (DataFileNode dataNode : childrenList) {
+            dataNode.remove();
           }
         });
     return clearDatasets;

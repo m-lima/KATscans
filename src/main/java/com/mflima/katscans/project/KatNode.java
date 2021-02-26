@@ -1,9 +1,9 @@
 package com.mflima.katscans.project;
 
+import com.mflima.katscans.view.component.DraggableTree;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,7 +13,6 @@ import javax.swing.JMenu;
 import javax.swing.JPopupMenu;
 import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeNode;
-import com.mflima.katscans.view.component.DraggableTree;
 
 /** @author Marcelo Lima */
 public abstract class KatNode implements MutableTreeNode, Serializable, Transferable {
@@ -68,7 +67,7 @@ public abstract class KatNode implements MutableTreeNode, Serializable, Transfer
     return copy;
   }
 
-  private final ArrayList<JMenu> getChildrenMenu() {
+  private ArrayList<JMenu> getChildrenMenu() {
     ArrayList<JMenu> childrenMenu = new ArrayList<>();
     if (children != null) {
       for (KatNode child : children) {
@@ -171,6 +170,7 @@ public abstract class KatNode implements MutableTreeNode, Serializable, Transfer
     if (children == null) {
       return -1;
     }
+    //noinspection SuspiciousMethodCalls
     return children.indexOf(node);
   }
 
@@ -227,7 +227,7 @@ public abstract class KatNode implements MutableTreeNode, Serializable, Transfer
   @Override
   public void remove(MutableTreeNode node) {
     if (children != null) {
-      children.remove(node);
+      children.removeIf(node::equals);
       if (children.isEmpty()) {
         children = null;
       }
@@ -256,7 +256,7 @@ public abstract class KatNode implements MutableTreeNode, Serializable, Transfer
   }
 
   @Override
-  public KatNode getTransferData(DataFlavor flavor) throws UnsupportedFlavorException, IOException {
+  public KatNode getTransferData(DataFlavor flavor) throws UnsupportedFlavorException {
     if (isDataFlavorSupported(flavor)) {
       return this;
     } else {

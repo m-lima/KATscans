@@ -1,5 +1,16 @@
 package com.mflima.katscans.project.displayable;
 
+import com.mflima.katscans.data.VoxelMatrix;
+import com.mflima.katscans.model.Camera;
+import com.mflima.katscans.model.Cut;
+import com.mflima.katscans.model.Light;
+import com.mflima.katscans.model.Rotation;
+import com.mflima.katscans.model.TransferFunction;
+import com.mflima.katscans.project.KatNode;
+import com.mflima.katscans.project.KatViewNode;
+import com.mflima.katscans.project.ProjectHandler;
+import com.mflima.katscans.view.RenameDiag;
+import com.mflima.katscans.view.katview.KatView.Type;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -7,17 +18,6 @@ import java.util.Enumeration;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.tree.MutableTreeNode;
-import com.mflima.katscans.data.VoxelMatrix;
-import com.mflima.katscans.model.Camera;
-import com.mflima.katscans.model.Rotation;
-import com.mflima.katscans.model.Cut;
-import com.mflima.katscans.model.Light;
-import com.mflima.katscans.project.KatNode;
-import com.mflima.katscans.project.KatViewNode;
-import com.mflima.katscans.project.ProjectHandler;
-import com.mflima.katscans.model.TransferFunction;
-import com.mflima.katscans.view.RenameDiag;
-import com.mflima.katscans.view.katview.KatView.Type;
 
 /** @author Marcelo Lima */
 public abstract class Displayable extends KatNode {

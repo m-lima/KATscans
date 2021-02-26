@@ -1,11 +1,11 @@
 package com.mflima.katscans.project.displayable;
 
+import com.mflima.katscans.model.TransferFunction;
+import com.mflima.katscans.model.TransferFunction.Type;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
-import com.mflima.katscans.model.TransferFunction;
-import com.mflima.katscans.model.TransferFunction.Type;
 
 /** @author Marcelo Lima */
 public class TransferFunctionNode extends SubGroup implements ActionListener {

@@ -1,10 +1,10 @@
 package com.mflima.katscans.project.displayable;
 
+import com.mflima.katscans.model.Camera;
 import java.io.Serializable;
 import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
 import javax.swing.tree.MutableTreeNode;
-import com.mflima.katscans.model.Camera;
 
 /** @author Marcelo Lima */
 public class CameraNode extends SubGroup implements Serializable {
