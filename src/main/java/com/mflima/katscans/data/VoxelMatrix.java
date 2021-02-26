@@ -87,9 +87,7 @@ public class VoxelMatrix {
 
       grid[i] = (short) value;
 
-      if (value >= 0) {
-        histogram[value & 0xFFFF]++;
-      }
+      histogram[value & 0xFFFF]++;
     }
 
     if (!normalized) {
@@ -140,10 +138,6 @@ public class VoxelMatrix {
     return ratio;
   }
 
-  public void setValue(int x, int y, int z, short value) {
-    grid[z * sizeY * sizeX + y * sizeX + x] = value;
-  }
-
   public short getValue(int x, int y, int z) {
     return grid[z * sizeY * sizeX + y * sizeX + x];
   }
@@ -186,10 +180,7 @@ public class VoxelMatrix {
     }
     final VoxelMatrix other = (VoxelMatrix) obj;
 
-    if (this.grid != other.grid) {
-      return false;
-    }
-    return true;
+    return this.grid == other.grid;
   }
 
 }
