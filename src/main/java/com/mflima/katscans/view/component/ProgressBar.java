@@ -24,40 +24,16 @@ public class ProgressBar extends JLabel {
     setOpaque(false);
   }
 
-  public int getGapThickness() {
-    return gapThickness;
-  }
-
   public void setGapThickness(int gapThickness) {
-    if (gapThickness < 0) {
-      this.gapThickness = 0;
-    } else {
-      this.gapThickness = gapThickness;
-    }
-  }
-
-  public int getBorderThickness() {
-    return borderThickness;
+    this.gapThickness = Math.max(gapThickness, 0);
   }
 
   public void setBorderThickness(int borderThickness) {
-    if (borderThickness < 0) {
-      this.borderThickness = 0;
-    } else {
-      this.borderThickness = borderThickness;
-    }
-  }
-
-  public Color getProgressColor() {
-    return progressColor;
+    this.borderThickness = Math.max(borderThickness, 0);
   }
 
   public void setProgressColor(Color progressColor) {
     this.progressColor = progressColor;
-  }
-
-  public Color getProgressBorderColor() {
-    return progressBorderColor;
   }
 
   public void setProgressBorderColor(Color progressBorderColor) {

@@ -10,8 +10,20 @@ import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.GLException;
 import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.awt.GLJPanel;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import com.mflima.katscans.data.VoxelMatrix;
+import com.mflima.katscans.event.CameraListener;
+import com.mflima.katscans.event.CutListener;
+import com.mflima.katscans.event.RotationListener;
+import com.mflima.katscans.event.ScreenListener;
+import com.mflima.katscans.model.Camera;
+import com.mflima.katscans.model.Cut;
+import com.mflima.katscans.model.Rotation;
+import com.mflima.katscans.model.Screen;
+import com.mflima.katscans.project.displayable.Displayable;
+import com.mflima.katscans.util.DisplayObject;
+import com.mflima.katscans.util.KatViewHandler;
+import com.mflima.katscans.util.MatrixUtil;
+import com.mflima.katscans.view.katview.KatView;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -24,20 +36,6 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.Timer;
-import com.mflima.katscans.data.VoxelMatrix;
-import com.mflima.katscans.event.CameraListener;
-import com.mflima.katscans.event.CutListener;
-import com.mflima.katscans.event.RotationListener;
-import com.mflima.katscans.event.ScreenListener;
-import com.mflima.katscans.model.Camera;
-import com.mflima.katscans.model.Cut;
-import com.mflima.katscans.model.Rotation;
-import com.mflima.katscans.project.displayable.Displayable;
-import com.mflima.katscans.util.DisplayObject;
-import com.mflima.katscans.util.MatrixUtil;
-import com.mflima.katscans.util.KatViewHandler;
-import com.mflima.katscans.model.Screen;
-import com.mflima.katscans.view.katview.KatView;
 
 /** @author Marcelo Lima */
 public abstract class VolumeRenderer extends GLJPanel
@@ -48,7 +46,7 @@ public abstract class VolumeRenderer extends GLJPanel
         CutListener,
         ScreenListener {
 
-  private static final int MODEL_DIRTY = 1 << 0;
+  private static final int MODEL_DIRTY = 0;
   private static final int VIEW_DIRTY = 1 << 1;
   private static final int PROJECTION_DIRTY = 1 << 2;
   private static final int ORTHO_DIRTY = 1 << 3;
@@ -110,7 +108,7 @@ public abstract class VolumeRenderer extends GLJPanel
 
   private int numSample;
 
-  private Timer threadLOD;
+  private final Timer threadLOD;
   private boolean highLOD;
   private final float lodFactor;
   private int lodWidth;
@@ -146,19 +144,16 @@ public abstract class VolumeRenderer extends GLJPanel
     threadLOD =
         new Timer(
             750,
-            new ActionListener() {
-              @Override
-              public void actionPerformed(ActionEvent e) {
-                highLOD = true;
-                repaint();
-              }
+            e -> {
+              highLOD = true;
+              repaint();
             });
     threadLOD.setRepeats(false);
   }
 
   protected abstract void preDraw(GLAutoDrawable drawable);
 
-  public abstract boolean isIlluminated();
+  public abstract boolean isUnlit();
 
   public void createStructure(int x, int y, float threshold) {}
 
@@ -374,7 +369,7 @@ public abstract class VolumeRenderer extends GLJPanel
     }
 
     shaderCode[0] = codeBuilder.toString();
-    if (shaderCode[0] == null || shaderCode[0].isEmpty()) {
+    if (shaderCode[0].isEmpty()) {
       throw new GLException("Could not read shader");
     }
 
@@ -545,7 +540,7 @@ public abstract class VolumeRenderer extends GLJPanel
       if ((dirtyValues & SLICE_DIRTY) > 0) {
         uniformLocation = gl.glGetUniformLocation(mainProgram, "slice");
         float slice = cut.getSlice() + camera.getZoom() - camera.getInitialZoom();
-        gl.glUniform1f(uniformLocation, slice < 0f ? 0f : slice);
+        gl.glUniform1f(uniformLocation, Math.max(slice, 0f));
       }
 
       if ((dirtyValues & MIN_DIRTY) > 0) {
@@ -628,9 +623,11 @@ public abstract class VolumeRenderer extends GLJPanel
           errorString = "UNKNOWN";
           break;
       }
-      System.out.printf(
-          "%s :: OpenGL Error(%s): %n", getClass().getSimpleName(), errorString, location);
-      throw new Error();
+      String message =
+          String.format(
+              "%s :: OpenGL Error(%s): %s", getClass().getSimpleName(), errorString, location);
+      System.err.println(message);
+      throw new Error(message);
     }
   }
 
@@ -671,52 +668,55 @@ public abstract class VolumeRenderer extends GLJPanel
     checkError(gl, "Update frame buffer textures");
   }
 
-  protected boolean checkCompile(GL4 gl, int shader, String shaderName) {
+  private void checkCompile(GL4 gl, int shader, String shaderName) {
     int[] returnValue = new int[1];
     gl.glGetShaderiv(shader, GL4.GL_COMPILE_STATUS, returnValue, 0);
 
     if (returnValue[0] == GL4.GL_FALSE) {
       gl.glGetShaderiv(shader, GL4.GL_INFO_LOG_LENGTH, returnValue, 0);
 
-      if (returnValue[0] > 0) {
-        IntBuffer written = IntBuffer.allocate(1);
-        ByteBuffer log = ByteBuffer.allocate(returnValue[0]);
-        gl.glGetShaderInfoLog(shader, returnValue[0], written, log);
-        byte[] logArray = log.array();
+      StringBuilder message =
+          new StringBuilder(String.format("Compilation error on %s: ", shaderName));
 
-        System.err.printf("Compilation error on %s%n", shaderName);
-        for (byte letter : logArray) {
-          System.err.print((char) letter);
-        }
-        System.err.println();
+      IntBuffer written = IntBuffer.allocate(1);
+      ByteBuffer log = ByteBuffer.allocate(returnValue[0]);
+      gl.glGetShaderInfoLog(shader, returnValue[0], written, log);
+      byte[] logArray = log.array();
+
+      for (byte letter : logArray) {
+        message.append((char) letter);
       }
-      return false;
+
+      System.err.println(message.toString());
+      throw new Error(message.toString());
     }
-    return true;
   }
 
-  protected boolean checkLink(GL4 gl, int program) {
+  private void checkLink(GL4 gl, int program) {
     int[] returnValue = new int[1];
     gl.glGetProgramiv(program, GL4.GL_LINK_STATUS, returnValue, 0);
 
     if (returnValue[0] == GL4.GL_FALSE) {
       gl.glGetShaderiv(program, GL4.GL_INFO_LOG_LENGTH, returnValue, 0);
 
-      if (returnValue[0] > 0) {
-        IntBuffer written = IntBuffer.allocate(1);
-        ByteBuffer log = ByteBuffer.allocate(returnValue[0]);
-        gl.glGetProgramInfoLog(program, returnValue[0], written, log);
-        byte[] logArray = log.array();
-        System.err.printf(
-            "Link error on %s program%n", program == raycastingProgram ? "raycasting" : "main");
-        for (byte letter : logArray) {
-          System.err.print((char) letter);
-        }
-        System.err.println();
+      StringBuilder message =
+          new StringBuilder(
+              String.format(
+                  "Link error on %s program: ",
+                  program == raycastingProgram ? "raycasting" : "main"));
+
+      IntBuffer written = IntBuffer.allocate(1);
+      ByteBuffer log = ByteBuffer.allocate(returnValue[0]);
+      gl.glGetProgramInfoLog(program, returnValue[0], written, log);
+      byte[] logArray = log.array();
+
+      for (byte letter : logArray) {
+        message.append((char) letter);
       }
-      return false;
+
+      System.err.println(message.toString());
+      throw new Error(message.toString());
     }
-    return true;
   }
 
   public float[] getTempMatrix() {

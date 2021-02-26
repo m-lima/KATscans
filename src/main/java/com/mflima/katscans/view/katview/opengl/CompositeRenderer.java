@@ -3,21 +3,21 @@ package com.mflima.katscans.view.katview.opengl;
 import com.jogamp.opengl.GL4;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLException;
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
-import java.nio.ByteBuffer;
 import com.mflima.katscans.event.LightListener;
 import com.mflima.katscans.event.TransferFunctionListener;
 import com.mflima.katscans.model.Light;
-import com.mflima.katscans.project.displayable.Displayable;
 import com.mflima.katscans.model.TransferFunction;
+import com.mflima.katscans.project.displayable.Displayable;
 import com.mflima.katscans.util.Normal;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.nio.ByteBuffer;
 
 /** @author Marcelo Lima */
 public class CompositeRenderer extends VolumeRenderer
     implements TransferFunctionListener, LightListener {
 
-  private static final int LIGHT_DIRTY = 1 << 0;
+  private static final int LIGHT_DIRTY = 0;
   private static final int NORMAL_DIRTY = 1 << 1;
   private static final int TRANSFER_FUNCTION_DIRTY = 1 << 2;
 
@@ -37,8 +37,8 @@ public class CompositeRenderer extends VolumeRenderer
   }
 
   @Override
-  public boolean isIlluminated() {
-    return true;
+  public boolean isUnlit() {
+    return false;
   }
 
   @Override

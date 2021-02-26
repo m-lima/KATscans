@@ -1,5 +1,9 @@
 package com.mflima.katscans.view.transferfunction;
 
+import com.mflima.katscans.Init;
+import com.mflima.katscans.event.TransferFunctionListener;
+import com.mflima.katscans.model.TransferFunction;
+import com.mflima.katscans.model.TransferFunction.TransferFunctionPoint;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -20,10 +24,6 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EtchedBorder;
-import com.mflima.katscans.Init;
-import com.mflima.katscans.event.TransferFunctionListener;
-import com.mflima.katscans.model.TransferFunction;
-import com.mflima.katscans.model.TransferFunction.TransferFunctionPoint;
 
 /** @author Marcelo Lima */
 public class TransferFunctionBarEditor extends JPanel implements TransferFunctionListener {
@@ -32,7 +32,6 @@ public class TransferFunctionBarEditor extends JPanel implements TransferFunctio
   public static final int MARKER_SIZE_HALF = 5;
 
   private final TransferFunction transferFunction;
-  private final Viewer pnlViewer;
   private final JPanel pnlMarker;
 
   private double minRange;
@@ -62,7 +61,7 @@ public class TransferFunctionBarEditor extends JPanel implements TransferFunctio
     pnlViewerHolder.setOpaque(false);
     add(pnlViewerHolder, BorderLayout.CENTER);
 
-    pnlViewer = new Viewer();
+    Viewer pnlViewer = new Viewer();
     pnlViewerHolder.add(pnlViewer, BorderLayout.CENTER);
 
     JPanel pnlGap = new JPanel(null);
@@ -280,10 +279,7 @@ public class TransferFunctionBarEditor extends JPanel implements TransferFunctio
         transferFunction
             .getPoints()
             .map(point -> (int) ((point.getPoint() - minRange) * ratio) * width)
-            .forEach(
-                x -> {
-                  g2d.drawLine(x, 0, x, height);
-                });
+            .forEach(x -> g2d.drawLine(x, 0, x, height));
       }
     }
   }

@@ -9,7 +9,7 @@ import javax.swing.filechooser.FileFilter;
 /** @author Marcelo Lima */
 public interface LoadSaveFormat {
 
-  public static enum Format {
+  enum Format {
     DAT(new DatFormat()),
     DCM(new DcmFormat()),
     RAW(new RawFormat()),
@@ -17,7 +17,7 @@ public interface LoadSaveFormat {
 
     private final LoadSaveFormat format;
 
-    private Format(LoadSaveFormat format) {
+    Format(LoadSaveFormat format) {
       this.format = format;
     }
 
@@ -26,17 +26,17 @@ public interface LoadSaveFormat {
     }
   }
 
-  public VoxelMatrix loadData(InputStream stream, LoadSaveOptions options) throws IOException;
+  VoxelMatrix loadData(InputStream stream, LoadSaveOptions options) throws IOException;
 
-  public FormatHeader getHeader(InputStream stream) throws IOException;
+  FormatHeader getHeader(InputStream stream) throws IOException;
 
-  public void saveData(OutputStream stream, VoxelMatrix object) throws IOException;
+  void saveData(OutputStream stream, VoxelMatrix object) throws IOException;
 
-  public String getName();
+  String getName();
 
-  public char getMnemonic();
+  char getMnemonic();
 
-  public FileFilter getFileFilter();
+  FileFilter getFileFilter();
 
-  public int getMaxValue();
+  int getMaxValue();
 }

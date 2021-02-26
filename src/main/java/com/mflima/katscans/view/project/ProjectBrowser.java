@@ -1,5 +1,7 @@
 package com.mflima.katscans.view.project;
 
+import com.mflima.katscans.project.KatNode;
+import com.mflima.katscans.project.ProjectHandler;
 import java.awt.Rectangle;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -9,8 +11,6 @@ import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
-import com.mflima.katscans.project.KatNode;
-import com.mflima.katscans.project.ProjectHandler;
 
 /** @author Marcelo Lima */
 public class ProjectBrowser extends javax.swing.JPanel {

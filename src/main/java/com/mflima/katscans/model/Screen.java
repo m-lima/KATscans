@@ -118,12 +118,7 @@ public class Screen extends KatModel<Screen> {
 
     for (final KatModelListener listener : listeners) {
       EventQueue.invokeLater(
-          new Runnable() {
-            @Override
-            public void run() {
-              ((ScreenListener) listener).orthographicValueChanged();
-            }
-          });
+          ((ScreenListener) listener)::orthographicValueChanged);
     }
   }
 
@@ -132,12 +127,7 @@ public class Screen extends KatModel<Screen> {
 
     for (final KatModelListener listener : listeners) {
       EventQueue.invokeLater(
-          new Runnable() {
-            @Override
-            public void run() {
-              ((ScreenListener) listener).projectionValueChanged();
-            }
-          });
+          ((ScreenListener) listener)::projectionValueChanged);
     }
   }
 
@@ -146,12 +136,7 @@ public class Screen extends KatModel<Screen> {
 
     for (final KatModelListener listener : listeners) {
       EventQueue.invokeLater(
-          new Runnable() {
-            @Override
-            public void run() {
-              ((ScreenListener) listener).stepValueChanged();
-            }
-          });
+          ((ScreenListener) listener)::stepValueChanged);
     }
   }
 }

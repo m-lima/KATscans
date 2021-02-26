@@ -67,7 +67,7 @@ public class LoadSaveHandler {
           break;
         }
       }
-    } catch (FileNotFoundException ex) {
+    } catch (FileNotFoundException ignored) {
     } catch (IOException ex) {
       Logger.getLogger(LoadSaveHandler.class.getName()).log(Level.SEVERE, null, ex);
     }
@@ -85,7 +85,7 @@ public class LoadSaveHandler {
         }
         fullFile.add(path);
       }
-    } catch (FileNotFoundException ex) {
+    } catch (FileNotFoundException ignored) {
     } catch (IOException ex) {
       Logger.getLogger(LoadSaveHandler.class.getName()).log(Level.SEVERE, null, ex);
     }

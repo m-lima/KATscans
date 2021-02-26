@@ -3,6 +3,7 @@ package com.mflima.katscans.util;
 import com.jogamp.opengl.math.FloatUtil;
 import com.jogamp.opengl.math.Quaternion;
 import com.jogamp.opengl.math.VectorUtil;
+import com.mflima.katscans.view.katview.opengl.VolumeRenderer;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -19,14 +20,12 @@ import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
-import com.mflima.katscans.util.MatrixUtil;
-import com.mflima.katscans.view.katview.opengl.VolumeRenderer;
 
 /** @author Marcelo Lima */
 public class TrackBall
     implements MouseListener, MouseMotionListener, MouseWheelListener, KeyListener, FocusListener {
 
-  public static final int MODEL_DIRTY = 1 << 0;
+  public static final int MODEL_DIRTY = 0;
   public static final int VIEW_DIRTY = 1 << 1;
   public static final int PROJECTION_DIRTY = 1 << 2;
   public static final int ZOOM_DIRTY = 1 << 3;
@@ -566,7 +565,7 @@ public class TrackBall
         VectorUtil.normalizeVec3(axis);
 
         if (e.isShiftDown()) {
-          if (!renderer.isIlluminated()) {
+          if (renderer.isUnlit()) {
             return;
           }
 

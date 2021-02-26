@@ -113,7 +113,7 @@ class GridFormat implements LoadSaveFormat {
   }
 
   @Override
-  public void saveData(OutputStream stream, VoxelMatrix object) throws IOException {
+  public void saveData(OutputStream stream, VoxelMatrix object) {
     throw new UnsupportedOperationException(
         "Not supported yet."); // To change body of generated methods, choose Tools | Templates.
   }

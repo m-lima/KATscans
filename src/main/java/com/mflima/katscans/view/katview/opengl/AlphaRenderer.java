@@ -3,12 +3,12 @@ package com.mflima.katscans.view.katview.opengl;
 import com.jogamp.opengl.GL4;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLException;
+import com.mflima.katscans.event.TransferFunctionListener;
+import com.mflima.katscans.model.TransferFunction;
+import com.mflima.katscans.project.displayable.Displayable;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
-import com.mflima.katscans.event.TransferFunctionListener;
-import com.mflima.katscans.project.displayable.Displayable;
-import com.mflima.katscans.model.TransferFunction;
 
 /** @author Marcelo Lima */
 public class AlphaRenderer extends VolumeRenderer implements TransferFunctionListener {
@@ -24,8 +24,8 @@ public class AlphaRenderer extends VolumeRenderer implements TransferFunctionLis
   }
 
   @Override
-  public boolean isIlluminated() {
-    return false;
+  public boolean isUnlit() {
+    return true;
   }
 
   @Override

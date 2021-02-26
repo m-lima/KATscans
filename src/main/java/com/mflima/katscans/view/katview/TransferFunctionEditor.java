@@ -1,14 +1,14 @@
 package com.mflima.katscans.view.katview;
 
-import java.awt.BorderLayout;
-import java.awt.geom.Rectangle2D;
-import javax.swing.JLayeredPane;
-import javax.swing.JPanel;
 import com.mflima.katscans.event.TransferFunctionListener;
 import com.mflima.katscans.project.displayable.Displayable;
 import com.mflima.katscans.view.component.FullLayout;
 import com.mflima.katscans.view.transferfunction.TransferFunctionBarEditor;
 import com.mflima.katscans.view.transferfunction.TransferFunctionChartEditor;
+import java.awt.BorderLayout;
+import java.awt.geom.Rectangle2D;
+import javax.swing.JLayeredPane;
+import javax.swing.JPanel;
 import org.jfree.chart.event.ChartProgressEvent;
 import org.jfree.chart.event.ChartProgressListener;
 
@@ -16,10 +16,6 @@ import org.jfree.chart.event.ChartProgressListener;
 public class TransferFunctionEditor extends Histogram
     implements ChartProgressListener, TransferFunctionListener {
 
-  private final JPanel pnlMain;
-
-  private final JLayeredPane pnlChartHolder;
-  private final JPanel pnlChartEditorHolder;
   private final TransferFunctionChartEditor chartEditor;
 
   private final JPanel pnlBarEditorHolder;
@@ -38,16 +34,16 @@ public class TransferFunctionEditor extends Histogram
     pnlBarEditorHolder.setPreferredSize(barEditor.getPreferredSize());
     pnlBarEditorHolder.add(barEditor);
 
-    pnlChartEditorHolder = new JPanel(null);
+    JPanel pnlChartEditorHolder = new JPanel(null);
     pnlChartEditorHolder.setOpaque(false);
     pnlChartEditorHolder.add(chartEditor);
 
-    pnlChartHolder = new JLayeredPane();
+    JLayeredPane pnlChartHolder = new JLayeredPane();
     pnlChartHolder.setLayout(new FullLayout());
     pnlChartHolder.add(chartPanel, JLayeredPane.DEFAULT_LAYER);
     pnlChartHolder.add(pnlChartEditorHolder, Integer.valueOf(JLayeredPane.DEFAULT_LAYER + 1));
 
-    pnlMain = new JPanel(new BorderLayout());
+    JPanel pnlMain = new JPanel(new BorderLayout());
     pnlMain.add(pnlChartHolder, BorderLayout.CENTER);
     pnlMain.add(pnlBarEditorHolder, BorderLayout.SOUTH);
 
@@ -100,7 +96,7 @@ public class TransferFunctionEditor extends Histogram
 
     minBound /= rangeBound;
     maxBound /= rangeBound;
-    gapBound /= rangeBound;
+    // gapBound /= rangeBound;
 
     // barEditor.setRange((domainAxis.getRange().getLowerBound() -
     // displayable.getMatrix().getMinValue()) / displayable.getMatrix().getMaxValue(),

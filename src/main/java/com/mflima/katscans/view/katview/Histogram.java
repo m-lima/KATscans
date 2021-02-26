@@ -1,17 +1,15 @@
 package com.mflima.katscans.view.katview;
 
+import com.mflima.katscans.data.VoxelMatrix;
+import com.mflima.katscans.project.displayable.Displayable;
+import com.mflima.katscans.view.MainFrame;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Map;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
-import com.mflima.katscans.data.VoxelMatrix;
-import com.mflima.katscans.project.displayable.Displayable;
-import com.mflima.katscans.view.MainFrame;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.LogAxis;
@@ -94,25 +92,22 @@ public class Histogram extends JPanel implements KatView {
     plot.setDomainAxis(domainAxis);
     plot.setBackgroundPaint(null);
 
-    chart.setSubtitles(new ArrayList());
+    chart.setSubtitles(Collections.emptyList());
     chartPanel.setOpaque(false);
 
     chartPanel.getPopupMenu().addSeparator();
     chartPanel.getPopupMenu().add(menuLog);
 
     menuLog.addActionListener(
-        new ActionListener() {
-          @Override
-          public void actionPerformed(ActionEvent e) {
-            if (log) {
-              menuLog.setText("Logarithmic");
-              plot.setRangeAxis(0, linAxis);
-            } else {
-              menuLog.setText("Linear");
-              plot.setRangeAxis(0, logAxis);
-            }
-            log = !log;
+        e -> {
+          if (log) {
+            menuLog.setText("Logarithmic");
+            plot.setRangeAxis(0, linAxis);
+          } else {
+            menuLog.setText("Linear");
+            plot.setRangeAxis(0, logAxis);
           }
+          log = !log;
         });
   }
 

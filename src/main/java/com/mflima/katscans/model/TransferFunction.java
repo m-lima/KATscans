@@ -131,10 +131,6 @@ public class TransferFunction extends KatModel<TransferFunction> implements Seri
     return points.stream();
   }
 
-  public TransferFunctionPoint getPoint(int index) {
-    return points.get(index);
-  }
-
   public void removePoint(TransferFunctionPoint point) {
     boolean removed = points.remove(point);
     if (removed) {

@@ -22,7 +22,7 @@ import javax.swing.tree.MutableTreeNode;
 /** @author Marcelo Lima */
 public abstract class Displayable extends KatNode {
 
-  private static final String TRANSFER = "Override Tranfer Function";
+  private static final String TRANSFER = "Override Transfer Function";
   private static final String CUT = "Override Cut";
   private static final String LIGHT = "Override Light";
   private static final String ROTATION = "Override Rotation";

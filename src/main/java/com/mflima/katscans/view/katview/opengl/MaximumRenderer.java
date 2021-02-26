@@ -12,8 +12,8 @@ public class MaximumRenderer extends VolumeRenderer {
   }
 
   @Override
-  public boolean isIlluminated() {
-    return false;
+  public boolean isUnlit() {
+    return true;
   }
 
   @Override

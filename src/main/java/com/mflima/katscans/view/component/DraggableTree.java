@@ -1,5 +1,10 @@
 package com.mflima.katscans.view.component;
 
+import com.mflima.katscans.project.KatNode;
+import com.mflima.katscans.project.ProjectHandler;
+import com.mflima.katscans.project.ProjectNode;
+import com.mflima.katscans.project.displayable.DataFileNode;
+import com.mflima.katscans.project.displayable.Displayable;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
@@ -28,11 +33,6 @@ import java.util.logging.Logger;
 import javax.swing.JTree;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
-import com.mflima.katscans.project.displayable.DataFileNode;
-import com.mflima.katscans.project.KatNode;
-import com.mflima.katscans.project.ProjectHandler;
-import com.mflima.katscans.project.ProjectNode;
-import com.mflima.katscans.project.displayable.Displayable;
 
 /** @author Marcelo */
 public class DraggableTree extends JTree
@@ -130,6 +130,11 @@ public class DraggableTree extends JTree
 
     Point clickPoint = dge.getDragOrigin();
     Rectangle pathBounds = getPathBounds(selectedPath);
+    if (pathBounds == null) {
+      finishDnD();
+      return;
+    }
+
     Point clickOffset = new Point(clickPoint.x - pathBounds.x, clickPoint.y - pathBounds.y);
 
     BufferedImage image =
@@ -154,13 +159,7 @@ public class DraggableTree extends JTree
       try {
         Transferable transferable = dtde.getTransferable();
         incomingNode = (KatNode) transferable.getTransferData(LOCAL_OBJECT_FLAVOR);
-
-        if (incomingNode == null) {
-          dtde.rejectDrag();
-          finishDnD();
-        } else {
-          dtde.acceptDrag(dtde.getDropAction());
-        }
+        dtde.acceptDrag(dtde.getDropAction());
       } catch (Exception ex) {
         Logger.getLogger(DraggableTree.class.getName()).log(Level.SEVERE, null, ex);
         dtde.rejectDrag();
@@ -176,7 +175,7 @@ public class DraggableTree extends JTree
     Point dragPoint = dtde.getLocation();
     TreePath newPath = getClosestPathForLocation(dragPoint.x, dragPoint.y);
 
-    if (newPath == null && path == null) {
+    if (newPath == null || path == null) {
       return;
     }
 

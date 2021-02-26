@@ -115,12 +115,7 @@ public class Camera extends KatModel<Camera> implements Serializable {
 
     for (final KatModelListener listener : listeners) {
       EventQueue.invokeLater(
-          new Runnable() {
-            @Override
-            public void run() {
-              ((CameraListener) listener).viewValueChanged();
-            }
-          });
+          ((CameraListener) listener)::viewValueChanged);
     }
   }
 
@@ -130,12 +125,7 @@ public class Camera extends KatModel<Camera> implements Serializable {
 
     for (final KatModelListener listener : listeners) {
       EventQueue.invokeLater(
-          new Runnable() {
-            @Override
-            public void run() {
-              ((CameraListener) listener).zoomValueChanged();
-            }
-          });
+          ((CameraListener) listener)::zoomValueChanged);
     }
   }
 }

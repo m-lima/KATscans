@@ -1,5 +1,9 @@
 package com.mflima.katscans.view.transferfunction;
 
+import com.mflima.katscans.Init;
+import com.mflima.katscans.event.TransferFunctionListener;
+import com.mflima.katscans.model.TransferFunction;
+import com.mflima.katscans.model.TransferFunction.TransferFunctionPoint;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
@@ -14,10 +18,6 @@ import javax.swing.JColorChooser;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
-import com.mflima.katscans.Init;
-import com.mflima.katscans.event.TransferFunctionListener;
-import com.mflima.katscans.model.TransferFunction;
-import com.mflima.katscans.model.TransferFunction.TransferFunctionPoint;
 
 /** @author Marcelo Lima */
 public class TransferFunctionChartEditor extends JPanel implements TransferFunctionListener {
@@ -29,8 +29,26 @@ public class TransferFunctionChartEditor extends JPanel implements TransferFunct
 
   private double minRange;
   private double maxRange;
-  private double gapRange;
+  // private double gapRange;
   private double ratio;
+
+  private static final class PointPair {
+    final int[] x;
+    final int[] y;
+    int length;
+
+    private PointPair(int size) {
+      x = new int[size];
+      y = new int[size];
+      length = 0;
+    }
+
+    private void push(int x, int y) {
+      this.x[length] = x;
+      this.y[length] = y;
+      length++;
+    }
+  }
 
   public TransferFunctionChartEditor(TransferFunction transferFunction) {
     super(null);
@@ -40,7 +58,7 @@ public class TransferFunctionChartEditor extends JPanel implements TransferFunct
 
     minRange = 0d;
     maxRange = 1d;
-    gapRange = 0d;
+    // gapRange = 0d;
     ratio = 1d;
 
     buildMarkers();
@@ -86,22 +104,21 @@ public class TransferFunctionChartEditor extends JPanel implements TransferFunct
         transferFunction.getPaint(
             (float) (-minRange * ratio * width), (float) ((1d - minRange) * ratio * width)));
 
-    // TODO: Streamify this
-    int x[] = new int[transferFunction.getPointCount()];
-    int y[] = new int[transferFunction.getPointCount()];
-    for (int i = 0; i < transferFunction.getPointCount(); i++) {
-      TransferFunctionPoint point = transferFunction.getPoint(i);
+    PointPair points = new PointPair(transferFunction.getPointCount());
+    transferFunction
+        .getPoints()
+        .sequential()
+        .forEach(
+            point -> {
+              double x = (point.getPoint() - minRange) * ratio;
+              x *= getWidth();
 
-      double newX = (point.getPoint() - minRange) * ratio;
-      newX *= getWidth();
-      x[i] = (int) newX;
+              double y = 1d - point.getAlpha();
+              y *= getHeight();
+              points.push((int) x, (int) y);
+            });
 
-      double newY = 1d - point.getAlpha();
-      newY *= getHeight();
-      y[i] = (int) newY;
-    }
-
-    g2d.drawPolyline(x, y, x.length);
+    g2d.drawPolyline(points.x, points.y, points.length);
   }
 
   @Override

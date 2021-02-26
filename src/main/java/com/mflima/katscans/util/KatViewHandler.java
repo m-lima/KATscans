@@ -1,11 +1,16 @@
 package com.mflima.katscans.util;
 
-import com.mflima.katscans.model.Screen;
 import com.jogamp.opengl.math.FloatUtil;
 import com.jogamp.opengl.math.Quaternion;
 import com.jogamp.opengl.math.VectorUtil;
+import com.mflima.katscans.model.Camera;
+import com.mflima.katscans.model.Cut;
+import com.mflima.katscans.model.Light;
+import com.mflima.katscans.model.Rotation;
+import com.mflima.katscans.model.Screen;
+import com.mflima.katscans.project.displayable.Displayable;
+import com.mflima.katscans.view.katview.opengl.VolumeRenderer;
 import java.awt.Component;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
@@ -20,12 +25,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
-import com.mflima.katscans.model.Camera;
-import com.mflima.katscans.model.Cut;
-import com.mflima.katscans.model.Light;
-import com.mflima.katscans.model.Rotation;
-import com.mflima.katscans.project.displayable.Displayable;
-import com.mflima.katscans.view.katview.opengl.VolumeRenderer;
 
 /** @author Marcelo Lima */
 public class KatViewHandler
@@ -132,32 +131,29 @@ public class KatViewHandler
             "Create structure", new ImageIcon(getClass().getResource("/icons/tree/structure.png")));
 
     ActionListener listener =
-        new ActionListener() {
-          @Override
-          public void actionPerformed(ActionEvent e) {
-            if (e.getSource() == top) {
-              rotation.top();
-            } else if (e.getSource() == bottom) {
-              rotation.bottom();
-            } else if (e.getSource() == front) {
-              rotation.front();
-            } else if (e.getSource() == back) {
-              rotation.back();
-            } else if (e.getSource() == right) {
-              rotation.right();
-            } else if (e.getSource() == left) {
-              rotation.left();
-            } else if (e.getSource() == reset) {
-              rotation.reset();
-              camera.reset();
-              light.reset();
-              cut.reset();
-              screen.reset();
-            } else if (e.getSource() == menuOrtho) {
-              toggleOrthographic();
-            } else if (e.getSource() == structure) {
-              owner.createStructure(xPos, yPos, 1f);
-            }
+        e -> {
+          if (e.getSource() == top) {
+            rotation.top();
+          } else if (e.getSource() == bottom) {
+            rotation.bottom();
+          } else if (e.getSource() == front) {
+            rotation.front();
+          } else if (e.getSource() == back) {
+            rotation.back();
+          } else if (e.getSource() == right) {
+            rotation.right();
+          } else if (e.getSource() == left) {
+            rotation.left();
+          } else if (e.getSource() == reset) {
+            rotation.reset();
+            camera.reset();
+            light.reset();
+            cut.reset();
+            screen.reset();
+          } else if (e.getSource() == menuOrtho) {
+            toggleOrthographic();
+          } else if (e.getSource() == structure) {
+            owner.createStructure(xPos, yPos, 1f);
           }
         };
 
@@ -298,7 +294,7 @@ public class KatViewHandler
         VectorUtil.normalizeVec3(axis);
 
         if (e.isShiftDown()) {
-          if (!renderer.isIlluminated()) {
+          if (renderer.isUnlit()) {
             return;
           }
 

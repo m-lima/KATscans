@@ -42,12 +42,7 @@ public class Light extends KatModel<Light> implements Serializable {
 
     for (final KatModelListener listener : listeners) {
       EventQueue.invokeLater(
-          new Runnable() {
-            @Override
-            public void run() {
-              ((LightListener) listener).lightValueChanged();
-            }
-          });
+          ((LightListener) listener)::lightValueChanged);
     }
   }
 }

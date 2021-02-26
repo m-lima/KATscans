@@ -3,6 +3,12 @@ package com.mflima.katscans.view.katview.opengl;
 import com.jogamp.opengl.GL4;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLException;
+import com.mflima.katscans.event.LightListener;
+import com.mflima.katscans.event.TransferFunctionListener;
+import com.mflima.katscans.model.Light;
+import com.mflima.katscans.model.TransferFunction;
+import com.mflima.katscans.project.displayable.Displayable;
+import com.mflima.katscans.util.Normal;
 import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -11,18 +17,12 @@ import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
 import java.util.Map;
 import javax.swing.SwingUtilities;
-import com.mflima.katscans.event.LightListener;
-import com.mflima.katscans.event.TransferFunctionListener;
-import com.mflima.katscans.model.Light;
-import com.mflima.katscans.project.displayable.Displayable;
-import com.mflima.katscans.model.TransferFunction;
-import com.mflima.katscans.util.Normal;
 
 /** @author Marcelo Lima */
 public class SurfaceRenderer extends VolumeRenderer
     implements MouseMotionListener, MouseListener, TransferFunctionListener, LightListener {
 
-  private static final int LIGHT_DIRTY = 1 << 0;
+  private static final int LIGHT_DIRTY = 0;
   private static final int NORMAL_DIRTY = 1 << 1;
   private static final int COLOR_DIRTY = 1 << 2;
   private static final int THRESHOLD_HI_DIRTY = 1 << 3;
@@ -66,8 +66,8 @@ public class SurfaceRenderer extends VolumeRenderer
   }
 
   @Override
-  public boolean isIlluminated() {
-    return true;
+  public boolean isUnlit() {
+    return false;
   }
 
   //    @Override

@@ -6,7 +6,7 @@ public class DisplayObject {
   public enum Type {
     TRIANGLE,
     SQUARE,
-    CUBE;
+    CUBE
   }
 
   private static DisplayObject TRIANGLE_INSTANCE;
@@ -77,14 +77,14 @@ public class DisplayObject {
       case CUBE:
         vertices =
             new float[] {
-              //                    -0.5f, -0.5f, -0.5f,
-              //                    -0.5f, -0.5f, 0.5f,
-              //                    -0.5f, 0.5f, -0.5f,
-              //                    -0.5f, 0.5f, 0.5f,
-              //                    0.5f, -0.5f, -0.5f,
-              //                    0.5f, -0.5f, 0.5f,
-              //                    0.5f, 0.5f, -0.5f,
-              //                    0.5f, 0.5f, 0.5f
+              // -0.5f, -0.5f, -0.5f,
+              // -0.5f, -0.5f, 0.5f,
+              // -0.5f, 0.5f, -0.5f,
+              // -0.5f, 0.5f, 0.5f,
+              // 0.5f, -0.5f, -0.5f,
+              // 0.5f, -0.5f, 0.5f,
+              // 0.5f, 0.5f, -0.5f,
+              // 0.5f, 0.5f, 0.5f
               0.0f, 0.0f, 0.0f,
               0.0f, 0.0f, 1.0f,
               0.0f, 1.0f, 0.0f,

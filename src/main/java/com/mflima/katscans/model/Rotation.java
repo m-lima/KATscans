@@ -136,12 +136,7 @@ public class Rotation extends KatModel<Rotation> implements Serializable {
 
     for (final KatModelListener listener : listeners) {
       EventQueue.invokeLater(
-          new Runnable() {
-            @Override
-            public void run() {
-              ((RotationListener) listener).rotationValueChanged();
-            }
-          });
+          ((RotationListener) listener)::rotationValueChanged);
     }
   }
 }

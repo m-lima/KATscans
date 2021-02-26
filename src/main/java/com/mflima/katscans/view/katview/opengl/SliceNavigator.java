@@ -12,6 +12,11 @@ import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.util.glsl.ShaderCode;
 import com.jogamp.opengl.util.glsl.ShaderProgram;
+import com.mflima.katscans.data.VoxelMatrix;
+import com.mflima.katscans.event.TransferFunctionListener;
+import com.mflima.katscans.model.TransferFunction;
+import com.mflima.katscans.project.displayable.Displayable;
+import com.mflima.katscans.view.katview.KatView;
 import java.awt.Graphics2D;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
@@ -21,11 +26,6 @@ import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 import java.util.HashMap;
 import java.util.Map;
-import com.mflima.katscans.data.VoxelMatrix;
-import com.mflima.katscans.event.TransferFunctionListener;
-import com.mflima.katscans.project.displayable.Displayable;
-import com.mflima.katscans.model.TransferFunction;
-import com.mflima.katscans.view.katview.KatView;
 
 /** @author Marcelo Lima */
 public class SliceNavigator extends GLJPanel
@@ -46,11 +46,8 @@ public class SliceNavigator extends GLJPanel
   private final int[] textureLocation;
   private boolean transferFunctionDirty;
 
-  private final String SHADERS_ROOT = "/shaders";
-  private final String SHADERS_NAME = "slicer";
-
-  private float[] vertices = new float[] {0f, 0f, 0f, 0f, 1f, 0f, 1f, 1f, 0f, 1f, 0f, 0f};
-  private short[] indices = new short[] {0, 1, 2, 0, 2, 3};
+  private final float[] vertices = new float[] {0f, 0f, 0f, 0f, 1f, 0f, 1f, 1f, 0f, 1f, 0f, 0f};
+  private final short[] indices = new short[] {0, 1, 2, 0, 2, 3};
   private int programName;
   private float sliceMax;
   private int slice;
@@ -134,12 +131,14 @@ public class SliceNavigator extends GLJPanel
       transferFunctionDirty = true;
     }
 
+    String shadersRoot = "/shaders";
+    String shaderName = "slicer";
     ShaderCode vertShader =
         ShaderCode.create(
-            gl, GL4.GL_VERTEX_SHADER, this.getClass(), SHADERS_ROOT, null, SHADERS_NAME, true);
+            gl, GL4.GL_VERTEX_SHADER, this.getClass(), shadersRoot, null, shaderName, true);
     ShaderCode fragShader =
         ShaderCode.create(
-            gl, GL4.GL_FRAGMENT_SHADER, this.getClass(), SHADERS_ROOT, null, SHADERS_NAME, true);
+            gl, GL4.GL_FRAGMENT_SHADER, this.getClass(), shadersRoot, null, shaderName, true);
 
     ShaderProgram shaderProgram = new ShaderProgram();
     shaderProgram.add(vertShader);
