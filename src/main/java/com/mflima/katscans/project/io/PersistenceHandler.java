@@ -114,15 +114,15 @@ public class PersistenceHandler {
     return false;
   }
 
-  public String getLastLoad() {
-    String path = "";
+  public File getLastLoad() {
     try (BufferedReader reader = new BufferedReader(new FileReader(LAST_LOAD))) {
-      path = reader.readLine();
+      String path = reader.readLine();
+      return new File(path);
     } catch (FileNotFoundException ignored) {
     } catch (IOException ex) {
       Logger.getLogger(LoadSaveHandler.class.getName()).log(Level.SEVERE, null, ex);
     }
-    return path;
+    return null;
   }
 
   private void saveLastLoad(File lastFile) {
@@ -135,12 +135,7 @@ public class PersistenceHandler {
   }
 
   private File showFileDialog(boolean load) {
-    String path = getLastLoad();
-    if (path == null || path.isEmpty()) {
-      return null;
-    }
-
-    File currentFile = new File(path);
+    File currentFile = getLastLoad();
     JFileChooser fileChooser = buildFileChooser();
     fileChooser.setSelectedFile(currentFile);
     fileChooser.setMultiSelectionEnabled(false);

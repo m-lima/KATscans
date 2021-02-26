@@ -33,20 +33,12 @@ public class TransferFunctionChartEditor extends JPanel implements TransferFunct
   private double ratio;
 
   private static final class PointPair {
-    final int[] x;
-    final int[] y;
-    int length;
+    final int x;
+    final int y;
 
-    private PointPair(int size) {
-      x = new int[size];
-      y = new int[size];
-      length = 0;
-    }
-
-    private void push(int x, int y) {
-      this.x[length] = x;
-      this.y[length] = y;
-      length++;
+    private PointPair(int x, int y) {
+      this.x = x;
+      this.y = y;
     }
   }
 
@@ -104,21 +96,28 @@ public class TransferFunctionChartEditor extends JPanel implements TransferFunct
         transferFunction.getPaint(
             (float) (-minRange * ratio * width), (float) ((1d - minRange) * ratio * width)));
 
-    PointPair points = new PointPair(transferFunction.getPointCount());
+    // Rust-style stream
+    //noinspection ResultOfMethodCallIgnored
     transferFunction
         .getPoints()
-        .sequential()
-        .forEach(
+        .map(
             point -> {
               double x = (point.getPoint() - minRange) * ratio;
               x *= getWidth();
 
               double y = 1d - point.getAlpha();
               y *= getHeight();
-              points.push((int) x, (int) y);
+              return new Point((int) x, (int) y);
+            })
+        .sequential()
+        .reduce(
+            null,
+            (last, point) -> {
+              if (last != null) {
+                g2d.drawLine(last.x, last.y, point.x, point.y);
+              }
+              return new Point(point.x, point.y);
             });
-
-    g2d.drawPolyline(points.x, points.y, points.length);
   }
 
   @Override

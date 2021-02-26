@@ -25,43 +25,40 @@ public class SplashScreen extends javax.swing.JDialog {
     setSize(pnlBackground.getWidth(), pnlBackground.getHeight());
     setLocationRelativeTo(null);
 
-    new Thread() {
-      @Override
-      public void run() {
-        double value = 0d;
-        while (value <= 1d) {
-          value += (Math.random() / 8d);
-          pgrProgress.setValue(value);
-
-          try {
-            sleep(250);
-          } catch (InterruptedException ex) {
-            Logger.getLogger(SplashScreen.class.getName()).log(Level.SEVERE, null, ex);
-          }
-        }
-
-        float mix = 0f;
-        while (mix < 1f) {
-          mix += 0.1f;
-          pnlBackground.setMix(mix);
-
-          try {
-            sleep(50);
-          } catch (InterruptedException ex) {
-            Logger.getLogger(SplashScreen.class.getName()).log(Level.SEVERE, null, ex);
-          }
-        }
+    new Thread(() -> {
+      double value = 0d;
+      while (value <= 1d) {
+        value += (Math.random() / 8d);
+        pgrProgress.setValue(value);
 
         try {
-          sleep(1000);
+          Thread.sleep(100);
         } catch (InterruptedException ex) {
           Logger.getLogger(SplashScreen.class.getName()).log(Level.SEVERE, null, ex);
         }
-
-        SplashScreen.this.setVisible(false);
-        SplashScreen.this.dispose();
       }
-    }.start();
+
+      float mix = 0f;
+      while (mix < 1f) {
+        mix += 0.1f;
+        pnlBackground.setMix(mix);
+
+        try {
+          Thread.sleep(50);
+        } catch (InterruptedException ex) {
+          Logger.getLogger(SplashScreen.class.getName()).log(Level.SEVERE, null, ex);
+        }
+      }
+
+      try {
+        Thread.sleep(500);
+      } catch (InterruptedException ex) {
+        Logger.getLogger(SplashScreen.class.getName()).log(Level.SEVERE, null, ex);
+      }
+
+      SplashScreen.this.setVisible(false);
+      SplashScreen.this.dispose();
+    }).start();
   }
 
   /**
