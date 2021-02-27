@@ -39,7 +39,6 @@ public class DraggableTree extends JTree
     implements DragSourceListener, DropTargetListener, DragGestureListener {
 
   public static final DataFlavor LOCAL_OBJECT_FLAVOR;
-  public static final DataFlavor[] SUPPORTED_FLAVORS;
 
   static {
     DataFlavor initialFlavor = null;
@@ -49,7 +48,6 @@ public class DraggableTree extends JTree
       Logger.getLogger(DraggableTree.class.getName()).log(Level.SEVERE, null, cnfe);
     }
     LOCAL_OBJECT_FLAVOR = initialFlavor;
-    SUPPORTED_FLAVORS = new DataFlavor[] {LOCAL_OBJECT_FLAVOR, DraggableTree.LOCAL_OBJECT_FLAVOR};
   }
 
   private static final Color INVALID_COLOR = new Color(150, 0, 0);

@@ -9,11 +9,7 @@ import javax.swing.event.EventListenerList;
 /** @author Marcelo Lima */
 abstract class KatModel<T> implements Serializable {
 
-  protected transient EventListenerList listenerList;
-
-  public KatModel() {
-    listenerList = new EventListenerList();
-  }
+  protected transient EventListenerList listenerList = new EventListenerList();
 
   protected abstract T newInstance();
 
@@ -39,7 +35,7 @@ abstract class KatModel<T> implements Serializable {
     listenerList.remove(KatModelListener.class, listener);
   }
 
-  private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+  private void readObject(ObjectInputStream ignored) throws IOException, ClassNotFoundException {
     listenerList = new EventListenerList();
   }
 }

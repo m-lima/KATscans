@@ -33,20 +33,17 @@ public class LoadSaveHandler {
     this.format = format;
   }
 
-  public boolean load(String name, LoadSaveOptions options, File file) {
+  public void load(String name, LoadSaveOptions options, File file) {
     try (FileAwareInputStream input = new FileAwareInputStream(file)) {
       VoxelMatrix voxelMatrix = format.getFormat().loadData(input, options);
       ProjectHandler projectHandler = ProjectHandler.getInstance();
       if (projectHandler.insertDataFile(
           new DataFileNode(name, file, format, options, voxelMatrix))) {
         saveLastLoad(file);
-        return true;
       }
     } catch (IOException ex) {
       Logger.getLogger(LoadSaveHandler.class.getName()).log(Level.SEVERE, null, ex);
     }
-
-    return false;
   }
 
   public FormatHeader getHeader(File file) {

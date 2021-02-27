@@ -96,11 +96,7 @@ public class TransferFunctionEditor extends Histogram
 
     minBound /= rangeBound;
     maxBound /= rangeBound;
-    // gapBound /= rangeBound;
 
-    // barEditor.setRange((domainAxis.getRange().getLowerBound() -
-    // displayable.getMatrix().getMinValue()) / displayable.getMatrix().getMaxValue(),
-    // domainAxis.getRange().getUpperBound() / displayable.getMatrix().getMaxValue());
     barEditor.setRange(minBound, maxBound);
     chartEditor.setRange(minBound, maxBound);
   }

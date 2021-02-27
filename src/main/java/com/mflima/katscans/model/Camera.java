@@ -20,10 +20,6 @@ public class Camera extends KatModel<Camera> implements Serializable {
 
   private float initialZoom;
 
-  public Camera() {
-    this(5f);
-  }
-
   public Camera(float initialZoom) {
     eyePosition = new float[] {0f, 0f, initialZoom};
     targetPosition = new float[] {0f, 0f, -50f};

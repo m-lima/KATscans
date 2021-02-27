@@ -102,7 +102,7 @@ public class KatViewHandler
     VectorUtil.normalizeVec3(point);
   }
 
-  private void buildPopup(final VolumeRenderer owner) {
+  private void buildPopup() {
     popupMenu = new JPopupMenu();
     final JMenuItem top =
         new JMenuItem("Top", new ImageIcon(getClass().getResource("/icons/top.png")));
@@ -152,8 +152,6 @@ public class KatViewHandler
             screen.reset();
           } else if (e.getSource() == menuOrtho) {
             toggleOrthographic();
-          } else if (e.getSource() == structure) {
-            owner.createStructure(xPos, yPos, 1f);
           }
         };
 
@@ -181,36 +179,11 @@ public class KatViewHandler
     popupMenu.add(structure);
   }
 
-  private void setValue(float[] vector, float delta, int index, float min, float max) {
-    float value = vector[index];
-    if (delta > 0) {
-      if (value == max) {
-        return;
-      }
-
-      value += delta;
-      if (value > max) {
-        value = max;
-      }
-    } else {
-      if (value == min) {
-        return;
-      }
-
-      value += delta;
-      if (value < min) {
-        value = min;
-      }
-    }
-
-    vector[index] = value;
-  }
-
   @Override
   public void mouseClicked(MouseEvent e) {
     if (SwingUtilities.isRightMouseButton(e)) {
       if (popupMenu == null) {
-        buildPopup((VolumeRenderer) e.getComponent());
+        buildPopup();
       }
       xPos = e.getX();
       yPos = e.getY();

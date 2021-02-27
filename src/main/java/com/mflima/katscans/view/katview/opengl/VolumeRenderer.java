@@ -155,8 +155,6 @@ public abstract class VolumeRenderer extends GLJPanel
 
   public abstract boolean isUnlit();
 
-  public void createStructure(int x, int y, float threshold) {}
-
   @Override
   public void init(GLAutoDrawable drawable) {
     VoxelMatrix voxelMatrix = displayable.getMatrix();

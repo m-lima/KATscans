@@ -1,7 +1,7 @@
 ![KATscans](github/logo.png)
 #### A Java OpenGL volume renderer
 
-KAT scans handles and load DAT, DCM, and RAW formats for volume rendering.
+KAT scans handles and load DAT, DCM, GRID, and RAW formats for volume rendering.
 
 ![Screen](github/screen.png)
 ###### It includes several volume raycasting/raymarching renderers. A few examples:
@@ -12,4 +12,11 @@ KAT scans handles and load DAT, DCM, and RAW formats for volume rendering.
 ###### With easy to use interface. Like the transfer function editor:
 ![Histogram](github/histogram.png)
 
-##### Interested in helping out? Request a pull!
+### Controls
+|Shortcut   |Modifier|Action|
+|-----------|--------|------|
+|`CTRL`+`1` |        |Open Datasets panel|
+|`Sapce`    |        |Open dataset node actions|
+|`?`        |        |Shows controls for current view|
+|Mouse wheel|        |Zoom|
+|Mouse wheel|        |Zoom|
