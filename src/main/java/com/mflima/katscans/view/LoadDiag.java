@@ -16,12 +16,22 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.AbstractAction;
+import javax.swing.GroupLayout;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JRootPane;
 import javax.swing.JSpinner;
+import javax.swing.JTextField;
 import javax.swing.KeyStroke;
+import javax.swing.LayoutStyle;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingConstants;
 import javax.swing.TransferHandler;
 import javax.swing.UIManager;
+import javax.swing.WindowConstants;
+import javax.swing.event.ChangeEvent;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -296,37 +306,37 @@ public class LoadDiag extends javax.swing.JDialog {
   // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
   private void initComponents() {
 
-    txtFile = new javax.swing.JTextField();
-    btnSearch = new javax.swing.JButton();
-    btnCancel = new javax.swing.JButton();
-    btnOk = new javax.swing.JButton();
-    pnlMain = new javax.swing.JPanel();
-    pnlMainOther = new javax.swing.JPanel();
-    lblName = new javax.swing.JLabel();
-    txtName = new javax.swing.JTextField();
-    pnlValues = new javax.swing.JPanel();
-    lblMin = new javax.swing.JLabel();
-    spnMin = new javax.swing.JSpinner();
-    lblMax = new javax.swing.JLabel();
-    spnMax = new javax.swing.JSpinner();
-    chkNormValues = new javax.swing.JCheckBox();
-    pnlMainSize = new javax.swing.JPanel();
-    pnlRatio = new javax.swing.JPanel();
-    chkNormSize = new javax.swing.JCheckBox();
-    lnlRatioX = new javax.swing.JLabel();
-    spnRatioX = new javax.swing.JSpinner();
-    lnlRatioY = new javax.swing.JLabel();
-    spnRatioY = new javax.swing.JSpinner();
-    lnlRatioZ = new javax.swing.JLabel();
-    spnRatioZ = new javax.swing.JSpinner();
-    lblSizeX = new javax.swing.JLabel();
-    lblSizeY = new javax.swing.JLabel();
-    lblSizeZ = new javax.swing.JLabel();
-    spnSizeX = new javax.swing.JSpinner();
-    spnSizeY = new javax.swing.JSpinner();
-    spnSizeZ = new javax.swing.JSpinner();
+    txtFile = new JTextField();
+    btnSearch = new JButton();
+    btnCancel = new JButton();
+    btnOk = new JButton();
+    pnlMain = new JPanel();
+    pnlMainOther = new JPanel();
+    lblName = new JLabel();
+    txtName = new JTextField();
+    pnlValues = new JPanel();
+    lblMin = new JLabel();
+    spnMin = new JSpinner();
+    lblMax = new JLabel();
+    spnMax = new JSpinner();
+    chkNormValues = new JCheckBox();
+    pnlMainSize = new JPanel();
+    pnlRatio = new JPanel();
+    chkNormSize = new JCheckBox();
+    lnlRatioX = new JLabel();
+    spnRatioX = new JSpinner();
+    lnlRatioY = new JLabel();
+    spnRatioY = new JSpinner();
+    lnlRatioZ = new JLabel();
+    spnRatioZ = new JSpinner();
+    lblSizeX = new JLabel();
+    lblSizeY = new JLabel();
+    lblSizeZ = new JLabel();
+    spnSizeX = new JSpinner();
+    spnSizeY = new JSpinner();
+    spnSizeZ = new JSpinner();
 
-    setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+    setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
     txtFile.addActionListener(
         new java.awt.event.ActionListener() {
@@ -538,44 +548,42 @@ public class LoadDiag extends javax.swing.JDialog {
 
     spnSizeZ.setModel(new javax.swing.SpinnerNumberModel(2, 1, null, 1));
 
-    javax.swing.GroupLayout pnlRatioLayout = new javax.swing.GroupLayout(pnlRatio);
+    GroupLayout pnlRatioLayout = new GroupLayout(pnlRatio);
     pnlRatio.setLayout(pnlRatioLayout);
     pnlRatioLayout.setHorizontalGroup(
         pnlRatioLayout
-            .createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .createParallelGroup(GroupLayout.Alignment.LEADING)
             .addGroup(
                 pnlRatioLayout
                     .createSequentialGroup()
                     .addContainerGap()
                     .addGroup(
                         pnlRatioLayout
-                            .createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .createParallelGroup(GroupLayout.Alignment.LEADING)
                             .addGroup(
                                 pnlRatioLayout
                                     .createSequentialGroup()
                                     .addComponent(
                                         lnlRatioX,
-                                        javax.swing.GroupLayout.DEFAULT_SIZE,
-                                        javax.swing.GroupLayout.DEFAULT_SIZE,
+                                        GroupLayout.DEFAULT_SIZE,
+                                        GroupLayout.DEFAULT_SIZE,
                                         Short.MAX_VALUE)
-                                    .addPreferredGap(
-                                        javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                                     .addComponent(spnRatioX))
                             .addGroup(
                                 pnlRatioLayout
                                     .createSequentialGroup()
                                     .addComponent(
                                         lnlRatioY,
-                                        javax.swing.GroupLayout.DEFAULT_SIZE,
-                                        javax.swing.GroupLayout.DEFAULT_SIZE,
+                                        GroupLayout.DEFAULT_SIZE,
+                                        GroupLayout.DEFAULT_SIZE,
                                         Short.MAX_VALUE)
-                                    .addPreferredGap(
-                                        javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                                     .addComponent(spnRatioY))
                             .addComponent(
                                 chkNormSize,
-                                javax.swing.GroupLayout.Alignment.TRAILING,
-                                javax.swing.GroupLayout.DEFAULT_SIZE,
+                                GroupLayout.Alignment.TRAILING,
+                                GroupLayout.DEFAULT_SIZE,
                                 131,
                                 Short.MAX_VALUE)
                             .addGroup(
@@ -583,18 +591,16 @@ public class LoadDiag extends javax.swing.JDialog {
                                     .createSequentialGroup()
                                     .addComponent(
                                         lnlRatioZ,
-                                        javax.swing.GroupLayout.DEFAULT_SIZE,
-                                        javax.swing.GroupLayout.DEFAULT_SIZE,
+                                        GroupLayout.DEFAULT_SIZE,
+                                        GroupLayout.DEFAULT_SIZE,
                                         Short.MAX_VALUE)
-                                    .addPreferredGap(
-                                        javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                                     .addComponent(spnRatioZ))
                             .addGroup(
                                 pnlRatioLayout
                                     .createSequentialGroup()
                                     .addComponent(lblSizeZ)
-                                    .addPreferredGap(
-                                        javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                                     .addComponent(spnSizeZ))
                             .addGroup(
                                 pnlRatioLayout
@@ -602,261 +608,247 @@ public class LoadDiag extends javax.swing.JDialog {
                                     .addGroup(
                                         pnlRatioLayout
                                             .createParallelGroup(
-                                                javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                                GroupLayout.Alignment.TRAILING, false)
                                             .addComponent(
                                                 lblSizeY,
-                                                javax.swing.GroupLayout.Alignment.LEADING,
-                                                javax.swing.GroupLayout.DEFAULT_SIZE,
-                                                javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                GroupLayout.Alignment.LEADING,
+                                                GroupLayout.DEFAULT_SIZE,
+                                                GroupLayout.DEFAULT_SIZE,
                                                 Short.MAX_VALUE)
                                             .addComponent(
                                                 lblSizeX,
-                                                javax.swing.GroupLayout.Alignment.LEADING,
-                                                javax.swing.GroupLayout.DEFAULT_SIZE,
-                                                javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                GroupLayout.Alignment.LEADING,
+                                                GroupLayout.DEFAULT_SIZE,
+                                                GroupLayout.DEFAULT_SIZE,
                                                 Short.MAX_VALUE))
-                                    .addPreferredGap(
-                                        javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                                     .addGroup(
                                         pnlRatioLayout
-                                            .createParallelGroup(
-                                                javax.swing.GroupLayout.Alignment.LEADING)
+                                            .createParallelGroup(GroupLayout.Alignment.LEADING)
                                             .addComponent(spnSizeX)
                                             .addComponent(spnSizeY))))
                     .addContainerGap()));
 
-    pnlRatioLayout.linkSize(
-        javax.swing.SwingConstants.HORIZONTAL,
-        new java.awt.Component[] {lnlRatioX, lnlRatioY, lnlRatioZ});
+    pnlRatioLayout.linkSize(SwingConstants.HORIZONTAL, lnlRatioX, lnlRatioY, lnlRatioZ);
 
     pnlRatioLayout.setVerticalGroup(
         pnlRatioLayout
-            .createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .createParallelGroup(GroupLayout.Alignment.LEADING)
             .addGroup(
                 pnlRatioLayout
                     .createSequentialGroup()
                     .addContainerGap()
                     .addGroup(
                         pnlRatioLayout
-                            .createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .createParallelGroup(GroupLayout.Alignment.BASELINE)
                             .addComponent(lblSizeX)
                             .addComponent(
                                 spnSizeX,
-                                javax.swing.GroupLayout.PREFERRED_SIZE,
-                                javax.swing.GroupLayout.DEFAULT_SIZE,
-                                javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                GroupLayout.PREFERRED_SIZE,
+                                GroupLayout.DEFAULT_SIZE,
+                                GroupLayout.PREFERRED_SIZE))
+                    .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                     .addGroup(
                         pnlRatioLayout
-                            .createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .createParallelGroup(GroupLayout.Alignment.BASELINE)
                             .addComponent(lblSizeY)
                             .addComponent(
                                 spnSizeY,
-                                javax.swing.GroupLayout.PREFERRED_SIZE,
-                                javax.swing.GroupLayout.DEFAULT_SIZE,
-                                javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                GroupLayout.PREFERRED_SIZE,
+                                GroupLayout.DEFAULT_SIZE,
+                                GroupLayout.PREFERRED_SIZE))
+                    .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                     .addGroup(
                         pnlRatioLayout
-                            .createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .createParallelGroup(GroupLayout.Alignment.BASELINE)
                             .addComponent(lblSizeZ)
                             .addComponent(
                                 spnSizeZ,
-                                javax.swing.GroupLayout.PREFERRED_SIZE,
-                                javax.swing.GroupLayout.DEFAULT_SIZE,
-                                javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                GroupLayout.PREFERRED_SIZE,
+                                GroupLayout.DEFAULT_SIZE,
+                                GroupLayout.PREFERRED_SIZE))
+                    .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                     .addComponent(chkNormSize)
-                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                     .addGroup(
                         pnlRatioLayout
-                            .createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .createParallelGroup(GroupLayout.Alignment.BASELINE)
                             .addComponent(lnlRatioX)
                             .addComponent(
                                 spnRatioX,
-                                javax.swing.GroupLayout.PREFERRED_SIZE,
-                                javax.swing.GroupLayout.DEFAULT_SIZE,
-                                javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                GroupLayout.PREFERRED_SIZE,
+                                GroupLayout.DEFAULT_SIZE,
+                                GroupLayout.PREFERRED_SIZE))
+                    .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                     .addGroup(
                         pnlRatioLayout
-                            .createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .createParallelGroup(GroupLayout.Alignment.BASELINE)
                             .addComponent(lnlRatioY)
                             .addComponent(
                                 spnRatioY,
-                                javax.swing.GroupLayout.PREFERRED_SIZE,
-                                javax.swing.GroupLayout.DEFAULT_SIZE,
-                                javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                GroupLayout.PREFERRED_SIZE,
+                                GroupLayout.DEFAULT_SIZE,
+                                GroupLayout.PREFERRED_SIZE))
+                    .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                     .addGroup(
                         pnlRatioLayout
-                            .createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .createParallelGroup(GroupLayout.Alignment.BASELINE)
                             .addComponent(lnlRatioZ)
                             .addComponent(
                                 spnRatioZ,
-                                javax.swing.GroupLayout.PREFERRED_SIZE,
-                                javax.swing.GroupLayout.DEFAULT_SIZE,
-                                javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)));
+                                GroupLayout.PREFERRED_SIZE,
+                                GroupLayout.DEFAULT_SIZE,
+                                GroupLayout.PREFERRED_SIZE))
+                    .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)));
 
     pnlMainSize.add(pnlRatio);
 
     pnlMain.add(pnlMainSize);
 
-    javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+    GroupLayout layout = new GroupLayout(getContentPane());
     getContentPane().setLayout(layout);
     layout.setHorizontalGroup(
         layout
-            .createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .createParallelGroup(GroupLayout.Alignment.LEADING)
             .addGroup(
                 layout
                     .createSequentialGroup()
                     .addContainerGap()
                     .addGroup(
                         layout
-                            .createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .createParallelGroup(GroupLayout.Alignment.LEADING)
                             .addComponent(
                                 pnlMain,
-                                javax.swing.GroupLayout.DEFAULT_SIZE,
-                                javax.swing.GroupLayout.DEFAULT_SIZE,
+                                GroupLayout.DEFAULT_SIZE,
+                                GroupLayout.DEFAULT_SIZE,
                                 Short.MAX_VALUE)
                             .addGroup(
-                                javax.swing.GroupLayout.Alignment.TRAILING,
+                                GroupLayout.Alignment.TRAILING,
                                 layout
                                     .createSequentialGroup()
                                     .addGap(0, 0, Short.MAX_VALUE)
                                     .addComponent(
                                         btnOk,
-                                        javax.swing.GroupLayout.PREFERRED_SIZE,
+                                        GroupLayout.PREFERRED_SIZE,
                                         46,
-                                        javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(
-                                        javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        GroupLayout.PREFERRED_SIZE)
+                                    .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                                     .addComponent(btnCancel))
                             .addGroup(
                                 layout
                                     .createSequentialGroup()
                                     .addComponent(txtFile)
-                                    .addPreferredGap(
-                                        javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                                     .addComponent(btnSearch)))
                     .addContainerGap()));
 
-    layout.linkSize(
-        javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {btnCancel, btnOk});
+    layout.linkSize(SwingConstants.HORIZONTAL, btnCancel, btnOk);
 
     layout.setVerticalGroup(
         layout
-            .createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .createParallelGroup(GroupLayout.Alignment.LEADING)
             .addGroup(
                 layout
                     .createSequentialGroup()
                     .addContainerGap()
                     .addGroup(
                         layout
-                            .createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .createParallelGroup(GroupLayout.Alignment.LEADING, false)
                             .addComponent(
                                 btnSearch,
-                                javax.swing.GroupLayout.DEFAULT_SIZE,
-                                javax.swing.GroupLayout.DEFAULT_SIZE,
+                                GroupLayout.DEFAULT_SIZE,
+                                GroupLayout.DEFAULT_SIZE,
                                 Short.MAX_VALUE)
                             .addComponent(txtFile))
-                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                     .addComponent(
                         pnlMain,
-                        javax.swing.GroupLayout.DEFAULT_SIZE,
-                        javax.swing.GroupLayout.DEFAULT_SIZE,
+                        GroupLayout.DEFAULT_SIZE,
+                        GroupLayout.DEFAULT_SIZE,
                         Short.MAX_VALUE)
-                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                     .addGroup(
                         layout
-                            .createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .createParallelGroup(GroupLayout.Alignment.BASELINE)
                             .addComponent(btnCancel)
                             .addComponent(btnOk))
                     .addContainerGap()));
 
     pack();
-  } // </editor-fold>//GEN-END:initComponents
+  }
 
-  private void btnSearchActionPerformed(
-      java.awt.event.ActionEvent evt) { // GEN-FIRST:event_btnSearchActionPerformed
+  private void btnSearchActionPerformed(ActionEvent evt) {
     File newFile = loadHandler.showLoadDialog(file);
     if (newFile != null) {
       txtFile.setText(newFile.getPath());
     }
-  } // GEN-LAST:event_btnSearchActionPerformed
+  }
 
-  private void btnCancelActionPerformed(
-      java.awt.event.ActionEvent evt) { // GEN-FIRST:event_btnCancelActionPerformed
+  private void btnCancelActionPerformed(ActionEvent evt) {
     dispose();
-  } // GEN-LAST:event_btnCancelActionPerformed
+  }
 
-  private void btnOkActionPerformed(
-      java.awt.event.ActionEvent evt) { // GEN-FIRST:event_btnOkActionPerformed
+  private void btnOkActionPerformed(ActionEvent evt) {
     load();
-  } // GEN-LAST:event_btnOkActionPerformed
+  }
 
-  private void txtFileActionPerformed(
-      java.awt.event.ActionEvent evt) { // GEN-FIRST:event_txtFileActionPerformed
+  private void txtFileActionPerformed(ActionEvent evt) {
     if (file != null) {
       load();
     }
-  } // GEN-LAST:event_txtFileActionPerformed
+  }
 
-  private void chkNormSizeActionPerformed(
-      java.awt.event.ActionEvent evt) { // GEN-FIRST:event_chkNormSizeActionPerformed
+  private void chkNormSizeActionPerformed(ActionEvent evt) {
     spnRatioX.setEnabled(!chkNormSize.isSelected());
     spnRatioY.setEnabled(!chkNormSize.isSelected());
     spnRatioZ.setEnabled(!chkNormSize.isSelected());
 
     updateRatios(true);
-  } // GEN-LAST:event_chkNormSizeActionPerformed
+  }
 
-  private void spnMaxStateChanged(
-      javax.swing.event.ChangeEvent evt) { // GEN-FIRST:event_spnMaxStateChanged
+  private void spnMaxStateChanged(ChangeEvent evt) {
     int minValue = getSpinnerValue(spnMin).intValue() + 1;
     if (getSpinnerValue(spnMax).intValue() < minValue) {
       spnMax.setValue(minValue);
     }
-  } // GEN-LAST:event_spnMaxStateChanged
+  }
 
-  private void spnMinStateChanged(
-      javax.swing.event.ChangeEvent evt) { // GEN-FIRST:event_spnMinStateChanged
+  private void spnMinStateChanged(ChangeEvent evt) {
     int maxValue = getSpinnerValue(spnMax).intValue() - 1;
     if (getSpinnerValue(spnMin).intValue() > maxValue) {
       spnMin.setValue(maxValue);
     }
-  } // GEN-LAST:event_spnMinStateChanged
+  }
 
   // Variables declaration - do not modify//GEN-BEGIN:variables
-  private javax.swing.JButton btnCancel;
-  private javax.swing.JButton btnOk;
-  private javax.swing.JButton btnSearch;
-  private javax.swing.JCheckBox chkNormSize;
-  private javax.swing.JCheckBox chkNormValues;
-  private javax.swing.JLabel lblMax;
-  private javax.swing.JLabel lblMin;
-  private javax.swing.JLabel lblName;
-  private javax.swing.JLabel lblSizeX;
-  private javax.swing.JLabel lblSizeY;
-  private javax.swing.JLabel lblSizeZ;
-  private javax.swing.JLabel lnlRatioX;
-  private javax.swing.JLabel lnlRatioY;
-  private javax.swing.JLabel lnlRatioZ;
-  private javax.swing.JPanel pnlMain;
-  private javax.swing.JPanel pnlMainOther;
-  private javax.swing.JPanel pnlMainSize;
-  private javax.swing.JPanel pnlRatio;
-  private javax.swing.JPanel pnlValues;
-  private javax.swing.JSpinner spnMax;
-  private javax.swing.JSpinner spnMin;
-  private javax.swing.JSpinner spnRatioX;
-  private javax.swing.JSpinner spnRatioY;
-  private javax.swing.JSpinner spnRatioZ;
-  private javax.swing.JSpinner spnSizeX;
-  private javax.swing.JSpinner spnSizeY;
-  private javax.swing.JSpinner spnSizeZ;
-  private javax.swing.JTextField txtFile;
-  private javax.swing.JTextField txtName;
+  private JButton btnCancel;
+  private JButton btnOk;
+  private JButton btnSearch;
+  private JCheckBox chkNormSize;
+  private JCheckBox chkNormValues;
+  private JLabel lblMax;
+  private JLabel lblMin;
+  private JLabel lblName;
+  private JLabel lblSizeX;
+  private JLabel lblSizeY;
+  private JLabel lblSizeZ;
+  private JLabel lnlRatioX;
+  private JLabel lnlRatioY;
+  private JLabel lnlRatioZ;
+  private JPanel pnlMain;
+  private JPanel pnlMainOther;
+  private JPanel pnlMainSize;
+  private JPanel pnlRatio;
+  private JPanel pnlValues;
+  private JSpinner spnMax;
+  private JSpinner spnMin;
+  private JSpinner spnRatioX;
+  private JSpinner spnRatioY;
+  private JSpinner spnRatioZ;
+  private JSpinner spnSizeX;
+  private JSpinner spnSizeY;
+  private JSpinner spnSizeZ;
+  private JTextField txtFile;
+  private JTextField txtName;
   // End of variables declaration//GEN-END:variables
 }
