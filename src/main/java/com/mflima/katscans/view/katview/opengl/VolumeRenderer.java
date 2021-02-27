@@ -241,8 +241,8 @@ public abstract class VolumeRenderer extends GLJPanel
   }
 
   private void loadFrameBuffers(GL4 gl) {
-    lodWidth = (int) (getWidth() * lodFactor);
-    lodHeight = (int) (getHeight() * lodFactor);
+    lodWidth = (int) (getSurfaceWidth() * lodFactor);
+    lodHeight = (int) (getSurfaceHeight() * lodFactor);
 
     gl.glGenTextures(1, textureLocation, TEXTURE_FRAME_BUFFER);
     gl.glActiveTexture(GL4.GL_TEXTURE0 + TEXTURE_FRAME_BUFFER);
@@ -419,7 +419,7 @@ public abstract class VolumeRenderer extends GLJPanel
     GL4 gl = drawable.getGL().getGL4();
 
     if (highLOD) {
-      updateFrameBuffersSize(gl, getWidth(), getHeight());
+      updateFrameBuffersSize(gl, drawable.getSurfaceWidth(), drawable.getSurfaceHeight());
     }
 
     gl.glBindFramebuffer(GL4.GL_FRAMEBUFFER, frameBuffer[FRAME_BUFFER_FRONT]);
@@ -443,7 +443,7 @@ public abstract class VolumeRenderer extends GLJPanel
     gl.glFinish();
 
     gl.glBindFramebuffer(GL4.GL_DRAW_FRAMEBUFFER, 0);
-    gl.glViewport(0, 0, getWidth(), getHeight());
+    gl.glViewport(0, 0, drawable.getSurfaceWidth(), drawable.getSurfaceHeight());
     initializeRender(gl);
     gl.glBlitFramebuffer(
         0,
@@ -452,13 +452,13 @@ public abstract class VolumeRenderer extends GLJPanel
         lodHeight,
         0,
         0,
-        getWidth(),
-        getHeight(),
+        drawable.getSurfaceWidth(),
+        drawable.getSurfaceHeight(),
         GL4.GL_COLOR_BUFFER_BIT,
         GL4.GL_NEAREST);
 
     if (highLOD) {
-      updateFrameBuffersSize(gl, (int) (getWidth() * lodFactor), (int) (getHeight() * lodFactor));
+      updateFrameBuffersSize(gl, (int) (drawable.getSurfaceWidth() * lodFactor), (int) (drawable.getSurfaceHeight() * lodFactor));
       highLOD = false;
     } else {
       threadLOD.restart();
@@ -739,7 +739,7 @@ public abstract class VolumeRenderer extends GLJPanel
   public void zoomValueChanged() {
     dirtyValues |= SLICE_DIRTY;
     if (screen.isOrthographic()) {
-      screen.updateProjection(camera, getWidth(), getHeight());
+      screen.updateProjection(camera, getSurfaceWidth(), getSurfaceHeight());
     }
     repaint();
   }
@@ -747,7 +747,7 @@ public abstract class VolumeRenderer extends GLJPanel
   @Override
   public void orthographicValueChanged() {
     dirtyValues |= ORTHO_DIRTY;
-    screen.updateProjection(camera, getWidth(), getHeight());
+    screen.updateProjection(camera, getSurfaceWidth(), getSurfaceHeight());
     repaint();
   }
 
