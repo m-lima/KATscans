@@ -1,4 +1,4 @@
-#version 150
+#version 410
 
 in vec3 vertexOut;
 in vec4 vertexOutModel;
@@ -20,7 +20,9 @@ uniform vec3 ratio;
 uniform vec3 minValues;
 uniform vec3 maxValues;
 
-float stepSize = stepFactor / numSamples;
+uniform vec3 lightPos;
+
+float stepSize = 4.0 * stepFactor / numSamples;
 
 const vec3 ZERO = vec3(0.0);
 const float MIN_ALPHA = 1.0 / 255.0;
@@ -59,8 +61,10 @@ void main() {
     float stepDist = length(stepValue);
     float density;
     vec4 transferColor;
+    vec4 lightTransferColor;
+    vec3 lightStrider;
     fragColor = vec4(0.0);
-    for (;dist > 0.0; dist -= stepDist, pos += stepValue) {
+    for (int i = 0; dist > 0.0; dist -= stepDist, pos += stepValue, i++) {
         if (pos.x < minValues.x || pos.x >= maxValues.x ||
             pos.y < minValues.y || pos.y >= maxValues.y ||
             pos.z < minValues.z || pos.z >= maxValues.z) {
@@ -73,6 +77,24 @@ void main() {
         transferColor = texture(transferFunction, density);
         transferColor.a *= transferColor.a;
         if (transferColor.a <= MIN_ALPHA) continue;
+        
+        lightStrider = pos - rayDirection;
+
+        for (int j = 0; j < i; j++, lightStrider -= stepValue) {
+            density = texture(volumeTexture, lightStrider).x;
+            if (density <= 0.0) continue;
+
+            lightTransferColor = texture(transferFunction, density);
+            lightTransferColor.a *= lightTransferColor.a;
+            if (lightTransferColor.a <= MIN_ALPHA) continue;
+
+            transferColor.rgb -= lightTransferColor.a;
+            transferColor.rgb = mix(transferColor.rgb, lightTransferColor.rgb, lightTransferColor.a);
+
+            if (transferColor.rgb == ZERO) {
+                break;
+            }
+        }
 
         fragColor.rgb = mix(fragColor.rgb, transferColor.rgb, transferColor.a);
         fragColor.a += transferColor.a;

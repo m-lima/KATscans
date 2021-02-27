@@ -119,13 +119,13 @@
               <fileset dir="${project.build.directory}/classes/shaders">
                 <exclude name="**/*.vp"/>
               </fileset>
-              <mapper type="glob" from="*.vs" to="*.vp"/>
+              <mapper type="glob" from="*.vert" to="*.vp"/>
             </move>
             <move todir="${project.build.directory}/classes/shaders" includeemptydirs="false">
               <fileset dir="${project.build.directory}/classes/shaders">
                 <exclude name="**/*.fp"/>
               </fileset>
-              <mapper type="glob" from="*.fs" to="*.fp"/>
+              <mapper type="glob" from="*.frag" to="*.fp"/>
             </move>
           </target>
         </configuration>

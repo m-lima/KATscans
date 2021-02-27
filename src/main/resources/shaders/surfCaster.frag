@@ -1,4 +1,4 @@
-#version 150
+#version 410
 
 in vec3 vertexOut;
 in vec4 vertexOutModel;
