@@ -32,7 +32,7 @@ const vec3 ZERO = vec3(0.0);
 
 out vec4 fragColor;
 
-float rand(){
+float rand() {
     return fract(sin(dot(gl_FragCoord.xy, vec2(12.9898,78.233))) * 43758.5453);
 }
 
@@ -80,6 +80,7 @@ void main() {
     float lightReflection;
     bool invert = false;
     bool noGradient = true;
+    fragColor = vec4(0.0);
     while (dist > 0.0) {
         if (pos.x < minValues.x || pos.x >= maxValues.x ||
             pos.y < minValues.y || pos.y >= maxValues.y ||
