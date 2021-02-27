@@ -33,7 +33,7 @@ public class SplashScreen extends javax.swing.JDialog {
                 pgrProgress.setValue(value);
 
                 try {
-                  Thread.sleep(100);
+                  Thread.sleep(50);
                 } catch (InterruptedException ex) {
                   Logger.getLogger(SplashScreen.class.getName()).log(Level.SEVERE, null, ex);
                 }

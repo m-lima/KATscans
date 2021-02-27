@@ -466,17 +466,17 @@ public abstract class VolumeRenderer extends GLJPanel
   }
 
   private void initializeRender(GL4 gl) {
-    //        gl4.glClearColor(0.234375f, 0.24609375f, 0.25390625f,1.0f);
-    //        gl4.glClearColor(0.2f,0.2f,0.2f,1.0f);
-    gl.glClearColor(0f, 0f, 0f, 1.0f);
+    // gl.glClearColor(0.234375f, 0.24609375f, 0.25390625f,1.0f);
+    gl.glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+    // gl.glClearColor(0f, 0f, 0f, 1.0f);
     gl.glClear(GL4.GL_COLOR_BUFFER_BIT);
 
-    //        gl4.glEnable(GL4.GL_DEPTH_TEST);
+    // gl.glEnable(GL4.GL_DEPTH_TEST);
     gl.glEnable(GL4.GL_CULL_FACE);
     gl.glCullFace(GL4.GL_BACK);
     gl.glEnable(GL4.GL_BLEND);
     gl.glBlendFunc(GL4.GL_SRC_ALPHA, GL4.GL_ONE_MINUS_SRC_ALPHA);
-    //        gl.glBlendFunc(GL4.GL_ONE_MINUS_DST_ALPHA, GL4.GL_ONE);
+    // gl.glBlendFunc(GL4.GL_ONE_MINUS_DST_ALPHA, GL4.GL_ONE);
 
     checkError(gl, "Initialize render");
   }

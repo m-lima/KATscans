@@ -117,12 +117,7 @@ public class MainFrame extends javax.swing.JFrame implements TreeModelListener, 
     autoSaveTimer =
         new Timer(
             5 * 60 * 1000,
-            new ActionListener() {
-              @Override
-              public void actionPerformed(ActionEvent e) {
-                PersistenceHandler.getInstance().autoSave();
-              }
-            });
+            e -> PersistenceHandler.getInstance().autoSave());
     autoSaveTimer.setRepeats(true);
     autoSaveTimer.setInitialDelay(0);
   }
