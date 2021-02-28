@@ -62,6 +62,7 @@ public class MainFrame extends JFrame implements TreeModelListener, ActionListen
   private final RootWindowProperties properties;
   private final View datasetView;
   private final ProjectBrowser datasetBrowser;
+  private final HelpDiag helpDiag;
 
   private boolean pojectBrowserMinized;
 
@@ -80,6 +81,8 @@ public class MainFrame extends JFrame implements TreeModelListener, ActionListen
     } catch (IOException ex) {
       Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
     }
+
+    helpDiag = new HelpDiag(this);
 
     views = new ArrayList<>();
     mitCloseAll = new JMenuItem("Close all", 'C');
@@ -186,7 +189,7 @@ public class MainFrame extends JFrame implements TreeModelListener, ActionListen
     }
 
     updatingMenu = true;
-    while (mbrMain.getComponentCount() > 1) {
+    while (mbrMain.getComponentCount() > 2) {
       mbrMain.remove(1);
     }
 
@@ -216,6 +219,19 @@ public class MainFrame extends JFrame implements TreeModelListener, ActionListen
                   datasetView.minimize();
                   pojectBrowserMinized = true;
                 }
+              }
+            });
+    getRootPane()
+        .getInputMap(JRootPane.WHEN_IN_FOCUSED_WINDOW)
+        .put(KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, KeyEvent.SHIFT_DOWN_MASK), "showHelp");
+    getRootPane()
+        .getActionMap()
+        .put(
+            "showHelp",
+            new AbstractAction() {
+              @Override
+              public void actionPerformed(ActionEvent e) {
+                helpDiag.setVisible(!helpDiag.isVisible());
               }
             });
   }
@@ -346,12 +362,16 @@ public class MainFrame extends JFrame implements TreeModelListener, ActionListen
   private void initComponents() {
 
     mbrMain = new JMenuBar();
+
     JMenu mnuFile = new JMenu();
     JMenuItem mitNew = new JMenuItem();
     JMenuItem mitLoad = new JMenuItem();
     JMenuItem mitSave = new JMenuItem();
     JMenuItem mitSaveAs = new JMenuItem();
     JMenuItem mitExit = new JMenuItem();
+
+    JMenu mnuHelp = new JMenu();
+    JMenuItem mitHelp = new JMenuItem();
 
     setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
@@ -391,6 +411,17 @@ public class MainFrame extends JFrame implements TreeModelListener, ActionListen
 
     mbrMain.add(mnuFile);
 
+    mnuHelp.setMnemonic('H');
+    mnuHelp.setText("Help");
+
+    mitHelp.setIcon(new ImageIcon(getClass().getResource("/icons/help.png")));
+    mitHelp.setMnemonic('C');
+    mitHelp.setText("Commands");
+    mitHelp.addActionListener(this::mitHelpActionPerformed);
+    mnuHelp.add(mitHelp);
+
+    mbrMain.add(mnuHelp);
+
     setJMenuBar(mbrMain);
 
     pack();
@@ -422,6 +453,10 @@ public class MainFrame extends JFrame implements TreeModelListener, ActionListen
 
   private void mitSaveAsActionPerformed(ActionEvent evt) {
     PersistenceHandler.getInstance().saveAs();
+  }
+
+  private void mitHelpActionPerformed(ActionEvent evt) {
+    helpDiag.setVisible(true);
   }
 
   private JMenuBar mbrMain;

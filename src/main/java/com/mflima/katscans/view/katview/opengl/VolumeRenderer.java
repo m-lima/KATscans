@@ -456,7 +456,10 @@ public abstract class VolumeRenderer extends GLJPanel
         GL4.GL_NEAREST);
 
     if (highLOD) {
-      updateFrameBuffersSize(gl, (int) (drawable.getSurfaceWidth() * lodFactor), (int) (drawable.getSurfaceHeight() * lodFactor));
+      updateFrameBuffersSize(
+          gl,
+          (int) (drawable.getSurfaceWidth() * lodFactor),
+          (int) (drawable.getSurfaceHeight() * lodFactor));
       highLOD = false;
     } else {
       threadLOD.restart();
