@@ -45,3 +45,28 @@ KAT scans handles and load DAT, DCM, GRID, and RAW formats for volume rendering.
 |`Left button` + drag left       |Transfer function |Reset histogram zoom               |
 |`Right button`                  |Transfer function |Transfer function node color picker|
 |`Middle button`                 |Transfer function |Delete transfer function node      |
+
+### Compiling
+#### Requirements
+* Java JDK 8
+* Java Swing
+  * Note that Swing is being deprecated. Recommended JDK version is 11
+* Maven
+* OpenGL
+  * Note the deprecation of OpenGL in certain platforms. If running on MacOS, `jogl-2.4` is required
+
+#### Compiling
+```bash
+$ maven package
+```
+
+#### Executing
+To execute straight from maven:
+```bash
+$ maven process-classes antrun:run org.codehaus.mojo:exec-maven-plugin:1.2.1:exec
+```
+To execute after build:
+```bash
+$ maven package
+$ java -jar ./target/KATscans-jar-with-dependencies.jar
+```
